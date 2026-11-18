@@ -94,6 +94,16 @@ law evaluation_disables_exploration:
   for word: U32
   {Study.explores(E.Evaluate{}, exploration, word) == False{} : Bool}
 
+# With no legal actions continuation is zero, not a lookup of action zero.
+law double_q_bootstraps_from_other_table:
+  for +left: T.Table
+  for right: T.Table
+  for +obs: U32
+  for +a: U32
+  for rest: List<&2, U32>
+  {DQ.continuation(left, right, E.Open{obs, a <> rest})
+    == T.lookup(right, obs, T.best_action(T.choices(a <> rest, left, obs))) : F32}
+
 law double_q_left_preserves_right:
   for left: T.Table
   for right: T.Table
