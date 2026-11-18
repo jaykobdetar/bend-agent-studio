@@ -3,10 +3,10 @@ import ./LAWS.bend as Laws
 import ./engine.bend as E
 import ./study.bend as Study
 import ./weights.bend as W
-import ./ferry.bend as Ferry
 import ./cursor.bend as C
 import ./dyna.bend as Dyna
 import ./tabular.bend as T
+import ./double_q.bend as DQ
 
 def Laws.evaluation_freezes_model(M, O, learn, model, event):
   {==}
@@ -22,6 +22,9 @@ def Laws.terminal_view_stops(S, O, M, state, model, seed, score, steps, observat
   {==}
 
 def Laws.open_at_limit_is_truncated(O, obs, actions):
+  {==}
+
+def Laws.positive_budget_is_never_truncated(O, n, view):
   {==}
 
 def Laws.terminal_is_never_truncated(O, remaining, obs):
@@ -48,6 +51,92 @@ def Laws.every_report_counts_once(totals, score, steps, reason):
         Equal.cong(Nat, Nat, x => Nat.add(t, x), Nat.add(l, 1n+i), 1n+Nat.add(l, i), add_successor(l, i)),
         add_successor(t, Nat.add(l, i)))
 
+def le_self(n: Nat) -> {Nat.is_le(n,n) == True{} : Bool}:
+  match n:
+    case 0n: {==}
+    case 1n+p: le_self(p)
+
+def allow_one(a: Nat, b: Nat, h: {Nat.is_le(a,b) == True{} : Bool}) ->
+    {Nat.is_le(a,1n+b) == True{} : Bool}:
+  match a b:
+    case 0n 0n: {==}
+    case 0n 1n+q: {==}
+    case 1n+0n 0n: {==}
+    case 1n+1n+k 0n: h
+    case 1n+p 1n+q: allow_one(p,q,h)
+
+def initial_bound(fuel: Nat, +s: Nat) -> {Nat.is_le(s,Nat.add(fuel,s)) == True{} : Bool}:
+  match fuel:
+    case 0n: le_self(s)
+    case 1n++rest: allow_one(s,Nat.add(rest,s),initial_bound(rest,s))
+
+# Project the real E.attempt path to the step count: an accepted transition
+# increments exactly once even when it ends the episode; rejection leaves it alone.
+def count_if(valid: Bool, steps: Nat) -> Nat:
+  match valid:
+    case False{}: steps
+    case True{}: 1n+steps
+
+def count_place(-S: Data,-O: Data,-M: Data,state:S,model:M,seed:U32,score:F32,steps:Nat,view:E.View<O>) ->
+  {Laws.run_steps(S,O,M,E.place(S,O,M,state,model,seed,score,steps,view)) == steps : Nat}:
+  match view:
+    case E.End{o}: {==}
+    case E.Open{o,acts}: {==}
+
+def count_recorded(-S:Data,-O:Data,-M:Data,inspect:S -> E.View<O>,learn:M -> E.Transition<O> -> M,
+    mode:E.Mode,remaining:Nat,obs:O,model:M,action:U32,seed:U32,score:F32,steps:Nat,result:Pair(S,F32)) ->
+  {Laws.run_steps(S,O,M,E.turn_run(S,O,M,E.recorded_step(S,O,M,inspect,learn,mode,remaining,
+    obs,model,action,seed,score,steps,result))) == 1n+steps : Nat}:
+  match result:
+    case (+after,+reward):
+      +view = inspect(after)
+      event = {E.Transition{obs,action,reward,view,E.truncated(O,remaining,view)} : E.Transition<O>}
+      count_place(S,O,M,after,E.update(M,O,learn,mode,model,event),seed,F32.add(score,reward),1n+steps,view)
+
+def count_perform(-S:Data,-O:Data,-M:Data,hooks:E.Hooks<S,O,M>,mode:E.Mode,remaining:Nat,state:S,
+    obs:O,model:M,+action:U32,+seed:U32,score:F32,steps:Nat) ->
+  {Laws.run_steps(S,O,M,E.turn_run(S,O,M,E.perform(S,O,M,hooks,mode,remaining,state,obs,model,action,seed,score,steps)))
+    == 1n+steps : Nat}:
+  match hooks:
+    case E.Hooks{E.World{reset,inspect,step},act,learn}:
+      count_recorded(S,O,M,inspect,learn,mode,remaining,obs,model,action,E.next_seed(seed),score,steps,step(state,action,seed))
+
+def count_attempt(-S:Data,-O:Data,-M:Data,hooks:E.Hooks<S,O,M>,valid:Bool,mode:E.Mode,remaining:Nat,state:S,
+    obs:O,model:M,action:U32,seed:U32,score:F32,steps:Nat) ->
+  {Laws.run_steps(S,O,M,E.turn_run(S,O,M,E.attempt(S,O,M,hooks,valid,mode,remaining,state,obs,model,action,seed,score,steps)))
+    == count_if(valid,steps) : Nat}:
+  match valid:
+    case False{}: {==}
+    case True{}: count_perform(S,O,M,hooks,mode,remaining,state,obs,model,action,seed,score,steps)
+
+def raise_bound(+end:Nat,a:Nat,b:Nat,e:{a == b : Nat},h:{Nat.is_le(end,a) == True{} : Bool}) ->
+  {Nat.is_le(end,b) == True{} : Bool}:
+  %e : {Nat.is_le(end,_) == True{} : Bool}
+  h
+
+def tick_bound(+valid:Bool,+rest:Nat,+steps:Nat,+end:Nat,
+    h:{Nat.is_le(end,Nat.add(rest,count_if(valid,steps))) == True{} : Bool}) ->
+  {Nat.is_le(end,1n+Nat.add(rest,steps)) == True{} : Bool}:
+  match valid:
+    case False{}: allow_one(end,Nat.add(rest,steps),h)
+    case True{}: raise_bound(end,Nat.add(rest,1n+steps),1n+Nat.add(rest,steps),add_successor(rest,steps),h)
+
+# Consume fuel by induction. Transfer the recursive bound from the actual
+# successor run using count_attempt, then account for this one unit of fuel.
+def Laws.roll_steps_within_budget(S,O,M,hooks,fuel,mode,run):
+  match fuel run:
+    case +n E.Stopped{E.Report{m,r,+s,why}}: initial_bound(n,s)
+    case 0n E.Live{state,obs,acts,model,seed,score,steps}: le_self(steps)
+    case 1n++rest E.Live{+state,+obs,+actions,+model,+seed,+score,+steps}:
+      +action = E.get_policy(S,O,M,hooks)(model,obs,actions,mode,seed)
+      +valid = List.contains(~U32,~U32.is_eq,actions,action)
+      +next = E.turn_run(S,O,M,E.attempt(S,O,M,hooks,valid,mode,rest,state,obs,model,action,E.next_seed(seed),score,steps))
+      +end = Laws.report_steps(M,E.roll(~S,~O,~M,~hooks,rest,mode,next))
+      eq = count_attempt(S,O,M,hooks,valid,mode,rest,state,obs,model,action,E.next_seed(seed),score,steps)
+      lift = Equal.cong(Nat,Nat,n => Nat.add(rest,n),Laws.run_steps(S,O,M,next),count_if(valid,steps),eq)
+      ih = Laws.roll_steps_within_budget(S,O,M,hooks,rest,mode,next)
+      tick_bound(valid,rest,steps,end,raise_bound(end,Nat.add(rest,Laws.run_steps(S,O,M,next)),Nat.add(rest,count_if(valid,steps)),lift,ih))
+
 def Laws.terminal_has_no_continuation(method, exploration, values, obs):
   match method:
     case Study.Uniform{}: {==}
@@ -59,6 +148,18 @@ def Laws.terminal_has_no_continuation(method, exploration, values, obs):
 
 def Laws.evaluation_disables_exploration(exploration, word):
   {==}
+
+# Adding a head to either kind of tail makes a genuine choice, so both
+# sides read the very same action from the evaluating table.
+def evaluate_considered(right: T.Table, obs: U32, a: U32, value: F32, tail: T.Choices)
+    -> {DQ.evaluate_best(right, obs, T.consider(a, value, tail))
+       == T.lookup(right, obs, T.best_action(T.consider(a, value, tail))) : F32}:
+  match tail:
+    case T.NoChoices{}: {==}
+    case T.Choices{best, maximum, sum, count}: {==}
+
+def Laws.double_q_bootstraps_from_other_table(left, right, obs, a, rest):
+  evaluate_considered(right, obs, a, T.lookup(left, obs, a), T.choices(rest, left, obs))
 
 def Laws.double_q_left_preserves_right(left, right, seed, alpha, gamma, event):
   {==}
@@ -98,9 +199,8 @@ def observer_invariant(~S: Data, ~O: Data, ~M: Data, ~hooks: E.Hooks<S,O,M>, ~A:
       next = observe(record,obs,actions,action,E.turn_event(S,O,M,turn))
       observer_invariant(~S,~O,~M,~hooks,~A,~observe,rest,mode,E.turn_run(S,O,M,turn),next)
 
-def Laws.ferry_observer_preserves_report(fuel, mode, run, record):
-  observer_invariant(~Ferry.Stage,~U32,~Study.Model,~E.Hooks{Ferry.world(),Study.act,Study.learn},
-    ~List<&2,E.Frame<U32>>,~E.remember(U32),fuel,mode,run,record)
+def Laws.observer_preserves_report(S,O,M,hooks,A,observe,fuel,mode,run,record):
+  observer_invariant(~S,~O,~M,~hooks,~A,~observe,fuel,mode,run,record)
 
 def stopped_stays_stopped(~S: Data, ~O: Data, ~M: Data, ~hooks: E.Hooks<S,O,M>, budget: Nat,
                           mode: E.Mode, left: Nat, report: E.Report<M>) ->
@@ -131,8 +231,8 @@ def split_budget(~S: Data,~O: Data,~M: Data,~hooks: E.Hooks<S,O,M>, first: Nat, 
       next = C.one(~S,~O,~M,~hooks,mode,C.Cursor{1n+left,E.Live{state,obs,acts,model,word,score,steps}})
       split_budget(~S,~O,~M,~hooks,p,second,mode,next)
 
-def Laws.ferry_pause_composes(first, second, mode, cursor):
-  split_budget(~Ferry.Stage,~U32,~Study.Model,~E.Hooks{Ferry.world(),Study.act,Study.learn},first,second,mode,cursor)
+def Laws.pause_composes(S,O,M,hooks,first,second,mode,cursor):
+  split_budget(~S,~O,~M,~hooks,first,second,mode,cursor)
 
 def Laws.planning_preserves_observed_experience(budget, values, experience, pairs, seed, alpha, gamma):
   match budget:
@@ -149,3 +249,262 @@ def Laws.zero_planning_keeps_real_update(q,experience,pairs,seed,alpha,gamma): {
 
 def Laws.arena_second_seat_payoff(reward): {==}
 def Laws.arena_finished_game_has_no_bootstrap(method,buckets,table): {==}
+
+def placed_account(-S: Data,-O: Data,+mode:E.Mode,state:S,m:Nat,seed:U32,score:F32,steps:Nat,view:E.View<O>) ->
+  {Laws.run_account(S,O,mode,E.place(S,O,Nat,state,m,seed,score,steps,view)) == Laws.accounting(mode,m,steps) : Pair(Nat,Nat)}:
+  match view:
+    case E.Open{obs,actions}: {==}
+    case E.End{obs}: {==}
+
+def recorded_account(~S:Data,~O:Data,~inspect:S -> E.View<O>,mode:E.Mode,remaining:Nat,obs:O,m:Nat,
+                     action:U32,seed:U32,score:F32,steps:Nat,result:Pair(S,F32)) ->
+  {Laws.run_account(S,O,mode,E.turn_run(S,O,Nat,E.recorded_step(S,O,Nat,inspect,Laws.counting(O),mode,remaining,
+        obs,m,action,seed,score,steps,result))) == Laws.accounting(mode,m,steps) : Pair(Nat,Nat)}:
+  match mode:
+    case E.Train{}:
+      (+after,reward) = result
+      placed_account(S,O,E.Train{},after,1n+m,seed,F32.add(score,reward),1n+steps,inspect(after))
+    case E.Evaluate{}:
+      (+after,reward) = result
+      placed_account(S,O,E.Evaluate{},after,m,seed,F32.add(score,reward),1n+steps,inspect(after))
+
+def attempted_account(~S:Data,~O:Data,~reset:U32 -> S,~inspect:S -> E.View<O>,~step:S -> U32 -> U32 -> Pair(S,F32),
+                      ~act:Nat -> O -> List<&2,U32> -> E.Mode -> U32 -> U32,valid:Bool,+mode:E.Mode,
+                      remaining:Nat,state:S,obs:O,m:Nat,+action:U32,+seed:U32,score:F32,steps:Nat) ->
+  {Laws.run_account(S,O,mode,E.turn_run(S,O,Nat,E.attempt(S,O,Nat,E.Hooks{E.World{reset,inspect,step},act,Laws.counting(O)},
+                                valid,mode,remaining,state,obs,m,action,seed,score,steps))) == Laws.accounting(mode,m,steps) : Pair(Nat,Nat)}:
+  match valid:
+    case False{}: {==}
+    case True{}:
+      recorded_account(~S,~O,~inspect,mode,remaining,obs,m,action,E.next_seed(seed),score,steps,step(state,action,seed))
+
+def episode_account(~S:Data,~O:Data,~reset:U32 -> S,~inspect:S -> E.View<O>,~step:S -> U32 -> U32 -> Pair(S,F32),
+                    ~act:Nat -> O -> List<&2,U32> -> E.Mode -> U32 -> U32,fuel:Nat,+mode:E.Mode,+run:E.Run<S,O,Nat>) ->
+  {Laws.report_account(mode,E.roll(~S,~O,~Nat,~E.Hooks{E.World{reset,inspect,step},act,Laws.counting(O)},fuel,mode,run)) ==
+   Laws.run_account(S,O,mode,run) : Pair(Nat,Nat)}:
+  match fuel run:
+    case _ E.Stopped{report}: {==}
+    case 0n E.Live{state,obs,actions,m,seed,score,steps}: {==}
+    case 1n++rest E.Live{+state,+obs,+actions,+m,+seed,+score,+steps}:
+      +action = act(m,obs,actions,mode,seed)
+      +valid = List.contains(~U32,~U32.is_eq,actions,action)
+      +world_seed = E.next_seed(seed)
+      +next = E.turn_run(S,O,Nat,E.attempt(S,O,Nat,E.Hooks{E.World{reset,inspect,step},act,Laws.counting(O)},
+                              valid,mode,rest,state,obs,m,action,world_seed,score,steps))
+      Equal.trans(Pair(Nat,Nat),
+        Laws.report_account(mode,E.roll(~S,~O,~Nat,~E.Hooks{E.World{reset,inspect,step},act,Laws.counting(O)},rest,mode,next)),
+        Laws.run_account(S,O,mode,next),Laws.accounting(mode,m,steps),
+        episode_account(~S,~O,~reset,~inspect,~step,~act,rest,mode,next),
+        attempted_account(~S,~O,~reset,~inspect,~step,~act,valid,mode,rest,state,obs,m,action,world_seed,score,steps))
+
+def Laws.evaluation_episode_freezes_counter(S,O,reset,inspect,step,act,fuel,run):
+  episode_account(~S,~O,~reset,~inspect,~step,~act,fuel,E.Evaluate{},run)
+
+def Laws.training_episode_counts_accepted_steps(S,O,reset,inspect,step,act,fuel,run):
+  episode_account(~S,~O,~reset,~inspect,~step,~act,fuel,E.Train{},run)
+
+# Stronger induction hypothesis: resume from any run with exactly its fuel.
+# Cursor.one applies the mixed hooks; roll itself receives the same mixed hooks.
+def cursor_completes_roll(~S:Data,~O:Data,~M:Data,~hooks:E.Hooks<S,O,M>,+fuel:Nat,+mode:E.Mode,+run:E.Run<S,O,M>) ->
+  {C.finished(S,O,M,C.advance(~S,~O,~M,~hooks,fuel,mode,C.Cursor{fuel,run})) ==
+    Some{E.roll(~S,~O,~M,~E.mixed_hooks(S,O,M,hooks),fuel,mode,run)} : Maybe<&2,E.Report<M>>}:
+  match fuel run:
+    case 0n E.Stopped{report}: {==}
+    case 0n E.Live{state,obs,actions,model,word,score,steps}: {==}
+    case 1n+left E.Stopped{report}: {==}
+    case 1n++left E.Live{state,obs,actions,model,word,score,steps}:
+      choice=E.decide(~S,~O,~M,~E.mixed_hooks(S,O,M,hooks),mode,left,state,obs,actions,model,word,score,steps)
+      next=E.turn_run(S,O,M,E.decision_turn(S,O,M,choice))
+      cursor_completes_roll(~S,~O,~M,~hooks,left,mode,next)
+
+def Laws.cursor_finishes_as_episode(S,O,M,reset,inspect,step,act,learn,model,seed,mode,limit):
+  cursor_completes_roll(~S,~O,~M,~E.Hooks{E.World{reset,inspect,step},act,learn},limit,mode,
+    E.reset_run(S,O,M,E.World{reset,inspect,step},model,seed))
+
+# Equality of raw observation/action words is the same predicate the list uses.
+def bit_cmp_self(b: Bool) -> {Bool.cmp(b,b) == EQ{} : Cmp}:
+  match b:
+    case True{}: {==}
+    case False{}: {==}
+
+def word_cmp_self(n: Nat, w: Word(n)) -> {Word.cmp(n,w,w) == EQ{} : Cmp}:
+  match n:
+    case 0n: {==}
+    case 1n+p:
+      match w:
+        case WCon{b,t}:
+          Equal.trans(Cmp, Word.cmp.fin(b,b,Word.cmp(p,t,t)), Word.cmp.fin(b,b,EQ{}), EQ{},
+            Equal.cong(Cmp,Cmp,c => Word.cmp.fin(b,b,c),Word.cmp(p,t,t),EQ{},word_cmp_self(p,t)), bit_cmp_self(b))
+
+def u32_eq_self(x: U32) -> {U32.is_eq(x,x) == True{} : Bool}:
+  match x:
+    case U32{w}: Equal.cong(Cmp,Bool,Cmp.is_eq,Word.cmp(32n,w,w),EQ{},word_cmp_self(32n,w))
+
+def key_eq_self(s: U32, a: U32) -> {(U32.is_eq(s,s) && U32.is_eq(a,a)) == True{} : Bool}:
+  Equal.trans(Bool, U32.is_eq(s,s) && U32.is_eq(a,a), True{} && U32.is_eq(a,a), True{},
+    Equal.cong(Bool,Bool,b => b && U32.is_eq(a,a),U32.is_eq(s,s),True{},u32_eq_self(s)),u32_eq_self(a))
+
+def adjust_visits_cons(b: Bool,s: U32,a: U32,n: U32,v: F32,t: T.Table,k: U32,j: U32,r: T.Rate,target: F32,
+                       ih: {T.visits(T.adjust(t,k,j,r,target),k,j) == U32.add(T.visits(t,k,j),1) : U32},
+                       eq: {b == (U32.is_eq(s,k) && U32.is_eq(a,j)) : Bool}) ->
+  {T.visits(T.replace_or_keep(b,u => T.revised(r,s,a,U32.add(n,1),v,target) <> t,
+      u => T.Entry{s,a,n,v} <> T.adjust(t,k,j,r,target)),k,j) == U32.add(Bool.pick(U32,b,n,T.visits(t,k,j)),1) : U32}:
+  match b:
+    case True{}:
+      %eq : {Bool.pick(U32,_,U32.add(n,1),T.visits(t,k,j)) == U32.add(n,1) : U32}
+      {==}
+    case False{}:
+      %eq : {Bool.pick(U32,_,n,T.visits(T.adjust(t,k,j,r,target),k,j)) == U32.add(T.visits(t,k,j),1) : U32}
+      ih
+
+def Laws.table_adjust_visits(t,s,a,r,target):
+  match t:
+    case Nil{}:
+      %Equal.sym(Bool,U32.is_eq(s,s) && U32.is_eq(a,a),True{},key_eq_self(s,a)) : {Bool.pick(U32,_,1,0) == 1 : U32}
+      {==}
+    case T.Entry{+x,+y,n,v} <> +tail:
+      adjust_visits_cons(U32.is_eq(x,s) && U32.is_eq(y,a),x,y,n,v,tail,s,a,r,target,Laws.table_adjust_visits(tail,s,a,r,target),{==})
+
+def adjust_value_cons(b: Bool,s: U32,a: U32,n: U32,v: F32,t: T.Table,k: U32,j: U32,r: T.Rate,target: F32,
+                       ih: {T.lookup(T.adjust(t,k,j,r,target),k,j) ==
+                         T.entry_value(T.revised(r,k,j,U32.add(T.visits(t,k,j),1),T.lookup(t,k,j),target)) : F32},
+                       eq: {b == (U32.is_eq(s,k) && U32.is_eq(a,j)) : Bool}) ->
+  {T.lookup(T.replace_or_keep(b,u => T.revised(r,s,a,U32.add(n,1),v,target) <> t,
+      u => T.Entry{s,a,n,v} <> T.adjust(t,k,j,r,target)),k,j) ==
+   T.entry_value(T.revised(r,k,j,U32.add(Bool.pick(U32,b,n,T.visits(t,k,j)),1),Bool.pick(F32,b,v,T.lookup(t,k,j)),target)) : F32}:
+  match b:
+    case True{}:
+      %eq : {Bool.pick(F32,_,T.entry_value(T.revised(r,s,a,U32.add(n,1),v,target)),T.lookup(t,k,j)) ==
+        T.entry_value(T.revised(r,k,j,U32.add(n,1),v,target)) : F32}
+      {==}
+    case False{}:
+      %eq : {Bool.pick(F32,_,v,T.lookup(T.adjust(t,k,j,r,target),k,j)) ==
+        T.entry_value(T.revised(r,k,j,U32.add(T.visits(t,k,j),1),T.lookup(t,k,j),target)) : F32}
+      ih
+
+def Laws.table_adjust_value(t,s,a,r,target):
+  match t:
+    case Nil{}:
+      %Equal.sym(Bool,U32.is_eq(s,s) && U32.is_eq(a,a),True{},key_eq_self(s,a)) :
+        {Bool.pick(F32,_,T.entry_value(T.revised(r,s,a,1,0.0,target)),0.0) == T.entry_value(T.revised(r,s,a,1,0.0,target)) : F32}
+      {==}
+    case T.Entry{+x,+y,n,v} <> +tail:
+      adjust_value_cons(U32.is_eq(x,s) && U32.is_eq(y,a),x,y,n,v,tail,s,a,r,target,Laws.table_adjust_value(tail,s,a,r,target),{==})
+
+def holds(b: Bool) -> Type:
+  match b:
+    case True{}: Unit
+    case False{}: Empty
+
+def impossible(e: {True{} == False{} : Bool}) -> Empty:
+  %e : holds(_)
+  Unit{}
+
+def absurd(-A: Type,e: Empty) -> A:
+  match e:
+
+def bits_equal(a: Bool,b: Bool,e: {Cmp.is_eq(Bool.cmp(a,b)) == True{} : Bool}) -> {a == b : Bool}:
+  match a b:
+    case False{} False{}: {==}
+    case True{} True{}: {==}
+    case False{} True{}:
+      absurd({False{} == True{} : Bool},impossible(Equal.sym(Bool,False{},True{},e)))
+    case True{} False{}:
+      absurd({True{} == False{} : Bool},impossible(Equal.sym(Bool,False{},True{},e)))
+
+def fin_tail(a: Bool,b: Bool,c: Cmp,e: {Cmp.is_eq(Word.cmp.fin(a,b,c)) == True{} : Bool}) -> {Cmp.is_eq(c) == True{} : Bool}:
+  match c:
+    case EQ{}: {==}
+    case LT{}: e
+    case GT{}: e
+
+def fin_head(a: Bool,b: Bool,c: Cmp,e: {Cmp.is_eq(Word.cmp.fin(a,b,c)) == True{} : Bool}) -> {a == b : Bool}:
+  match c:
+    case EQ{}: bits_equal(a,b,e)
+    case LT{}:
+      absurd({a == b : Bool},impossible(Equal.sym(Bool,False{},True{},e)))
+    case GT{}:
+      absurd({a == b : Bool},impossible(Equal.sym(Bool,False{},True{},e)))
+
+def word_equal(n: Nat,x: Word(n),y: Word(n),e: {Cmp.is_eq(Word.cmp(n,x,y)) == True{} : Bool}) -> {x == y : Word(n)}:
+  match n:
+    case 0n:
+      match x y:
+        case WNil{} WNil{}: {==}
+    case 1n++p:
+      match x y:
+        case WCon{False{},+t} WCon{False{},+u}:
+          Equal.cong(Word(p),Word(1n+p),v => WCon{False{},v},t,u,word_equal(p,t,u,fin_tail(False{},False{},Word.cmp(p,t,u),e)))
+        case WCon{True{},+t} WCon{True{},+u}:
+          Equal.cong(Word(p),Word(1n+p),v => WCon{True{},v},t,u,word_equal(p,t,u,fin_tail(True{},True{},Word.cmp(p,t,u),e)))
+        case WCon{True{},t} WCon{False{},u}:
+          absurd({WCon{True{},t} == WCon{False{},u} : Word(1n+p)},impossible(fin_head(True{},False{},Word.cmp(p,t,u),e)))
+        case WCon{False{},t} WCon{True{},u}:
+          absurd({WCon{False{},t} == WCon{True{},u} : Word(1n+p)},impossible(Equal.sym(Bool,False{},True{},fin_head(False{},True{},Word.cmp(p,t,u),e))))
+
+def id_equal(x: U32,y: U32,e: {U32.is_eq(x,y) == True{} : Bool}) -> {x == y : U32}:
+  match x y:
+    case U32{a} U32{b}: Equal.cong(Word(32n),U32,w => U32{w},a,b,word_equal(32n,a,b,e))
+
+def key_test(s: U32,a: U32,q: U32,j: U32) -> Bool:
+  U32.is_eq(s,q) && U32.is_eq(a,j)
+
+def transfer_distinct(b: Bool,c: Bool,s: U32,a: U32,k: U32,l: U32,q: U32,j: U32,
+  es: {U32.is_eq(s,k) == b : Bool}, ea: {U32.is_eq(a,l) == c : Bool},
+  hit: {b && c == True{} : Bool}, distinct: {key_test(k,l,q,j) == False{} : Bool}) ->
+  {key_test(s,a,q,j) == False{} : Bool}:
+  match b c:
+    case True{} True{}:
+      %Equal.sym(U32,s,k,id_equal(s,k,es)) : {key_test(_,a,q,j) == False{} : Bool}
+      %Equal.sym(U32,a,l,id_equal(a,l,ea)) : {key_test(k,_,q,j) == False{} : Bool}
+      distinct
+    case True{} False{}:
+      absurd({key_test(s,a,q,j) == False{} : Bool},impossible(Equal.sym(Bool,False{},True{},hit)))
+    case False{} _:
+      absurd({key_test(s,a,q,j) == False{} : Bool},impossible(Equal.sym(Bool,False{},True{},hit)))
+
+def other_lookup_cons(b: Bool,+s: U32,+a: U32,n: U32,v: F32,t: T.Table,+k: U32,+l: U32,r: T.Rate,target: F32,+q: U32,+j: U32,
+  same: {key_test(s,a,k,l) == b : Bool}, distinct: {key_test(k,l,q,j) == False{} : Bool},
+  ih: {key_test(k,l,q,j) == False{} : Bool} -> {T.lookup(T.adjust(t,k,l,r,target),q,j) == T.lookup(t,q,j) : F32}) ->
+  {T.lookup(T.replace_or_keep(b,u => T.revised(r,s,a,U32.add(n,1),v,target) <> t,
+     u => T.Entry{s,a,n,v} <> T.adjust(t,k,l,r,target)),q,j) == T.lookup(T.Entry{s,a,n,v} <> t,q,j) : F32}:
+  match b:
+    case True{}:
+      miss = transfer_distinct(U32.is_eq(s,k),U32.is_eq(a,l),s,a,k,l,q,j,{==},{==},same,distinct)
+      %Equal.sym(Bool,key_test(s,a,q,j),False{},miss) :
+        {Bool.pick(F32,_,T.entry_value(T.revised(r,s,a,U32.add(n,1),v,target)),T.lookup(t,q,j)) == Bool.pick(F32,_,v,T.lookup(t,q,j)) : F32}
+      {==}
+    case False{}:
+      Equal.cong(F32,F32,x => Bool.pick(F32,key_test(s,a,q,j),v,x),T.lookup(T.adjust(t,k,l,r,target),q,j),T.lookup(t,q,j),ih(distinct))
+
+def Laws.table_adjust_preserves_other_lookup(t,k,l,r,target,q,j,distinct):
+  match t:
+    case Nil{}:
+      %Equal.sym(Bool,key_test(k,l,q,j),False{},distinct) : {Bool.pick(F32,_,T.entry_value(T.revised(r,k,l,1,0.0,target)),0.0) == 0.0 : F32}
+      {==}
+    case T.Entry{+s,+a,n,v} <> +tail:
+      other_lookup_cons(key_test(s,a,k,l),s,a,n,v,tail,k,l,r,target,q,j,{==},distinct,
+        d => Laws.table_adjust_preserves_other_lookup(tail,k,l,r,target,q,j,d))
+
+def other_visits_cons(b: Bool,+s: U32,+a: U32,n: U32,v: F32,t: T.Table,+k: U32,+l: U32,r: T.Rate,target: F32,+q: U32,+j: U32,
+  same: {key_test(s,a,k,l) == b : Bool}, distinct: {key_test(k,l,q,j) == False{} : Bool},
+  ih: {key_test(k,l,q,j) == False{} : Bool} -> {T.visits(T.adjust(t,k,l,r,target),q,j) == T.visits(t,q,j) : U32}) ->
+  {T.visits(T.replace_or_keep(b,u => T.revised(r,s,a,U32.add(n,1),v,target) <> t,
+     u => T.Entry{s,a,n,v} <> T.adjust(t,k,l,r,target)),q,j) == T.visits(T.Entry{s,a,n,v} <> t,q,j) : U32}:
+  match b:
+    case True{}:
+      miss = transfer_distinct(U32.is_eq(s,k),U32.is_eq(a,l),s,a,k,l,q,j,{==},{==},same,distinct)
+      %Equal.sym(Bool,key_test(s,a,q,j),False{},miss) :
+        {Bool.pick(U32,_,U32.add(n,1),T.visits(t,q,j)) == Bool.pick(U32,_,n,T.visits(t,q,j)) : U32}
+      {==}
+    case False{}:
+      Equal.cong(U32,U32,x => Bool.pick(U32,key_test(s,a,q,j),n,x),T.visits(T.adjust(t,k,l,r,target),q,j),T.visits(t,q,j),ih(distinct))
+
+def Laws.table_adjust_preserves_other_visits(t,k,l,r,target,q,j,distinct):
+  match t:
+    case Nil{}:
+      %Equal.sym(Bool,key_test(k,l,q,j),False{},distinct) : {Bool.pick(U32,_,1,0) == 0 : U32}
+      {==}
+    case T.Entry{+s,+a,n,v} <> +tail:
+      other_visits_cons(key_test(s,a,k,l),s,a,n,v,tail,k,l,r,target,q,j,{==},distinct,
+        d => Laws.table_adjust_preserves_other_visits(tail,k,l,r,target,q,j,d))
