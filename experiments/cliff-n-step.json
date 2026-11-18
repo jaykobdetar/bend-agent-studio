@@ -1,0 +1,40 @@
+{
+  "schema": 1,
+  "name": "cliff-n-step",
+  "games": [
+    {
+      "id": "cliff",
+      "limit": 60
+    }
+  ],
+  "arms": [
+    {
+      "id": "n-step",
+      "method": "custom",
+      "agentFile": "../agents/n_step.bend",
+      "parameters": {
+        "alpha": 0.25,
+        "gamma": 0.9,
+        "n": 3
+      }
+    },
+    {
+      "id": "q-learning",
+      "method": "q_learning"
+    }
+  ],
+  "replicates": 4,
+  "checkpoints": [
+    0,
+    32,
+    128
+  ],
+  "validationEpisodes": 8,
+  "testEpisodes": 16,
+  "seeds": {
+    "train": 121000000,
+    "validation": 1900000000,
+    "test": 2900000000,
+    "stride": 10000
+  }
+}
