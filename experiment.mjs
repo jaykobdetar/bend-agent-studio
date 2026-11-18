@@ -294,31 +294,34 @@ function runTrial(api,root,manifest,t,until) {
   return created;
 }
 
-function readPlan(config) {
-  const input=json(config);
+function readPlan(config, guard = name => name) {
+  const input=json(guard(config));
   const resolveGame=g=>{
     if (g && Object.hasOwn(g,'worldFile')) {
       if (g.world!==undefined || g.file!==undefined || typeof g.worldFile!=='string') throw Error('game must select one world source');
       const {worldFile,...rest}=g;
-      return {...rest,world:bundleAgent(path.resolve(path.dirname(config),worldFile),here)};
+      return {...rest,world:bundleAgent(guard(path.resolve(path.dirname(config),worldFile)),here,guard)};
     }
     if (!g || !Object.hasOwn(g,'file')) return g;
     if (g.definition!==undefined || typeof g.file!=='string') throw Error('game must supply one definition or file');
     const {file,...rest}=g;
-    return {...rest,definition:json(path.resolve(path.dirname(config),file))};
+    return {...rest,definition:json(guard(path.resolve(path.dirname(config),file)))};
   };
   for (const key of ['games','evaluationGames']) if (Array.isArray(input[key])) input[key]=input[key].map(resolveGame);
   if (Array.isArray(input.arms)) input.arms=input.arms.map(a=>{
     if (!a || !Object.hasOwn(a,'agentFile')) return a;
     if (a.agent!==undefined || typeof a.agentFile!=='string') throw Error('arm must select one agent source');
     const {agentFile,...rest}=a;
-    return {...rest,agent:bundleAgent(path.resolve(path.dirname(config),agentFile),here)};
+    return {...rest,agent:bundleAgent(guard(path.resolve(path.dirname(config),agentFile)),here,guard)};
   });
   return validate(input);
 }
 
 async function run(config,root,args) {
-  const plan=readPlan(config);
+  return runPlan(readPlan(config),root,args);
+}
+
+async function runPlan(plan,root,args) {
   const opts=options(args);
   if (opts.until!==Infinity && !plan.checkpoints.includes(opts.until)) throw Error('--until must be a declared checkpoint');
   const dir=fs.mkdtempSync(path.join(os.tmpdir(),'bend-study-'));
@@ -332,7 +335,7 @@ async function run(config,root,args) {
     for (const [name,contents] of sources) immutable(path.join(root,'code',name),contents);
     immutable(path.join(root,'code','backend.mjs'),compiled);
     immutable(manifestPath(root),bytes);
-    executeTrials(api,root,JSON.parse(bytes),opts);
+    return executeTrials(api,root,JSON.parse(bytes),opts);
   } finally {fs.rmSync(dir,{recursive:true,force:true});}
 }
 
@@ -345,7 +348,7 @@ function executeTrials(api,root,manifest,opts) {
     created+=runTrial(api,root,manifest,t,opts.until);
     finished++;
   }
-  console.log(plan.name+': '+finished+' trials visited, '+created+' checkpoints written.');
+  return {name:plan.name,finished,created};
 }
 
 async function frozen(root) {
@@ -380,7 +383,7 @@ async function rerun(root, target, args) {
   const files=checkedSnapshot(root,manifest);
   for (const [name,bytes] of files) immutable(path.join(target,'code',name),bytes);
   immutable(manifestPath(target),fs.readFileSync(manifestPath(root)));
-  executeTrials(api,target,manifest,opts);
+  return executeTrials(api,target,manifest,opts);
 }
 
 function unpack(list) {
@@ -448,7 +451,7 @@ async function replay(root,gameId,armId,repArg,atArg,phase,indexArg) {
     initialModel:digest(canonical(model)),finalModel:digest(canonical(prefix?prefix.model:traced.report.model)),
     score:prefix?prefix.partial.score:traced.report.score,steps:prefix?prefix.partial.steps:traced.report.steps,
     reason:prefix?{$:'Paused'}:traced.report.reason,frames:prefix?frames.slice(0,prefix.partial.steps):frames};
-  process.stdout.write(numberPreservingJson(result,2)+'\n');
+  return result;
 }
 
 function exportCsv(root) {
@@ -469,7 +472,7 @@ function exportCsv(root) {
         ...values(b.train),...values(b.validation),...values(b.test)].join(','));
     }
   }
-  process.stdout.write(lines.join('\n')+'\n');
+  return lines.join('\n')+'\n';
 }
 
 function selectStudy(root,specFile,output) {
@@ -552,8 +555,10 @@ function status(root,verify=false) {
       if (n===p.checkpoints.at(-1)) complete++;
     }
   }
-  console.log(JSON.stringify({experiment:p.name,completeTrials:complete,totalTrials:total,savedCheckpoints:saved,totalCheckpoints:total*p.checkpoints.length}));
+  return {experiment:p.name,completeTrials:complete,totalTrials:total,savedCheckpoints:saved,totalCheckpoints:total*p.checkpoints.length};
 }
+
+function report({name,finished,created}) { console.log(name+': '+finished+' trials visited, '+created+' checkpoints written.'); }
 
 async function main(argv) {
   const [cmd,arg,...rest]=argv;
@@ -564,25 +569,25 @@ async function main(argv) {
     const solve=rest.length===2?reactiveOracle:oracle;
     console.log(JSON.stringify(solve(worldDefinition(json(arg)),Number(rest[0])),null,2)); return;
   }
-  if (cmd==='run'&&arg&&rest.length>=1) return run(arg,path.resolve(rest[0]),rest.slice(1));
+  if (cmd==='run'&&arg&&rest.length>=1) return report(await run(arg,path.resolve(rest[0]),rest.slice(1)));
   if (cmd==='resume'&&arg) {
     const root=path.resolve(arg), opts=options(rest);
     const {api,manifest}=await frozen(root);
-    return executeTrials(api,root,manifest,opts);
+    return report(executeTrials(api,root,manifest,opts));
   }
   if (cmd==='assess' && arg && rest.length===2) {
     const {assess}=await import('./assessment.mjs');
     return assess(path.resolve(arg),rest[0],path.resolve(rest[1]));
   }
-  if (cmd==='rerun' && arg && rest.length>=1) return rerun(path.resolve(arg),path.resolve(rest[0]),rest.slice(1));
+  if (cmd==='rerun' && arg && rest.length>=1) return report(await rerun(path.resolve(arg),path.resolve(rest[0]),rest.slice(1)));
   if (cmd==='select'&&arg&&rest.length===2) return selectStudy(path.resolve(arg),rest[0],path.resolve(rest[1]));
-  if (cmd==='export'&&arg&&rest.length===0) return exportCsv(path.resolve(arg));
-  if ((cmd==='status'||cmd==='verify')&&arg&&rest.length===0) return status(path.resolve(arg),cmd==='verify');
-  if (cmd==='replay'&&arg&&rest.length===6) return replay(path.resolve(arg),...rest);
+  if (cmd==='export'&&arg&&rest.length===0) return process.stdout.write(exportCsv(path.resolve(arg)));
+  if ((cmd==='status'||cmd==='verify')&&arg&&rest.length===0) return console.log(JSON.stringify(status(path.resolve(arg),cmd==='verify')));
+  if (cmd==='replay'&&arg&&rest.length===6) return process.stdout.write(numberPreservingJson(await replay(path.resolve(arg),...rest),2)+'\n');
   throw Error('usage: node experiment.mjs validate PLAN | oracle WORLD HORIZON [--reactive] | run PLAN OUTPUT [--bend PATH] [--until EPISODES] [--shard I/N] | resume OUTPUT [--until EPISODES] [--shard I/N] | assess OUTPUT ASSESSMENT_SPEC DIRECTORY | rerun OUTPUT NEW_OUTPUT [--until BUDGET] | select SCREEN CONFIRM_SPEC OUTPUT | status OUTPUT | verify OUTPUT | export OUTPUT | replay OUTPUT GAME ARM REP CHECKPOINT PHASE INDEX');
 }
 
-export {adapterName, allGames, frameData, record, stats, unpack, checkedSnapshot, existing, gameRunner, immutable, json, manifestPath, seal, testModel, unseal};
+export {runPlan, readPlan, executeTrials, exportCsv, status, replay, adapterName, allGames, frameData, record, stats, unpack, checkedSnapshot, existing, gameRunner, immutable, json, manifestPath, seal, testModel, unseal};
 
 if (process.argv[1] && pathToFileURL(path.resolve(process.argv[1])).href===import.meta.url) {
   main(process.argv.slice(2)).catch(e=>{console.error(e.message);process.exitCode=1;});

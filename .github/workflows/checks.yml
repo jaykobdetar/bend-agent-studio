@@ -34,6 +34,11 @@ jobs:
 
       - name: Run Node tests
         run: npm test
+      - name: Test MCP with real Bend
+        working-directory: mcp
+        run: |
+          npm ci --ignore-scripts
+          npm test
       - name: Run Bend checks
         run: |
           bend checks.bend
@@ -63,3 +68,8 @@ jobs:
         with:
           node-version: 24.22.3
       - run: npm test
+      - name: MCP protocol and process tests
+        working-directory: mcp
+        run: |
+          npm ci --ignore-scripts
+          npm test
