@@ -54,7 +54,7 @@ The project declares 26 laws. Their statements and proofs are in [LAWS.bend](LAW
 
 - **Learning.** The engine applies the learner once per training transition and preserves the model during evaluation. Updating one Double Q table preserves the other. Dyna planning preserves the recorded experience.
 - **Episode boundaries.** Rejecting an illegal action preserves the model, score, and accepted-step count. An open state at the horizon is truncated. A terminal state ends the episode even on the last step. Each report increases the episode count by one, including illegal exits.
-- **Observations and replay.** The history wrapper preserves legal actions and rewards. For the Ferry world, recording a trace preserves the final report, and splitting a step budget produces the same cursor, including the model, random seed, and remaining horizon.
+- **Observations and replay.** The history wrapper preserves legal actions and rewards. For any typed world and agent hooks, observing decisions preserves the final report. Splitting an interaction budget produces the same cursor as advancing it once, including its model, random seed, and remaining horizon. Both laws cover training and evaluation.
 
 ## Run the checks
 

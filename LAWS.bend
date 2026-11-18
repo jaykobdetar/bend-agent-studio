@@ -4,7 +4,6 @@ import ./study.bend as Study
 import ./double_q.bend as DQ
 import ./weights.bend as W
 import ./history.bend as H
-import ./ferry.bend as Ferry
 import ./cursor.bend as C
 import ./dyna.bend as Dyna
 import ./tile_control.bend as Tile
@@ -162,28 +161,34 @@ law history_preserves_reward:
   for reward: F32
   {Pair.snd(H.State<S,Hid>, F32, H.moved(S, O, Hid, show, remember, h, obs, action, (next,reward))) == reward : F32}
 
-law ferry_observer_preserves_report:
+# Generic observer and split-budget laws additionally cover authored finite,
+# Cliff and continuous-observation CartPole worlds without world-specific proofs.
+law observer_preserves_report:
+  for ~S: Data
+  for ~O: Data
+  for ~M: Data
+  for ~hooks: E.Hooks<S,O,M>
+  for ~A: Data
+  for ~observe: A -> O -> List<&2,U32> -> U32 -> Maybe<&2,E.Transition<O>> -> A
   for fuel: Nat
   for mode: E.Mode
-  for run: E.Run<Ferry.Stage, U32, Study.Model>
-  for record: List<&2, E.Frame<U32>>
-  {E.report_of(List<&2, E.Frame<U32>>, Study.Model,
-    E.drive(~Ferry.Stage, ~U32, ~Study.Model, ~E.Hooks{Ferry.world(), Study.act, Study.learn},
-      ~List<&2, E.Frame<U32>>, ~E.remember(U32), fuel, mode, run, record))
-    == E.roll(~Ferry.Stage, ~U32, ~Study.Model, ~E.Hooks{Ferry.world(), Study.act, Study.learn}, fuel, mode, run)
-    : E.Report<Study.Model>}
+  for run: E.Run<S,O,M>
+  for record: A
+  {E.report_of(A,M,E.drive(~S,~O,~M,~hooks,~A,~observe,fuel,mode,run,record))
+    == E.roll(~S,~O,~M,~hooks,fuel,mode,run) : E.Report<M>}
 
-# Splitting a training allocation at an arbitrary interaction boundary leaves
-# exactly the same cursor, including RNG, model, and remaining episode horizon.
-law ferry_pause_composes:
+law pause_composes:
+  for ~S: Data
+  for ~O: Data
+  for ~M: Data
+  for ~hooks: E.Hooks<S,O,M>
   for first: Nat
   for second: Nat
   for mode: E.Mode
-  for cursor: C.Cursor<Ferry.Stage,U32,Study.Model>
-  {C.advance(~Ferry.Stage,~U32,~Study.Model,~E.Hooks{Ferry.world(),Study.act,Study.learn},Nat.add(first,second),mode,cursor)
-    == C.advance(~Ferry.Stage,~U32,~Study.Model,~E.Hooks{Ferry.world(),Study.act,Study.learn},second,mode,
-      C.advance(~Ferry.Stage,~U32,~Study.Model,~E.Hooks{Ferry.world(),Study.act,Study.learn},first,mode,cursor))
-    : C.Cursor<Ferry.Stage,U32,Study.Model>}
+  for cursor: C.Cursor<S,O,M>
+  {C.advance(~S,~O,~M,~hooks,Nat.add(first,second),mode,cursor)
+    == C.advance(~S,~O,~M,~hooks,second,mode,C.advance(~S,~O,~M,~hooks,first,mode,cursor))
+    : C.Cursor<S,O,M>}
 
 law planning_preserves_observed_experience:
   for budget: Nat
