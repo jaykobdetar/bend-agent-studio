@@ -10,7 +10,7 @@ import path from 'node:path';
 import { setTimeout as delay } from 'node:timers/promises';
 import { worlds } from './catalog.mjs';
 import { boardStates, cumulativeReturns, observation } from './web/scene.js';
-import { timeline } from './web/exporter.js';
+import { replayFilename, timeline } from './web/exporter.js';
 import { Gif } from './web/gif.js';
 import { seal } from '../experiment.mjs';
 import { digest } from '../experiment_config.mjs';
@@ -73,6 +73,15 @@ test('symmetry-aware replay changes exactly one physical square per accepted mov
       [256, 2]
     ]
   );
+});
+test('downloads distinguish matched evaluation seeds across checkpoints and studies', async () => {
+  const trace = await demo('cliff');
+  for (const ext of ['json', 'gif']) {
+    const a = replayFilename(trace, ext);
+    assert.notEqual(a, replayFilename({ ...trace, checkpoint: 0 }, ext));
+    assert.notEqual(a, replayFilename({ ...trace, experiment: '0'.repeat(64) }, ext));
+    assert.ok(a.endsWith('.' + ext) && a.includes('-cp' + trace.checkpoint + '-'));
+  }
 });
 test('GIF uses a shared palette, keeps the final frame and honors fast playback', async () => {
   const frames = timeline(240, 96);
@@ -150,13 +159,14 @@ async function mountedReplay(t, timeout, nodeVersion = process.versions.node) {
     fs.writeFileSync(path.join(process.argv[3], episode + '.pid'), String(process.pid));
     if (episode === '0' || episode === '1') await setTimeout(120000);
     if (episode === '3') process.exit(1);
+    if (episode === '4') { console.error('missing replay checkpoint'); process.exit(1); }
     console.log(JSON.stringify({episode}));
   `;
   await writeFile(path.join(dir, 'code/experiment.mjs'), runner);
   await writeFile(path.join(dir, 'code/backend.mjs'), '');
   const manifest = seal({
     plan: { name: 'fixture', games: [{ id: 'cliff' }], arms: [{ id: 'q' }], checkpoints: [0],
-      replicates: 1, validationEpisodes: 0, testEpisodes: 4 },
+      replicates: 1, validationEpisodes: 0, testEpisodes: 5 },
     toolchain: { node: nodeVersion, sources: { 'experiment.mjs': digest(runner) }, backend: digest('') }
   });
   await writeFile(path.join(dir, 'run.json'), manifest);
@@ -230,6 +240,9 @@ test('replay deadline and runner failure release capacity', { timeout: 15000 }, 
     assert.match((await result.json()).error, /time limit/);
     assert.ok(hasExited(pid));
     assert.equal((await replay(3)).status, 500);
+    const missing = await replay(4);
+    assert.equal(missing.status, 409);
+    assert.match((await missing.json()).error, /^Checkpoint 0 is unavailable.*earlier saved checkpoint/);
     const success = await replay(2);
     assert.equal(success.status, 200);
     assert.equal((await success.json()).episode, '2');

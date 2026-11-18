@@ -4,6 +4,8 @@ Train reinforcement-learning agents in Bend and watch how their decisions change
 
 A separate [Gymnasium adapter](integrations/gymnasium/README.md) lets Python agents play the same JSON finite and grid worlds without changing Studio or its dependencies. Seven [toy-text benchmark worlds](EXPERIMENTS.md#benchmark-worlds) include FrozenLake, Taxi, CliffWalking and Blackjack. See [large-world compile measurements and replay checks](tools/finite-layout/README.md).
 
+![Bend Studio showing step 44 of the included Mountain Car replay, with its playback controls and episode telemetry.](docs/studio-simulator.png)
+
 ## Start Studio
 
 Install Node.js 24 or newer, open a terminal in this directory, and run:

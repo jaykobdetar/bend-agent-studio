@@ -1,6 +1,14 @@
 import { Gif } from './gif.js';
 import { draw, observation, boardStates, tickRate } from './scene.js';
 
+// Validation seeds repeat across checkpoints by design. Include the checkpoint
+// and a short sealed-study identity in both downloadable formats.
+export function replayFilename(trace, ext) {
+  const parts = ['bend', trace.game, trace.arm, 'cp' + trace.checkpoint, trace.seed];
+  if (trace.experiment) parts.push(String(trace.experiment).slice(0, 12));
+  return parts.map(part => String(part).replace(/[^\w-]/g, '-')).join('-') + '.' + ext;
+}
+
 // GIF delays use hundredths of a second. Browsers clamp delays below 20 ms.
 // Sample fast replays at that limit while retaining their final observation.
 export function timeline(steps, fps) {

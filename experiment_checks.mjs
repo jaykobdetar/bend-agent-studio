@@ -201,7 +201,10 @@ test('portable report embeds analyze.py rows and exact finite-world replay decis
     for(const line of stdout.trimEnd().split(/\r?\n/).slice(1))
       assert.ok(html.includes('<tr>'+line.split(',').map(v=>'<td>'+v+'</td>').join('')+'</tr>'));
   }
-  await assert.rejects(invoke('report',root,out),/EEXIST/);
+  await assert.rejects(execute(process.execPath,[cli,'report',root,out],{
+    env:{...process.env,PYTHON:path.join(d,'no-python-here')}
+  }),/EEXIST: report destination already exists/);
+  assert.equal(fs.readFileSync(out,'utf8'),html);
 });
 
 test('local jobs resume byte-identically to serial using only the archive',compilerTest,async t=>{

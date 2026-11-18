@@ -317,6 +317,8 @@ async function replay(id, input, res) {
     trace = JSON.parse((await pending).stdout);
   } catch (err) {
     if (timedOut) fail('Replay exceeded its time limit.', 504);
+    if (err.stderr?.trim() === 'missing replay checkpoint')
+      fail('Checkpoint ' + point + ' is unavailable for this trial. Choose an earlier saved checkpoint or verify the study.', 409);
     throw err;
   } finally {
     clearTimeout(timer);

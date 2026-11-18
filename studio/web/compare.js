@@ -1,5 +1,5 @@
 // The endpoint returns data only. Archive names and labels always use textContent.
-const palette=['#0d766d','#aa472b','#60469f','#3861a0','#79652a','#a33969','#317b55','#534689'];
+const palette=['#71d4bc','#ff986f','#b69aff','#80b8ff','#d6bd62','#ee99c4','#96c973','#a2a8ee'];
 const E=(tag,text)=>{const e=document.createElement(tag);if(text!==undefined)e.textContent=text;return e;};
 const svg=(tag,attrs)=>{const e=document.createElementNS('http://www.w3.org/2000/svg',tag);for(const [k,v] of Object.entries(attrs))e.setAttribute(k,v);return e;};
 export function comparisonGroups(results,selected) {

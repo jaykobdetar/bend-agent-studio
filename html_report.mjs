@@ -17,6 +17,9 @@ function chart(rows){
   return '<svg role="img" aria-label="Mean return and confidence intervals by checkpoint" viewBox="0 0 464 144"><path d="M32 8V116H432" fill="none" stroke="#555"/><polyline fill="none" stroke="#13598a" points="'+nums.map(([n,v])=>x(n)+','+y(v)).join(' ')+'"/>'+nums.map(([n,v,l,h])=>(l===null||h===null?'':'<line x1="'+x(n)+'" x2="'+x(n)+'" y1="'+y(l)+'" y2="'+y(h)+'" stroke="#00765e"/>')+'<circle cx="'+x(n)+'" cy="'+y(v)+'" r="3" fill="#13598a"/>').join('')+'<text x="32" y="138">'+xmin+'</text><text x="405" y="138">'+xmax+'</text></svg>';
 }
 export async function writeReport(root,out){
+  // Reject a known conflict before analysis/replay. The final wx still protects
+  // against a file created after this check.
+  if(fs.lstatSync(out,{throwIfNoEntry:false}))throw Error('EEXIST: report destination already exists: '+out);
   const m=unseal(manifestPath(root)),p=m.body.plan;
   checkedSnapshot(root,m);status(root,true);
   if(m.body.toolchain.node!==process.versions.node)throw Error('use archived Node '+m.body.toolchain.node);

@@ -1,6 +1,6 @@
 import { comparisonUI } from './compare.js';
 import { actionName, boardStates, channels, cumulativeReturns, draw, gameName, observation, tickRate } from './scene.js';
-import { renderGif } from './exporter.js';
+import { renderGif, replayFilename } from './exporter.js';
 import { deleteClip, listClips, saveClip } from './vault.js';
 
 const $ = (id) => document.getElementById(id);
@@ -62,15 +62,6 @@ const number = (value) =>
     : '—';
 const algoName = (game, id) =>
   state.worlds.find((w) => w.id === game)?.algorithms.find((a) => a.id === id)?.name ?? id;
-const filename = (trace, ext) =>
-  'bend-' +
-  String(trace.game).replace(/[^\w-]/g, '-') +
-  '-' +
-  trace.arm.replace(/[^\w-]/g, '-') +
-  '-' +
-  trace.seed +
-  '.' +
-  ext;
 const friendlyPhase = (phase) => (phase === 'test' ? 'Test' : 'Validation');
 function reason(t) {
   const why = t.reason?.$ ?? t.reason;
@@ -304,7 +295,7 @@ $('export-json').onclick = () => {
   if (state.trace)
     download(
       new Blob([JSON.stringify(state.trace, null, 2)], { type: 'application/json' }),
-      filename(state.trace, 'json')
+      replayFilename(state.trace, 'json')
     );
 };
 $('reroll').onclick = () => {
@@ -329,11 +320,19 @@ function syncForm() {
         ? 'New runs are saved in Experiments.'
         : 'Choose an environment to start a new run.');
 }
+let renderedRuns;
 function showRuns() {
+  const snapshot = JSON.stringify(state.runs);
+  if (snapshot === renderedRuns) return;
+  renderedRuns = snapshot;
   refreshCompare(state.runs);
+  const list = $('run-list');
+  const focused = list.contains(document.activeElement) ? document.activeElement : null;
+  const focusedId = focused?.closest('article')?.dataset.runId;
   const items = state.runs.map((run) => {
     const row = element('article', undefined, 'run-row'),
       info = element('div');
+    row.dataset.runId = run.id;
     info.append(element('strong', run.name));
     const description = [
       run.status === 'ready' ? 'Ready' : run.status === 'queued' ? 'Queued · position '+run.position : run.status,
@@ -360,7 +359,7 @@ function showRuns() {
     }, 'secondary'));
     return row;
   });
-  $('run-list').replaceChildren(
+  list.replaceChildren(
     ...(items.length
       ? items
       : [
@@ -370,6 +369,10 @@ function showRuns() {
           )
         ])
   );
+  // Polling another job must not take the keyboard away from this run.
+  const replacement = focusedId && items.find(row => row.dataset.runId === focusedId)?.querySelector('button');
+  if (replacement && replacement.textContent === focused.textContent)
+    replacement.focus({ preventScroll: true });
 }
 let refreshPending, watchTimer;
 async function refreshRuns() {
@@ -604,7 +607,7 @@ async function record() {
       canvas.height = 220;
       blob = await renderGif(trace, speed, progress, () => current.cancelled, canvas);
     }
-    const file = filename(trace, 'gif');
+    const file = replayFilename(trace, 'gif');
     try {
       await saveClip({
         id: crypto.randomUUID(),
@@ -692,7 +695,10 @@ async function showClips() {
 }
 function navigate(name, fromAddress = false) {
   if (!Object.hasOwn(pages, name)) name = 'simulator';
-  if (state.page !== name) activeReplay?.abort();
+  if (state.page !== name) {
+    activeReplay?.abort();
+    if ($('run-dialog').open) $('run-dialog').close();
+  }
   if (location.hash !== '#' + name) {
     if (fromAddress) history.replaceState(null, '', '#' + name);
     else history.pushState(null, '', '#' + name);
