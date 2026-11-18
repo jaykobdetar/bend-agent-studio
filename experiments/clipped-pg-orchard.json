@@ -1,0 +1,44 @@
+{
+  "schema": 1,
+  "name": "clipped-pg-orchard",
+  "games": [
+    {
+      "id": "orchard",
+      "limit": 1
+    }
+  ],
+  "arms": [
+    {
+      "id": "clipped-pg",
+      "method": "custom",
+      "agentFile": "../agents/clipped_pg.bend",
+      "parameters": {
+        "alpha": 0.025,
+        "beta": 0.1,
+        "gamma": 1,
+        "clip": 0.2,
+        "batch": 4,
+        "epochs": 2
+      }
+    },
+    {
+      "id": "epsilon",
+      "method": "sample_mean",
+      "epsilon": 0.125
+    }
+  ],
+  "replicates": 4,
+  "checkpoints": [
+    0,
+    64,
+    256
+  ],
+  "validationEpisodes": 8,
+  "testEpisodes": 16,
+  "seeds": {
+    "train": 121000000,
+    "validation": 1900000000,
+    "test": 2900000000,
+    "stride": 10000
+  }
+}
