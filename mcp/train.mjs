@@ -1,3 +1,4 @@
+import {numberPreservingJson} from '../finite_world.mjs';
 import fs from 'node:fs';
 import path from 'node:path';
 import {runPlan} from '../experiment.mjs';
@@ -10,7 +11,7 @@ try {
   const normalized = guardedPlan(raw, ctx);
   if (mode === 'inline') {
     const target = ctx.output(path.join(out, 'input-plan.json'));
-    fs.writeFileSync(target, JSON.stringify(raw, null, 2) + '\n', {flag: 'wx', mode: 0o600});
+    fs.writeFileSync(target, numberPreservingJson(raw, 2) + '\n', {flag: 'wx', mode: 0o600});
   }
   await runPlan(normalized, out, options);
 } catch (e) {

@@ -5,7 +5,7 @@ import {repo} from './context.mjs';
 import {choice, horizon, str, tool, planInput, worldInput} from './schema.mjs';
 import {readPlan} from '../experiment.mjs';
 import {validate} from '../experiment_config.mjs';
-import {worldDefinition, oracle, reactiveOracle} from '../finite_world.mjs';
+import {worldDefinition, oracle, reactiveOracle, numberPreservingJson} from '../finite_world.mjs';
 import {beliefOracle, clockOracle, policyOracle} from '../public_oracle.mjs';
 import {memoryWorld} from '../memory_world.mjs';
 const table = {
@@ -18,6 +18,13 @@ const table = {
     ],
   },
 };
+export function assertBundledImports(source) {
+  for (const line of source.split(/\r?\n/)) {
+    if (line.trimStart().startsWith('#')) continue;
+    if (/\bimport\b/.test(line) && !/^\s*import (?:Base|\.\/[\w-]+\.bend as [\w]+)\s*$/.test(line))
+      throw Error('unsupported import in custom Bend source');
+  }
+}
 export function guardedPlan(filename, ctx) {
   const guard = (name) => {
     const p = ctx.input(name);
@@ -41,10 +48,7 @@ export function guardedPlan(filename, ctx) {
   for (const b of [...p.games, ...(p.evaluationGames ?? []), ...p.arms]
     .map((x) => x.world ?? x.agent)
     .filter(Boolean))
-    for (const source of Object.values(b.files))
-      for (const line of source.split(/\r?\n/))
-        if (/\bimport\b/.test(line) && !/^\s*import (?:Base|\.\/[\w-]+\.bend as [\w]+)\s*$/.test(line))
-          throw Error('unsupported import in custom Bend source');
+    for (const source of Object.values(b.files)) assertBundledImports(source);
   return p;
 }
 function load(p, ctx) {
@@ -115,7 +119,7 @@ async function isolated(name, a, ctx) {
   const temp = fs.mkdtempSync(path.join(os.tmpdir(), 'bend-mcp-'));
   try {
     const req = path.join(temp, 'request.json');
-    fs.writeFileSync(req, JSON.stringify(a), {mode: 0o600});
+    fs.writeFileSync(req, numberPreservingJson(a), {mode: 0o600});
     return JSON.parse(
       await ctx.exec(
         process.execPath,

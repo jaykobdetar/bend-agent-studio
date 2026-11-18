@@ -47,6 +47,14 @@ test(
     const w = await call('validate_world', {world});
     assert.equal(w.states, 2);
     assert.deepEqual(w.terminalStates, [1]);
+    for (const kind of ['full', 'reactive', 'history', 'clock']) {
+      const zero = await call('solve_world', {world, horizon: 0, kind});
+      assert.equal(zero.uniformReturn, 0);
+      assert.equal(zero.optimalFullStateReturn, 0);
+    }
+    const empty = await call('evaluate_policy_exact', {world, horizon: 0, policy: {}});
+    assert.equal(empty.expectedReturn, 0);
+    assert.equal(empty.expectedSteps, 0);
     const oracle = await call('solve_world', {world, horizon: 1, kind: 'history'});
     assert.equal(oracle.uniformReturn, 1);
     assert.equal(oracle.optimalPublicHistoryReturn, 3);

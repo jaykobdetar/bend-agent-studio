@@ -32,6 +32,21 @@ try {
     } = item.body,
     encoded = canonical(model);
   if (full === 'yes' && Buffer.byteLength(encoded) > 128 * 1024) throw Error('model exceeds 128 KiB');
+  // MCP clients may normalize -0; deep Bend lists can also overflow their
+  // recursive JSON encoders. Always provide exact hashable bytes on opt-in.
+  let preview = full === 'yes';
+  if (preview) {
+    const stack = [[model, 0]];
+    while (stack.length) {
+      const [x, depth] = stack.pop();
+      if (!x || typeof x !== 'object') continue;
+      if (depth >= 128) {
+        preview = false;
+        break;
+      }
+      for (const v of Object.values(x)) stack.push([v, depth + 1]);
+    }
+  }
   const result = {
     game,
     arm,
@@ -46,7 +61,9 @@ try {
     partial: partial ? {steps: partial.steps, score: partial.score} : null,
     checkpointHash: item.hash,
     modelHash: digest(encoded),
-    ...(full === 'yes' ? {model} : {}),
+    ...(full === 'yes'
+      ? {modelCanonical: encoded, modelEncoding: 'canonical-json', ...(preview ? {model} : {})}
+      : {}),
   };
   process.stdout.write(
     canonical(Object.fromEntries(Object.entries(result).filter(([, v]) => v !== undefined))),

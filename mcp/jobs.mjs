@@ -1,3 +1,4 @@
+import {numberPreservingJson} from '../finite_world.mjs';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
@@ -107,7 +108,7 @@ async function prepare(op, a, c) {
   try {
     if (op === 'start_run' && typeof a.plan !== 'string') {
       const input = path.join(tmp, 'request.json');
-      fs.writeFileSync(input, JSON.stringify(a.plan), {flag: 'wx', mode: 0o600});
+      fs.writeFileSync(input, numberPreservingJson(a.plan), {flag: 'wx', mode: 0o600});
       argv[3] = input;
     }
     child = launch(exe, argv, {

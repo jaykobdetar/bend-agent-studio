@@ -1,3 +1,4 @@
+import {numberPreservingJson} from '../finite_world.mjs';
 import fs from 'node:fs';
 import path from 'node:path';
 import Ajv from 'ajv';
@@ -68,7 +69,7 @@ server.setRequestHandler(CallToolRequestSchema, async ({params: {name, arguments
     counted = true;
     let data = await tools[name].run(a, ctx);
     if (!data || typeof data !== 'object' || Array.isArray(data)) data = {result: data};
-    const text = JSON.stringify(data);
+    const text = numberPreservingJson(data);
     if (Buffer.byteLength(text) > 2 ** 20) throw Error('response exceeds 1 MiB');
     return {structuredContent: data, content: [{type: 'text', text}]};
   } catch (e) {

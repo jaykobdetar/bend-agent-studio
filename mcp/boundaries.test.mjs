@@ -74,7 +74,7 @@ test('step-checkpoint inspection hides cursor state and rejects oversized opt-in
     games: [{id: 'bridge'}],
     arms: [{id: 'q'}],
     replicates: 1,
-    checkpoints: [0, 1],
+    checkpoints: [0, 1, 2],
     budgetUnit: 'steps',
   };
   const manifest = seal({
@@ -88,7 +88,9 @@ test('step-checkpoint inspection hides cursor state and rejects oversized opt-in
   await fs.writeFile(path.join(dir, 'run.json'), manifest);
   const folder = path.join(dir, 'trials/bridge/q/0');
   await fs.mkdir(folder, {recursive: true});
-  let parent = null;
+  let parent = null,
+    deep = 0;
+  for (let i = 0; i < 9000; i++) deep = [deep];
   for (const n of p.checkpoints) {
     const row = seal({
       experiment: JSON.parse(manifest).hash,
@@ -98,7 +100,7 @@ test('step-checkpoint inspection hides cursor state and rejects oversized opt-in
       rep: 0,
       episodes: n,
       started: 1,
-      model: {data: n ? 'x'.repeat(132 * 1024) : 'small'},
+      model: n === 2 ? deep : {data: n ? 'x'.repeat(132 * 1024) : 'small', signedZero: -0},
       partial: n ? {steps: 1, score: 0, cursor: {hidden: 'not-an-output'}} : null,
       train: stats(),
       validation: stats(),
@@ -111,11 +113,16 @@ test('step-checkpoint inspection hides cursor state and rejects oversized opt-in
   const r = await call('get_checkpoint', a);
   assert.deepEqual(r.partial, {steps: 1, score: 0});
   assert.ok(!('model' in r));
+  assert.ok(!('modelCanonical' in r));
   assert.match(r.modelHash, /^[a-f0-9]{64}$/);
   assert.match(await error('get_checkpoint', {...a, includeModel: true}), /128 KiB/);
-  assert.deepEqual((await call('get_checkpoint', {...a, checkpoint: 0, includeModel: true})).model, {
-    data: 'small',
-  });
+  const full = await call('get_checkpoint', {...a, checkpoint: 0, includeModel: true});
+  assert.equal(full.model.data, 'small');
+  assert.equal(digest(full.modelCanonical), full.modelHash);
+  assert.ok(Object.is(JSON.parse(full.modelCanonical).signedZero, -0));
+  const nested = await call('get_checkpoint', {...a, checkpoint: 2, includeModel: true});
+  assert.equal(nested.model, undefined);
+  assert.equal(digest(nested.modelCanonical), nested.modelHash);
   const copy = JSON.parse(manifest).body;
   copy.plan.checkpoints = [0, -1];
   await fs.writeFile(path.join(dir, 'run.json'), seal(copy));

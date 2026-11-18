@@ -216,7 +216,7 @@ export function serverContext(workspace, nodeMap = {}) {
       if (!Object.hasOwn(nodeMap, v) || !path.isAbsolute(nodeMap[v]))
         throw Error('configure an absolute Node executable for ' + v);
       const exe = nodeMap[v],
-        actual = await exec(exe, ['--version'], {timeout: 3000, maxBytes: 256});
+        actual = await exec(exe, ['--version'], {timeout: 5000, maxBytes: 256}).catch(e=>{throw Error('Node runtime version check failed: '+e.message)});
       if (actual.trim() !== 'v' + v) throw Error('configured Node does not match ' + v);
       return exe;
     },

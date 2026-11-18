@@ -1,4 +1,5 @@
 import fs from 'node:fs';
+import {assertBundledImports} from './authoring.mjs';
 import path from 'node:path';
 import os from 'node:os';
 import {tool, choice, str, uint} from './schema.mjs';
@@ -92,7 +93,7 @@ export const more = {
             String(a.checkpoint),
             a.includeModel ? 'yes' : 'no',
           ],
-          {timeout: 12000, maxBytes: 256 * 1024},
+          {timeout: 12000, maxBytes: 512 * 1024},
         ),
       );
     },
@@ -204,12 +205,7 @@ export const more = {
           return p;
         });
         for (const [name, source] of Object.entries(bundle.files)) {
-          for (const line of source.split(/\r?\n/))
-            if (
-              /\bimport\b/.test(line) &&
-              !/^\s*import (?:Base|\.\/[\w-]+\.bend as [\w]+)\s*$/.test(line)
-            )
-              throw Error('unsupported Bend import');
+          assertBundledImports(source);
           fs.writeFileSync(path.join(d, name), source, {flag: 'wx'});
         }
         for (const e of fs.readdirSync(c.repo, {withFileTypes: true}))

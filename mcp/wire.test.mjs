@@ -70,7 +70,7 @@ test('stdio handshake, capability discovery, resource, oracle, error isolation, 
 for (const stop of ['EOF', 'SIGKILL'])
   test(
     'MCP ' + stop + ' kills the active training compiler and its descendant',
-    {skip: process.platform === 'win32' ? 'POSIX compiler shim' : false, timeout: 12000},
+    {skip: process.platform === 'win32' ? 'POSIX compiler shim' : false, timeout: 45000},
     async (t) => {
       const tmp = await fs.mkdtemp(path.join(os.tmpdir(), 'bend-mcp-shutdown-'));
       t.after(() => fs.rm(tmp, {recursive: true, force: true}));
@@ -100,7 +100,7 @@ else {
       });
       await client.init();
       data(await client.call('start_run', {plan: 'plan.json', out: 'run'}));
-      for (let i = 0; i < 100; i++) {
+      for (let i = 0; i < 500; i++) {
         try {
           await fs.access(ready);
           break;

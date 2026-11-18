@@ -65,6 +65,7 @@ test(
   async (t) => {
     const {root, call, run, write} = fixture(t);
     fs.copyFileSync(path.join(repo, 'agents/ucb.bend'), path.join(root, 'ucb.bend'));
+    fs.appendFileSync(path.join(root, 'ucb.bend'), '\n# import helpers above.\n');
     assert.equal((await call('check_bend', {file: 'ucb.bend'})).valid, true);
     const plan = sample('dispatch-source');
     plan.replicates = 2;
