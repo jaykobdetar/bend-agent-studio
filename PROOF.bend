@@ -7,6 +7,7 @@ import ./ferry.bend as Ferry
 import ./cursor.bend as C
 import ./dyna.bend as Dyna
 import ./tabular.bend as T
+import ./double_q.bend as DQ
 
 def Laws.evaluation_freezes_model(M, O, learn, model, event):
   {==}
@@ -59,6 +60,18 @@ def Laws.terminal_has_no_continuation(method, exploration, values, obs):
 
 def Laws.evaluation_disables_exploration(exploration, word):
   {==}
+
+# Adding a head to either kind of tail makes a genuine choice, so both
+# sides read the very same action from the evaluating table.
+def evaluate_considered(right: T.Table, obs: U32, a: U32, value: F32, tail: T.Choices)
+    -> {DQ.evaluate_best(right, obs, T.consider(a, value, tail))
+       == T.lookup(right, obs, T.best_action(T.consider(a, value, tail))) : F32}:
+  match tail:
+    case T.NoChoices{}: {==}
+    case T.Choices{best, maximum, sum, count}: {==}
+
+def Laws.double_q_bootstraps_from_other_table(left, right, obs, a, rest):
+  evaluate_considered(right, obs, a, T.lookup(left, obs, a), T.choices(rest, left, obs))
 
 def Laws.double_q_left_preserves_right(left, right, seed, alpha, gamma, event):
   {==}
