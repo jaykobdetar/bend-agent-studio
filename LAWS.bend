@@ -4,7 +4,6 @@ import ./study.bend as Study
 import ./double_q.bend as DQ
 import ./weights.bend as W
 import ./history.bend as H
-import ./ferry.bend as Ferry
 import ./cursor.bend as C
 import ./dyna.bend as Dyna
 import ./tile_control.bend as Tile
@@ -47,8 +46,8 @@ law rejection_preserves_progress:
   for seed: U32
   for score: F32
   for steps: Nat
-  {E.accept(S, O, M, hooks, False{}, mode, remaining, state, observation, model, action, seed, score, steps)
-    == E.Stopped{E.Report{model, score, steps, E.Illegal{action}}} : E.Run<S, O, M>}
+  {E.attempt(S, O, M, hooks, False{}, mode, remaining, state, observation, model, action, seed, score, steps)
+    == E.Turn{E.Stopped{E.Report{model, score, steps, E.Illegal{action}}}, None{}} : E.Turn<S, O, M>}
 
 law terminal_view_stops:
   for -S: Data
@@ -68,6 +67,12 @@ law open_at_limit_is_truncated:
   for obs: O
   for actions: List<&2, U32>
   {E.truncated(O, 0n, E.Open{obs, actions}) == True{} : Bool}
+
+law positive_budget_is_never_truncated:
+  for -O: Data
+  for n: Nat
+  for view: E.View<O>
+  {E.truncated(O, 1n+n, view) == False{} : Bool}
 
 law terminal_is_never_truncated:
   for -O: Data
@@ -115,6 +120,16 @@ law evaluation_disables_exploration:
   for exploration: U32
   for word: U32
   {Study.explores(E.Evaluate{}, exploration, word) == False{} : Bool}
+
+# With no legal actions continuation is zero, not a lookup of action zero.
+law double_q_bootstraps_from_other_table:
+  for +left: T.Table
+  for right: T.Table
+  for +obs: U32
+  for +a: U32
+  for rest: List<&2, U32>
+  {DQ.continuation(left, right, E.Open{obs, a <> rest})
+    == T.lookup(right, obs, T.best_action(T.choices(a <> rest, left, obs))) : F32}
 
 law double_q_left_preserves_right:
   for left: T.Table
@@ -183,28 +198,34 @@ law history_preserves_reward:
   for reward: F32
   {Pair.snd(H.State<S,Hid>, F32, H.moved(S, O, Hid, show, remember, h, obs, action, (next,reward))) == reward : F32}
 
-law ferry_observer_preserves_report:
+# Generic observer and split-budget laws additionally cover authored finite,
+# Cliff and continuous-observation CartPole worlds without world-specific proofs.
+law observer_preserves_report:
+  for ~S: Data
+  for ~O: Data
+  for ~M: Data
+  for ~hooks: E.Hooks<S,O,M>
+  for ~A: Data
+  for ~observe: A -> O -> List<&2,U32> -> U32 -> Maybe<&2,E.Transition<O>> -> A
   for fuel: Nat
   for mode: E.Mode
-  for run: E.Run<Ferry.Stage, U32, Study.Model>
-  for record: List<&2, E.Frame<U32>>
-  {E.report_of(List<&2, E.Frame<U32>>, Study.Model,
-    E.drive(~Ferry.Stage, ~U32, ~Study.Model, ~E.Hooks{Ferry.world(), Study.act, Study.learn},
-      ~List<&2, E.Frame<U32>>, ~E.remember(U32), fuel, mode, run, record))
-    == E.roll(~Ferry.Stage, ~U32, ~Study.Model, ~E.Hooks{Ferry.world(), Study.act, Study.learn}, fuel, mode, run)
-    : E.Report<Study.Model>}
+  for run: E.Run<S,O,M>
+  for record: A
+  {E.report_of(A,M,E.drive(~S,~O,~M,~hooks,~A,~observe,fuel,mode,run,record))
+    == E.roll(~S,~O,~M,~hooks,fuel,mode,run) : E.Report<M>}
 
-# Splitting a training allocation at an arbitrary interaction boundary leaves
-# exactly the same cursor, including RNG, model, and remaining episode horizon.
-law ferry_pause_composes:
+law pause_composes:
+  for ~S: Data
+  for ~O: Data
+  for ~M: Data
+  for ~hooks: E.Hooks<S,O,M>
   for first: Nat
   for second: Nat
   for mode: E.Mode
-  for cursor: C.Cursor<Ferry.Stage,U32,Study.Model>
-  {C.advance(~Ferry.Stage,~U32,~Study.Model,~E.Hooks{Ferry.world(),Study.act,Study.learn},Nat.add(first,second),mode,cursor)
-    == C.advance(~Ferry.Stage,~U32,~Study.Model,~E.Hooks{Ferry.world(),Study.act,Study.learn},second,mode,
-      C.advance(~Ferry.Stage,~U32,~Study.Model,~E.Hooks{Ferry.world(),Study.act,Study.learn},first,mode,cursor))
-    : C.Cursor<Ferry.Stage,U32,Study.Model>}
+  for cursor: C.Cursor<S,O,M>
+  {C.advance(~S,~O,~M,~hooks,Nat.add(first,second),mode,cursor)
+    == C.advance(~S,~O,~M,~hooks,second,mode,C.advance(~S,~O,~M,~hooks,first,mode,cursor))
+    : C.Cursor<S,O,M>}
 
 law planning_preserves_observed_experience:
   for budget: Nat
@@ -258,3 +279,71 @@ law arena_finished_game_has_no_bootstrap:
   for buckets: U32
   for table: ArenaTable.Tree
   {Player.first_value(method,buckets,table,E.End{Arena.Over{}}) == 0.0 : F32}
+
+# A signed natural difference: (a,0) or (0,b), never saturating at zero.
+# Equality of these normal forms says two counters changed by the same amount.
+def counter_difference(m: Nat, s: Nat) -> Pair(Nat, Nat):
+  match m s:
+    case 0n b: (0n, b)
+    case 1n+a 0n: (1n+a, 0n)
+    case 1n+a 1n+b: counter_difference(a,b)
+
+def accounting(mode: E.Mode, m: Nat, s: Nat) -> Pair(Nat,Nat):
+  match mode:
+    case E.Evaluate{}: (m,0n)
+    case E.Train{}: counter_difference(m,s)
+
+def report_account(mode: E.Mode, report: E.Report<Nat>) -> Pair(Nat,Nat):
+  E.Report{m,score,steps,reason} = report
+  accounting(mode,m,steps)
+
+def run_account(-S: Data, -O: Data, +mode: E.Mode, run: E.Run<S,O,Nat>) -> Pair(Nat,Nat):
+  match run:
+    case E.Live{s,o,acts,m,seed,score,steps}: accounting(mode,m,steps)
+    case E.Stopped{report}: report_account(mode,report)
+
+def counting(-O: Data, m: Nat, event: E.Transition<O>) -> Nat: 1n+m
+
+law evaluation_episode_freezes_counter:
+  for ~S: Data
+  for ~O: Data
+  for ~reset: U32 -> S
+  for ~inspect: S -> E.View<O>
+  for ~step: S -> U32 -> U32 -> Pair(S,F32)
+  for ~act: Nat -> O -> List<&2,U32> -> E.Mode -> U32 -> U32
+  for fuel: Nat
+  for +run: E.Run<S,O,Nat>
+  {report_account(E.Evaluate{}, E.roll(~S,~O,~Nat,~E.Hooks{E.World{reset,inspect,step},act,counting(O)},fuel,E.Evaluate{},run))
+   == run_account(S,O,E.Evaluate{},run) : Pair(Nat,Nat)}
+
+law training_episode_counts_accepted_steps:
+  for ~S: Data
+  for ~O: Data
+  for ~reset: U32 -> S
+  for ~inspect: S -> E.View<O>
+  for ~step: S -> U32 -> U32 -> Pair(S,F32)
+  for ~act: Nat -> O -> List<&2,U32> -> E.Mode -> U32 -> U32
+  for fuel: Nat
+  for +run: E.Run<S,O,Nat>
+  {report_account(E.Train{}, E.roll(~S,~O,~Nat,~E.Hooks{E.World{reset,inspect,step},act,counting(O)},fuel,E.Train{},run))
+   == run_account(S,O,E.Train{},run) : Pair(Nat,Nat)}
+
+# Replay reconstructs completed episodes with E.episode; training may advance
+# the opaque cursor one segment at a time. The equivalence covers every field
+# of the report, including model, F32 score, accepted steps, and stop reason.
+law cursor_finishes_as_episode:
+  for ~S: Data
+  for ~O: Data
+  for ~M: Data
+  for ~reset: U32 -> S
+  for ~inspect: S -> E.View<O>
+  for ~step: S -> U32 -> U32 -> Pair(S,F32)
+  for ~act: M -> O -> List<&2,U32> -> E.Mode -> U32 -> U32
+  for ~learn: M -> E.Transition<O> -> M
+  for +model: M
+  for +seed: U32
+  for +mode: E.Mode
+  for +limit: Nat
+  {C.finished(S,O,M,C.advance(~S,~O,~M,~E.Hooks{E.World{reset,inspect,step},act,learn},limit,mode,
+    C.start(~S,~O,~M,~E.Hooks{E.World{reset,inspect,step},act,learn},model,seed,limit))) ==
+    Some{E.episode(~S,~O,~M,~E.Hooks{E.World{reset,inspect,step},act,learn},mode,model,seed,limit)} : Maybe<&2,E.Report<M>>}
