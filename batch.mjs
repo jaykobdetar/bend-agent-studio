@@ -6,7 +6,9 @@ import path from 'node:path';
 import {fileURLToPath,pathToFileURL} from 'node:url';
 import {execute} from './process_output.mjs';
 import {canonical,checkSeedBlocks,digest} from './experiment_config.mjs';
-import {adapterName,immutable,json,record,seal,stats,unseal} from './experiment.mjs';
+import {policyOracle} from './public_oracle.mjs';
+import {stepEstimates,fitQEvaluation} from './ope.mjs';
+import {existing,adapterName,immutable,json,record,seal,stats,unseal} from './experiment.mjs';
 import {actionBuckets,archive,collect,fields,id,openDataset,seedAllocation,uint} from './dataset.mjs';
 
 const here=path.dirname(fileURLToPath(import.meta.url));
@@ -136,19 +138,38 @@ async function score(root, data, fitted, config, output) {
   immutable(path.join(output,'score.json'),canonical(identity)+'\n');
   const keys=['game','arm','replicate','train_transitions','observed_pairs','seed','episodes','sum','steps','terminal','limited','illegal',
     'holdout_episodes','matched','unsupported','ess','ordinary','normalized'];
+  const estimators=['ordinary','normalized','pdis','weighted_pdis','fqe','doubly_robust'];
+  keys.push(...estimators.slice(2),'exact_value','coverage_complete',...estimators.map(k=>k+'_error'));
   const lines=[keys.join(',')];
   for (let rep=0;rep<plan.replicates;rep++) {
     const heldout=d.episodes('holdout',rep), first=spec.seeds.start+rep*spec.seeds.stride;
+    const training=d.episodes('fit',rep),buckets=Math.round(source.epsilon*65536);
+    let loggerModel,previous=null;
+    if(game.definition)for(const n of plan.checkpoints){
+      const cp=existing(root,manifest.hash,{game,arm:logger,rep},n,previous);
+      if(!cp)throw Error('missing logger checkpoint');
+      previous=cp.hash;loggerModel=cp.body.model;if(n===source.checkpoint)break;
+    }
     for (const a of design.spec.arms) {
       const policy=unseal(path.join(fitted,'models',a.id,rep+'.json'));
       if (policy.body.fit!==f.hash || policy.body.arm!==a.id || policy.body.rep!==rep) throw Error('fitted policy identity mismatch');
       const model=policy.body.model, online=stats();
-      const estimate=offPolicy(heldout,(s,legal)=>fitter.act(model,s,list(legal),evaluation,0),Math.round(source.epsilon*65536));
+      const act=(s,legal)=>fitter.act(model,s,list(legal),evaluation,0);
+      const estimate=offPolicy(heldout,act,buckets),extra=stepEstimates(heldout,act,buckets,fitQEvaluation(training,act));
+      const preferred=api['preferred_'+adapterName(game,logger)];
+      const truth=game.definition?policyOracle(game.definition,game.limit,act,{observation:logger.observation??'current',
+        behavior:(s,legal)=>actionBuckets(legal,preferred(loggerModel,s,list(legal)),buckets).map(k=>k/65536)}):null;
+      if(truth?.overlap.coverageComplete && !estimate.matched)estimate.ordinary=0;
+      if(truth&&!truth.overlap.coverageComplete){
+        estimate.ordinary=estimate.normalized=extra.pdis=extra.weighted_pdis=extra.doubly_robust=null;
+      }
+
       for (let i=0;i<spec.episodes;i++) record(online,play(model,first+i,game.limit));
       const result={score:identity.hash,model:policy.hash,game:game.id,arm:a.id,replicate:rep,
         train_transitions:policy.body.steps,observed_pairs:policy.body.observedPairs,seed:first,...online,
         holdout_episodes:estimate.episodes,matched:estimate.matched,unsupported:estimate.unsupported,
-        ess:estimate.ess,ordinary:estimate.ordinary,normalized:estimate.normalized};
+        ess:estimate.ess,ordinary:estimate.ordinary,normalized:estimate.normalized,...extra,exact_value:truth?.expectedReturn??null,coverage_complete:truth?.overlap.coverageComplete??null};
+      for(const k of estimators)result[k+'_error']=truth && result[k]!=null?result[k]-truth.expectedReturn:null;
       immutable(path.join(output,'trials',a.id,rep+'.json'),seal(result));
       lines.push(keys.map(k=>result[k]??'').join(','));
     }

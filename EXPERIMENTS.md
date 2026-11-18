@@ -164,3 +164,23 @@ node world_campaign.mjs --bend bend --seed 30000 --worlds 4 --episodes 128 --bat
 ```
 
 The independent verdict needs a matching BendTT kernel available to Bend. The randomized campaign compiles newly generated games and compares boundary transitions, episode reports, and paused execution with an independent simulator. Its output lists the seed and source fingerprints so a failing batch can be repeated.
+
+### Off-policy score columns
+
+The estimand is the undiscounted finite-episode value of the frozen target
+policy. `pdis` weights each reward by the target/logging likelihood ratio
+through that decision. `weighted_pdis` normalizes separately at each time;
+early terminal episodes contribute zero rewards and keep their final weight
+in later denominators. `fqe` estimates time-indexed observation/legal-list/action
+values by backward empirical means on **fit**, following the target action,
+not the maximizing action. Unseen cells default to zero. `doubly_robust`
+starts from the fitted initial prediction and applies prefix-weighted residual
+corrections on **holdout**. FQE can extrapolate badly under poor support or
+aliased observations. Self-normalized estimators need not be unbiased.
+
+For authored finite worlds `exact_value` uses the independent policy oracle
+and `coverage_complete` checks the archived logger across target paths.
+Each `*_error` is estimate minus exact value. Missing coverage blanks IS
+and doubly robust estimates, not FQE; a zero normalization denominator also
+gives a blank. Unknown global support on other worlds is not evidence of
+coverage. Compare errors across independent dataset replicates, not frames.
