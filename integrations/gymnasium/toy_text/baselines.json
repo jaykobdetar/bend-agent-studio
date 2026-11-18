@@ -1,0 +1,37 @@
+{
+  "lake4-dry": {
+    "horizon": 100,
+    "optimal": 1,
+    "uniform": 0.013939795959171436
+  },
+  "lake4-slip": {
+    "horizon": 100,
+    "optimal": 0.7441902879875136,
+    "uniform": 0.013939795959171436
+  },
+  "lake8-dry": {
+    "horizon": 200,
+    "optimal": 1,
+    "uniform": 0.0019013954948230382
+  },
+  "lake8-slip": {
+    "horizon": 200,
+    "optimal": 0.9132201498418919,
+    "uniform": 0.0019013954948230386
+  },
+  "taxi": {
+    "horizon": 200,
+    "optimal": 7.929999998304993,
+    "uniform": -771.0909994373922
+  },
+  "cliff4x12": {
+    "horizon": 200,
+    "optimal": -13,
+    "uniform": -2079.1159710088205
+  },
+  "blackjack": {
+    "horizon": 32,
+    "optimal": -0.04311310523734733,
+    "uniform": -0.39417455690770126
+  }
+}

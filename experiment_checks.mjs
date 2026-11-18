@@ -203,3 +203,42 @@ test('portable report embeds analyze.py rows and exact finite-world replay decis
   }
   await assert.rejects(invoke('report',root,out),/EEXIST/);
 });
+
+test('local jobs resume byte-identically to serial using only the archive',compilerTest,async t=>{
+  const dir=directory(t),cfg=path.join(dir,'plan.json'),a=path.join(dir,'serial'),b=path.join(dir,'parallel');
+  write(cfg,plan());
+  await invoke('run',cfg,a,'--bend',bend);
+  await invoke('run',cfg,b,'--bend',bend,'--jobs','4','--until','3');
+  const archived=path.join(b,'code','experiment.mjs');
+  const resume=()=>execute(process.execPath,[archived,'resume',b,'--jobs','8'],{env:{...process.env,BEND:path.join(dir,'no-compiler')}});
+  await resume();
+  assert.match((await resume()).stdout,/0 checkpoints written/);
+  const files=root=>fs.readdirSync(root,{recursive:true}).filter(f=>fs.statSync(path.join(root,f)).isFile()).sort();
+  assert.deepEqual(files(a),files(b));
+  for(const f of files(a)) assert.ok(fs.readFileSync(path.join(a,f)).equals(fs.readFileSync(path.join(b,f))),f);
+  assert.equal(JSON.parse((await invoke('verify',b)).stdout).completeTrials,4);
+});
+
+test('invalid local worker counts and explicit shard combinations fail before compilation',async()=>{
+  for(const opts of [['--jobs','0'],['--jobs','33'],['--jobs','2','--shard','0/2'],['--jobs','2','--jobs','2']])
+    await assert.rejects(invoke('run','no-such-config','unused',...opts),/jobs/);
+});
+
+test('a failed local worker cancels its live peer before the supervisor returns',async t=>{
+  const dir=directory(t),code=path.join(dir,'code'),ready=path.join(dir,'ready');
+  fs.mkdirSync(code);
+  fs.copyFileSync(path.join(here,'parallel_trials.mjs'),path.join(code,'parallel_trials.mjs'));
+  fs.writeFileSync(path.join(code,'experiment.mjs'),`
+    import fs from 'node:fs';
+    const ready=process.argv[3]+'/ready';
+    if(process.argv.at(-1)==='1/2'){
+      fs.writeFileSync(ready,String(process.pid)); setInterval(()=>{},1000);
+    }else{
+      const timer=setInterval(()=>{if(fs.existsSync(ready)){clearInterval(timer);process.exit(7)}},10);
+    }
+  `);
+  const {launchShards}=await import('./parallel_trials.mjs');
+  await assert.rejects(launchShards(dir,2,Infinity,'fixture',2),/shard 0\/2 failed/);
+  const peer=Number(fs.readFileSync(ready,'utf8'));
+  assert.throws(()=>process.kill(peer,0),{code:'ESRCH'});
+});

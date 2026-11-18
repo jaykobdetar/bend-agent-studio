@@ -1,0 +1,7 @@
+{
+  "schema":1,"name":"toy-text-lake4",
+  "games":[{"id":"dry","file":"../worlds/benchmarks/toy-text/lake4-dry.json","limit":100},{"id":"slip","file":"../worlds/benchmarks/toy-text/lake4-slip.json","limit":100}],
+  "arms":[{"id":"random","method":"random"},{"id":"q","method":"q_learning"}],
+  "replicates":2,"checkpoints":[0,16,64],"validationEpisodes":4,"testEpisodes":8,
+  "seeds":{"train":73000000,"validation":1600000000,"test":2600000000,"stride":10000}
+}

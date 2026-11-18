@@ -2,8 +2,74 @@ import Base
 import ./engine.bend as E
 
 # A sparse table keyed by the actual observation and action IDs.
+# A digital search tree. Each node stores a real key (no empty prefix chains).
+# On a miss, use alternating low bits of observation and action. A distinct
+# 64-bit pair diverges in at most 64 decisions. Full IDs are always compared.
+type Cell is Data:
+  Cell{visits: U32, value: F32}
+
+type Tree is Data:
+  Vacant{}
+  Node{s: U32,a: U32,cell: Cell,lo: Tree,hi: Tree}
+
+def keyeq(s: U32,a: U32,k: U32,l: U32) -> Bool:
+  U32.is_eq(s,k) && U32.is_eq(a,l)
+
+def right(k: U32) -> Bool: U32.is_ne(U32.and(k,1),0)
+
+def child(b: Bool,lo: Tree,hi: Tree) -> Tree:
+  match b:
+    case False{}: lo
+    case True{}: hi
+
+def seek_if(hit: Bool,cell: Cell,next: Unit -> Cell) -> Cell:
+  match hit:
+    case True{}: cell
+    case False{}: next(Unit{})
+
+def seek_child(b: Bool,lo: Unit -> Cell,hi: Unit -> Cell) -> Cell:
+  match b:
+    case False{}: lo(Unit{})
+    case True{}: hi(Unit{})
+
+def search(tree: Tree,+k: U32,+l: U32,+bits: U32,+other: U32) -> Cell:
+  match tree:
+    case Vacant{}: Cell{0,0.0}
+    case Node{s,a,cell,lo,hi}:
+      seek_if(keyeq(s,a,k,l),cell,u => seek_child(right(bits),u => search(lo,k,l,other,U32.shr(bits)),u => search(hi,k,l,other,U32.shr(bits))))
+
+def insert_at(hit: Bool,b: Bool,s: U32,a: U32,c: Cell,lo: Tree,hi: Tree,new: Cell,left: Unit -> Tree,right: Unit -> Tree) -> Tree:
+  match hit b:
+    case True{} _: Node{s,a,new,lo,hi}
+    case False{} False{}: Node{s,a,c,left(Unit{}),hi}
+    case False{} True{}: Node{s,a,c,lo,right(Unit{})}
+
+def insert(tree: Tree,+k: U32,+l: U32,+bits: U32,+other: U32,+new: Cell) -> Tree:
+  match tree:
+    case Vacant{}: Node{k,l,new,Vacant{},Vacant{}}
+    case Node{+s,+a,c,+lo,+hi}:
+      insert_at(keyeq(s,a,k,l),right(bits),s,a,c,lo,hi,new,
+        u => insert(lo,k,l,other,U32.shr(bits),new),
+        u => insert(hi,k,l,other,U32.shr(bits),new))
+
+def cell_visits(c: Cell) -> U32:
+  match c:
+    case Cell{n,v}: n
+
+def cell_value(c: Cell) -> F32:
+  match c:
+    case Cell{n,v}: v
+
+def tree_total(tree: Tree,+obs: U32) -> U32:
+  match tree:
+    case Vacant{}: 0
+    case Node{s,a,c,lo,hi}: U32.add(Bool.pick(U32,U32.is_eq(s,obs),cell_visits(c),0),U32.add(tree_total(lo,obs),tree_total(hi,obs)))
+
+# List literals remain accepted for authored agents and old source fixtures.
+# New tables built by adjust have a single indexed root.
 type Entry is Data:
   Entry{observation: U32, action: U32, visits: U32, value: F32}
+  Indexed{tree: Tree}
 
 def Table() -> Data:
   List<&2, Entry>
@@ -11,12 +77,14 @@ def Table() -> Data:
 def lookup(table: Table, +obs: U32, +action: U32) -> F32:
   match table:
     case Nil{}: 0.0
+    case Indexed{tree} <> rest: cell_value(search(tree,obs,action,obs,action))
     case Entry{s, a, visits, value} <> rest:
       Bool.pick(F32, U32.is_eq(s, obs) && U32.is_eq(a, action), value, lookup(rest, obs, action))
 
 def visits(table: Table, +obs: U32, +action: U32) -> U32:
   match table:
     case Nil{}: 0
+    case Indexed{tree} <> rest: cell_visits(search(tree,obs,action,obs,action))
     case Entry{s,a,n,v} <> rest:
       Bool.pick(U32,U32.is_eq(s,obs) && U32.is_eq(a,action),n,visits(rest,obs,action))
 
@@ -40,10 +108,23 @@ def replace_or_keep(found: Bool, replacement: Unit -> Table, keep_searching: Uni
     case True{}: replacement(Unit{})
     case False{}: keep_searching(Unit{})
 
+# Representation-independent observation of the entry produced by revised.
+def entry_value(entry: Entry) -> F32:
+  match entry:
+    case Entry{s,a,n,v}: v
+    case Indexed{tree}: 0.0
+
+def update_cell(rule: Rate,s: U32,a: U32,c: Cell,target: F32) -> Cell:
+  match c:
+    case Cell{+n,v}: Cell{U32.add(n,1),entry_value(revised(rule,s,a,U32.add(n,1),v,target))}
+
 def adjust(table: Table, +obs: U32, +action: U32, +rule: Rate, +target: F32) -> Table:
   match table:
     case Nil{}:
-      [revised(rule, obs, action, 1, 0.0, target)]
+      [Indexed{Node{obs,action,update_cell(rule,obs,action,Cell{0,0.0},target),Vacant{},Vacant{}}}]
+    case Indexed{+tree} <> rest:
+      new=update_cell(rule,obs,action,search(tree,obs,action,obs,action),target)
+      [Indexed{insert(tree,obs,action,obs,action,new)}]
     case Entry{+s, +a, +visits, +old} <> +rest:
       found = U32.is_eq(s, obs) && U32.is_eq(a, action)
       replace_or_keep(found,
@@ -137,3 +218,10 @@ def q_learning(model: Table, event: E.Transition<U32>) -> Table:
 
 def expected_sarsa(model: Table, event: E.Transition<U32>) -> Table:
   td(Expected{}, model, event)
+
+# Bulk builders start empty and keep only one indexed root.
+def store(tree: Table,+s: U32,+a: U32,new: Cell) -> Table:
+  match tree:
+    case Nil{}: [Indexed{Node{s,a,new,Vacant{},Vacant{}}}]
+    case Indexed{t} <> rest: [Indexed{insert(t,s,a,s,a,new)}]
+    case Entry{x,y,n,v} <> rest: Entry{x,y,n,v} <> store(rest,s,a,new)

@@ -5,7 +5,7 @@ The simulation, policy, learning updates, and action-by-action replay run in Ben
 ## Rules for experiments
 
 1. The world owns private simulation state. Its public view contains an observation and legal action IDs, or a terminal observation.
-2. The engine checks legality before calling the world transition or the learner. A rejected action preserves the model, score, and accepted-step count and ends the episode.
+2. The engine checks legality before calling the world transition or the learner. The rejection law on the engine’s decision path proves that an invalid action preserves the model, score, and accepted-step count, produces no transition, and ends the episode.
 3. Every accepted training move generates exactly one public transition. A learner may use that transition for a TD update, planning, or a deferred episode-return update. Evaluation freezes the model.
 4. An episode has a declared horizon. Natural termination takes precedence at the horizon. An open next state at the limit carries a truncation flag. A scheduler pause retains the live cursor and the original horizon.
 5. All randomness is seeded. Policy and world draws are domain-separated, and paired arms receive matching episode seed blocks. Training, validation, test, and declared follow-up assessment blocks must be disjoint within their design.
@@ -14,7 +14,13 @@ The simulation, policy, learning updates, and action-by-action replay run in Ben
 8. A comparison declares its budget unit, metrics, replicate blocks, and evaluation conditions. Frozen evaluation decisions, saved weights, code fingerprints, and seed blocks remain traceable to their checkpoint. Hyperparameter selection uses validation. A confirmatory comparison retrains on fresh seeds.
 9. Offline fitting reads only the fit partition. Logging records the behavior probability of every taken action. The held-out log and fresh-simulator score have distinct seeds. Unsupported actions are explicitly reported.
 
-The project defines 26 propositions in `LAWS.bend` and `PROOF.bend`. They include update and rejection semantics, report accounting, untouched Double Q estimators, feature-tree read after write, public-history preservation, Dyna experience preservation, terminal critic targets and the exclusion of unsupported actions from restricted backups, and the two-seat payoff and terminal bootstrap rules. The observer and split-budget propositions instantiate generic proofs on the ferry world. Seed allocation, checkpoint storage, data partition separation and statistical procedures are enforced and tested by the host software.
+The project defines 41 propositions in `LAWS.bend` and `PROOF.bend`. They also cover feature-tree readback, logged-support restrictions, terminal critic and bootstrap targets, and two-seat payoff rules. The engine applies the learner once per training transition and preserves the model during evaluation. The whole-rollout counting-learner laws prove evaluation freezes the counter and training changes it by exactly the accepted-step delta; the proof preserves the signed difference from an arbitrary starting counter. Updating one Double Q table preserves the other. With a nonempty legal-action list, Double Q selects the bootstrap action with the table being updated and values it with the other table. Dyna planning preserves recorded experience. Completing a Monte Carlo self-play episode clears its buffered decisions, not the learned table. On the engine’s actual decision path, rejecting an illegal action preserves model, score and accepted steps, produces no transition and ends the episode. Only an open view at zero remaining fuel is truncated; positive fuel never causes truncation. Each report increases the episode count by one, including illegal exits. From any starting run, the final step count is at most the initial count plus available fuel. The history wrapper preserves legal actions and rewards. At each reset it restores the configured memory and seeds the underlying world anew. For any typed world and agent hooks, observing decisions preserves the final report, and splitting an interaction budget gives the same cursor as advancing once, including model, seed and remaining horizon. These laws cover both training and evaluation. Completing a fresh cursor yields exactly the ordinary episode report for all worlds and policies, including the model, score, steps and stop reason.
+
+The addressed observation/action key reads back the revised F32 value and its incremented U32 visit count. All other keys preserve both reads, even when a key was absent or input entries are not unique.
+
+Zero exploration buckets always select the preferred action, as does every masked 16-bit draw at or above the threshold. The base action is computed in evaluation mode with word zero. The propensity formula is separately tested across all 65,536 draws.
+
+Seed allocation, checkpoint storage, data partition separation and statistical procedures are enforced and tested by the host software.
 
 ## First run
 
@@ -34,6 +40,34 @@ The bridge has two choices. The safe choice ends the game with one point. The ri
 ### Run the same loop from an MCP client
 
 The [local MCP adapter](mcp/README.md) accepts either a plan path or a self-contained JSON plan in an empty workspace. Validate the world and plan, compare the game with its oracle, launch training, and poll the returned job ID. After training, use the stored run to summarize replicate estimates, replay an episode, or explain a finite-world decision. MCP and the CLI use the same validators, compiled runner, sealed checkpoints, and original phase/seed definitions. See [plan and spec fields](mcp/FIELDS.md) for the typed inputs.
+
+## Play a finite world in Gymnasium
+
+The optional [Gymnasium adapter](integrations/gymnasium/README.md) uses the same JSON validator, grid expansion and exact integer sampling buckets as the runner. Supply a positive horizon and an explicit U32 seed to reproduce a Bend episode with the same actions. Gym action indices map to potentially sparse Bend IDs; consult the legal-action IDs in the public info. Natural terminal states win over time-limit truncation. For the exact undiscounted report score, use `info["bend_episode_score"]`, which rounds after each accepted move just as Bend does. Run the adapter's Python unittest suite for the Gym checker, sampling comparison, and optional compiled Bend replay comparison.
+
+## Benchmark worlds
+
+The first seven benchmarks are [Gymnasium 1.4.0 ports](integrations/gymnasium/toy_text/README.md); all benchmarks use the general state-machine schema. Values below are expected **undiscounted episode scores**, computed on the Bend integer sampling buckets. “Optimal” is a finite-horizon optimal policy; “uniform” chooses uniformly among all available action IDs. They are not fitted scores.
+
+| World | Horizon | Optimal | Uniform | What it tests |
+| --- | ---: | ---: | ---: | --- |
+| [FrozenLake 4×4 dry](worlds/benchmarks/toy-text/lake4-dry.json) | 100 | 1 | 0.013940 | Sparse goal; wall actions do not advance the agent. |
+| [FrozenLake 4×4 slippery](worlds/benchmarks/toy-text/lake4-slip.json) | 100 | 0.744190 | 0.013940 | Same map, with stochastic directional slips. |
+| [FrozenLake 8×8 dry](worlds/benchmarks/toy-text/lake8-dry.json) | 200 | 1 | 0.001901 | Longer sparse-reward search. |
+| [FrozenLake 8×8 slippery](worlds/benchmarks/toy-text/lake8-slip.json) | 200 | 0.913220 | 0.001901 | Navigation under slip over the larger fixed map. |
+| [Taxi-v4](worlds/benchmarks/toy-text/taxi.json) | 200 | 7.930000 | −771.090999 | Plan pickup and delivery despite costly invalid attempts. |
+| [CliffWalking 4×12](worlds/benchmarks/toy-text/cliff4x12.json) | 200* | −13 | −2079.115971 | Cliff falls reset position and incur a penalty; not the smaller built-in Cliff. |
+| [Blackjack-v1](worlds/benchmarks/toy-text/blackjack.json) | 32* | −0.043113 | −0.394175 | Hit or stick with a hidden dealer card and the registered natural-hand rule. |
+| [Deep Sea, N=3/5](experiments/probe-deep-sea.json) | 3 / 5 | 0.99 / 0.99 | 0.12000 / 0.02625 | Directed exploration with a fixed per-cell action map and costly right moves. |
+| [Umbrella, N=3/5](experiments/probe-umbrella.json) | 3 / 5 | 1 / 1 | 0 / 0 | Delayed credit for the first choice, masked by zero-mean reward noise. |
+| [Memory, N=3/5](experiments/probe-memory.json) | 3 / 5 | 1 / 1 | 0 / 0 | Recall an initial cue after a delay; reactive optimal value is zero. |
+| [Discount chain, N=3/6](experiments/probe-discount.json) | 3 / 6 | 1.25 / 1.25 | 1.125 / 1.125 | Changing the delay changes which choice a discounted learner prefers. |
+| [Noisy bandit, N=2/4](experiments/probe-bandit.json) | 1 / 1 | 0.5 / 0.5 | 0 / −0.25 | Identify a better arm amid stochastic positive and negative payoffs. |
+| [Catch, N=2/4](experiments/probe-catch.json) | 2 / 2 | 1 / 1 | 0 / −0.5 | Move a paddle to intercept a visible falling ball across grid widths. |
+
+For the six diagnostic families, slash-separated values follow their two sizes in order. They are [bsuite-style probes, not upstream replications](worlds/benchmarks/probes/README.md); each link runs both sizes and produces one plot panel per size.
+
+The Lakes and Taxi use their registered episode limits; *Gymnasium registers no limit for CliffWalking or Blackjack, so these are explicit study budgets.* Authored tabular rows preserve the intended rational probabilities; sampling uses the existing one-word approximation for non-dyadic probabilities, not Gym's RNG. See [generation, numerical precision and Blackjack checks](integrations/gymnasium/toy_text/README.md) and [full-precision baselines](integrations/gymnasium/toy_text/baselines.json). Run the [example plan](experiments/toy-text.json) with `node experiment.mjs run experiments/toy-text.json runs/toy-text`.
 
 ## Change the world, policy, or learner
 
@@ -71,6 +105,8 @@ Validation evaluates a frozen model at every checkpoint. The test block is used 
 
 ## Resume, reproduce, and inspect
 
+The runner still archives a JavaScript backend. See the [native runtime evaluation](tools/native-spike/README.md) for the tested plan boundaries and why native execution is not a supported replay option.
+
 ```sh
 node experiment.mjs run experiments/planning-budget.json runs/planning --until 256
 node experiment.mjs status runs/planning
@@ -98,6 +134,22 @@ The confirmation specification declares a reference arm, selection metric, budge
 `analyze.py` reports a pointwise 95% percentile bootstrap interval. It resamples trained replicate blocks, keeping paired arms together when a reference is specified. With one replicate the interval is blank. With a few replicates or identical observed values, the interval can be narrow and its coverage can be poor. Report the replicate count and inspect the individual paired differences. Increasing bootstrap draws only refines the resampling calculation. [Hesterberg, 2015](https://doi.org/10.1080/00031305.2015.1089789)
 
 The engine advances a 32-bit linear congruential generator. Its mixed hooks use separate constants and a mixing function for the policy and world draws. Episode starts within a seed block are consecutive. These choices reproduce trajectories and pair comparisons across arms. Statistical independence is an assumption about the experimental design. Changing the generator changes trajectories and would require a separately identified design.
+
+### Comparing a fixed suite of games
+
+Per-game means above remain the default. Opt into suite statistics for a balanced export (training, assessment, or offline scores). For each selected phase and budget, the suite requires the same arms and trained replicate IDs for every game. It never pools checkpoints or counts evaluation episodes as fresh trained replicates. These examples use a CSV with at least two arms, one named `random`:
+
+```sh
+python3 analyze.py study.csv --aggregate probability-of-improvement --reference random
+python3 analyze.py study.csv --aggregate iqm --metric completion
+python3 analyze.py study.csv --aggregate profile --metric completion --threshold 0.8
+```
+
+**IQM** sorts the balanced game-by-replicate scores and trims `floor(N/4)` values off each tail before averaging. With a reference it reports the difference of the two IQMs (not the IQM of individual differences). A **profile** reports the fraction of oriented scores *strictly* above a prespecified threshold; with a reference the output is the difference in fractions. **Probability of improvement** averages, with equal weight per game, the probability that a candidate draw beats a reference draw; ties receive half credit. It compares all cross-arm pairs within each game, so this is not the fraction of matched seeds won. It needs no common reward scale.
+
+For multi-game IQM and profiles, normalize unlike task scales using `--anchors anchors.json`, or declare that native score units are comparable with `--comparable`. Completion, timeout and illegal fractions already share units. The anchor file maps **every** game to `[bad, good]`, for example `{"bridge":[0,2],"detour":[-10,0]}`. Set these before examining test performance. The transform is `(score-bad)/(good-bad)`; it permits reversed anchors, does not clip, and rejects equal endpoints. Without anchors, higher returns/completion and lower timeout/illegal rates count as better; `steps` requires an explicit `--direction higher|lower`. For lower-is-better metrics the oriented score is the negative raw value, so a threshold of `-0.1` for timeout means fewer than 10% timeouts. The output retains phase, budget unit, game count, replicates per game and resampling scheme.
+
+The suite reports *pointwise*, nominal 95% percentile intervals. The default (`--blocks within-game`) holds the game suite fixed, resamples trained replicates within each game and uses the same indices for paired arms. With a shared cross-game replicate effect, choose `--blocks across-games` to move whole replicate vectors together. Neither estimates uncertainty over newly sampled games. Matched Studio arms should not be bootstrapped independently; independent, unrelated arm designs are not supported by this paired interface. A single replicate per game gives a blank interval. Few replicates or tied outcomes can cause severe undercoverage or a zero-width interval; more bootstrap draws do not replace more runs. Repeated thresholds/checkpoints are not simultaneous confidence bands. See [rliable's evaluation methodology](https://github.com/google-research/rliable) for the reference metrics.
 
 ## Transfer and checkpoint selection
 
@@ -197,3 +249,88 @@ Only generate a report from a **trusted local run**: generation verifies its
 archive but executes that archive's backend. Open or share the resulting HTML
 offline: it contains plain escaped text and static SVG, no scripts or external
 assets. It includes run identity, test seeds and results; review before sharing.
+
+### Parallel trials on one machine
+
+Add `--jobs 4` to `node experiment.mjs run PLAN OUT` to compile once and
+distribute independent trials to up to four archived Node workers. Each owns
+an ordinary disjoint shard; checkpoint contents and seeds are unchanged.
+Choose 1–32 workers, allowing for a model and backend in memory per worker.
+Use `--until N` to stop at a declared checkpoint. Resume without Bend with
+`node OUT/code/experiment.mjs resume OUT --jobs 4`. The worker count may
+change on resume. Do not combine this option with an explicit `--shard`.
+A failed worker stops its peers; resume from the last published checkpoints.
+Use `node OUT/code/experiment.mjs verify OUT` after completion.
+
+### Discounted full-state planning
+
+Run `node experiment.mjs oracle worlds/detour.json --discount 0.95 --tolerance 1e-9`.
+This returns two independent planning results: value iteration, and policy iteration
+with iterative policy evaluation. Both see the underlying state, even when the
+agent's observations do not distinguish states. Rewards on entering a terminal
+state count; its continuation value is zero. With discount below 1 the stopping
+residual is at most tolerance × (1 − discount), before floating-point roundoff.
+An iteration limit raises an error rather than returning an unconverged estimate.
+
+Discount 1 is supported only for acyclic positive-probability transition graphs,
+where exact backward propagation terminates. Merely having a goal is insufficient:
+Detour permits circling, and even an almost-surely terminating stochastic loop is
+outside this conservative undiscounted solver. Choose a discount below 1 or use
+the original finite-horizon oracle for such worlds.
+
+### Export a finite world for another solver
+
+`node tools/export_pomdp.mjs worlds/bridge.json bridge.pomdp --discount 0.95 --illegal-penalty -1000000`
+writes a new [Cassandra file](https://www.pomdp.org/code/pomdp-file-spec.html)
+without replacing existing files. Transitions use the Bend U32 buckets; observations
+are one-hot functions of the resulting state. Terminal states absorb with zero
+future reward. Globally available but locally illegal actions pay the chosen
+penalty once and enter a distinct absorbing sink. Select a penalty below the value
+of legal continuations; this is not a hard legality constraint.
+
+This exports expected reward, not the complete interaction history: outcomes
+with the same next state use their conditional mean reward. Solvers do not
+automatically see Bend's public legal list, sampled reward, or reset observation
+before choosing their first action. Results can therefore differ for partially
+observable games. For a deterministic initial state and fully observable model,
+`python tools/check_pomdp_lp.py bridge.pomdp` optionally checks the discounted
+value using SciPy's HiGHS linear-program solver, independent of the JS oracle.
+
+### Off-policy score columns
+
+The estimand is the undiscounted finite-episode value of the frozen target
+policy. `pdis` weights each reward by the target/logging likelihood ratio
+through that decision. `weighted_pdis` normalizes separately at each time;
+early terminal episodes contribute zero rewards and keep their final weight
+in later denominators. `fqe` estimates time-indexed observation/legal-list/action
+values by backward empirical means on **fit**, following the target action,
+not the maximizing action. Unseen cells default to zero. `doubly_robust`
+starts from the fitted initial prediction and applies prefix-weighted residual
+corrections on **holdout**. FQE can extrapolate badly under poor support or
+aliased observations. Self-normalized estimators need not be unbiased.
+
+For authored finite worlds `exact_value` uses the independent policy oracle
+and `coverage_complete` checks the archived logger across target paths.
+Each `*_error` is estimate minus exact value. Missing coverage blanks IS
+and doubly robust estimates, not FQE; a zero normalization denominator also
+gives a blank. Unknown global support on other worlds is not evidence of
+coverage. Compare errors across independent dataset replicates, not frames.
+
+### Compare keyed tabular training against list-backed archives
+
+Use the same `benchmarks/tabular-parity.json` plan in a list-backed checkout
+and an indexed checkout (copy the plan into a `benchmarks/` folder in the
+older checkout). Run `node experiment.mjs run benchmarks/tabular-parity.json RUN`
+in each with a separate, new output directory. This is a bounded planning-budget
+study: two games, four arms, two replicates and three checkpoints. Compare
+train, validation and test metrics, not checkpoint hashes: the representation
+of learned tables intentionally changes. Existing runs continue replaying with
+their archived code; no old models are converted.
+
+To time the **training kernel** rather than compilation or checkpoint I/O, run
+`node benchmarks/tabular-timing.mjs LIST_RUN TREE_RUN` with trusted local
+archives. It checks each of 700 Detour Q-learning episode scores across two
+warmups and eight alternating-order measurements. As one local example with
+Node 24.22.3/Bend 2.0.40, median times were 72.3 ms and 67.9 ms respectively
+(1.07×). The result is workload-specific: very small tables may not benefit;
+UCB still scans the table once for total visits at an observation.

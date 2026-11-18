@@ -20,6 +20,12 @@ def double_check() -> Bool:
   right={[T.Entry{5,10,1,1.0},T.Entry{5,12,1,7.0},T.Entry{5,99,1,100.0}] : T.Table}
   F32.is_eq(Double.continuation(left,right,E.Open{5,[10,12]}),1.0)
 
+# best_action(NoChoices{}) is 0, but an empty bootstrap must not read
+# the evaluating table even if it has a nonzero estimate for action 0.
+def double_empty_check() -> Bool:
+  right = {[T.Entry{5,0,1,7.0}] : T.Table}
+  F32.is_eq(Double.continuation([], right, E.Open{5, []}), 0.0)
+
 def empiric() -> D.LearnedModel:
   b1=Offline.observe(Offline.empty(),E.Transition{1,9,2.0,E.End{2},False{}})
   b2=Offline.observe(b1,E.Transition{1,9,4.0,E.End{2},False{}})
@@ -122,6 +128,7 @@ def main() -> IO(Unit):
   +pole={Pole.Cart{0.0,0.0,0.0,0.0} : Pole.State}
   do IO<Unit>:
     Check.check("Double Q selects with one estimator and evaluates with the other",double_check())
+    Check.check("Double Q does not value action zero on an empty legal list",double_empty_check())
     Check.check("empirical model counts outcomes and averages conditional rewards",empirical_check(empiric()))
     Check.check("planning weights all distinct public outcomes by frequency",planning_check(empiric()))
     Check.check("Mountain Car clips the left wall and removes outward speed",car_wall(Car.step(Car.Car{F32.neg(1.2),F32.neg(0.07)},0,99)))

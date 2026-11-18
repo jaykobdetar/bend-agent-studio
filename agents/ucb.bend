@@ -14,6 +14,7 @@ def initial(seed: U32, params: P.Parameters) -> Model:
 def total(table: T.Table, +obs: U32) -> U32:
   match table:
     case Nil{}: 0
+    case T.Indexed{tree} <> rest: T.tree_total(tree,obs)
     case T.Entry{s,a,n,v} <> rest: U32.add(Bool.pick(U32,U32.is_eq(s,obs),n,0),total(rest,obs))
 
 def scores(actions: List<&2,U32>, +q: T.Table, +obs: U32, +scale: F32, +log_n: F32) -> T.Choices:

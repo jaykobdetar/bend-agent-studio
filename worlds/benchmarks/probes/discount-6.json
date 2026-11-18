@@ -1,0 +1,14 @@
+{"schema":1,"initial":[{"to":0,"weight":1}],"states":[
+{"id":0,"observation":1,"actions":[{"id":0,"outcomes":[{"to":1,"reward":1,"weight":1}]},{"id":1,"outcomes":[{"to":2,"reward":0,"weight":1}]}]},
+{"id":1,"observation":2,"actions":[{"id":0,"outcomes":[{"to":3,"reward":0,"weight":1}]}]},
+{"id":2,"observation":3,"actions":[{"id":0,"outcomes":[{"to":4,"reward":0,"weight":1}]}]},
+{"id":3,"observation":4,"actions":[{"id":0,"outcomes":[{"to":5,"reward":0,"weight":1}]}]},
+{"id":4,"observation":5,"actions":[{"id":0,"outcomes":[{"to":6,"reward":0,"weight":1}]}]},
+{"id":5,"observation":6,"actions":[{"id":0,"outcomes":[{"to":7,"reward":0,"weight":1}]}]},
+{"id":6,"observation":7,"actions":[{"id":0,"outcomes":[{"to":8,"reward":0,"weight":1}]}]},
+{"id":7,"observation":8,"actions":[{"id":0,"outcomes":[{"to":9,"reward":0,"weight":1}]}]},
+{"id":8,"observation":9,"actions":[{"id":0,"outcomes":[{"to":10,"reward":0,"weight":1}]}]},
+{"id":9,"observation":10,"actions":[{"id":0,"outcomes":[{"to":11,"reward":0,"weight":1}]}]},
+{"id":10,"observation":11,"actions":[{"id":0,"outcomes":[{"to":11,"reward":1.25,"weight":1}]}]},
+{"id":11,"observation":0,"actions":[]}
+]}
