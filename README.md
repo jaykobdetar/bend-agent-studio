@@ -2,6 +2,8 @@
 
 Train reinforcement-learning agents in Bend and watch how their decisions change. The local Studio opens with a playable episode. You can scrub through each move, inspect rewards, change learners, and keep a recording of a trained policy.
 
+A separate [Gymnasium adapter](integrations/gymnasium/README.md) lets Python agents play the same JSON finite and grid worlds without changing Studio or its dependencies.
+
 ## Start Studio
 
 Install Node.js 24 or newer, open a terminal in this directory, and run:
@@ -50,11 +52,11 @@ Start with [worlds/bridge.json](worlds/bridge.json) for a finite game, [worlds/i
 
 ## Formal Properties
 
-The project declares 27 laws. Their statements and proofs are in [LAWS.bend](LAWS.bend) and [PROOF.bend](PROOF.bend).
+The project declares 29 laws. Their statements and proofs are in [LAWS.bend](LAWS.bend) and [PROOF.bend](PROOF.bend).
 
-- **Learning.** The engine applies the learner once per training transition and preserves the model during evaluation. Updating one Double Q table preserves the other. With at least one legal action, Double Q selects the bootstrap action with the table being updated and values it with the other table. Dyna planning preserves the recorded experience.
-- **Episode boundaries.** Rejecting an illegal action preserves the model, score, and accepted-step count. An open state at the horizon is truncated. A terminal state ends the episode even on the last step. Each report increases the episode count by one, including illegal exits.
-- **Observations and replay.** The history wrapper preserves legal actions and rewards. For the Ferry world, recording a trace preserves the final report, and splitting a step budget produces the same cursor, including the model, random seed, and remaining horizon.
+- **Learning.** The engine applies the learner once per training transition and preserves the model during evaluation. The whole-rollout counting-learner laws prove evaluation freezes the counter and training changes it by exactly the accepted-step delta; the proof preserves the signed difference from an arbitrary starting counter. Updating one Double Q table preserves the other. With a nonempty legal-action list, Double Q selects the bootstrap action with the table being updated and values it with the other table. Dyna planning preserves recorded experience.
+- **Episode boundaries.** On the engine’s actual decision path, rejecting an illegal action preserves model, score and accepted steps, produces no transition and ends the episode. An open view at the horizon is truncated; a terminal view is not. Each report increases the episode count by one, including illegal exits.
+- **Observations and replay.** The history wrapper preserves legal actions and rewards. For any typed world and agent hooks, observing decisions preserves the final report, and splitting an interaction budget gives the same cursor as advancing once, including model, seed and remaining horizon. These laws cover both training and evaluation.
 
 ## Run the checks
 
@@ -71,3 +73,5 @@ bend PROOF.bend
 `npm test` runs the Node checks, including public-policy oracles and generated memory worlds. If the Bend executable is absent, the six compiler integration tests are marked skipped. With Bend installed, they exercise training, replay, checkpoint persistence, and offline evaluation.
 
 For an independent proof verdict, install Lean 4.34.0 (for example, `elan toolchain install leanprover/lean4:v4.34.0`) and run `bend PROOF.bend --verdict`. Bend 2.0.40 builds and caches its bundled BendTT kernel on first use. You can also set `BENDTT` to a kernel built from the same release.
+
+For fixed-suite comparisons, [analyze.py supports IQM, probability of improvement, and performance profiles](EXPERIMENTS.md#comparing-a-fixed-suite-of-games), with replicate bootstrap intervals and no extra dependencies. Per-game analysis remains the default.

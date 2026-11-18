@@ -34,6 +34,12 @@ jobs:
 
       - name: Run Node tests
         run: npm test
+      - name: Verify optional Gymnasium adapter (checker, buckets, oracle, and compiled replay)
+        working-directory: integrations/gymnasium
+        run: |
+          python3 -m venv "$RUNNER_TEMP/bend-gym-env"
+          "$RUNNER_TEMP/bend-gym-env/bin/pip" install -r requirements.txt
+          "$RUNNER_TEMP/bend-gym-env/bin/python" -m unittest -v
       - name: Run Bend checks
         run: |
           bend checks.bend
