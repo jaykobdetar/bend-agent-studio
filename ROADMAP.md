@@ -252,7 +252,7 @@ Acceptance: covered by `studio/studio_checks.mjs`, including a damaged run in th
 
 Update this table in the same PR as each item.
 
-**What to do next.** The A5.0 finish hook is available. SARSA(0) and n-step expected TD ship with learner-specific L12 laws. Expected TD(λ) now adds tabular and linear accumulating traces; REINFORCE adds episodic policy gradients with a frozen baseline. In parallel, cap peak compiler memory for larger benchmark worlds if compiled Taxi/Blackjack studies are important; their ports and oracle checks work, but a complete compiled study was not verified. Minari and MLflow exports and the Phase 7 ideas remain optional. Keep JavaScript as the production backend (T2.3).
+**What remains.** Optional Minari/MLflow exports and the remaining Phase 7 items are tracked below. Phase 5 learners now ship with their own laws. Packed finite-world code generation enables bounded, compiled Taxi and Blackjack studies; [the measurements](tools/finite-layout/README.md) distinguish completed candidate runs from memory-censored baseline runs. Keep JavaScript as the production backend (T2.3).
 
 | ID | Status | PR |
 | --- | --- | --- |
@@ -275,7 +275,7 @@ Update this table in the same PR as each item.
 | T2.1 | Implemented: parallel archived trial workers | [#17](https://github.com/jaykobdetar/bend-agent-studio/pull/17) |
 | T2.2 | Implemented: keyed tables with archive parity and workload-specific timing | [#26](https://github.com/jaykobdetar/bend-agent-studio/pull/26) |
 | T2.3 | Spike complete; keep JS backend | [findings](tools/native-spike/README.md) |
-| B3.1 | Toy-text ports verified; non-dyadic runtime probabilities quantized | [Methods and checks](integrations/gymnasium/toy_text/README.md) |
+| B3.1 | Toy-text ports verified; bounded Taxi/Blackjack studies and archived replays pass with packed code generation; non-dyadic probabilities quantized | [Methods and checks](integrations/gymnasium/toy_text/README.md) |
 | B3.2 | Six diagnostic families with verified two-size sweeps and oracle baselines | [Probe definitions and reproduction](worlds/benchmarks/probes/README.md) |
 | S4.1 | Implemented: discounted value and policy iteration; discount 1 restricted to acyclic worlds | [#19](https://github.com/jaykobdetar/bend-agent-studio/pull/19) |
 | S4.2 | Implemented: Cassandra export; independent LP value checks on fully observable examples | [#20](https://github.com/jaykobdetar/bend-agent-studio/pull/20) |

@@ -1,3 +1,4 @@
+import {packedSource} from './packed_world.mjs';
 import {createHash} from 'node:crypto';
 
 const WORDS=2**32;
@@ -113,7 +114,9 @@ function distributionCode(xs) {
   if (xs.length===1) return '('+xs[0].to+', '+floatLiteral(xs[0].reward??0)+')';
   return 'F.draw(['+buckets(xs).map(x=>'F.Outcome{'+x.upper+', '+x.to+', '+floatLiteral(x.reward??0)+'}').join(', ')+'], word)';
 }
+export function usesPackedWorld(d) { return d.states.length>=128; }
 export function bendSource(d) {
+  if (usesPackedWorld(d)) return packedSource(d,buckets);
   const lines=['import Base','import ./engine.bend as E','import ./finite.bend as F','import ./history.bend as H','',
     'def reset(seed: U32) -> U32:', '  word = E.mix_word(U32.xor(seed, 3266489917))',
     '  F.destination('+distributionCode(d.initial)+')','','def view(state: U32) -> E.View<U32>:','  match state:'];

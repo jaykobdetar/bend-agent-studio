@@ -192,7 +192,7 @@ const dir=fs.mkdtempSync(path.join(os.tmpdir(),'bend-world-check-'));
 let current=config.seed;
 try {
   const hashes={};
-  for (const name of ['engine.bend','cursor.bend','tabular.bend','finite.bend','history.bend','finite_world.mjs','world_campaign.mjs']) {
+  for (const name of ['engine.bend','cursor.bend','tabular.bend','finite.bend','history.bend','finite_world.mjs','packed_world.mjs','packed_world.bend','world_campaign.mjs']) {
     const data=fs.readFileSync(path.join(here,name));hashes[name]=createHash('sha256').update(data).digest('hex');
     fs.writeFileSync(path.join(dir,name),data);
   }

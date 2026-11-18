@@ -7,7 +7,7 @@ import {randomUUID} from 'node:crypto';
 import {canonical,checkSeedBlocks,digest,games,seedOf,settings,trials,validate} from './experiment_config.mjs';
 
 import {bundleAgent} from './agent_source.mjs';
-import {discountedOracle,bendSource,floatLiteral,numberPreservingJson,oracle,reactiveOracle,symbol,worldDefinition} from './finite_world.mjs';
+import {discountedOracle,bendSource,floatLiteral,numberPreservingJson,oracle,reactiveOracle,symbol,usesPackedWorld,worldDefinition} from './finite_world.mjs';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const json = filename => JSON.parse(fs.readFileSync(filename,'utf8'));
@@ -129,6 +129,8 @@ function sourceFiles(plan) {
   add('experiment_config.mjs');
   add('assessment.mjs');
   add('finite_world.mjs');
+  add('packed_world.mjs');
+  if (allGames(plan).some(g=>g.definition && usesPackedWorld(g.definition))) add('packed_world.bend');
   add('agent_source.mjs');
   add('process_output.mjs');
   add('parallel_trials.mjs');
@@ -376,7 +378,7 @@ async function frozen(root) {
   const manifest=unseal(manifestPath(root));
   const tc=manifest.body.toolchain;
   if (tc.node!==process.versions.node) throw Error('this experiment used Node '+tc.node);
-  for (const name of ['experiment.mjs','experiment_config.mjs','finite_world.mjs','agent_source.mjs','process_output.mjs']) {
+  for (const name of ['experiment.mjs','experiment_config.mjs','finite_world.mjs','packed_world.mjs','agent_source.mjs','process_output.mjs']) {
     if (digest(fs.readFileSync(path.join(here,name)))!==tc.sources[name]) {
       throw Error('use the archived runner: node '+path.join(root,'code','experiment.mjs')+' resume '+root);
     }
