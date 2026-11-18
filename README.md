@@ -58,6 +58,8 @@ The project declares 26 laws. Their statements and proofs are in [LAWS.bend](LAW
 - **Episode boundaries.** Rejecting an illegal action preserves the model, score, and accepted-step count. An open state at the horizon is truncated. A terminal state ends the episode even on the last step. Each report increases the episode count by one, including illegal exits.
 - **Observations and replay.** The history wrapper preserves legal actions and rewards. For the Ferry world, recording a trace preserves the final report, and splitting a step budget produces the same cursor, including the model, random seed, and remaining horizon.
 
+The [native runtime spike](tools/native-spike/README.md) reports sampled CPU/JS replay parity and timings; the supported backend remains JavaScript.
+
 ## Run the checks
 
 With Bend 2.0.40 and Node 24 installed:

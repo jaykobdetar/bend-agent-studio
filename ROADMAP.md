@@ -259,7 +259,8 @@ Update this table in the same PR as each item.
 | P0.3 | Assigned | |
 | P0.4 | Implemented; review pending | [Gymnasium finite-world adapter](https://github.com/jaykobdetar/bend-agent-studio/pulls?q=is%3Apr+head%3Afeat%2Fgymnasium-finite-worlds) |
 | L1–L12 | Not started | |
-| T2.1–T2.3 | Not started | |
+| T2.1–T2.2 | Not started | |
+| T2.3 | Spike complete; keep JS backend | [findings](tools/native-spike/README.md) |
 | B3.1–B3.2 | Not started | |
 | S4.1–S4.4 | Not started | |
 | A5.0–A5.6 | Not started | |
