@@ -51,6 +51,92 @@ def Laws.every_report_counts_once(totals, score, steps, reason):
         Equal.cong(Nat, Nat, x => Nat.add(t, x), Nat.add(l, 1n+i), 1n+Nat.add(l, i), add_successor(l, i)),
         add_successor(t, Nat.add(l, i)))
 
+def le_self(n: Nat) -> {Nat.is_le(n,n) == True{} : Bool}:
+  match n:
+    case 0n: {==}
+    case 1n+p: le_self(p)
+
+def allow_one(a: Nat, b: Nat, h: {Nat.is_le(a,b) == True{} : Bool}) ->
+    {Nat.is_le(a,1n+b) == True{} : Bool}:
+  match a b:
+    case 0n 0n: {==}
+    case 0n 1n+q: {==}
+    case 1n+0n 0n: {==}
+    case 1n+1n+k 0n: h
+    case 1n+p 1n+q: allow_one(p,q,h)
+
+def initial_bound(fuel: Nat, +s: Nat) -> {Nat.is_le(s,Nat.add(fuel,s)) == True{} : Bool}:
+  match fuel:
+    case 0n: le_self(s)
+    case 1n++rest: allow_one(s,Nat.add(rest,s),initial_bound(rest,s))
+
+# Project the real E.attempt path to the step count: an accepted transition
+# increments exactly once even when it ends the episode; rejection leaves it alone.
+def count_if(valid: Bool, steps: Nat) -> Nat:
+  match valid:
+    case False{}: steps
+    case True{}: 1n+steps
+
+def count_place(-S: Data,-O: Data,-M: Data,state:S,model:M,seed:U32,score:F32,steps:Nat,view:E.View<O>) ->
+  {Laws.run_steps(S,O,M,E.place(S,O,M,state,model,seed,score,steps,view)) == steps : Nat}:
+  match view:
+    case E.End{o}: {==}
+    case E.Open{o,acts}: {==}
+
+def count_recorded(-S:Data,-O:Data,-M:Data,inspect:S -> E.View<O>,learn:M -> E.Transition<O> -> M,
+    mode:E.Mode,remaining:Nat,obs:O,model:M,action:U32,seed:U32,score:F32,steps:Nat,result:Pair(S,F32)) ->
+  {Laws.run_steps(S,O,M,E.turn_run(S,O,M,E.recorded_step(S,O,M,inspect,learn,mode,remaining,
+    obs,model,action,seed,score,steps,result))) == 1n+steps : Nat}:
+  match result:
+    case (+after,+reward):
+      +view = inspect(after)
+      event = {E.Transition{obs,action,reward,view,E.truncated(O,remaining,view)} : E.Transition<O>}
+      count_place(S,O,M,after,E.update(M,O,learn,mode,model,event),seed,F32.add(score,reward),1n+steps,view)
+
+def count_perform(-S:Data,-O:Data,-M:Data,hooks:E.Hooks<S,O,M>,mode:E.Mode,remaining:Nat,state:S,
+    obs:O,model:M,+action:U32,+seed:U32,score:F32,steps:Nat) ->
+  {Laws.run_steps(S,O,M,E.turn_run(S,O,M,E.perform(S,O,M,hooks,mode,remaining,state,obs,model,action,seed,score,steps)))
+    == 1n+steps : Nat}:
+  match hooks:
+    case E.Hooks{E.World{reset,inspect,step},act,learn}:
+      count_recorded(S,O,M,inspect,learn,mode,remaining,obs,model,action,E.next_seed(seed),score,steps,step(state,action,seed))
+
+def count_attempt(-S:Data,-O:Data,-M:Data,hooks:E.Hooks<S,O,M>,valid:Bool,mode:E.Mode,remaining:Nat,state:S,
+    obs:O,model:M,action:U32,seed:U32,score:F32,steps:Nat) ->
+  {Laws.run_steps(S,O,M,E.turn_run(S,O,M,E.attempt(S,O,M,hooks,valid,mode,remaining,state,obs,model,action,seed,score,steps)))
+    == count_if(valid,steps) : Nat}:
+  match valid:
+    case False{}: {==}
+    case True{}: count_perform(S,O,M,hooks,mode,remaining,state,obs,model,action,seed,score,steps)
+
+def raise_bound(+end:Nat,a:Nat,b:Nat,e:{a == b : Nat},h:{Nat.is_le(end,a) == True{} : Bool}) ->
+  {Nat.is_le(end,b) == True{} : Bool}:
+  %e : {Nat.is_le(end,_) == True{} : Bool}
+  h
+
+def tick_bound(+valid:Bool,+rest:Nat,+steps:Nat,+end:Nat,
+    h:{Nat.is_le(end,Nat.add(rest,count_if(valid,steps))) == True{} : Bool}) ->
+  {Nat.is_le(end,1n+Nat.add(rest,steps)) == True{} : Bool}:
+  match valid:
+    case False{}: allow_one(end,Nat.add(rest,steps),h)
+    case True{}: raise_bound(end,Nat.add(rest,1n+steps),1n+Nat.add(rest,steps),add_successor(rest,steps),h)
+
+# Consume fuel by induction. Transfer the recursive bound from the actual
+# successor run using count_attempt, then account for this one unit of fuel.
+def Laws.roll_steps_within_budget(S,O,M,hooks,fuel,mode,run):
+  match fuel run:
+    case +n E.Stopped{E.Report{m,r,+s,why}}: initial_bound(n,s)
+    case 0n E.Live{state,obs,acts,model,seed,score,steps}: le_self(steps)
+    case 1n++rest E.Live{+state,+obs,+actions,+model,+seed,+score,+steps}:
+      +action = E.get_policy(S,O,M,hooks)(model,obs,actions,mode,seed)
+      +valid = List.contains(~U32,~U32.is_eq,actions,action)
+      +next = E.turn_run(S,O,M,E.attempt(S,O,M,hooks,valid,mode,rest,state,obs,model,action,E.next_seed(seed),score,steps))
+      +end = Laws.report_steps(M,E.roll(~S,~O,~M,~hooks,rest,mode,next))
+      eq = count_attempt(S,O,M,hooks,valid,mode,rest,state,obs,model,action,E.next_seed(seed),score,steps)
+      lift = Equal.cong(Nat,Nat,n => Nat.add(rest,n),Laws.run_steps(S,O,M,next),count_if(valid,steps),eq)
+      ih = Laws.roll_steps_within_budget(S,O,M,hooks,rest,mode,next)
+      tick_bound(valid,rest,steps,end,raise_bound(end,Nat.add(rest,Laws.run_steps(S,O,M,next)),Nat.add(rest,count_if(valid,steps)),lift,ih))
+
 def Laws.terminal_has_no_continuation(method, exploration, values, obs):
   match method:
     case Study.Uniform{}: {==}
