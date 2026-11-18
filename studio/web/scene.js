@@ -68,6 +68,15 @@ export function boardStates(trace) {
   }
   return out;
 }
+export function cumulativeReturns(frames) {
+  const totals = [0];
+  for (const frame of frames) {
+    const previous = totals.at(-1);
+    totals.push(frame.accepted ? Math.fround(previous + frame.reward) : previous);
+  }
+  return totals;
+}
+
 export function observation(t, i) {
   if (!t?.frames?.length) return null;
   if (i === 0) return t.frames[0].observation;

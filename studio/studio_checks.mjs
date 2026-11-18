@@ -1,14 +1,15 @@
+import { compilerTest } from '../bend_test_support.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { spawn } from 'node:child_process';
 import { once } from 'node:events';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import { mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 import { setTimeout as delay } from 'node:timers/promises';
 import { worlds } from './catalog.mjs';
-import { boardStates, observation } from './web/scene.js';
+import { boardStates, cumulativeReturns, observation } from './web/scene.js';
 import { timeline } from './web/exporter.js';
 import { Gif } from './web/gif.js';
 import { seal } from '../experiment.mjs';
@@ -34,6 +35,13 @@ test('every visual example is a frozen, continuous Bend evaluation episode', asy
     }
     assert.deepEqual(observation(t, t.steps), t.frames.at(-1).nextObservation);
   }
+});
+test('a rejected final move preserves the accumulated Bend return', () => {
+  const frames = [{ accepted: true, reward: 0.1 }, { accepted: true, reward: 0.2 }, { accepted: false }];
+  const [, first, second, final] = cumulativeReturns(frames);
+  assert.equal(first, Math.fround(0.1));
+  assert.equal(second, Math.fround(first + 0.2));
+  assert.equal(final, second);
 });
 test('symmetry-aware replay changes exactly one physical square per accepted move', async () => {
   const t = await demo('tic-tac-toe'),
@@ -125,7 +133,7 @@ const post = (url, input) =>
 
 // A small, trusted archive lets the HTTP tests control exactly when a runner
 // starts and finishes without involving compiler speed or model size.
-async function mountedReplay(t, timeout) {
+async function mountedReplay(t, timeout, nodeVersion = process.versions.node) {
   const home = await mkdtemp(path.join(os.tmpdir(), 'studio-replay-'));
   const dir = path.join(home, 'fixture');
   t.after(() => rm(home, { recursive: true, force: true }));
@@ -145,7 +153,7 @@ async function mountedReplay(t, timeout) {
   const manifest = seal({
     plan: { name: 'fixture', games: [{ id: 'cliff' }], arms: [{ id: 'q' }], checkpoints: [0],
       replicates: 1, validationEpisodes: 0, testEpisodes: 4 },
-    toolchain: { sources: { 'experiment.mjs': digest(runner) }, backend: digest('') }
+    toolchain: { node: nodeVersion, sources: { 'experiment.mjs': digest(runner) }, backend: digest('') }
   });
   await writeFile(path.join(dir, 'run.json'), manifest);
   const server = await start(home, ['--run', dir], { BEND_STUDIO_REPLAY_TIMEOUT_MS: String(timeout) });
@@ -174,6 +182,39 @@ function hasExited(pid) {
     return true;
   }
 }
+test('mismatched archived Node version gives an actionable conflict', async (t) => {
+  const { server, replay } = await mountedReplay(t, 30000, '24.0.0-test');
+  try {
+    const response = await replay(2);
+    assert.equal(response.status, 409);
+    assert.match((await response.json()).error, /24\.0\.0-test.*--replay-node/);
+  } finally {
+    await server.close();
+  }
+});
+test('one damaged run leaves healthy runs and the catalog accessible', async (t) => {
+  const home = await mkdtemp(path.join(os.tmpdir(), 'studio-list-'));
+  t.after(() => rm(home, { recursive: true, force: true }));
+  const ids = ['a', 'b', 'c'].map(c => c.repeat(36));
+  for (const [i, id] of ids.entries()) {
+    await mkdir(path.join(home, id));
+    const job = { id, name: 'run ' + i, status: i === 1 ? 'ready' : 'interrupted' };
+    await writeFile(path.join(home, id, 'studio.json'), i === 0 ? '{' : JSON.stringify(job));
+  }
+  const server = await start(home);
+  try {
+    const response = await fetch(server.url + '/api/runs');
+    assert.equal(response.status, 200);
+    const list = await response.json();
+    assert.deepEqual(ids.map(id => list.find(run => run.id === id)?.status),
+      ['unavailable', 'unavailable', 'interrupted']);
+    assert.equal(await readFile(path.join(home, ids[0], 'studio.json'), 'utf8'), '{');
+    assert.equal((await fetch(server.url + '/api/catalog')).status, 200);
+    assert.equal((await fetch(server.url + '/%E0%A4%A')).status, 400);
+  } finally {
+    await server.close();
+  }
+});
 test('replay deadline and runner failure release capacity', { timeout: 15000 }, async (t) => {
   const { server, dir, replay } = await mountedReplay(t, 1000);
   try {
@@ -191,12 +232,62 @@ test('replay deadline and runner failure release capacity', { timeout: 15000 }, 
     await server.close();
   }
 });
+test('training cancellation stops both runner and compiler and persists the result', { timeout: 30000 }, async (t) => {
+  const home = await mkdtemp(path.join(os.tmpdir(), 'studio-cancel-'));
+  t.after(() => rm(home, { recursive: true, force: true }));
+  const shim = path.join(home, 'compiler.mjs'), marker = path.join(home, 'compiler.pid');
+  // Use Node as a controllable compiler on both Windows and POSIX.
+  await writeFile(shim, `
+    import path from 'node:path';
+    import fs from 'node:fs';
+    if (path.basename(process.argv[1] ?? '') === 'version') {
+      console.log('bend 2.0.40');
+      process.exit(0);
+    }
+    if (process.argv[1]?.endsWith('.bend')) {
+      fs.writeFileSync(process.env.TEST_COMPILER_PID, String(process.pid));
+      setInterval(() => {}, 60000);
+      await new Promise(() => {});
+    }
+  `);
+  const server = await start(home, [], { BEND: process.execPath, TEST_COMPILER_PID: marker,
+    NODE_OPTIONS: '--import=' + pathToFileURL(shim).href });
+  async function begin() {
+    const response = await post(server.url, { world: 'cliff', algorithm: 'q_learning', episodes: 2, seed: 0 });
+    assert.equal(response.status, 201);
+    const { id } = await response.json();
+    return { id, pid: await waitForRunner(home, 'compiler') };
+  }
+  async function checkStopped(job, status) {
+    assert.equal(JSON.parse(await readFile(path.join(home, job.id, 'studio.json'), 'utf8')).status, status);
+    for (let i = 0; i < 200 && !hasExited(job.pid); i++) await delay(25);
+    assert.ok(hasExited(job.pid), 'compiler must stop with its runner');
+  }
+  let interrupted;
+  try {
+    const job = await begin();
+    const cancel = () => fetch(server.url + '/api/runs/' + job.id + '/cancel', { method: 'POST' });
+    const response = await cancel();
+    assert.equal(response.status, 200);
+    assert.equal((await response.json()).status, 'cancelled');
+    await checkStopped(job, 'cancelled');
+    assert.equal((await cancel()).status, 409);
+    if (process.platform !== 'win32') {
+      await rm(marker);
+      interrupted = await begin();
+    }
+  } finally {
+    await server.close();
+  }
+  if (interrupted) await checkStopped(interrupted, 'interrupted');
+});
 test('replay capacity, client disconnect and shutdown stop the right runners', { timeout: 15000 }, async (t) => {
   const { server, dir, replay } = await mountedReplay(t, 60000);
   const client = new AbortController();
   // Consume rejections immediately. The second connection closes on shutdown.
   const first = assert.rejects(replay(0, { signal: client.signal }), { name: 'AbortError' });
-  const second = assert.rejects(replay(1));
+  const otherClient = new AbortController();
+  const second = assert.rejects(replay(1, { signal: otherClient.signal }));
   let remaining;
   try {
     const cancelled = await waitForRunner(dir, 0);
@@ -210,6 +301,11 @@ test('replay capacity, client disconnect and shutdown stop the right runners', {
     assert.equal(hasExited(remaining), false);
   } finally {
     client.abort();
+    // Windows TerminateProcess bypasses Node signal handlers.
+    if (process.platform === 'win32') {
+      otherClient.abort();
+      for (let i = 0; remaining && i < 200 && !hasExited(remaining); i++) await delay(25);
+    }
     await server.close();
     await second;
   }
@@ -218,7 +314,7 @@ test('replay capacity, client disconnect and shutdown stop the right runners', {
 });
 test(
   'Studio trains, persists and replays a real run at multiple checkpoints',
-  { timeout: 120000 },
+  { ...compilerTest, timeout: 120000 },
   async (t) => {
     const home = await mkdtemp(path.join(os.tmpdir(), 'bend-studio-'));
     t.after(() => rm(home, { recursive: true, force: true }));

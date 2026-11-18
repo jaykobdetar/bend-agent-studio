@@ -108,7 +108,7 @@ export async function collect(root, config, output) {
         lines.push(canonical(ep));
         steps+=frames.length;
       }
-      const bytes=lines.join('\n')+'\n', file=path.join(split,rep+'.jsonl');
+      const bytes=lines.join('\n')+'\n', file=split+'/'+rep+'.jsonl';
       immutable(path.join(output,file),bytes);
       parts.push({split,rep,file,episodes:count,steps,sourceCheckpoint:item.hash,hash:digest(bytes)});
     }
@@ -125,8 +125,11 @@ export function openDataset(root) {
   for (const part of index.body.parts) {
     const key=part.split+'/'+part.rep;
     if (!['fit','holdout'].includes(part.split) || !uint(part.rep) || part.rep>=d.replicates || parts.has(key) ||
-        part.episodes!==spec[part.split+'Episodes'] || part.file!==key+'.jsonl') throw Error('invalid dataset partition');
-    parts.set(key,part);
+        part.episodes!==spec[part.split+'Episodes']) throw Error('invalid dataset partition');
+    const file=key+'.jsonl';
+    // Schema 1 writers on Windows used a native separator in the sealed index.
+    if (part.file!==file && part.file!==file.replace('/','\\')) throw Error('invalid dataset partition');
+    parts.set(key,{...part,file});
   }
   function episodes(split,rep) {
     const part=parts.get(split+'/'+rep), bytes=fs.readFileSync(path.join(root,part.file));

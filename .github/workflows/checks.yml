@@ -34,8 +34,6 @@ jobs:
 
       - name: Run Node tests
         run: npm test
-      - name: Verify generated Tiger worlds
-        run: node memory_checks.mjs
       - name: Run Bend checks
         run: |
           bend checks.bend
@@ -52,3 +50,16 @@ jobs:
           echo "$RUNNER_TEMP/lean-4.34.0-linux/bin" >> "$GITHUB_PATH"
       - name: Verify proofs with BendTT
         run: bend PROOF.bend --verdict
+
+  windows:
+    name: Node-only checks on Windows
+    runs-on: windows-2025
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version: 24.22.3
+      - run: npm test

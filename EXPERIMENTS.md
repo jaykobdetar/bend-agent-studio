@@ -89,7 +89,11 @@ node experiment.mjs export runs/confirmation > confirmation.csv
 python3 analyze.py confirmation.csv --reference q-a05-e00625
 ```
 
-The confirmation specification declares a reference arm, selection metric, budget, sample size, and new seed allocations. Selection ranks final-checkpoint validation scores and records the winning configuration. The confirmation stage retrains from scratch. Paired percentile bootstrap intervals resample trained replicates. Episodes from the same trained model stay together. A result from one simulator and budget only estimates performance under that design.
+The confirmation specification declares a reference arm, selection metric, budget, sample size, and new seed allocations. Selection ranks final-checkpoint validation scores and records the overall winner. Confirmation retrains the reference and the highest-ranked distinct challenger from scratch, including when the reference wins the screen. Ties follow the screen's arm order.
+
+`analyze.py` reports a pointwise 95% percentile bootstrap interval. It resamples trained replicate blocks, keeping paired arms together when a reference is specified. With one replicate the interval is blank. With a few replicates or identical observed values, the interval can be narrow and its coverage can be poor. Report the replicate count and inspect the individual paired differences. Increasing bootstrap draws only refines the resampling calculation. [Hesterberg, 2015](https://doi.org/10.1080/00031305.2015.1089789)
+
+The engine advances a 32-bit linear congruential generator. Its mixed hooks use separate constants and a mixing function for the policy and world draws. Episode starts within a seed block are consecutive. These choices reproduce trajectories and pair comparisons across arms. Statistical independence is an assumption about the experimental design. Changing the generator changes trajectories and would require a separately identified design.
 
 ## Transfer and checkpoint selection
 
@@ -115,6 +119,33 @@ python3 analyze.py runs/scores/scores.csv --reference clone
 The logger freezes the selected checkpoint and evaluates its preferred move with policy word zero. A 16-bit draw mixes that decision with exploration. Each logged move records its exact number of probability buckets out of 65,536. The JSONL files contain public transitions, trajectory boundaries, and actual returns. Fit and holdout partitions use different seeds. The tabular fitter reads the fit partition independently of the simulator. Its methods are behavior cloning, synchronous fitted Q iteration, and fitted Q iteration restricted to observed actions. When a state has no supported legal move, the restricted policy falls back to its first legal action.
 
 Scoring reports independent simulator returns, ordinary and self-normalized trajectory importance estimates, matched trajectories, unsupported choices encountered on target-consistent prefixes, and effective sample size. Empty estimates mean an overlap failure, a lack of matched trajectories, or a numerical overflow in the ordinary estimate. Even positive probabilities can yield very small effective samples. The scoring design checks its seeds against the training run and both dataset partitions. Bucket counts characterize a uniformly drawn policy word. The seeded generator advances from a shared 32-bit starting word. A claim about conditional randomization or unbiased estimation must specify the randomness model.
+
+## Choose a manifest or specification
+
+All names below refer to JSON files in [experiments](experiments/). A training manifest contains `games` and `arms`. The other commands take specifications that refer to an existing run or dataset.
+
+| Command | Files |
+| --- | --- |
+| `experiment.mjs run` — finite games and learners | `bridge`, `cliff-exploration`, `cue-memory`, `custom-bandit`, `inventory`, `maximization-bias`, `planning-budget`, `reward-memory`, `tiger` |
+| `experiment.mjs run` — control and screening | `cartpole`, `mountain-car`, `car-screen`, `pole-screen` |
+| `experiment.mjs run` — source runs, transfer and arenas | `dispatch-source`, `ledge-transfer`, `self-play`, `self-play-long` |
+| `experiment.mjs select` | `car-confirmation`, `pole-confirmation` |
+| `experiment.mjs assess` | `ledge-assessment`, `pole-checkpoint-assessment` |
+| `batch.mjs collect` | `dispatch-exploring`, `dispatch-narrow` |
+| `batch.mjs fit` and `batch.mjs score` | `dispatch-fit` and `dispatch-score`, respectively |
+
+## Analysis tools and checks
+
+| Question | Command from the repository root |
+| --- | --- |
+| How well can a stationary observation-based policy perform? | `node experiment.mjs oracle worlds/remember-the-cue.json 2 --reactive` compares the optimum with the full-state result. |
+| What can a policy infer from public history or the clock? | `node public_oracle.mjs worlds/tiger.json 8 --class history` or `--class clock`. With the history solver, add `--trace REPLAY.json` to inspect the actions in a recorded episode. |
+| How does performance change during training? | `python3 plot_curves.py bridge.csv bridge.svg --reference random` plots validation curves from a run export. Install Matplotlib for plotting. |
+| How does paired evidence accumulate? | `node sequential.mjs paired.json` reads `design` with fixed bounds `lower` and `upper` on the candidate-minus-reference difference, and `rows` with `replicate`, `candidate`, and `reference`. Its confidence sequence assumes a prospectively fixed replicate order starting at zero and a common conditional mean. |
+| How do archived self-play policies perform in each seat? | `node arena_tournament.mjs runs/self-play runs/tournament` scores a completed self-play run and writes `ratings.csv` and `crossplay.csv`. |
+| Do the board encodings, oracles and memory worlds match their independent checks? | `node arena_checks.mjs runs/self-play` uses the compiled self-play snapshot. `node oracle_checks.mjs` and `node memory_checks.mjs` run directly and are included in `npm test`. |
+
+The fixed benchmark helpers `tabular.q_learning` and `tabular.expected_sarsa` use a learning rate of 0.25 and a discount of 0.9. Their benchmark policy explores on one quarter of training draws. For configurable built-in learners, set `alpha`, `gamma`, and `epsilon` on the manifest arm. [Benchmark helpers](tabular.bend) · [Study settings](study.bend)
 
 ## Test the implementation
 
