@@ -37,6 +37,10 @@ node runs/bridge/code/experiment.mjs replay runs/bridge bridge q 0 256 test 0
 
 The bridge has two choices. The safe choice ends the game with one point. The risky choice leads to a second move and has expected return two. Run `node experiment.mjs oracle worlds/bridge.json 2` to compute the optimal full-state return and the uniform baseline from the transition probabilities.
 
+### Run the same loop from an MCP client
+
+The [local MCP adapter](mcp/README.md) accepts either a plan path or a self-contained JSON plan in an empty workspace. Validate the world and plan, compare the game with its oracle, launch training, and poll the returned job ID. After training, use the stored run to summarize replicate estimates, replay an episode, or explain a finite-world decision. MCP and the CLI use the same validators, compiled runner, sealed checkpoints, and original phase/seed definitions. See [plan and spec fields](mcp/FIELDS.md) for the typed inputs.
+
 ## Play a finite world in Gymnasium
 
 The optional [Gymnasium adapter](integrations/gymnasium/README.md) uses the same JSON validator, grid expansion and exact integer sampling buckets as the runner. Supply a positive horizon and an explicit U32 seed to reproduce a Bend episode with the same actions. Gym action indices map to potentially sparse Bend IDs; consult the legal-action IDs in the public info. Natural terminal states win over time-limit truncation. For the exact undiscounted report score, use `info["bend_episode_score"]`, which rounds after each accepted move just as Bend does. Run the adapter's Python unittest suite for the Gym checker, sampling comparison, and optional compiled Bend replay comparison.
@@ -212,6 +216,39 @@ node world_campaign.mjs --bend bend --seed 30000 --worlds 4 --episodes 128 --bat
 ```
 
 The independent verdict needs a matching BendTT kernel available to Bend. The randomized campaign compiles newly generated games and compares boundary transitions, episode reports, and paused execution with an independent simulator. Its output lists the seed and source fingerprints so a failing batch can be repeated.
+
+### Notes and tags
+
+To annotate a run, create or edit `notes.json` beside its `run.json`:
+
+```json
+{"notes":"Baseline before the reward change.","tags":["baseline","pilot"]}
+```
+
+Both fields are optional. Use at most 4,096 characters for notes, and up to 16
+nonempty tags of at most 64 characters each (16 KiB file limit). Studio shows
+these as plain text on ready run cards. MCP `list_runs` returns them under
+`annotations` separately from verified metadata. Notes can be changed or
+removed without changing any checkpoint, run identity, or verification result.
+Local readers with access to the run can see them; do not store secrets here.
+
+### Share an offline report
+
+From the current checkout run `node experiment.mjs report RUN OUT.html` using
+the Node version recorded by the run and Python 3 (override with `PYTHON`).
+For complete runs this writes one new file with inline validation/test charts,
+the corresponding `analyze.py` return estimates and bootstrap intervals, and
+authored finite-world oracle baselines. For each such game it scans every final
+test score across arms and replicates and explains the highest and lowest
+episode from its archived backend. Ties use plan order, replicate, then episode
+index. The public-history explanation is distinct from the full-state optimum.
+Unrecorded phases are marked. Large test sets take longer; an oracle budget
+failure aborts generation rather than silently omitting an explanation.
+
+Only generate a report from a **trusted local run**: generation verifies its
+archive but executes that archive's backend. Open or share the resulting HTML
+offline: it contains plain escaped text and static SVG, no scripts or external
+assets. It includes run identity, test seeds and results; review before sharing.
 
 ### Parallel trials on one machine
 

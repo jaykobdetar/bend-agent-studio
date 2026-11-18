@@ -201,7 +201,7 @@ function bridgeFunctions(plan) {
   return code;
 }
 
-async function build(bend, dir, plan) {
+async function build(bend, dir, plan, runProgram) {
   const env={...process.env,BEND_NO_TELEMETRY:'1'};
   const sources=sourceFiles(plan);
   const authored=new Map(allGames(plan).filter(g=>g.definition).map(g=>[symbol(g.definition),g.definition]));
@@ -224,10 +224,10 @@ async function build(bend, dir, plan) {
     fs.mkdirSync(path.join(dir,path.dirname(name)),{recursive:true});
     fs.writeFileSync(path.join(dir,name),bytes);
   }
-  for (const name of customModules) await execute(bend,[path.join(dir,name+'.bend'),'--check-only'],{env});
-  const version=(await execute(bend,['version'],{env})).stdout.trim();
+  for (const name of customModules) await runProgram(bend,[path.join(dir,name+'.bend'),'--check-only'],{env});
+  const version=(await runProgram(bend,['version'],{env})).stdout.trim();
   const file=path.join(dir,'study.mjs');
-  await execute(bend,[path.join(dir,'study.bend'),'-o',file],{env});
+  await runProgram(bend,[path.join(dir,'study.bend'),'-o',file],{env});
   const backend=digest(fs.readFileSync(file));
   const hashes=Object.fromEntries([...sources].map(([k,v])=>[k,digest(v)]));
   const api=(await import(pathToFileURL(file).href)).default;
@@ -301,36 +301,41 @@ function runTrial(api,root,manifest,t,until) {
   return created;
 }
 
-function readPlan(config) {
-  const input=json(config);
+function readPlanSource(config, guard = name => name) {
+  const input=json(guard(config));
   const resolveGame=g=>{
     if (g && Object.hasOwn(g,'worldFile')) {
       if (g.world!==undefined || g.file!==undefined || typeof g.worldFile!=='string') throw Error('game must select one world source');
       const {worldFile,...rest}=g;
-      return {...rest,world:bundleAgent(path.resolve(path.dirname(config),worldFile),here)};
+      return {...rest,world:bundleAgent(guard(path.resolve(path.dirname(config),worldFile)),here,guard)};
     }
     if (!g || !Object.hasOwn(g,'file')) return g;
     if (g.definition!==undefined || typeof g.file!=='string') throw Error('game must supply one definition or file');
     const {file,...rest}=g;
-    return {...rest,definition:json(path.resolve(path.dirname(config),file))};
+    return {...rest,definition:json(guard(path.resolve(path.dirname(config),file)))};
   };
   for (const key of ['games','evaluationGames']) if (Array.isArray(input[key])) input[key]=input[key].map(resolveGame);
   if (Array.isArray(input.arms)) input.arms=input.arms.map(a=>{
     if (!a || !Object.hasOwn(a,'agentFile')) return a;
     if (a.agent!==undefined || typeof a.agentFile!=='string') throw Error('arm must select one agent source');
     const {agentFile,...rest}=a;
-    return {...rest,agent:bundleAgent(path.resolve(path.dirname(config),agentFile),here)};
+    return {...rest,agent:bundleAgent(guard(path.resolve(path.dirname(config),agentFile)),here,guard)};
   });
+  return input;
+}
+
+function readPlan(config,guard) {
+  const input=typeof config==='string'?readPlanSource(config,guard):config;
   return validate(input);
 }
 
-async function run(config,root,args) {
-  const plan=readPlan(config);
+export async function run(config,root,args,runProgram=execute) {
   const opts=options(args);
+  const plan=readPlan(config);
   if (opts.until!==Infinity && !plan.checkpoints.includes(opts.until)) throw Error('--until must be a declared checkpoint');
   const dir=fs.mkdtempSync(path.join(os.tmpdir(),'bend-study-'));
   try {
-    const {api,sources,compiled,toolchain}=await build(opts.bend,dir,plan);
+    const {api,sources,compiled,toolchain}=await build(opts.bend,dir,plan,runProgram);
     const bytes=seal({plan,toolchain});
     // Publish the manifest last. A partial build can safely be retried.
     if (fs.existsSync(manifestPath(root)) && fs.readFileSync(manifestPath(root),'utf8')!==bytes) {
@@ -358,7 +363,7 @@ function executeTrials(api,root,manifest,opts) {
     created+=runTrial(api,root,manifest,t,opts.until);
     finished++;
   }
-  console.log(plan.name+': '+finished+' trials visited, '+created+' checkpoints written.');
+  return {name:plan.name,finished,created};
 }
 
 async function frozen(root) {
@@ -404,7 +409,7 @@ async function rerun(root, target, args) {
   const files=checkedSnapshot(root,manifest);
   for (const [name,bytes] of files) immutable(path.join(target,'code',name),bytes);
   immutable(manifestPath(target),fs.readFileSync(manifestPath(root)));
-  executeTrials(api,target,manifest,opts);
+  return executeTrials(api,target,manifest,opts);
 }
 
 function unpack(list) {
@@ -472,7 +477,7 @@ async function replay(root,gameId,armId,repArg,atArg,phase,indexArg) {
     initialModel:digest(canonical(model)),finalModel:digest(canonical(prefix?prefix.model:traced.report.model)),
     score:prefix?prefix.partial.score:traced.report.score,steps:prefix?prefix.partial.steps:traced.report.steps,
     reason:prefix?{$:'Paused'}:traced.report.reason,frames:prefix?frames.slice(0,prefix.partial.steps):frames};
-  process.stdout.write(numberPreservingJson(result,2)+'\n');
+  return result;
 }
 
 function exportCsv(root) {
@@ -493,7 +498,7 @@ function exportCsv(root) {
         ...values(b.train),...values(b.validation),...values(b.test)].join(','));
     }
   }
-  process.stdout.write(lines.join('\n')+'\n');
+  return lines.join('\n')+'\n';
 }
 
 function selectStudy(root,specFile,output) {
@@ -576,25 +581,13 @@ function status(root,verify=false) {
       if (n===p.checkpoints.at(-1)) complete++;
     }
   }
-  console.log(JSON.stringify({experiment:p.name,completeTrials:complete,totalTrials:total,savedCheckpoints:saved,totalCheckpoints:total*p.checkpoints.length}));
+  return {experiment:p.name,completeTrials:complete,totalTrials:total,savedCheckpoints:saved,totalCheckpoints:total*p.checkpoints.length};
 }
+
+function report({name,finished,created}) { console.log(name+': '+finished+' trials visited, '+created+' checkpoints written.'); }
 
 async function main(argv) {
   const [cmd,arg,...rest]=argv;
-  // Leave ordinary run/resume reporting untouched, including older archives.
-  if ((cmd==='run'||cmd==='resume') && arg && rest.includes('--jobs')) {
-    const flags=cmd==='run'?rest.slice(1):rest, opts=options(flags);
-    if (cmd==='run' && !rest[0]) throw Error('run requires an output directory');
-    if (opts.jobs===1) {
-      const i=flags.indexOf('--jobs');
-      return main([cmd,arg,...(cmd==='run'?[rest[0]]:[]),...flags.slice(0,i),...flags.slice(i+2)]);
-    }
-    if (cmd==='run') return run(arg,path.resolve(rest[0]),flags);
-    const root=path.resolve(arg), {manifest}=await frozen(root);
-    if (opts.until!==Infinity && !manifest.body.plan.checkpoints.includes(opts.until))
-      throw Error('--until must be a declared checkpoint');
-    return parallelTrials(root,manifest,opts);
-  }
   if (cmd==='validate'&&arg&&rest.length===0) {
     const p=readPlan(arg); console.log('Valid plan: '+p.name+', '+p.games.length*p.arms.length*p.replicates+' trials.'); return;
   }
@@ -606,25 +599,26 @@ async function main(argv) {
     const solve=rest.length===2?reactiveOracle:oracle;
     console.log(JSON.stringify(solve(worldDefinition(json(arg)),Number(rest[0])),null,2)); return;
   }
-  if (cmd==='run'&&arg&&rest.length>=1) return run(arg,path.resolve(rest[0]),rest.slice(1));
+  if (cmd==='run'&&arg&&rest.length>=1) return report(await run(arg,path.resolve(rest[0]),rest.slice(1)));
   if (cmd==='resume'&&arg) {
     const root=path.resolve(arg), opts=options(rest);
     const {api,manifest}=await frozen(root);
-    return executeTrials(api,root,manifest,opts);
+    return report(await executeTrials(api,root,manifest,opts));
   }
   if (cmd==='assess' && arg && rest.length===2) {
     const {assess}=await import('./assessment.mjs');
     return assess(path.resolve(arg),rest[0],path.resolve(rest[1]));
   }
-  if (cmd==='rerun' && arg && rest.length>=1) return rerun(path.resolve(arg),path.resolve(rest[0]),rest.slice(1));
+  if (cmd==='rerun' && arg && rest.length>=1) return report(await rerun(path.resolve(arg),path.resolve(rest[0]),rest.slice(1)));
   if (cmd==='select'&&arg&&rest.length===2) return selectStudy(path.resolve(arg),rest[0],path.resolve(rest[1]));
-  if (cmd==='export'&&arg&&rest.length===0) return exportCsv(path.resolve(arg));
-  if ((cmd==='status'||cmd==='verify')&&arg&&rest.length===0) return status(path.resolve(arg),cmd==='verify');
-  if (cmd==='replay'&&arg&&rest.length===6) return replay(path.resolve(arg),...rest);
-  throw Error('usage: node experiment.mjs validate PLAN | oracle WORLD HORIZON [--reactive] | run PLAN OUTPUT [--bend PATH] [--until EPISODES] [--shard I/N | --jobs N] | resume OUTPUT [--until EPISODES] [--shard I/N | --jobs N] | assess OUTPUT ASSESSMENT_SPEC DIRECTORY | rerun OUTPUT NEW_OUTPUT [--until BUDGET] | select SCREEN CONFIRM_SPEC OUTPUT | status OUTPUT | verify OUTPUT | export OUTPUT | replay OUTPUT GAME ARM REP CHECKPOINT PHASE INDEX');
+  if (cmd==='report'&&arg&&rest.length===1) return (await import('./html_report.mjs')).writeReport(path.resolve(arg),path.resolve(rest[0]));
+  if (cmd==='export'&&arg&&rest.length===0) return process.stdout.write(exportCsv(path.resolve(arg)));
+  if ((cmd==='status'||cmd==='verify')&&arg&&rest.length===0) return console.log(JSON.stringify(status(path.resolve(arg),cmd==='verify')));
+  if (cmd==='replay'&&arg&&rest.length===6) return process.stdout.write(numberPreservingJson(await replay(path.resolve(arg),...rest),2)+'\n');
+  throw Error('usage: node experiment.mjs validate PLAN | oracle WORLD (HORIZON [--reactive] | --discount G [--tolerance E]) | run PLAN OUTPUT [--bend PATH] [--until EPISODES] [--shard I/N | --jobs N] | resume OUTPUT [--until EPISODES] [--shard I/N | --jobs N] | assess OUTPUT ASSESSMENT_SPEC DIRECTORY | rerun OUTPUT NEW_OUTPUT [--until BUDGET] | select SCREEN CONFIRM_SPEC OUTPUT | status OUTPUT | verify OUTPUT | export OUTPUT | report OUTPUT OUT.html | replay OUTPUT GAME ARM REP CHECKPOINT PHASE INDEX');
 }
 
-export {adapterName, allGames, frameData, record, stats, unpack, checkedSnapshot, existing, gameRunner, immutable, json, manifestPath, seal, testModel, unseal};
+export {run as runExperiment, readPlanSource, readPlan, executeTrials, exportCsv, status, replay, adapterName, allGames, frameData, record, stats, unpack, checkedSnapshot, existing, gameRunner, immutable, json, manifestPath, seal, testModel, unseal};
 
 if (process.argv[1] && pathToFileURL(path.resolve(process.argv[1])).href===import.meta.url) {
   main(process.argv.slice(2)).catch(e=>{console.error(e.message);process.exitCode=1;});

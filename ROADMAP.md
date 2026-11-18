@@ -11,23 +11,23 @@ This roadmap is for the agent continuing development. It turns the November 2026
 3. **Existing runs keep working.** Archived runs replay with the code stored in their `code/` folder, so engine changes affect only new runs. Do not change sealed file formats, the seed scheme, or the random-number generator without a schema bump. A changed generator produces different trajectories. It needs a new, separately identified design (see EXPERIMENTS.md).
 4. **Laws before refactors.** When an item replaces a data structure or adds a learner, write the protecting laws first (phase 1), then make the change.
 5. **Verification.** Each PR passes `npm test`, `bend checks.bend`, `bend benchmark_checks.bend`, `bend study_checks.bend`, and `bend PROOF.bend`, plus the full CI workflow, including the BendTT verdict and the Windows job.
-6. **Docs in the same PR.** Update README.md and EXPERIMENTS.md with every user-visible change. That includes command and analysis-tool tables, the law count ("26"), and the README "Formal Properties" list. Then update the status table at the end of this file.
+6. **Docs in the same PR.** Update README.md and EXPERIMENTS.md with every user-visible change. That includes command and analysis-tool tables, the current law count, and the README "Formal Properties" list. Then update the status table at the end of this file.
 7. **One item per PR,** small enough to review. Items in the same phase can run in parallel unless a dependency is listed.
 
 Effort: **S** is under a day, **M** is a few days, **L** is a week or more.
 
 ---
 
-## Phase 0: in flight (confirm before starting phase 1)
+## Phase 0: completed foundations
 
-| ID | Item | State at writing | Acceptance |
+| ID | Item | Implementation | Acceptance |
 | --- | --- | --- | --- |
-| P0.1 | Crash recovery for Studio training | Branch `studio/recover-training-after-crash` | Force-killing Studio (`kill -9`) during training leaves no runner or `bend` process. A restart cannot start a second concurrent training. |
-| P0.2 | MCP server | Branch `feat/studio-mcp` | See *MCP design reference* below. Tools return JSON without writing to the server's stdout. Long work runs in child processes. Paths are confined to a workspace root. |
-| P0.3 | rliable-style statistics in `analyze.py` | Assigned | Adds IQM, the stratified bootstrap over replicates, and probability of improvement. Optional performance-profile data. Stays standard-library only, or uses an optional export in rliable's input layout. Docs state when each interval is appropriate. |
-| P0.4 | Gymnasium wrapper for JSON finite worlds | Assigned | Exposes any `worldDefinition` as a Gymnasium environment with identical transition probabilities (same bucket arithmetic as `finite_world.mjs` `buckets`). An oracle-optimal policy reaches the oracle value within sampling error. Lives in its own folder with its own requirements. |
+| P0.1 | Crash recovery for Studio training | [#2](https://github.com/jaykobdetar/bend-agent-studio/pull/2) | Force-killing Studio (`kill -9`) during training leaves no runner or `bend` process. A restart cannot start a second concurrent training. |
+| P0.2 | MCP server | [#3](https://github.com/jaykobdetar/bend-agent-studio/pull/3) | See *MCP design reference* below. Tools return JSON without writing to the server's stdout. Long work runs in child processes. Paths are confined to a workspace root. |
+| P0.3 | rliable-style statistics in `analyze.py` | [#7](https://github.com/jaykobdetar/bend-agent-studio/pull/7) | Adds IQM, the stratified bootstrap over replicates, and probability of improvement. Optional performance-profile data. Stays standard-library only, or uses an optional export in rliable's input layout. Docs state when each interval is appropriate. |
+| P0.4 | Gymnasium wrapper for JSON finite worlds | [#4](https://github.com/jaykobdetar/bend-agent-studio/pull/4) | Exposes any `worldDefinition` as a Gymnasium environment with identical transition probabilities (same bucket arithmetic as `finite_world.mjs` `buckets`). An oracle-optimal policy reaches the oracle value within sampling error. Lives in its own folder with its own requirements. |
 
-Leftover from the review: delete the duplicate training check at `studio/server.mjs` (`jobs.size && ... status === 'training'`) if P0.1 has not already removed it.
+See [Studio crash recovery](README.md#if-studio-stops-during-training) for supervisor and compiler limits, and the [MCP trust boundary](mcp/README.md) before using archived runs.
 
 ---
 
@@ -252,12 +252,14 @@ Acceptance: covered by `studio/studio_checks.mjs`, including a damaged run in th
 
 Update this table in the same PR as each item.
 
+**What to do next.** Decide A5.0 before adding learners that buffer decisions or transitions. Start with SARSA(0) and L12 tests/laws for whichever episode-end contract is chosen. In parallel, cap peak compiler memory for larger benchmark worlds if compiled Taxi/Blackjack studies are important; their ports and oracle checks work, but a complete compiled study was not verified. Minari and MLflow exports and the Phase 7 ideas remain optional. Keep JavaScript as the production backend (T2.3).
+
 | ID | Status | PR |
 | --- | --- | --- |
-| P0.1 | In progress | |
-| P0.2 | In progress | |
+| P0.1 | Implemented: interrupt and clean up supported local training processes | [#2](https://github.com/jaykobdetar/bend-agent-studio/pull/2) |
+| P0.2 | Implemented: local MCP for the experiment lifecycle | [#3](https://github.com/jaykobdetar/bend-agent-studio/pull/3) |
 | P0.3 | Implemented: Fixed-suite statistics and paired intervals | [#7](https://github.com/jaykobdetar/bend-agent-studio/pull/7) |
-| P0.4 | Implemented; review pending | [Gymnasium finite-world adapter](https://github.com/jaykobdetar/bend-agent-studio/pulls?q=is%3Apr+head%3Afeat%2Fgymnasium-finite-worlds) |
+| P0.4 | Implemented: optional Gymnasium adapter for finite worlds | [#4](https://github.com/jaykobdetar/bend-agent-studio/pull/4) |
 | L1 | Implemented: Rejection law on the live engine path | [#5](https://github.com/jaykobdetar/bend-agent-studio/pull/5) |
 | L2 | Implemented: Whole-rollout evaluation and accepted-step accounting | [#8](https://github.com/jaykobdetar/bend-agent-studio/pull/8) |
 | L3 | Implemented: Generic observer invariance and cursor splitting | [#9](https://github.com/jaykobdetar/bend-agent-studio/pull/9) |
@@ -269,13 +271,20 @@ Update this table in the same PR as each item.
 | L9 | Implemented: History reset restores initial memory and seeds the world | [#15](https://github.com/jaykobdetar/bend-agent-studio/pull/15) |
 | L10 | Implemented: Completed Monte Carlo episode drops its decision buffer | [#14](https://github.com/jaykobdetar/bend-agent-studio/pull/14) |
 | L11 | Implemented: Logging policy follows its exact 16-bit draw rule | [#16](https://github.com/jaykobdetar/bend-agent-studio/pull/16) |
-| L12 | Not started | |
+| L12 | Add the relevant law with each new learner | See Phase 5 |
 | T2.1 | Implemented: parallel archived trial workers | [#17](https://github.com/jaykobdetar/bend-agent-studio/pull/17) |
-| T2.2 | Implemented; review pending | [Keyed tables](https://github.com/jaykobdetar/bend-agent-studio/pulls?q=is%3Apr+head%3Aperf%2Fkeyed-tabular) |
+| T2.2 | Implemented: keyed tables with archive parity and workload-specific timing | [#26](https://github.com/jaykobdetar/bend-agent-studio/pull/26) |
 | T2.3 | Spike complete; keep JS backend | [findings](tools/native-spike/README.md) |
 | B3.1 | Toy-text ports verified; non-dyadic runtime probabilities quantized | [Methods and checks](integrations/gymnasium/toy_text/README.md) |
 | B3.2 | Six diagnostic families with verified two-size sweeps and oracle baselines | [Probe definitions and reproduction](worlds/benchmarks/probes/README.md) |
-| S4.1–S4.4 | Not started | |
-| A5.0–A5.6 | Not started | |
-| V6.1–V6.4 | Not started | |
+| S4.1 | Implemented: discounted value and policy iteration; discount 1 restricted to acyclic worlds | [#19](https://github.com/jaykobdetar/bend-agent-studio/pull/19) |
+| S4.2 | Implemented: Cassandra export; independent LP value checks on fully observable examples | [#20](https://github.com/jaykobdetar/bend-agent-studio/pull/20) |
+| S4.3 | Implemented: additional off-policy estimators, exact finite-world scoring and dispatch diagnostics | [#21](https://github.com/jaykobdetar/bend-agent-studio/pull/21) |
+| S4.4 | Not started; optional Minari export | |
+| A5.0 | Open design decision: choose the episode-end hook before adding buffered learners | |
+| A5.1–A5.6 | Not started | Depends on A5.0 where a learner buffers across transitions |
+| V6.1 | Not started; optional MLflow exporter | |
+| V6.2 | Implemented: unsealed notes and tags in Studio and MCP | [#23](https://github.com/jaykobdetar/bend-agent-studio/pull/23) |
+| V6.3 | Implemented: self-contained offline reports | [#25](https://github.com/jaykobdetar/bend-agent-studio/pull/25) |
+| V6.4 | Implemented: local FIFO training queue and validation-curve comparison | [#28](https://github.com/jaykobdetar/bend-agent-studio/pull/28) |
 | O7.1–O7.5 | Not started | |
