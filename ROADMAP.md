@@ -256,7 +256,7 @@ Update this table in the same PR as each item.
 | --- | --- | --- |
 | P0.1 | In progress | |
 | P0.2 | In progress | |
-| P0.3 | Assigned | |
+| P0.3 | Implemented: Fixed-suite statistics and paired intervals | [#7](https://github.com/jaykobdetar/bend-agent-studio/pull/7) |
 | P0.4 | Implemented; review pending | [Gymnasium finite-world adapter](https://github.com/jaykobdetar/bend-agent-studio/pulls?q=is%3Apr+head%3Afeat%2Fgymnasium-finite-worlds) |
 | L1–L12 | Not started | |
 | T2.1–T2.3 | Not started | |
