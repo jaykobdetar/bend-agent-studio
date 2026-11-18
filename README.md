@@ -77,3 +77,7 @@ bend PROOF.bend
 `npm test` runs the Node checks, including public-policy oracles and generated memory worlds. If the Bend executable is absent, the six compiler integration tests are marked skipped. With Bend installed, they exercise training, replay, checkpoint persistence, and offline evaluation.
 
 For an independent proof verdict, install Lean 4.34.0 (for example, `elan toolchain install leanprover/lean4:v4.34.0`) and run `bend PROOF.bend --verdict`. Bend 2.0.40 builds and caches its bundled BendTT kernel on first use. You can also set `BENDTT` to a kernel built from the same release.
+
+### Agent access over MCP
+
+See the [local MCP server](mcp/README.md) for typed authoring, training jobs, replay, and statistical analysis. The [field reference](mcp/FIELDS.md) covers input plans and specs. Installing the adapter does not add dependencies to the main project.

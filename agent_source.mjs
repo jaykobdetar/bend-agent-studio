@@ -6,10 +6,10 @@ const hash = text => createHash('sha256').update(text).digest('hex');
 const sourceName = text => 'agent_'+hash(text).slice(0,32);
 const localImport = /^(\s*import\s+)(\.{1,2}\/[\w./-]+\.bend)(\s+as\s+)/gm;
 
-export function bundleAgent(filename, library) {
+export function bundleAgent(filename, library, guard = name => name) {
   const active=new Set(), visited=new Map(), files={};
   function visit(name) {
-    const resolved=fs.realpathSync(name);
+    const resolved=fs.realpathSync(guard(name));
     if (visited.has(resolved)) return visited.get(resolved);
     if (active.has(resolved)) throw Error('cyclic agent import: '+name);
     active.add(resolved);
