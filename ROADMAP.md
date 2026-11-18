@@ -258,7 +258,9 @@ Update this table in the same PR as each item.
 | P0.2 | In progress | |
 | P0.3 | Assigned | |
 | P0.4 | Assigned | |
-| L1–L12 | Not started | |
+| L1–L8 | Not started | |
+| L9 | Implemented: seeded reset with fresh history memory | [review](https://github.com/jaykobdetar/bend-agent-studio/pulls?q=is%3Apr+head%3Alaw%2Fl9-history-reset) |
+| L10–L12 | Not started | |
 | T2.1–T2.3 | Not started | |
 | B3.1–B3.2 | Not started | |
 | S4.1–S4.4 | Not started | |
