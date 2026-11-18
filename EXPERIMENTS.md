@@ -164,3 +164,21 @@ node world_campaign.mjs --bend bend --seed 30000 --worlds 4 --episodes 128 --bat
 ```
 
 The independent verdict needs a matching BendTT kernel available to Bend. The randomized campaign compiles newly generated games and compares boundary transitions, episode reports, and paused execution with an independent simulator. Its output lists the seed and source fingerprints so a failing batch can be repeated.
+
+### Share an offline report
+
+From the current checkout run `node experiment.mjs report RUN OUT.html` using
+the Node version recorded by the run and Python 3 (override with `PYTHON`).
+For complete runs this writes one new file with inline validation/test charts,
+the corresponding `analyze.py` return estimates and bootstrap intervals, and
+authored finite-world oracle baselines. For each such game it scans every final
+test score across arms and replicates and explains the highest and lowest
+episode from its archived backend. Ties use plan order, replicate, then episode
+index. The public-history explanation is distinct from the full-state optimum.
+Unrecorded phases are marked. Large test sets take longer; an oracle budget
+failure aborts generation rather than silently omitting an explanation.
+
+Only generate a report from a **trusted local run**: generation verifies its
+archive but executes that archive's backend. Open or share the resulting HTML
+offline: it contains plain escaped text and static SVG, no scripts or external
+assets. It includes run identity, test seeds and results; review before sharing.
