@@ -1,4 +1,5 @@
 import Base
+import ./logged.bend as Logged
 import ./engine.bend as E
 import ./study.bend as Study
 import ./double_q.bend as DQ
@@ -409,3 +410,27 @@ law table_adjust_preserves_other_visits:
   for +j: U32
   for distinct: {(U32.is_eq(k,q) && U32.is_eq(l,j)) == False{} : Bool}
   {T.visits(T.adjust(t,k,l,r,target),q,j) == T.visits(t,q,j) : U32}
+
+# The exact 16-bit public draw; no restriction on word, action IDs, or length.
+law logging_zero_buckets:
+  for actions: List<&2,U32>
+  for preferred: U32
+  for word: U32
+  {Logged.choose(actions,preferred,0,word) == preferred : U32}
+
+law logging_prefers_outside_buckets:
+  for actions: List<&2,U32>
+  for preferred: U32
+  for buckets: U32
+  for word: U32
+  for outside: {U32.is_ge(U32.and(word,65535),buckets) == True{} : Bool}
+  {Logged.choose(actions,preferred,buckets,word) == preferred : U32}
+
+law logging_base_evaluates_at_zero:
+  for ~O: Data
+  for ~M: Data
+  for ~act: M -> O -> List<&2,U32> -> E.Mode -> U32 -> U32
+  for model: M
+  for obs: O
+  for actions: List<&2,U32>
+  {Logged.base(~O,~M,~act,model,obs,actions) == act(model,obs,actions,E.Evaluate{},0) : U32}

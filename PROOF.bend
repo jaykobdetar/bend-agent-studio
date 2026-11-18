@@ -510,3 +510,41 @@ def Laws.table_adjust_preserves_other_visits(t,k,l,r,target,q,j,distinct):
     case T.Entry{+s,+a,n,v} <> +tail:
       other_visits_cons(key_test(s,a,k,l),s,a,n,v,tail,k,l,r,target,q,j,{==},distinct,
         d => Laws.table_adjust_preserves_other_visits(tail,k,l,r,target,q,j,d))
+
+def cmp_fin_zero(c: Cmp,bit: Bool,ih: {Cmp.is_lt(c) == False{} : Bool}) -> {Cmp.is_lt(Word.cmp.fin(bit,False{},c)) == False{} : Bool}:
+  match c bit:
+    case EQ{} True{}: {==}
+    case EQ{} False{}: {==}
+    case LT{} _: ih
+    case GT{} _: {==}
+
+def word_not_below_zero(n: Nat,word: Word(n)) -> {Cmp.is_lt(Word.cmp(n,word,Word.zero(n))) == False{} : Bool}:
+  match n:
+    case 0n: {==}
+    case 1n++p:
+      match word:
+        case WCon{b,+t}: cmp_fin_zero(Word.cmp(p,t,Word.zero(p)),b,word_not_below_zero(p,t))
+
+def u32_not_below_zero(word: U32) -> {U32.is_lt(word,0) == False{} : Bool}:
+  match word:
+    case U32{bits}: word_not_below_zero(32n,bits)
+
+def ge_not_lt(c: Cmp,ge: {Cmp.is_ge(c) == True{} : Bool}) -> {Cmp.is_lt(c) == False{} : Bool}:
+  match c:
+    case LT{}: Equal.sym(Bool,False{},True{},ge)
+    case EQ{}: {==}
+    case GT{}: {==}
+
+def Laws.logging_zero_buckets(actions,preferred,word):
+  +draw = U32.and(word,65535)
+  %Equal.sym(Bool,U32.is_lt(draw,0),False{},u32_not_below_zero(draw)) :
+    {Bool.pick(U32,_,T.random_action(actions,draw),preferred) == preferred : U32}
+  {==}
+
+def Laws.logging_prefers_outside_buckets(actions,preferred,buckets,word,outside):
+  +draw = U32.and(word,65535)
+  %Equal.sym(Bool,U32.is_lt(draw,buckets),False{},ge_not_lt(U32.cmp(draw,buckets),outside)) :
+    {Bool.pick(U32,_,T.random_action(actions,draw),preferred) == preferred : U32}
+  {==}
+
+def Laws.logging_base_evaluates_at_zero(O,M,act,model,obs,actions): {==}
