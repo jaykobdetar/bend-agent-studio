@@ -194,7 +194,7 @@ function bridgeFunctions(plan) {
   return code;
 }
 
-async function build(bend, dir, plan) {
+async function build(bend, dir, plan, runProgram) {
   const env={...process.env,BEND_NO_TELEMETRY:'1'};
   const sources=sourceFiles(plan);
   const authored=new Map(allGames(plan).filter(g=>g.definition).map(g=>[symbol(g.definition),g.definition]));
@@ -217,10 +217,10 @@ async function build(bend, dir, plan) {
     fs.mkdirSync(path.join(dir,path.dirname(name)),{recursive:true});
     fs.writeFileSync(path.join(dir,name),bytes);
   }
-  for (const name of customModules) await execute(bend,[path.join(dir,name+'.bend'),'--check-only'],{env});
-  const version=(await execute(bend,['version'],{env})).stdout.trim();
+  for (const name of customModules) await runProgram(bend,[path.join(dir,name+'.bend'),'--check-only'],{env});
+  const version=(await runProgram(bend,['version'],{env})).stdout.trim();
   const file=path.join(dir,'study.mjs');
-  await execute(bend,[path.join(dir,'study.bend'),'-o',file],{env});
+  await runProgram(bend,[path.join(dir,'study.bend'),'-o',file],{env});
   const backend=digest(fs.readFileSync(file));
   const hashes=Object.fromEntries([...sources].map(([k,v])=>[k,digest(v)]));
   const api=(await import(pathToFileURL(file).href)).default;
@@ -317,13 +317,13 @@ function readPlan(config) {
   return validate(input);
 }
 
-async function run(config,root,args) {
+export async function run(config,root,args,runProgram=execute) {
   const plan=readPlan(config);
   const opts=options(args);
   if (opts.until!==Infinity && !plan.checkpoints.includes(opts.until)) throw Error('--until must be a declared checkpoint');
   const dir=fs.mkdtempSync(path.join(os.tmpdir(),'bend-study-'));
   try {
-    const {api,sources,compiled,toolchain}=await build(opts.bend,dir,plan);
+    const {api,sources,compiled,toolchain}=await build(opts.bend,dir,plan,runProgram);
     const bytes=seal({plan,toolchain});
     // Publish the manifest last. A partial build can safely be retried.
     if (fs.existsSync(manifestPath(root)) && fs.readFileSync(manifestPath(root),'utf8')!==bytes) {
