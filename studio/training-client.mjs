@@ -2,7 +2,9 @@ import { fork } from 'node:child_process';
 
 export async function openTrainingHost(home, onLost) {
   const host = fork(new URL('./training-host.mjs', import.meta.url), [], {
-    execArgv: [], detached: process.platform !== 'win32', windowsHide: true,
+    // On Windows a non-detached child belongs to Node's kill-on-exit job.
+    // The supervisor needs to live long enough to handle the closed IPC pipe.
+    execArgv: [], detached: true, windowsHide: true,
     stdio: ['ignore', 'ignore', 'inherit', 'ipc']
   });
   const pending = new Map();

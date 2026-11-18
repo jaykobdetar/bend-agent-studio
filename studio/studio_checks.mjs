@@ -104,6 +104,7 @@ async function start(home, args = [], extra = {}) {
     }
   );
   const exited = once(child, 'exit');
+  const closed = once(child, 'close');
   const url = await new Promise((resolve, reject) => {
     let errors = '';
     child.stderr.on('data', (data) => {
@@ -121,6 +122,9 @@ async function start(home, args = [], extra = {}) {
     async close(signal) {
       child.kill(signal);
       await exited;
+      // For ordinary teardown also wait for inherited stderr to close. Crash
+      // tests restart on server exit, while the supervisor may still be draining.
+      if (signal !== 'SIGKILL') await closed;
     }
   };
 }
