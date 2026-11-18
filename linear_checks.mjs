@@ -1,0 +1,37 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import fs from 'node:fs';
+import os from 'node:os';
+import path from 'node:path';
+import {fileURLToPath} from 'node:url';
+import {compilerTest} from './bend_test_support.mjs';
+import {execute} from './process_output.mjs';
+const here=path.dirname(fileURLToPath(import.meta.url));
+const bend=process.env.BEND??'bend';
+test('general sparse linear arithmetic and structural laws',compilerTest,async()=>{
+  const result=await execute(bend,[path.join(here,'linear_checks.bend')]);
+  assert.equal((result.stdout.match(/^pass - /gm)??[]).length,10);
+  const proof=await execute(bend,[path.join(here,'linear_proof.bend')]);
+  assert.match(proof.stdout,/ALL PROOFS CHECK/);
+});
+test('general linear custom agent trains and replays a sealed study',compilerTest,async t=>{
+  const tmp=fs.mkdtempSync(path.join(os.tmpdir(),'bend-linear-'));
+  t.after(()=>fs.rmSync(tmp,{recursive:true,force:true}));
+  const plan=JSON.parse(fs.readFileSync(path.join(here,'experiments/cliff-linear.json')));
+  plan.arms=plan.arms.slice(0,1);
+  plan.arms[0].agentFile=path.join(here,'agents/linear.bend');
+  plan.replicates=1;plan.checkpoints=[0,3,9];plan.validationEpisodes=2;plan.testEpisodes=3;
+  const file=path.join(tmp,'plan.json'),out=path.join(tmp,'out');
+  fs.writeFileSync(file,JSON.stringify(plan));
+  const cli=(...args)=>execute(process.execPath,[path.join(here,'experiment.mjs'),...args]);
+  await cli('run',file,out);
+  const verified=JSON.parse((await cli('verify',out)).stdout);
+  assert.equal(verified.completeTrials,1);assert.equal(verified.savedCheckpoints,3);
+  const final=JSON.parse(fs.readFileSync(path.join(out,'trials/cliff/linear/0/9.json'))).body;
+  assert.equal(final.train.illegal,0);
+  const replay=JSON.parse((await cli('replay',out,'cliff','linear','0','9','test','0')).stdout);
+  assert.ok(replay);
+  const before=fs.readFileSync(path.join(out,'trials/cliff/linear/0/9.json'),'utf8');
+  await cli('resume',out);
+  assert.equal(fs.readFileSync(path.join(out,'trials/cliff/linear/0/9.json'),'utf8'),before);
+});
