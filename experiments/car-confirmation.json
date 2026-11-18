@@ -1,0 +1,21 @@
+{
+  "name": "car-confirmation",
+  "metric": "return",
+  "reference": "q-a05-e00625",
+  "replicates": 96,
+  "checkpoints": [
+    0,
+    32,
+    128,
+    512,
+    1024
+  ],
+  "validationEpisodes": 32,
+  "testEpisodes": 128,
+  "seeds": {
+    "train": 61000000,
+    "validation": 1400000000,
+    "test": 2400000000,
+    "stride": 10000
+  }
+}

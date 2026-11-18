@@ -1,0 +1,11 @@
+{
+  "schema":1,"name":"maximization-bias","games":[{"id":"noisy_fork","limit":2}],
+  "arms":[
+    {"id":"q","method":"q_learning","epsilon":0.1,"alpha":0.1,"gamma":1},
+    {"id":"double","method":"double_q","epsilon":0.1,"alpha":0.1,"gamma":1},
+    {"id":"expected","method":"expected_sarsa","epsilon":0.1,"alpha":0.1,"gamma":1}
+  ],
+  "replicates":128,"checkpoints":[0,8,16,32,64,128,256,512,1024],
+  "validationEpisodes":8,"testEpisodes":64,
+  "seeds":{"train":31000000,"validation":1100000000,"test":2200000000,"stride":10000}
+}

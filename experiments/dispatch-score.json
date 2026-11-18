@@ -1,0 +1,9 @@
+{
+  "schema": 1,
+  "name": "dispatch-held-out-score",
+  "episodes": 512,
+  "seeds": {
+    "start": 700000000,
+    "stride": 20000
+  }
+}

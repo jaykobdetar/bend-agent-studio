@@ -1,0 +1,67 @@
+{
+  "schema": 1,
+  "name": "planning-budget",
+  "budgetUnit": "steps",
+  "games": [
+    {
+      "id": "detour",
+      "file": "../worlds/detour.json",
+      "limit": 40
+    },
+    {
+      "id": "slippery",
+      "file": "../worlds/slippery-detour.json",
+      "limit": 40
+    }
+  ],
+  "arms": [
+    {
+      "id": "q",
+      "method": "q_learning",
+      "alpha": 0.25,
+      "gamma": 0.95,
+      "epsilon": 0.125
+    },
+    {
+      "id": "dyna-0",
+      "method": "dyna_q",
+      "planningSteps": 0,
+      "alpha": 0.25,
+      "gamma": 0.95,
+      "epsilon": 0.125
+    },
+    {
+      "id": "dyna-5",
+      "method": "dyna_q",
+      "planningSteps": 5,
+      "alpha": 0.25,
+      "gamma": 0.95,
+      "epsilon": 0.125
+    },
+    {
+      "id": "dyna-25",
+      "method": "dyna_q",
+      "planningSteps": 25,
+      "alpha": 0.25,
+      "gamma": 0.95,
+      "epsilon": 0.125
+    }
+  ],
+  "replicates": 48,
+  "checkpoints": [
+    0,
+    64,
+    256,
+    1024,
+    4096,
+    10000
+  ],
+  "validationEpisodes": 24,
+  "testEpisodes": 128,
+  "seeds": {
+    "train": 91000000,
+    "validation": 1700000000,
+    "test": 2700000000,
+    "stride": 20000
+  }
+}

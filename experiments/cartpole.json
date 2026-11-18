@@ -1,0 +1,48 @@
+{
+  "schema": 1,
+  "name": "cartpole-actor-critic",
+  "budgetUnit": "steps",
+  "games": [
+    {
+      "id": "cartpole",
+      "limit": 500
+    }
+  ],
+  "arms": [
+    {
+      "id": "random",
+      "method": "random"
+    },
+    {
+      "id": "linear",
+      "method": "linear_ac",
+      "alpha": 0.003,
+      "criticRate": 0.02,
+      "gamma": 0.99
+    },
+    {
+      "id": "network",
+      "method": "network_ac",
+      "alpha": 0.003,
+      "criticRate": 0.02,
+      "gamma": 0.99
+    }
+  ],
+  "replicates": 32,
+  "checkpoints": [
+    0,
+    1000,
+    5000,
+    20000,
+    50000,
+    100000
+  ],
+  "validationEpisodes": 16,
+  "testEpisodes": 64,
+  "seeds": {
+    "train": 101000000,
+    "validation": 1800000000,
+    "test": 2800000000,
+    "stride": 200000
+  }
+}

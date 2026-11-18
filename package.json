@@ -1,0 +1,13 @@
+{
+  "name": "bend-agent-studio",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=24"
+  },
+  "scripts": {
+    "start": "node studio/server.mjs",
+    "test": "node --test experiment_checks.mjs batch_checks.mjs studio/studio_checks.mjs"
+  }
+}

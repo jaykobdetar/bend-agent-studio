@@ -1,0 +1,39 @@
+{
+  "schema": 1,
+  "name": "authored-bridge",
+  "games": [
+    {
+      "id": "bridge",
+      "file": "../worlds/bridge.json",
+      "limit": 2
+    }
+  ],
+  "arms": [
+    {
+      "id": "random",
+      "method": "random"
+    },
+    {
+      "id": "q",
+      "method": "q_learning"
+    },
+    {
+      "id": "double",
+      "method": "double_q"
+    }
+  ],
+  "replicates": 8,
+  "checkpoints": [
+    0,
+    32,
+    256
+  ],
+  "validationEpisodes": 32,
+  "testEpisodes": 128,
+  "seeds": {
+    "train": 71000000,
+    "validation": 1500000000,
+    "test": 2500000000,
+    "stride": 10000
+  }
+}

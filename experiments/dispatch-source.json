@@ -1,0 +1,29 @@
+{
+  "schema": 1,
+  "name": "dispatch-logging-policy",
+  "games": [
+    {
+      "id": "dispatch",
+      "file": "../worlds/dispatch.json",
+      "limit": 2
+    }
+  ],
+  "arms": [
+    {
+      "id": "first",
+      "method": "q_learning"
+    }
+  ],
+  "replicates": 64,
+  "checkpoints": [
+    0
+  ],
+  "validationEpisodes": 1,
+  "testEpisodes": 0,
+  "seeds": {
+    "train": 400000000,
+    "validation": 2110000000,
+    "test": 3350000000,
+    "stride": 20000
+  }
+}

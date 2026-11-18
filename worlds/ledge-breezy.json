@@ -1,0 +1,12 @@
+{
+  "schema": 1,
+  "grid": [
+    ".....",
+    "S...G",
+    ".PPP."
+  ],
+  "stepReward": -1,
+  "goalReward": 0,
+  "pitReward": -30,
+  "slip": 0.125
+}

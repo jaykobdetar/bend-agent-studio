@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="theme-color" content="#15151a" />
+    <title>Bend Studio · Simulator</title>
+    <link rel="icon" href="data:," />
+    <link rel="stylesheet" href="/style.css" />
+  </head>
+  <body>
+    <header class="top">
+      <div class="bar">
+        <a class="brand" href="#simulator" aria-label="Bend Studio home"
+          ><span class="brandmark" aria-hidden="true"><i></i><i></i><i></i></span>Bend
+          <span>Studio</span></a
+        >
+        <nav aria-label="Workspace">
+          <button data-nav="simulator" class="current">Simulator</button
+          ><button data-nav="experiments">Experiments</button
+          ><button data-nav="recordings">Recordings</button>
+        </nav>
+        <span class="local"><i></i> Local workspace</span>
+      </div>
+    </header>
+    <main>
+      <div class="intro">
+        <div>
+          <h1 id="title">Simulation workspace</h1>
+          <p id="subtitle">Train an agent and explore its decisions, one step at a time.</p>
+        </div>
+      </div>
+      <div id="simulator" class="workspace">
+        <aside class="worlds panel">
+          <div class="panel-head">
+            <span class="section-mark"></span>
+            <h2>Environments</h2>
+          </div>
+          <div id="world-list"></div>
+        </aside>
+        <section class="viewer panel">
+          <div class="viewer-head">
+            <div>
+              <div class="eyebrow">Environment viewer</div>
+              <h2 id="game-name">Mountain Car</h2>
+              <p id="world-description"></p>
+            </div>
+            <span id="source" class="tag">Example replay</span>
+          </div>
+          <div class="stage">
+            <canvas
+              id="scene"
+              width="1024"
+              height="440"
+              role="img"
+              aria-label="Agent moving through the environment"
+            ></canvas>
+            <div class="scene-info">
+              <span class="viewfinder"></span><span id="stage-label">REPLAY VIEW</span>
+            </div>
+            <div class="stage-step" id="stage-step">STEP 000</div>
+          </div>
+          <div class="transport">
+            <div class="timeline">
+              <label for="scrub" class="sr">Replay position</label
+              ><input id="scrub" type="range" value="0" max="1" /><span id="counter">0 / 0</span>
+            </div>
+            <div class="transport-row">
+              <div class="buttons">
+                <button id="play" class="play" title="Play or pause (Space)">
+                  <span class="play-shape"></span><span id="play-text">Play</span></button
+                ><button id="back" class="iconbtn" title="Previous step" aria-label="Previous step">
+                  ‹</button
+                ><button id="next" class="iconbtn" title="Next step" aria-label="Next step">›</button
+                ><select id="speed" aria-label="Playback speed">
+                  <option value=".5">0.5×</option>
+                  <option value="1" selected>1×</option>
+                  <option value="2">2×</option>
+                  <option value="4">4×</option>
+                </select>
+              </div>
+              <button id="record" class="record"><i></i><span>Record GIF</span></button>
+            </div>
+          </div>
+        </section>
+        <aside class="config panel">
+          <div class="panel-head">
+            <span class="section-mark"></span>
+            <h2>Run settings</h2>
+          </div>
+          <form id="train">
+            <label for="agent">Learning algorithm</label
+            ><select id="agent"></select
+            ><label for="budget">Training episodes</label
+            ><input id="budget" type="number" min="1" max="32768" required /><label for="seed"
+              >Random seed</label
+            >
+            <div class="seed-row">
+              <input id="seed" type="number" value="42" min="0" max="1000000000" required /><button
+                type="button"
+                id="reroll"
+                class="dice"
+                aria-label="Generate another seed"
+                title="Generate another seed"
+              >
+                ⚄
+              </button>
+            </div>
+            <button class="primary" id="train-btn" type="submit">
+              <span class="play-shape"></span><span>Train agent</span>
+            </button>
+            <p class="form-note" id="job-status" role="status">New runs are saved in Experiments.</p>
+          </form>
+        </aside>
+        <div class="below">
+          <section class="panel readouts">
+            <div class="panel-head">
+              <span class="section-mark"></span>
+              <h2>Episode telemetry</h2>
+            </div>
+            <div id="metrics"></div>
+            <div id="signals"></div>
+          </section>
+          <section class="panel details">
+            <div class="panel-head">
+              <span class="section-mark"></span>
+              <h2>Replay details</h2>
+            </div>
+            <dl id="details"></dl>
+            <button class="subtle" id="export-json">Download trace <span>↓</span></button>
+          </section>
+        </div>
+      </div>
+      <section id="experiments" hidden>
+        <div class="list-head">
+          <h2>Training runs</h2>
+          <button data-go="simulator" class="primary">New experiment</button>
+        </div>
+        <div id="run-list"></div>
+      </section>
+      <section id="recordings" hidden>
+        <div class="list-head">
+          <h2>Saved recordings</h2>
+          <button data-go="simulator" class="secondary">Open simulator</button>
+        </div>
+        <div id="clip-list"></div>
+      </section>
+    </main>
+    <dialog id="run-dialog">
+      <form method="dialog" class="dialog-head">
+        <h2>Open a replay</h2>
+        <button aria-label="Close" class="iconbtn">×</button>
+      </form>
+      <div id="replay-options"></div>
+      <div class="dialog-foot">
+        <button id="load-replay" class="primary">Open in simulator</button>
+      </div>
+    </dialog>
+    <div id="toast" role="status" hidden></div>
+    <script type="module" src="/app.js"></script>
+  </body>
+</html>

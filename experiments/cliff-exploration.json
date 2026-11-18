@@ -1,0 +1,14 @@
+{
+  "schema": 1, "name": "cliff-exploration", "games": [{"id":"cliff","limit":40}],
+  "arms": [
+    {"id":"q-low","method":"q_learning","epsilon":0.0625},
+    {"id":"expected-low","method":"expected_sarsa","epsilon":0.0625},
+    {"id":"q-medium","method":"q_learning","epsilon":0.25},
+    {"id":"expected-medium","method":"expected_sarsa","epsilon":0.25},
+    {"id":"q-high","method":"q_learning","epsilon":0.5},
+    {"id":"expected-high","method":"expected_sarsa","epsilon":0.5}
+  ],
+  "replicates": 24, "checkpoints": [0, 16, 64, 256, 1024],
+  "validationEpisodes": 16, "testEpisodes": 32,
+  "seeds":{"train":100000,"validation":1000000000,"test":2000000000,"stride":20000}
+}

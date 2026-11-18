@@ -1,0 +1,94 @@
+{
+  "schema": 1,
+  "name": "pole-screen",
+  "budgetUnit": "steps",
+  "games": [
+    {
+      "id": "cartpole",
+      "limit": 500
+    }
+  ],
+  "arms": [
+    {
+      "id": "actor-001-critic-006",
+      "method": "network_ac",
+      "alpha": 0.001,
+      "criticRate": 0.006,
+      "gamma": 0.99
+    },
+    {
+      "id": "actor-001-critic-020",
+      "method": "network_ac",
+      "alpha": 0.001,
+      "criticRate": 0.02,
+      "gamma": 0.99
+    },
+    {
+      "id": "actor-001-critic-060",
+      "method": "network_ac",
+      "alpha": 0.001,
+      "criticRate": 0.06,
+      "gamma": 0.99
+    },
+    {
+      "id": "actor-003-critic-006",
+      "method": "network_ac",
+      "alpha": 0.003,
+      "criticRate": 0.006,
+      "gamma": 0.99
+    },
+    {
+      "id": "actor-003-critic-020",
+      "method": "network_ac",
+      "alpha": 0.003,
+      "criticRate": 0.02,
+      "gamma": 0.99
+    },
+    {
+      "id": "actor-003-critic-060",
+      "method": "network_ac",
+      "alpha": 0.003,
+      "criticRate": 0.06,
+      "gamma": 0.99
+    },
+    {
+      "id": "actor-009-critic-006",
+      "method": "network_ac",
+      "alpha": 0.009,
+      "criticRate": 0.006,
+      "gamma": 0.99
+    },
+    {
+      "id": "actor-009-critic-020",
+      "method": "network_ac",
+      "alpha": 0.009,
+      "criticRate": 0.02,
+      "gamma": 0.99
+    },
+    {
+      "id": "actor-009-critic-060",
+      "method": "network_ac",
+      "alpha": 0.009,
+      "criticRate": 0.06,
+      "gamma": 0.99
+    }
+  ],
+  "replicates": 48,
+  "checkpoints": [
+    0,
+    5000,
+    20000,
+    50000,
+    100000,
+    200000,
+    400000
+  ],
+  "validationEpisodes": 32,
+  "testEpisodes": 0,
+  "seeds": {
+    "train": 250000000,
+    "validation": 1600000000,
+    "test": 3100000000,
+    "stride": 450000
+  }
+}

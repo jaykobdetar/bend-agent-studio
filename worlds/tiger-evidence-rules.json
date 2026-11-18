@@ -1,0 +1,442 @@
+{
+  "schema": 1,
+  "states": 153,
+  "initial": 8,
+  "observationStride": 4,
+  "output": "memory",
+  "otherwise": "keep",
+  "rules": [
+    {
+      "from": 8,
+      "action": 0,
+      "nextObservation": 1,
+      "to": 26
+    },
+    {
+      "from": 8,
+      "action": 0,
+      "nextObservation": 2,
+      "to": 24
+    },
+    {
+      "from": 24,
+      "action": 0,
+      "nextObservation": 1,
+      "to": 42
+    },
+    {
+      "from": 24,
+      "action": 0,
+      "nextObservation": 2,
+      "to": 40
+    },
+    {
+      "from": 26,
+      "action": 0,
+      "nextObservation": 1,
+      "to": 44
+    },
+    {
+      "from": 26,
+      "action": 0,
+      "nextObservation": 2,
+      "to": 42
+    },
+    {
+      "from": 40,
+      "action": 0,
+      "nextObservation": 1,
+      "to": 58
+    },
+    {
+      "from": 40,
+      "action": 0,
+      "nextObservation": 2,
+      "to": 56
+    },
+    {
+      "from": 42,
+      "action": 0,
+      "nextObservation": 1,
+      "to": 60
+    },
+    {
+      "from": 42,
+      "action": 0,
+      "nextObservation": 2,
+      "to": 58
+    },
+    {
+      "from": 44,
+      "action": 0,
+      "nextObservation": 1,
+      "to": 62
+    },
+    {
+      "from": 44,
+      "action": 0,
+      "nextObservation": 2,
+      "to": 60
+    },
+    {
+      "from": 56,
+      "action": 0,
+      "nextObservation": 1,
+      "to": 74
+    },
+    {
+      "from": 56,
+      "action": 0,
+      "nextObservation": 2,
+      "to": 72
+    },
+    {
+      "from": 58,
+      "action": 0,
+      "nextObservation": 1,
+      "to": 76
+    },
+    {
+      "from": 58,
+      "action": 0,
+      "nextObservation": 2,
+      "to": 74
+    },
+    {
+      "from": 60,
+      "action": 0,
+      "nextObservation": 1,
+      "to": 78
+    },
+    {
+      "from": 60,
+      "action": 0,
+      "nextObservation": 2,
+      "to": 76
+    },
+    {
+      "from": 62,
+      "action": 0,
+      "nextObservation": 1,
+      "to": 80
+    },
+    {
+      "from": 62,
+      "action": 0,
+      "nextObservation": 2,
+      "to": 78
+    },
+    {
+      "from": 72,
+      "action": 0,
+      "nextObservation": 1,
+      "to": 90
+    },
+    {
+      "from": 72,
+      "action": 0,
+      "nextObservation": 2,
+      "to": 88
+    },
+    {
+      "from": 74,
+      "action": 0,
+      "nextObservation": 1,
+      "to": 92
+    },
+    {
+      "from": 74,
+      "action": 0,
+      "nextObservation": 2,
+      "to": 90
+    },
+    {
+      "from": 76,
+      "action": 0,
+      "nextObservation": 1,
+      "to": 94
+    },
+    {
+      "from": 76,
+      "action": 0,
+      "nextObservation": 2,
+      "to": 92
+    },
+    {
+      "from": 78,
+      "action": 0,
+      "nextObservation": 1,
+      "to": 96
+    },
+    {
+      "from": 78,
+      "action": 0,
+      "nextObservation": 2,
+      "to": 94
+    },
+    {
+      "from": 80,
+      "action": 0,
+      "nextObservation": 1,
+      "to": 98
+    },
+    {
+      "from": 80,
+      "action": 0,
+      "nextObservation": 2,
+      "to": 96
+    },
+    {
+      "from": 88,
+      "action": 0,
+      "nextObservation": 1,
+      "to": 106
+    },
+    {
+      "from": 88,
+      "action": 0,
+      "nextObservation": 2,
+      "to": 104
+    },
+    {
+      "from": 90,
+      "action": 0,
+      "nextObservation": 1,
+      "to": 108
+    },
+    {
+      "from": 90,
+      "action": 0,
+      "nextObservation": 2,
+      "to": 106
+    },
+    {
+      "from": 92,
+      "action": 0,
+      "nextObservation": 1,
+      "to": 110
+    },
+    {
+      "from": 92,
+      "action": 0,
+      "nextObservation": 2,
+      "to": 108
+    },
+    {
+      "from": 94,
+      "action": 0,
+      "nextObservation": 1,
+      "to": 112
+    },
+    {
+      "from": 94,
+      "action": 0,
+      "nextObservation": 2,
+      "to": 110
+    },
+    {
+      "from": 96,
+      "action": 0,
+      "nextObservation": 1,
+      "to": 114
+    },
+    {
+      "from": 96,
+      "action": 0,
+      "nextObservation": 2,
+      "to": 112
+    },
+    {
+      "from": 98,
+      "action": 0,
+      "nextObservation": 1,
+      "to": 116
+    },
+    {
+      "from": 98,
+      "action": 0,
+      "nextObservation": 2,
+      "to": 114
+    },
+    {
+      "from": 104,
+      "action": 0,
+      "nextObservation": 1,
+      "to": 122
+    },
+    {
+      "from": 104,
+      "action": 0,
+      "nextObservation": 2,
+      "to": 120
+    },
+    {
+      "from": 106,
+      "action": 0,
+      "nextObservation": 1,
+      "to": 124
+    },
+    {
+      "from": 106,
+      "action": 0,
+      "nextObservation": 2,
+      "to": 122
+    },
+    {
+      "from": 108,
+      "action": 0,
+      "nextObservation": 1,
+      "to": 126
+    },
+    {
+      "from": 108,
+      "action": 0,
+      "nextObservation": 2,
+      "to": 124
+    },
+    {
+      "from": 110,
+      "action": 0,
+      "nextObservation": 1,
+      "to": 128
+    },
+    {
+      "from": 110,
+      "action": 0,
+      "nextObservation": 2,
+      "to": 126
+    },
+    {
+      "from": 112,
+      "action": 0,
+      "nextObservation": 1,
+      "to": 130
+    },
+    {
+      "from": 112,
+      "action": 0,
+      "nextObservation": 2,
+      "to": 128
+    },
+    {
+      "from": 114,
+      "action": 0,
+      "nextObservation": 1,
+      "to": 132
+    },
+    {
+      "from": 114,
+      "action": 0,
+      "nextObservation": 2,
+      "to": 130
+    },
+    {
+      "from": 116,
+      "action": 0,
+      "nextObservation": 1,
+      "to": 134
+    },
+    {
+      "from": 116,
+      "action": 0,
+      "nextObservation": 2,
+      "to": 132
+    },
+    {
+      "from": 120,
+      "action": 0,
+      "nextObservation": 1,
+      "to": 138
+    },
+    {
+      "from": 120,
+      "action": 0,
+      "nextObservation": 2,
+      "to": 136
+    },
+    {
+      "from": 122,
+      "action": 0,
+      "nextObservation": 1,
+      "to": 140
+    },
+    {
+      "from": 122,
+      "action": 0,
+      "nextObservation": 2,
+      "to": 138
+    },
+    {
+      "from": 124,
+      "action": 0,
+      "nextObservation": 1,
+      "to": 142
+    },
+    {
+      "from": 124,
+      "action": 0,
+      "nextObservation": 2,
+      "to": 140
+    },
+    {
+      "from": 126,
+      "action": 0,
+      "nextObservation": 1,
+      "to": 144
+    },
+    {
+      "from": 126,
+      "action": 0,
+      "nextObservation": 2,
+      "to": 142
+    },
+    {
+      "from": 128,
+      "action": 0,
+      "nextObservation": 1,
+      "to": 146
+    },
+    {
+      "from": 128,
+      "action": 0,
+      "nextObservation": 2,
+      "to": 144
+    },
+    {
+      "from": 130,
+      "action": 0,
+      "nextObservation": 1,
+      "to": 148
+    },
+    {
+      "from": 130,
+      "action": 0,
+      "nextObservation": 2,
+      "to": 146
+    },
+    {
+      "from": 132,
+      "action": 0,
+      "nextObservation": 1,
+      "to": 150
+    },
+    {
+      "from": 132,
+      "action": 0,
+      "nextObservation": 2,
+      "to": 148
+    },
+    {
+      "from": 134,
+      "action": 0,
+      "nextObservation": 1,
+      "to": 152
+    },
+    {
+      "from": 134,
+      "action": 0,
+      "nextObservation": 2,
+      "to": 150
+    }
+  ]
+}

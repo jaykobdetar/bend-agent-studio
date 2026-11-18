@@ -1,0 +1,70 @@
+{
+  "schema": 1,
+  "initial": [
+    {
+      "to": 0,
+      "weight": 1
+    }
+  ],
+  "states": [
+    {
+      "id": 0,
+      "actions": [
+        {
+          "id": 4,
+          "outcomes": [
+            {
+              "to": 1,
+              "weight": 1,
+              "reward": -1
+            }
+          ]
+        },
+        {
+          "id": 9,
+          "outcomes": [
+            {
+              "to": 2,
+              "weight": 1,
+              "reward": -6
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 1,
+      "actions": [
+        {
+          "id": 3,
+          "outcomes": [
+            {
+              "to": 2,
+              "weight": 1,
+              "reward": -1
+            }
+          ]
+        },
+        {
+          "id": 7,
+          "outcomes": [
+            {
+              "to": 2,
+              "weight": 3,
+              "reward": 3
+            },
+            {
+              "to": 2,
+              "weight": 1,
+              "reward": -7
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "actions": []
+    }
+  ]
+}

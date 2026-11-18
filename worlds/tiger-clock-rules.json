@@ -1,0 +1,49 @@
+{
+  "schema": 1,
+  "states": 9,
+  "initial": 0,
+  "observationStride": 4,
+  "otherwise": "keep",
+  "rules": [
+    {
+      "from": 0,
+      "action": 0,
+      "to": 1
+    },
+    {
+      "from": 1,
+      "action": 0,
+      "to": 2
+    },
+    {
+      "from": 2,
+      "action": 0,
+      "to": 3
+    },
+    {
+      "from": 3,
+      "action": 0,
+      "to": 4
+    },
+    {
+      "from": 4,
+      "action": 0,
+      "to": 5
+    },
+    {
+      "from": 5,
+      "action": 0,
+      "to": 6
+    },
+    {
+      "from": 6,
+      "action": 0,
+      "to": 7
+    },
+    {
+      "from": 7,
+      "action": 0,
+      "to": 8
+    }
+  ]
+}

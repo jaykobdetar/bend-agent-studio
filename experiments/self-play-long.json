@@ -1,0 +1,76 @@
+{
+  "schema": 1,
+  "name": "self-play-long",
+  "games": [
+    {
+      "id": "tic-tac-toe",
+      "domain": "arena",
+      "worldFile": "../worlds/tictactoe.bend",
+      "limit": 9,
+      "parameters": {
+        "symmetry": 1
+      }
+    },
+    {
+      "id": "raw-board",
+      "domain": "arena",
+      "worldFile": "../worlds/tictactoe.bend",
+      "limit": 9,
+      "parameters": {
+        "symmetry": 0
+      }
+    }
+  ],
+  "arms": [
+    {
+      "id": "negamax-q",
+      "method": "custom",
+      "domain": "arena",
+      "agentFile": "../agents/self_play.bend",
+      "parameters": {
+        "rule": 1,
+        "alpha": 0.25,
+        "gamma": 1,
+        "epsilon": 0.25
+      }
+    },
+    {
+      "id": "expected",
+      "method": "custom",
+      "domain": "arena",
+      "agentFile": "../agents/self_play.bend",
+      "parameters": {
+        "rule": 2,
+        "alpha": 0.25,
+        "gamma": 1,
+        "epsilon": 0.25
+      }
+    },
+    {
+      "id": "monte-carlo",
+      "method": "custom",
+      "domain": "arena",
+      "agentFile": "../agents/self_play.bend",
+      "parameters": {
+        "rule": 3,
+        "alpha": 0.25,
+        "gamma": 1,
+        "epsilon": 0.25
+      }
+    }
+  ],
+  "replicates": 8,
+  "checkpoints": [
+    0,
+    8192,
+    32768
+  ],
+  "validationEpisodes": 32,
+  "testEpisodes": 128,
+  "seeds": {
+    "train": 1250000000,
+    "validation": 2450000000,
+    "test": 3550000000,
+    "stride": 40000
+  }
+}

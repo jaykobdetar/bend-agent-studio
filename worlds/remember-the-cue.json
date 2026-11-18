@@ -1,0 +1,104 @@
+{
+  "schema": 1,
+  "initial": [
+    {
+      "to": 21,
+      "weight": 1
+    },
+    {
+      "to": 87,
+      "weight": 1
+    }
+  ],
+  "states": [
+    {
+      "id": 21,
+      "observation": 1,
+      "actions": [
+        {
+          "id": 5,
+          "outcomes": [
+            {
+              "to": 11,
+              "weight": 1,
+              "reward": 0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 87,
+      "observation": 2,
+      "actions": [
+        {
+          "id": 5,
+          "outcomes": [
+            {
+              "to": 99,
+              "weight": 1,
+              "reward": 0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 11,
+      "observation": 3,
+      "actions": [
+        {
+          "id": 10,
+          "outcomes": [
+            {
+              "to": 0,
+              "weight": 1,
+              "reward": 1
+            }
+          ]
+        },
+        {
+          "id": 20,
+          "outcomes": [
+            {
+              "to": 0,
+              "weight": 1,
+              "reward": 0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 99,
+      "observation": 3,
+      "actions": [
+        {
+          "id": 10,
+          "outcomes": [
+            {
+              "to": 0,
+              "weight": 1,
+              "reward": 0
+            }
+          ]
+        },
+        {
+          "id": 20,
+          "outcomes": [
+            {
+              "to": 0,
+              "weight": 1,
+              "reward": 1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 0,
+      "observation": 0,
+      "actions": []
+    }
+  ]
+}

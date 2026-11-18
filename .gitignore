@@ -1,0 +1,14 @@
+.bend-studio/
+runs/
+evidence/
+node_modules/
+__pycache__/
+*.pyc
+*.zip
+*.csv
+*.jsonl
+*.gif
+*.log
+.DS_Store
+.env
+.env.*

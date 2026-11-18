@@ -1,0 +1,345 @@
+const TAU = Math.PI * 2;
+const colors = {
+  ink: '#141521',
+  light: '#f9e6c9',
+  mint: '#72d6c3',
+  coral: '#ff896c',
+  muted: '#9a91b0'
+};
+const labels = {
+  mountain_car: ['Push left', 'Coast', 'Push right'],
+  cartpole: ['Push left', 'Push right'],
+  cliff: { 10: 'West', 20: 'East', 30: 'North', 40: 'South' }
+};
+export const gameName = (id) =>
+  ({
+    mountain_car: 'Mountain Car',
+    cartpole: 'CartPole',
+    cliff: 'Cliff Walk',
+    'tic-tac-toe': 'Tic-Tac-Toe',
+    'raw-board': 'Tic-Tac-Toe',
+    takeaway: 'Takeaway'
+  })[id] ?? id;
+export function actionName(game, id) {
+  if (id === undefined) return '—';
+  return labels[game]?.[id] ?? (isBoard(game) ? 'Place mark' : String(id));
+}
+const isBoard = (g) => g === 'tic-tac-toe' || g === 'raw-board';
+export const tickRate = (g) => (g === 'mountain_car' || g === 'cartpole' ? 24 : 2);
+function rotate(i) {
+  return 3 * (i % 3) + 2 - Math.floor(i / 3);
+}
+function square(i, pose) {
+  if (pose >= 4) i = 3 * Math.floor(i / 3) + 2 - (i % 3);
+  for (let j = 0; j < pose % 4; j++) i = rotate(i);
+  return i;
+}
+function bits(mask, pose) {
+  let x = 0;
+  for (let i = 0; i < 9; i++) if (mask & (1 << i)) x |= 1 << square(i, pose);
+  return x;
+}
+export function boardStates(trace) {
+  const out = [[0, 0]];
+  let x = 0,
+    o = 0;
+  for (const f of trace.frames) {
+    const second = f.observation.second;
+    let pose = 0;
+    if (trace.symmetry ?? trace.game === 'tic-tac-toe') {
+      let best = Infinity;
+      for (let p = 0; p < 8; p++) {
+        const k = bits(second ? o : x, p) * 512 + bits(second ? x : o, p);
+        if (k < best) {
+          best = k;
+          pose = p;
+        }
+      }
+    }
+    if (f.accepted) {
+      let i = 0;
+      while (i < 9 && square(i, pose) !== f.action) i++;
+      if (i < 9) {
+        if (second) o |= 1 << i;
+        else x |= 1 << i;
+      }
+    }
+    out.push([x, o]);
+  }
+  return out;
+}
+export function observation(t, i) {
+  if (!t?.frames?.length) return null;
+  if (i === 0) return t.frames[0].observation;
+  const f = t.frames[Math.min(i, t.frames.length) - 1];
+  return f.nextObservation ?? f.observation;
+}
+function fill(c, col, x, y, w, h) {
+  c.fillStyle = col;
+  c.fillRect(Math.round(x), Math.round(y), Math.round(w), Math.round(h));
+}
+function line(c, col, x, y, u, v, w = 1) {
+  c.strokeStyle = col;
+  c.lineWidth = w;
+  c.beginPath();
+  c.moveTo(x, y);
+  c.lineTo(u, v);
+  c.stroke();
+}
+function sky(c) {
+  const g = c.createLinearGradient(0, 0, 0, 220);
+  g.addColorStop(0, '#242038');
+  g.addColorStop(0.56, '#59405d');
+  g.addColorStop(1, '#a36370');
+  c.fillStyle = g;
+  c.fillRect(0, 0, 512, 220);
+  for (let i = 0; i < 103; i++) {
+    const x = (i * 191 + 17) % 509,
+      y = (i * i * 19 + i * 17 + 3) % 130;
+    fill(c, i % 5 ? '#9d839b' : '#ead6ba', x, y, i % 7 ? 1 : 2, 1);
+  }
+}
+function ridge(c, points, shade, edge) {
+  for (let x = 0; x < 512; x += 2) {
+    let i = 1;
+    while (i < points.length - 1 && x > points[i][0]) i++;
+    const [a, b] = points[i - 1],
+      [d, e] = points[i];
+    const y = Math.round((b + ((e - b) * (x - a)) / (d - a)) / 2) * 2;
+    fill(c, shade, x, y, 2, 220 - y);
+    if (edge) fill(c, edge, x, y, 2, 1);
+  }
+}
+function sun(c, cx, cy, r) {
+  for (let dy = -r; dy <= r; dy += 2) {
+    const w = Math.floor(Math.sqrt(r * r - dy * dy));
+    if (dy > 2 && (dy + 2) % 8 === 0) continue;
+    fill(c, dy < -8 ? '#f4c294' : dy < 6 ? '#edaa8e' : '#d68b89', cx - w, cy + dy, 2 * w, 2);
+  }
+}
+const terrain = (x) => 130 - 31 * Math.sin(3 * x);
+const worldX = (p) => 22 + ((p + 1.2) / 1.8) * 468;
+function car(c, x, y, angle) {
+  c.save();
+  c.translate(x, y);
+  c.rotate(angle);
+  fill(c, '#251d32', -11, -5, 22, 6);
+  fill(c, '#da795c', -9, -7, 17, 5);
+  fill(c, '#ffc48a', -10, -6, 20, 3);
+  fill(c, '#faad71', -4, -11, 9, 5);
+  fill(c, '#71495a', -2, -10, 5, 3);
+  fill(c, '#ffe8ae', 7, -5, 3, 2);
+  for (const k of [-6, 6]) {
+    fill(c, '#201d2b', k - 3, -2, 6, 5);
+    fill(c, '#9d889b', k - 1, -1, 2, 2);
+  }
+  c.restore();
+}
+function mountain(c, s) {
+  sky(c);
+  sun(c, 397, 63, 25);
+  ridge(
+    c,
+    [
+      [-4, 105],
+      [35, 90],
+      [64, 107],
+      [113, 64],
+      [138, 81],
+      [163, 61],
+      [194, 89],
+      [225, 73],
+      [258, 98],
+      [301, 67],
+      [327, 48],
+      [354, 75],
+      [375, 58],
+      [420, 94],
+      [459, 56],
+      [490, 78],
+      [514, 65]
+    ],
+    '#64506d',
+    '#89667b'
+  );
+  ridge(
+    c,
+    [
+      [-3, 119],
+      [30, 98],
+      [61, 107],
+      [92, 85],
+      [129, 111],
+      [150, 98],
+      [183, 124],
+      [210, 102],
+      [242, 119],
+      [261, 93],
+      [304, 110],
+      [334, 86],
+      [365, 103],
+      [390, 88],
+      [432, 115],
+      [469, 80],
+      [515, 106]
+    ],
+    '#493e57',
+    '#71546a'
+  );
+  ridge(
+    c,
+    [
+      [-2, 129],
+      [31, 115],
+      [60, 124],
+      [98, 105],
+      [148, 132],
+      [189, 115],
+      [235, 139],
+      [281, 108],
+      [313, 119],
+      [347, 104],
+      [385, 124],
+      [426, 103],
+      [463, 117],
+      [513, 103]
+    ],
+    '#383246'
+  );
+  for (let x = 0; x < 512; x += 2) {
+    const val = ((x - 22) / 468) * 1.8 - 1.2,
+      y = terrain(val);
+    fill(c, '#262636', x, y, 2, 220 - y);
+    fill(c, '#bf846e', x, y, 2, 2);
+    fill(c, '#594552', x, y + 2, 2, 2);
+  }
+  for (let i = 0; i < 1380; i++) {
+    const x = (i * 107 + 7) % 512,
+      y = 110 + ((i * i * 13 + i * 29) % 109);
+    if (y > terrain(((x - 22) / 468) * 1.8 - 1.2) + 8)
+      fill(c, i % 9 ? '#2e2c3d' : '#433645', x, y, i % 5 === 0 ? 2 : 1, 1);
+  }
+  const fx = worldX(0.5),
+    fy = terrain(0.5);
+  fill(c, '#e0ba9a', fx, fy - 25, 1, 25);
+  for (let j = 0; j < 8; j++) fill(c, '#81d7bf', fx + 1, fy - 25 + j, 10 - j, 1);
+  const p = s?.position ?? -0.48;
+  car(c, worldX(p), terrain(p) - 3, Math.atan((-93 * Math.cos(3 * p) * 1.8) / 468));
+}
+function grid(c) {
+  fill(c, '#1c1d2a', 0, 0, 512, 220);
+  for (let x = 0; x < 512; x += 16) for (let y = 0; y < 220; y += 16) fill(c, '#343343', x, y, 1, 1);
+}
+function pole(c, s) {
+  grid(c);
+  const x = 256 + (s?.x ?? 0) * 58,
+    y = 148,
+    theta = s?.angle ?? 0.07;
+  for (let i = 0; i < 512; i += 10) {
+    fill(c, '#534657', i, 167, 4, 3);
+    fill(c, '#383544', i - 4, 170, 9, 2);
+  }
+  fill(c, '#888596', 0, 160, 512, 2);
+  for (let i = 0; i < 2; i++) {
+    const k = x + (i ? 12 : -12);
+    fill(c, '#100f1a', k - 5, 151, 10, 9);
+    fill(c, '#a3a4ad', k - 2, 153, 4, 4);
+  }
+  fill(c, '#e58d78', x - 23, y - 8, 46, 13);
+  fill(c, '#ffbaa1', x - 23, y - 8, 46, 3);
+  const tx = x + 66 * Math.sin(theta),
+    ty = y - 66 * Math.cos(theta);
+  line(c, '#362c3a', x + 2, y, tx + 2, ty, 7);
+  line(c, '#b4ddc8', x, y, tx, ty, 4);
+  fill(c, '#f0d8b5', x - 3, y - 3, 6, 6);
+}
+function flag(c, x, y) {
+  fill(c, '#eadfc2', x, y - 12, 1, 12);
+  for (let j = 0; j < 6; j++) fill(c, colors.mint, x + 1, y - 12 + j, 7 - j, 1);
+}
+function cliff(c, s) {
+  grid(c);
+  const cell = 39,
+    left = 158,
+    top = 51;
+  for (let n = 0; n < 15; n++) {
+    const x = left + (n % 5) * cell,
+      y = top + Math.floor(n / 5) * cell;
+    const hazard = n > 10 && n < 14;
+    fill(c, hazard ? '#4b3440' : '#333342', x + 1, y + 1, cell - 2, cell - 2);
+    if (hazard)
+      for (let j = 0; j < 3; j++)
+        line(c, '#98635d', x + 7 + j * 9, y + 25, x + 12 + j * 9, y + 16, 2);
+    if (n === 14) flag(c, x + 19, y + 26);
+  }
+  const n = Number.isInteger(s) ? s : 10,
+    x = left + (n % 5) * cell + 19,
+    y = top + Math.floor(n / 5) * cell + 19;
+  fill(c, '#66414a', x - 9, y - 7, 18, 16);
+  fill(c, colors.coral, x - 7, y - 9, 14, 15);
+  fill(c, '#ffd9b3', x - 4, y - 6, 8, 3);
+  fill(c, '#312732', x - 5, y + 6, 3, 4);
+  fill(c, '#312732', x + 2, y + 6, 3, 4);
+}
+function board(c, state) {
+  grid(c);
+  const bx = 187,
+    by = 41,
+    cell = 46;
+  for (let j = 1; j < 3; j++) {
+    line(c, '#706072', bx + j * cell, by, bx + j * cell, by + 3 * cell, 2);
+    line(c, '#706072', bx, by + j * cell, bx + 3 * cell, by + j * cell, 2);
+  }
+  for (let i = 0; i < 9; i++) {
+    const x = bx + ((i % 3) + 0.5) * cell,
+      y = by + (Math.floor(i / 3) + 0.5) * cell;
+    if (state[0] & (1 << i)) {
+      line(c, colors.coral, x - 10, y - 10, x + 10, y + 10, 4);
+      line(c, colors.coral, x + 10, y - 10, x - 10, y + 10, 4);
+    } else if (state[1] & (1 << i)) {
+      c.beginPath();
+      c.strokeStyle = colors.mint;
+      c.lineWidth = 4;
+      c.arc(x, y, 12, 0, TAU);
+      c.stroke();
+    }
+  }
+}
+function unknown(c, s) {
+  grid(c);
+  c.fillStyle = colors.light;
+  c.textAlign = 'center';
+  c.font = '9px monospace';
+  c.fillText('PUBLIC OBSERVATION', 256, 88);
+  let txt = JSON.stringify(s) ?? 'No moves';
+  for (let i = 0; i < Math.min(5, Math.ceil(txt.length / 60)); i++)
+    c.fillText(txt.slice(i * 60, i * 60 + 60), 256, 108 + i * 13);
+}
+export function draw(canvas, game, obs, boardState) {
+  const c = canvas.getContext('2d');
+  c.save();
+  c.setTransform(canvas.width / 512, 0, 0, canvas.height / 220, 0, 0);
+  c.imageSmoothingEnabled = false;
+  if (game === 'mountain_car') mountain(c, obs);
+  else if (game === 'cartpole') pole(c, obs);
+  else if (game === 'cliff') cliff(c, obs);
+  else if (isBoard(game)) board(c, boardState ?? [17, 66]);
+  else unknown(c, obs);
+  c.restore();
+}
+export function channels(game) {
+  return game === 'mountain_car'
+    ? [
+        ['Position', 'position'],
+        ['Velocity', 'velocity']
+      ]
+    : game === 'cartpole'
+      ? [
+          ['Cart position', 'x'],
+          ['Pole angle', 'angle']
+        ]
+      : [
+          ['Reward', 'reward'],
+          ['Episode return', 'total']
+        ];
+}

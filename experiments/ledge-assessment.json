@@ -1,0 +1,41 @@
+{
+  "schema": 1,
+  "name": "ledge-generalization",
+  "comparisons": [
+    {
+      "id": "calm-q",
+      "source": "calm",
+      "arm": "q",
+      "checkpoint": "final"
+    },
+    {
+      "id": "calm-planner",
+      "source": "calm",
+      "arm": "planner",
+      "checkpoint": "final"
+    },
+    {
+      "id": "windy-q",
+      "source": "windy",
+      "arm": "q",
+      "checkpoint": "final"
+    },
+    {
+      "id": "windy-planner",
+      "source": "windy",
+      "arm": "planner",
+      "checkpoint": "final"
+    }
+  ],
+  "targets": [
+    "calm",
+    "breezy",
+    "windy",
+    "gusty"
+  ],
+  "episodes": 256,
+  "seeds": {
+    "start": 3400000000,
+    "stride": 20000
+  }
+}

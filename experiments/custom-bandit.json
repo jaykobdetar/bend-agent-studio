@@ -1,0 +1,41 @@
+{
+  "schema": 1,
+  "name": "bandit-exploration",
+  "games": [
+    {
+      "id": "orchard",
+      "limit": 1
+    }
+  ],
+  "arms": [
+    {
+      "id": "epsilon",
+      "method": "sample_mean",
+      "epsilon": 0.125
+    },
+    {
+      "id": "ucb",
+      "method": "custom",
+      "agentFile": "../agents/ucb.bend",
+      "parameters": {
+        "scale": 1.41421356
+      }
+    }
+  ],
+  "replicates": 64,
+  "checkpoints": [
+    0,
+    8,
+    32,
+    128,
+    512
+  ],
+  "validationEpisodes": 128,
+  "testEpisodes": 512,
+  "seeds": {
+    "train": 121000000,
+    "validation": 1900000000,
+    "test": 2900000000,
+    "stride": 10000
+  }
+}

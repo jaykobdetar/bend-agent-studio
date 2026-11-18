@@ -1,0 +1,22 @@
+{
+  "schema": 1,
+  "name": "dispatch-batch-fit",
+  "arms": [
+    {
+      "id": "clone",
+      "method": "behavior_cloning"
+    },
+    {
+      "id": "fqi",
+      "method": "fitted_q",
+      "iterations": 5,
+      "gamma": 1
+    },
+    {
+      "id": "supported",
+      "method": "supported_fitted_q",
+      "iterations": 5,
+      "gamma": 1
+    }
+  ]
+}

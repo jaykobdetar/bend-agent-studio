@@ -1,0 +1,27 @@
+{
+  "schema": 1,
+  "name": "pole-checkpoint-selection",
+  "comparisons": [
+    {
+      "id": "final",
+      "source": "cartpole",
+      "arm": "network",
+      "checkpoint": "final"
+    },
+    {
+      "id": "early",
+      "source": "cartpole",
+      "arm": "network",
+      "checkpoint": "best-validation",
+      "minimumBudget": 5000
+    }
+  ],
+  "targets": [
+    "cartpole"
+  ],
+  "episodes": 256,
+  "seeds": {
+    "start": 3500000000,
+    "stride": 20000
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "name": "pole-confirmation",
+  "metric": "return",
+  "reference": "actor-003-critic-020",
+  "replicates": 80,
+  "checkpoints": [
+    0,
+    5000,
+    20000,
+    50000,
+    100000,
+    200000,
+    400000
+  ],
+  "validationEpisodes": 32,
+  "testEpisodes": 128,
+  "seeds": {
+    "train": 300000000,
+    "validation": 1700000000,
+    "test": 3200000000,
+    "stride": 450000
+  }
+}

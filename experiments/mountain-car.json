@@ -1,0 +1,12 @@
+{
+  "schema":1,"name":"mountain-car","games":[{"id":"mountain_car","limit":200}],
+  "arms":[
+    {"id":"random","method":"random"},
+    {"id":"coarse","method":"coarse_q","alpha":0.5,"gamma":1,"epsilon":0.0625},
+    {"id":"tile-q","method":"tile_q","alpha":0.5,"gamma":1,"epsilon":0.0625},
+    {"id":"tile-expected","method":"tile_expected","alpha":0.5,"gamma":1,"epsilon":0.0625}
+  ],
+  "replicates":32,"checkpoints":[0,8,32,128,256,512],
+  "validationEpisodes":16,"testEpisodes":64,
+  "seeds":{"train":41000000,"validation":1200000000,"test":2300000000,"stride":10000}
+}

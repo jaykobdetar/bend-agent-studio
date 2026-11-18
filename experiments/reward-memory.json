@@ -1,0 +1,54 @@
+{
+  "schema": 1,
+  "name": "reward-memory",
+  "games": [
+    {
+      "id": "visible-only",
+      "limit": 2,
+      "worldFile": "../worlds/reward-memory.bend",
+      "parameters": {
+        "memory": 0
+      }
+    },
+    {
+      "id": "remember-reward",
+      "limit": 2,
+      "worldFile": "../worlds/reward-memory.bend",
+      "parameters": {
+        "memory": 1
+      }
+    }
+  ],
+  "arms": [
+    {
+      "id": "q",
+      "method": "q_learning",
+      "alpha": 0.125,
+      "gamma": 1,
+      "epsilon": 0.25
+    },
+    {
+      "id": "double",
+      "method": "double_q",
+      "alpha": 0.125,
+      "gamma": 1,
+      "epsilon": 0.25
+    }
+  ],
+  "replicates": 48,
+  "checkpoints": [
+    0,
+    16,
+    64,
+    256,
+    1024
+  ],
+  "validationEpisodes": 64,
+  "testEpisodes": 512,
+  "seeds": {
+    "train": 1220000000,
+    "validation": 2580000000,
+    "test": 3720000000,
+    "stride": 5000
+  }
+}

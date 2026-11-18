@@ -1,0 +1,154 @@
+{
+  "schema": 1,
+  "name": "car-screen",
+  "games": [
+    {
+      "id": "mountain_car",
+      "limit": 200
+    }
+  ],
+  "arms": [
+    {
+      "id": "q-a0125-e0",
+      "method": "tile_q",
+      "alpha": 0.125,
+      "gamma": 1,
+      "epsilon": 0
+    },
+    {
+      "id": "q-a0125-e00625",
+      "method": "tile_q",
+      "alpha": 0.125,
+      "gamma": 1,
+      "epsilon": 0.0625
+    },
+    {
+      "id": "q-a0125-e025",
+      "method": "tile_q",
+      "alpha": 0.125,
+      "gamma": 1,
+      "epsilon": 0.25
+    },
+    {
+      "id": "q-a05-e0",
+      "method": "tile_q",
+      "alpha": 0.5,
+      "gamma": 1,
+      "epsilon": 0
+    },
+    {
+      "id": "q-a05-e00625",
+      "method": "tile_q",
+      "alpha": 0.5,
+      "gamma": 1,
+      "epsilon": 0.0625
+    },
+    {
+      "id": "q-a05-e025",
+      "method": "tile_q",
+      "alpha": 0.5,
+      "gamma": 1,
+      "epsilon": 0.25
+    },
+    {
+      "id": "q-a1-e0",
+      "method": "tile_q",
+      "alpha": 1.0,
+      "gamma": 1,
+      "epsilon": 0
+    },
+    {
+      "id": "q-a1-e00625",
+      "method": "tile_q",
+      "alpha": 1.0,
+      "gamma": 1,
+      "epsilon": 0.0625
+    },
+    {
+      "id": "q-a1-e025",
+      "method": "tile_q",
+      "alpha": 1.0,
+      "gamma": 1,
+      "epsilon": 0.25
+    },
+    {
+      "id": "expected-a0125-e0",
+      "method": "tile_expected",
+      "alpha": 0.125,
+      "gamma": 1,
+      "epsilon": 0
+    },
+    {
+      "id": "expected-a0125-e00625",
+      "method": "tile_expected",
+      "alpha": 0.125,
+      "gamma": 1,
+      "epsilon": 0.0625
+    },
+    {
+      "id": "expected-a0125-e025",
+      "method": "tile_expected",
+      "alpha": 0.125,
+      "gamma": 1,
+      "epsilon": 0.25
+    },
+    {
+      "id": "expected-a05-e0",
+      "method": "tile_expected",
+      "alpha": 0.5,
+      "gamma": 1,
+      "epsilon": 0
+    },
+    {
+      "id": "expected-a05-e00625",
+      "method": "tile_expected",
+      "alpha": 0.5,
+      "gamma": 1,
+      "epsilon": 0.0625
+    },
+    {
+      "id": "expected-a05-e025",
+      "method": "tile_expected",
+      "alpha": 0.5,
+      "gamma": 1,
+      "epsilon": 0.25
+    },
+    {
+      "id": "expected-a1-e0",
+      "method": "tile_expected",
+      "alpha": 1.0,
+      "gamma": 1,
+      "epsilon": 0
+    },
+    {
+      "id": "expected-a1-e00625",
+      "method": "tile_expected",
+      "alpha": 1.0,
+      "gamma": 1,
+      "epsilon": 0.0625
+    },
+    {
+      "id": "expected-a1-e025",
+      "method": "tile_expected",
+      "alpha": 1.0,
+      "gamma": 1,
+      "epsilon": 0.25
+    }
+  ],
+  "replicates": 64,
+  "checkpoints": [
+    0,
+    32,
+    128,
+    512,
+    1024
+  ],
+  "validationEpisodes": 32,
+  "testEpisodes": 0,
+  "seeds": {
+    "train": 51000000,
+    "validation": 1300000000,
+    "test": 0,
+    "stride": 10000
+  }
+}

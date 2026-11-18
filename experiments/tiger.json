@@ -1,0 +1,53 @@
+{
+  "schema": 1,
+  "name": "tiger-evidence",
+  "games": [
+    {
+      "id": "sound",
+      "limit": 8,
+      "file": "../worlds/tiger-sound-h8.json"
+    },
+    {
+      "id": "clock",
+      "limit": 8,
+      "file": "../worlds/tiger-clock-h8.json"
+    },
+    {
+      "id": "evidence",
+      "limit": 8,
+      "file": "../worlds/tiger-evidence-h8.json"
+    }
+  ],
+  "arms": [
+    {
+      "id": "q",
+      "method": "q_learning",
+      "alpha": 0.125,
+      "gamma": 1,
+      "epsilon": 0.25
+    },
+    {
+      "id": "double",
+      "method": "double_q",
+      "alpha": 0.125,
+      "gamma": 1,
+      "epsilon": 0.25
+    }
+  ],
+  "replicates": 48,
+  "checkpoints": [
+    0,
+    128,
+    512,
+    2048,
+    8192
+  ],
+  "validationEpisodes": 64,
+  "testEpisodes": 512,
+  "seeds": {
+    "train": 2700000000,
+    "validation": 2900000000,
+    "test": 3500000000,
+    "stride": 12000
+  }
+}

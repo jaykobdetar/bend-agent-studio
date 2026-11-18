@@ -1,0 +1,1305 @@
+{
+  "schema": 1,
+  "initial": [
+    {
+      "to": 0,
+      "weight": 1
+    },
+    {
+      "to": 1,
+      "weight": 1
+    }
+  ],
+  "states": [
+    {
+      "id": 0,
+      "observation": 0,
+      "actions": [
+        {
+          "id": 0,
+          "outcomes": [
+            {
+              "to": 2,
+              "weight": 85,
+              "reward": -1
+            },
+            {
+              "to": 3,
+              "weight": 15,
+              "reward": -1
+            }
+          ]
+        },
+        {
+          "id": 1,
+          "outcomes": [
+            {
+              "to": 4,
+              "weight": 1,
+              "reward": -100
+            }
+          ]
+        },
+        {
+          "id": 2,
+          "outcomes": [
+            {
+              "to": 4,
+              "weight": 1,
+              "reward": 10
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 1,
+      "observation": 0,
+      "actions": [
+        {
+          "id": 0,
+          "outcomes": [
+            {
+              "to": 5,
+              "weight": 15,
+              "reward": -1
+            },
+            {
+              "to": 6,
+              "weight": 85,
+              "reward": -1
+            }
+          ]
+        },
+        {
+          "id": 1,
+          "outcomes": [
+            {
+              "to": 4,
+              "weight": 1,
+              "reward": 10
+            }
+          ]
+        },
+        {
+          "id": 2,
+          "outcomes": [
+            {
+              "to": 4,
+              "weight": 1,
+              "reward": -100
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "observation": 5,
+      "actions": [
+        {
+          "id": 0,
+          "outcomes": [
+            {
+              "to": 7,
+              "weight": 85,
+              "reward": -1
+            },
+            {
+              "to": 8,
+              "weight": 15,
+              "reward": -1
+            }
+          ]
+        },
+        {
+          "id": 1,
+          "outcomes": [
+            {
+              "to": 9,
+              "weight": 1,
+              "reward": -100
+            }
+          ]
+        },
+        {
+          "id": 2,
+          "outcomes": [
+            {
+              "to": 9,
+              "weight": 1,
+              "reward": 10
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "observation": 6,
+      "actions": [
+        {
+          "id": 0,
+          "outcomes": [
+            {
+              "to": 7,
+              "weight": 85,
+              "reward": -1
+            },
+            {
+              "to": 8,
+              "weight": 15,
+              "reward": -1
+            }
+          ]
+        },
+        {
+          "id": 1,
+          "outcomes": [
+            {
+              "to": 9,
+              "weight": 1,
+              "reward": -100
+            }
+          ]
+        },
+        {
+          "id": 2,
+          "outcomes": [
+            {
+              "to": 9,
+              "weight": 1,
+              "reward": 10
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "observation": 3,
+      "actions": []
+    },
+    {
+      "id": 5,
+      "observation": 5,
+      "actions": [
+        {
+          "id": 0,
+          "outcomes": [
+            {
+              "to": 10,
+              "weight": 15,
+              "reward": -1
+            },
+            {
+              "to": 11,
+              "weight": 85,
+              "reward": -1
+            }
+          ]
+        },
+        {
+          "id": 1,
+          "outcomes": [
+            {
+              "to": 9,
+              "weight": 1,
+              "reward": 10
+            }
+          ]
+        },
+        {
+          "id": 2,
+          "outcomes": [
+            {
+              "to": 9,
+              "weight": 1,
+              "reward": -100
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "observation": 6,
+      "actions": [
+        {
+          "id": 0,
+          "outcomes": [
+            {
+              "to": 10,
+              "weight": 15,
+              "reward": -1
+            },
+            {
+              "to": 11,
+              "weight": 85,
+              "reward": -1
+            }
+          ]
+        },
+        {
+          "id": 1,
+          "outcomes": [
+            {
+              "to": 9,
+              "weight": 1,
+              "reward": 10
+            }
+          ]
+        },
+        {
+          "id": 2,
+          "outcomes": [
+            {
+              "to": 9,
+              "weight": 1,
+              "reward": -100
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 7,
+      "observation": 9,
+      "actions": [
+        {
+          "id": 0,
+          "outcomes": [
+            {
+              "to": 12,
+              "weight": 85,
+              "reward": -1
+            },
+            {
+              "to": 13,
+              "weight": 15,
+              "reward": -1
+            }
+          ]
+        },
+        {
+          "id": 1,
+          "outcomes": [
+            {
+              "to": 14,
+              "weight": 1,
+              "reward": -100
+            }
+          ]
+        },
+        {
+          "id": 2,
+          "outcomes": [
+            {
+              "to": 14,
+              "weight": 1,
+              "reward": 10
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 8,
+      "observation": 10,
+      "actions": [
+        {
+          "id": 0,
+          "outcomes": [
+            {
+              "to": 12,
+              "weight": 85,
+              "reward": -1
+            },
+            {
+              "to": 13,
+              "weight": 15,
+              "reward": -1
+            }
+          ]
+        },
+        {
+          "id": 1,
+          "outcomes": [
+            {
+              "to": 14,
+              "weight": 1,
+              "reward": -100
+            }
+          ]
+        },
+        {
+          "id": 2,
+          "outcomes": [
+            {
+              "to": 14,
+              "weight": 1,
+              "reward": 10
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 9,
+      "observation": 7,
+      "actions": []
+    },
+    {
+      "id": 10,
+      "observation": 9,
+      "actions": [
+        {
+          "id": 0,
+          "outcomes": [
+            {
+              "to": 15,
+              "weight": 15,
+              "reward": -1
+            },
+            {
+              "to": 16,
+              "weight": 85,
+              "reward": -1
+            }
+          ]
+        },
+        {
+          "id": 1,
+          "outcomes": [
+            {
+              "to": 14,
+              "weight": 1,
+              "reward": 10
+            }
+          ]
+        },
+        {
+          "id": 2,
+          "outcomes": [
+            {
+              "to": 14,
+              "weight": 1,
+              "reward": -100
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 11,
+      "observation": 10,
+      "actions": [
+        {
+          "id": 0,
+          "outcomes": [
+            {
+              "to": 15,
+              "weight": 15,
+              "reward": -1
+            },
+            {
+              "to": 16,
+              "weight": 85,
+              "reward": -1
+            }
+          ]
+        },
+        {
+          "id": 1,
+          "outcomes": [
+            {
+              "to": 14,
+              "weight": 1,
+              "reward": 10
+            }
+          ]
+        },
+        {
+          "id": 2,
+          "outcomes": [
+            {
+              "to": 14,
+              "weight": 1,
+              "reward": -100
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 12,
+      "observation": 13,
+      "actions": [
+        {
+          "id": 0,
+          "outcomes": [
+            {
+              "to": 17,
+              "weight": 85,
+              "reward": -1
+            },
+            {
+              "to": 18,
+              "weight": 15,
+              "reward": -1
+            }
+          ]
+        },
+        {
+          "id": 1,
+          "outcomes": [
+            {
+              "to": 19,
+              "weight": 1,
+              "reward": -100
+            }
+          ]
+        },
+        {
+          "id": 2,
+          "outcomes": [
+            {
+              "to": 19,
+              "weight": 1,
+              "reward": 10
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 13,
+      "observation": 14,
+      "actions": [
+        {
+          "id": 0,
+          "outcomes": [
+            {
+              "to": 17,
+              "weight": 85,
+              "reward": -1
+            },
+            {
+              "to": 18,
+              "weight": 15,
+              "reward": -1
+            }
+          ]
+        },
+        {
+          "id": 1,
+          "outcomes": [
+            {
+              "to": 19,
+              "weight": 1,
+              "reward": -100
+            }
+          ]
+        },
+        {
+          "id": 2,
+          "outcomes": [
+            {
+              "to": 19,
+              "weight": 1,
+              "reward": 10
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 14,
+      "observation": 11,
+      "actions": []
+    },
+    {
+      "id": 15,
+      "observation": 13,
+      "actions": [
+        {
+          "id": 0,
+          "outcomes": [
+            {
+              "to": 20,
+              "weight": 15,
+              "reward": -1
+            },
+            {
+              "to": 21,
+              "weight": 85,
+              "reward": -1
+            }
+          ]
+        },
+        {
+          "id": 1,
+          "outcomes": [
+            {
+              "to": 19,
+              "weight": 1,
+              "reward": 10
+            }
+          ]
+        },
+        {
+          "id": 2,
+          "outcomes": [
+            {
+              "to": 19,
+              "weight": 1,
+              "reward": -100
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 16,
+      "observation": 14,
+      "actions": [
+        {
+          "id": 0,
+          "outcomes": [
+            {
+              "to": 20,
+              "weight": 15,
+              "reward": -1
+            },
+            {
+              "to": 21,
+              "weight": 85,
+              "reward": -1
+            }
+          ]
+        },
+        {
+          "id": 1,
+          "outcomes": [
+            {
+              "to": 19,
+              "weight": 1,
+              "reward": 10
+            }
+          ]
+        },
+        {
+          "id": 2,
+          "outcomes": [
+            {
+              "to": 19,
+              "weight": 1,
+              "reward": -100
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 17,
+      "observation": 17,
+      "actions": [
+        {
+          "id": 0,
+          "outcomes": [
+            {
+              "to": 22,
+              "weight": 85,
+              "reward": -1
+            },
+            {
+              "to": 23,
+              "weight": 15,
+              "reward": -1
+            }
+          ]
+        },
+        {
+          "id": 1,
+          "outcomes": [
+            {
+              "to": 24,
+              "weight": 1,
+              "reward": -100
+            }
+          ]
+        },
+        {
+          "id": 2,
+          "outcomes": [
+            {
+              "to": 24,
+              "weight": 1,
+              "reward": 10
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 18,
+      "observation": 18,
+      "actions": [
+        {
+          "id": 0,
+          "outcomes": [
+            {
+              "to": 22,
+              "weight": 85,
+              "reward": -1
+            },
+            {
+              "to": 23,
+              "weight": 15,
+              "reward": -1
+            }
+          ]
+        },
+        {
+          "id": 1,
+          "outcomes": [
+            {
+              "to": 24,
+              "weight": 1,
+              "reward": -100
+            }
+          ]
+        },
+        {
+          "id": 2,
+          "outcomes": [
+            {
+              "to": 24,
+              "weight": 1,
+              "reward": 10
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 19,
+      "observation": 15,
+      "actions": []
+    },
+    {
+      "id": 20,
+      "observation": 17,
+      "actions": [
+        {
+          "id": 0,
+          "outcomes": [
+            {
+              "to": 25,
+              "weight": 15,
+              "reward": -1
+            },
+            {
+              "to": 26,
+              "weight": 85,
+              "reward": -1
+            }
+          ]
+        },
+        {
+          "id": 1,
+          "outcomes": [
+            {
+              "to": 24,
+              "weight": 1,
+              "reward": 10
+            }
+          ]
+        },
+        {
+          "id": 2,
+          "outcomes": [
+            {
+              "to": 24,
+              "weight": 1,
+              "reward": -100
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 21,
+      "observation": 18,
+      "actions": [
+        {
+          "id": 0,
+          "outcomes": [
+            {
+              "to": 25,
+              "weight": 15,
+              "reward": -1
+            },
+            {
+              "to": 26,
+              "weight": 85,
+              "reward": -1
+            }
+          ]
+        },
+        {
+          "id": 1,
+          "outcomes": [
+            {
+              "to": 24,
+              "weight": 1,
+              "reward": 10
+            }
+          ]
+        },
+        {
+          "id": 2,
+          "outcomes": [
+            {
+              "to": 24,
+              "weight": 1,
+              "reward": -100
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 22,
+      "observation": 21,
+      "actions": [
+        {
+          "id": 0,
+          "outcomes": [
+            {
+              "to": 27,
+              "weight": 85,
+              "reward": -1
+            },
+            {
+              "to": 28,
+              "weight": 15,
+              "reward": -1
+            }
+          ]
+        },
+        {
+          "id": 1,
+          "outcomes": [
+            {
+              "to": 29,
+              "weight": 1,
+              "reward": -100
+            }
+          ]
+        },
+        {
+          "id": 2,
+          "outcomes": [
+            {
+              "to": 29,
+              "weight": 1,
+              "reward": 10
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 23,
+      "observation": 22,
+      "actions": [
+        {
+          "id": 0,
+          "outcomes": [
+            {
+              "to": 27,
+              "weight": 85,
+              "reward": -1
+            },
+            {
+              "to": 28,
+              "weight": 15,
+              "reward": -1
+            }
+          ]
+        },
+        {
+          "id": 1,
+          "outcomes": [
+            {
+              "to": 29,
+              "weight": 1,
+              "reward": -100
+            }
+          ]
+        },
+        {
+          "id": 2,
+          "outcomes": [
+            {
+              "to": 29,
+              "weight": 1,
+              "reward": 10
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 24,
+      "observation": 19,
+      "actions": []
+    },
+    {
+      "id": 25,
+      "observation": 21,
+      "actions": [
+        {
+          "id": 0,
+          "outcomes": [
+            {
+              "to": 30,
+              "weight": 15,
+              "reward": -1
+            },
+            {
+              "to": 31,
+              "weight": 85,
+              "reward": -1
+            }
+          ]
+        },
+        {
+          "id": 1,
+          "outcomes": [
+            {
+              "to": 29,
+              "weight": 1,
+              "reward": 10
+            }
+          ]
+        },
+        {
+          "id": 2,
+          "outcomes": [
+            {
+              "to": 29,
+              "weight": 1,
+              "reward": -100
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 26,
+      "observation": 22,
+      "actions": [
+        {
+          "id": 0,
+          "outcomes": [
+            {
+              "to": 30,
+              "weight": 15,
+              "reward": -1
+            },
+            {
+              "to": 31,
+              "weight": 85,
+              "reward": -1
+            }
+          ]
+        },
+        {
+          "id": 1,
+          "outcomes": [
+            {
+              "to": 29,
+              "weight": 1,
+              "reward": 10
+            }
+          ]
+        },
+        {
+          "id": 2,
+          "outcomes": [
+            {
+              "to": 29,
+              "weight": 1,
+              "reward": -100
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 27,
+      "observation": 25,
+      "actions": [
+        {
+          "id": 0,
+          "outcomes": [
+            {
+              "to": 32,
+              "weight": 85,
+              "reward": -1
+            },
+            {
+              "to": 33,
+              "weight": 15,
+              "reward": -1
+            }
+          ]
+        },
+        {
+          "id": 1,
+          "outcomes": [
+            {
+              "to": 34,
+              "weight": 1,
+              "reward": -100
+            }
+          ]
+        },
+        {
+          "id": 2,
+          "outcomes": [
+            {
+              "to": 34,
+              "weight": 1,
+              "reward": 10
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 28,
+      "observation": 26,
+      "actions": [
+        {
+          "id": 0,
+          "outcomes": [
+            {
+              "to": 32,
+              "weight": 85,
+              "reward": -1
+            },
+            {
+              "to": 33,
+              "weight": 15,
+              "reward": -1
+            }
+          ]
+        },
+        {
+          "id": 1,
+          "outcomes": [
+            {
+              "to": 34,
+              "weight": 1,
+              "reward": -100
+            }
+          ]
+        },
+        {
+          "id": 2,
+          "outcomes": [
+            {
+              "to": 34,
+              "weight": 1,
+              "reward": 10
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 29,
+      "observation": 23,
+      "actions": []
+    },
+    {
+      "id": 30,
+      "observation": 25,
+      "actions": [
+        {
+          "id": 0,
+          "outcomes": [
+            {
+              "to": 35,
+              "weight": 15,
+              "reward": -1
+            },
+            {
+              "to": 36,
+              "weight": 85,
+              "reward": -1
+            }
+          ]
+        },
+        {
+          "id": 1,
+          "outcomes": [
+            {
+              "to": 34,
+              "weight": 1,
+              "reward": 10
+            }
+          ]
+        },
+        {
+          "id": 2,
+          "outcomes": [
+            {
+              "to": 34,
+              "weight": 1,
+              "reward": -100
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 31,
+      "observation": 26,
+      "actions": [
+        {
+          "id": 0,
+          "outcomes": [
+            {
+              "to": 35,
+              "weight": 15,
+              "reward": -1
+            },
+            {
+              "to": 36,
+              "weight": 85,
+              "reward": -1
+            }
+          ]
+        },
+        {
+          "id": 1,
+          "outcomes": [
+            {
+              "to": 34,
+              "weight": 1,
+              "reward": 10
+            }
+          ]
+        },
+        {
+          "id": 2,
+          "outcomes": [
+            {
+              "to": 34,
+              "weight": 1,
+              "reward": -100
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 32,
+      "observation": 29,
+      "actions": [
+        {
+          "id": 0,
+          "outcomes": [
+            {
+              "to": 37,
+              "weight": 85,
+              "reward": -1
+            },
+            {
+              "to": 38,
+              "weight": 15,
+              "reward": -1
+            }
+          ]
+        },
+        {
+          "id": 1,
+          "outcomes": [
+            {
+              "to": 39,
+              "weight": 1,
+              "reward": -100
+            }
+          ]
+        },
+        {
+          "id": 2,
+          "outcomes": [
+            {
+              "to": 39,
+              "weight": 1,
+              "reward": 10
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 33,
+      "observation": 30,
+      "actions": [
+        {
+          "id": 0,
+          "outcomes": [
+            {
+              "to": 37,
+              "weight": 85,
+              "reward": -1
+            },
+            {
+              "to": 38,
+              "weight": 15,
+              "reward": -1
+            }
+          ]
+        },
+        {
+          "id": 1,
+          "outcomes": [
+            {
+              "to": 39,
+              "weight": 1,
+              "reward": -100
+            }
+          ]
+        },
+        {
+          "id": 2,
+          "outcomes": [
+            {
+              "to": 39,
+              "weight": 1,
+              "reward": 10
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 34,
+      "observation": 27,
+      "actions": []
+    },
+    {
+      "id": 35,
+      "observation": 29,
+      "actions": [
+        {
+          "id": 0,
+          "outcomes": [
+            {
+              "to": 40,
+              "weight": 15,
+              "reward": -1
+            },
+            {
+              "to": 41,
+              "weight": 85,
+              "reward": -1
+            }
+          ]
+        },
+        {
+          "id": 1,
+          "outcomes": [
+            {
+              "to": 39,
+              "weight": 1,
+              "reward": 10
+            }
+          ]
+        },
+        {
+          "id": 2,
+          "outcomes": [
+            {
+              "to": 39,
+              "weight": 1,
+              "reward": -100
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 36,
+      "observation": 30,
+      "actions": [
+        {
+          "id": 0,
+          "outcomes": [
+            {
+              "to": 40,
+              "weight": 15,
+              "reward": -1
+            },
+            {
+              "to": 41,
+              "weight": 85,
+              "reward": -1
+            }
+          ]
+        },
+        {
+          "id": 1,
+          "outcomes": [
+            {
+              "to": 39,
+              "weight": 1,
+              "reward": 10
+            }
+          ]
+        },
+        {
+          "id": 2,
+          "outcomes": [
+            {
+              "to": 39,
+              "weight": 1,
+              "reward": -100
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 37,
+      "observation": 33,
+      "actions": []
+    },
+    {
+      "id": 38,
+      "observation": 34,
+      "actions": []
+    },
+    {
+      "id": 39,
+      "observation": 31,
+      "actions": []
+    },
+    {
+      "id": 40,
+      "observation": 33,
+      "actions": []
+    },
+    {
+      "id": 41,
+      "observation": 34,
+      "actions": []
+    }
+  ]
+}

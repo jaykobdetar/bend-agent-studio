@@ -1,0 +1,98 @@
+{
+  "schema": 1,
+  "name": "self-play",
+  "games": [
+    {
+      "id": "takeaway",
+      "domain": "arena",
+      "worldFile": "../worlds/takeaway.bend",
+      "limit": 11,
+      "parameters": {
+        "stones": 11
+      }
+    },
+    {
+      "id": "tic-tac-toe",
+      "domain": "arena",
+      "worldFile": "../worlds/tictactoe.bend",
+      "limit": 9,
+      "parameters": {
+        "symmetry": 1
+      }
+    },
+    {
+      "id": "raw-board",
+      "domain": "arena",
+      "worldFile": "../worlds/tictactoe.bend",
+      "limit": 9,
+      "parameters": {
+        "symmetry": 0
+      }
+    }
+  ],
+  "arms": [
+    {
+      "id": "uniform",
+      "method": "custom",
+      "domain": "arena",
+      "agentFile": "../agents/self_play.bend",
+      "parameters": {
+        "rule": 0,
+        "alpha": 0.25,
+        "gamma": 1,
+        "epsilon": 0.25
+      }
+    },
+    {
+      "id": "negamax-q",
+      "method": "custom",
+      "domain": "arena",
+      "agentFile": "../agents/self_play.bend",
+      "parameters": {
+        "rule": 1,
+        "alpha": 0.25,
+        "gamma": 1,
+        "epsilon": 0.25
+      }
+    },
+    {
+      "id": "expected",
+      "method": "custom",
+      "domain": "arena",
+      "agentFile": "../agents/self_play.bend",
+      "parameters": {
+        "rule": 2,
+        "alpha": 0.25,
+        "gamma": 1,
+        "epsilon": 0.25
+      }
+    },
+    {
+      "id": "monte-carlo",
+      "method": "custom",
+      "domain": "arena",
+      "agentFile": "../agents/self_play.bend",
+      "parameters": {
+        "rule": 3,
+        "alpha": 0.25,
+        "gamma": 1,
+        "epsilon": 0.25
+      }
+    }
+  ],
+  "replicates": 8,
+  "checkpoints": [
+    0,
+    128,
+    2048,
+    8192
+  ],
+  "validationEpisodes": 32,
+  "testEpisodes": 128,
+  "seeds": {
+    "train": 1120000000,
+    "validation": 2320000000,
+    "test": 3420000000,
+    "stride": 10000
+  }
+}

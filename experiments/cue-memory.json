@@ -1,0 +1,39 @@
+{
+  "schema": 1,
+  "name": "remember-the-cue",
+  "games": [
+    {
+      "id": "cue",
+      "file": "../worlds/remember-the-cue.json",
+      "limit": 2
+    }
+  ],
+  "arms": [
+    {
+      "id": "reactive",
+      "method": "sample_mean",
+      "observation": "current"
+    },
+    {
+      "id": "history",
+      "method": "sample_mean",
+      "observation": "previous"
+    }
+  ],
+  "replicates": 32,
+  "checkpoints": [
+    0,
+    8,
+    32,
+    128,
+    512
+  ],
+  "validationEpisodes": 64,
+  "testEpisodes": 512,
+  "seeds": {
+    "train": 81000000,
+    "validation": 1600000000,
+    "test": 2600000000,
+    "stride": 10000
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "schema": 1,
+  "states": 2,
+  "initial": 0,
+  "observationStride": 100,
+  "otherwise": "keep",
+  "rules": [
+    {
+      "observation": 99,
+      "reward": 1,
+      "to": 1
+    }
+  ]
+}

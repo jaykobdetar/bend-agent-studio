@@ -1,0 +1,53 @@
+{
+  "schema": 1,
+  "name": "inventory",
+  "games": [
+    {
+      "id": "weekly-stock",
+      "worldFile": "../worlds/inventory.bend",
+      "parameters": {
+        "days": 5,
+        "holding": 0.25,
+        "price": 3
+      },
+      "limit": 5
+    }
+  ],
+  "arms": [
+    {
+      "id": "random",
+      "method": "random"
+    },
+    {
+      "id": "q",
+      "method": "q_learning",
+      "alpha": 0.125,
+      "gamma": 1,
+      "epsilon": 0.25
+    },
+    {
+      "id": "planner",
+      "method": "dyna_q",
+      "planningSteps": 10,
+      "alpha": 0.125,
+      "gamma": 1,
+      "epsilon": 0.25
+    }
+  ],
+  "replicates": 32,
+  "checkpoints": [
+    0,
+    32,
+    128,
+    512,
+    2048
+  ],
+  "validationEpisodes": 64,
+  "testEpisodes": 256,
+  "seeds": {
+    "train": 131000000,
+    "validation": 2000000000,
+    "test": 3000000000,
+    "stride": 10000
+  }
+}

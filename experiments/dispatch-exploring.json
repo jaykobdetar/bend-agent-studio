@@ -1,0 +1,15 @@
+{
+  "schema": 1,
+  "name": "dispatch-exploring",
+  "game": "dispatch",
+  "arm": "first",
+  "checkpoint": 0,
+  "epsilon": 0.25,
+  "fitEpisodes": 128,
+  "holdoutEpisodes": 512,
+  "seeds": {
+    "fit": 500000000,
+    "holdout": 600000000,
+    "stride": 20000
+  }
+}
