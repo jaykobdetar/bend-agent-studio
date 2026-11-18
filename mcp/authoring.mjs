@@ -3,7 +3,7 @@ import os from 'node:os';
 import path from 'node:path';
 import {repo} from './context.mjs';
 import {choice, horizon, str, tool, planInput, worldInput} from './schema.mjs';
-import {readPlan} from '../experiment.mjs';
+import {readPlanSource} from '../experiment.mjs';
 import {validate} from '../experiment_config.mjs';
 import {worldDefinition, oracle, reactiveOracle, numberPreservingJson} from '../finite_world.mjs';
 import {beliefOracle, clockOracle, policyOracle} from '../public_oracle.mjs';
@@ -25,14 +25,14 @@ export function assertBundledImports(source) {
       throw Error('unsupported import in custom Bend source');
   }
 }
-export function guardedPlan(filename, ctx) {
+export function guardedSource(filename, ctx) {
   const guard = (name) => {
     const p = ctx.input(name);
     if (fs.statSync(p).size > 2 ** 22) throw Error('input exceeds 4 MiB');
     return p;
   };
   let p;
-  if (typeof filename === 'string') p = readPlan(guard(filename), guard);
+  if (typeof filename === 'string') p = readPlanSource(guard(filename), guard);
   else {
     for (const item of [
       ...(filename.games ?? []),
@@ -41,15 +41,24 @@ export function guardedPlan(filename, ctx) {
     ])
       if (['file', 'worldFile', 'agentFile', 'world', 'agent'].some((k) => Object.hasOwn(item, k)))
         throw Error('inline plans must be self-contained data (embed finite or grid definitions)');
-    p = validate(filename);
+    p = filename;
   }
   // Bend sources are code. Allow only the project's ordinary named/relative imports.
   // Paths in bundled local imports have already been rewritten to flat module names.
-  for (const b of [...p.games, ...(p.evaluationGames ?? []), ...p.arms]
-    .map((x) => x.world ?? x.agent)
-    .filter(Boolean))
-    for (const source of Object.values(b.files)) assertBundledImports(source);
+  // Malformed collections are the native validator's job. Do not turn its
+  // actionable field errors into an unrelated "not iterable" exception.
+  for (const group of [p.games, p.evaluationGames, p.arms]) {
+    if (!Array.isArray(group)) continue;
+    for (const item of group) {
+      const bundle = item?.world ?? item?.agent;
+      for (const text of Object.values(bundle?.files ?? {}))
+        if (typeof text === 'string') assertBundledImports(text);
+    }
+  }
   return p;
+}
+export function guardedPlan(input, ctx) {
+  return validate(guardedSource(input, ctx));
 }
 function load(p, ctx) {
   const f = ctx.input(p);

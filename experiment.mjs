@@ -294,7 +294,7 @@ function runTrial(api,root,manifest,t,until) {
   return created;
 }
 
-function readPlan(config, guard = name => name) {
+function readPlanSource(config, guard = name => name) {
   const input=json(guard(config));
   const resolveGame=g=>{
     if (g && Object.hasOwn(g,'worldFile')) {
@@ -314,14 +314,16 @@ function readPlan(config, guard = name => name) {
     const {agentFile,...rest}=a;
     return {...rest,agent:bundleAgent(guard(path.resolve(path.dirname(config),agentFile)),here,guard)};
   });
+  return input;
+}
+
+function readPlan(config,guard) {
+  const input=typeof config==='string'?readPlanSource(config,guard):config;
   return validate(input);
 }
 
 async function run(config,root,args) {
-  return runPlan(readPlan(config),root,args);
-}
-
-async function runPlan(plan,root,args) {
+  const plan=readPlan(config);
   const opts=options(args);
   if (opts.until!==Infinity && !plan.checkpoints.includes(opts.until)) throw Error('--until must be a declared checkpoint');
   const dir=fs.mkdtempSync(path.join(os.tmpdir(),'bend-study-'));
@@ -587,7 +589,7 @@ async function main(argv) {
   throw Error('usage: node experiment.mjs validate PLAN | oracle WORLD HORIZON [--reactive] | run PLAN OUTPUT [--bend PATH] [--until EPISODES] [--shard I/N] | resume OUTPUT [--until EPISODES] [--shard I/N] | assess OUTPUT ASSESSMENT_SPEC DIRECTORY | rerun OUTPUT NEW_OUTPUT [--until BUDGET] | select SCREEN CONFIRM_SPEC OUTPUT | status OUTPUT | verify OUTPUT | export OUTPUT | replay OUTPUT GAME ARM REP CHECKPOINT PHASE INDEX');
 }
 
-export {runPlan, readPlan, executeTrials, exportCsv, status, replay, adapterName, allGames, frameData, record, stats, unpack, checkedSnapshot, existing, gameRunner, immutable, json, manifestPath, seal, testModel, unseal};
+export {run as runExperiment, readPlanSource, readPlan, executeTrials, exportCsv, status, replay, adapterName, allGames, frameData, record, stats, unpack, checkedSnapshot, existing, gameRunner, immutable, json, manifestPath, seal, testModel, unseal};
 
 if (process.argv[1] && pathToFileURL(path.resolve(process.argv[1])).href===import.meta.url) {
   main(process.argv.slice(2)).catch(e=>{console.error(e.message);process.exitCode=1;});

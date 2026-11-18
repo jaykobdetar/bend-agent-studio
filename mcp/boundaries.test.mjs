@@ -39,6 +39,14 @@ test('nested plan/world/agent inputs must stay in the workspace; output parent m
   await fs.copyFile(path.join(repo, 'worlds/bridge.json'), path.join(tmp, 'outside.json'));
   const planFile = path.join(root, 'plans/plan.json'),
     request = {plan: 'plans/plan.json'};
+  await fs.writeFile(
+    path.join(root, 'invalid-plan.json'),
+    JSON.stringify({schema: 1, name: 'bad', games: {}}),
+  );
+  assert.equal(
+    await error('validate_plan', {plan: 'invalid-plan.json'}),
+    'games must be a nonempty list',
+  );
   plan.games[0].file = '../../outside.json';
   await fs.writeFile(planFile, JSON.stringify(plan));
   assert.match(await error('validate_plan', request), /outside workspace/i);
