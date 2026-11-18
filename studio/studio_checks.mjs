@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { spawn } from 'node:child_process';
 import { once } from 'node:events';
 import { fileURLToPath } from 'node:url';
-import { mkdtemp, readFile, rm } from 'node:fs/promises';
+import { mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 import { setTimeout as delay } from 'node:timers/promises';
@@ -11,6 +11,8 @@ import { worlds } from './catalog.mjs';
 import { boardStates, observation } from './web/scene.js';
 import { timeline } from './web/exporter.js';
 import { Gif } from './web/gif.js';
+import { seal } from '../experiment.mjs';
+import { digest } from '../experiment_config.mjs';
 
 async function demo(id) {
   return JSON.parse(await readFile(new URL('./web/demos/' + id + '.json', import.meta.url), 'utf8'));
@@ -120,6 +122,100 @@ const post = (url, input) =>
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(input)
   });
+
+// A small, trusted archive lets the HTTP tests control exactly when a runner
+// starts and finishes without involving compiler speed or model size.
+async function mountedReplay(t, timeout) {
+  const home = await mkdtemp(path.join(os.tmpdir(), 'studio-replay-'));
+  const dir = path.join(home, 'fixture');
+  t.after(() => rm(home, { recursive: true, force: true }));
+  await mkdir(path.join(dir, 'code'), { recursive: true });
+  const runner = `
+    import fs from 'node:fs';
+    import path from 'node:path';
+    import { setTimeout } from 'node:timers/promises';
+    const episode = process.argv.at(-1);
+    fs.writeFileSync(path.join(process.argv[3], episode + '.pid'), String(process.pid));
+    if (episode === '0' || episode === '1') await setTimeout(120000);
+    if (episode === '3') process.exit(1);
+    console.log(JSON.stringify({episode}));
+  `;
+  await writeFile(path.join(dir, 'code/experiment.mjs'), runner);
+  await writeFile(path.join(dir, 'code/backend.mjs'), '');
+  const manifest = seal({
+    plan: { name: 'fixture', games: [{ id: 'cliff' }], arms: [{ id: 'q' }], checkpoints: [0],
+      replicates: 1, validationEpisodes: 0, testEpisodes: 4 },
+    toolchain: { sources: { 'experiment.mjs': digest(runner) }, backend: digest('') }
+  });
+  await writeFile(path.join(dir, 'run.json'), manifest);
+  const server = await start(home, ['--run', dir], { BEND_STUDIO_REPLAY_TIMEOUT_MS: String(timeout) });
+  const url = server.url + '/api/runs/import-' + JSON.parse(manifest).hash +
+    '/replay?game=cliff&arm=q&rep=0&point=0&phase=test&episode=';
+  return { server, dir, replay: (episode, options) => fetch(url + episode, options) };
+}
+async function waitForRunner(dir, episode) {
+  for (let i = 0; i < 200; i++) {
+    try {
+      const pid = Number(await readFile(path.join(dir, episode + '.pid'), 'utf8'));
+      if (pid > 0) return pid;
+    } catch (err) {
+      if (err.code !== 'ENOENT') throw err;
+    }
+    await delay(25);
+  }
+  assert.fail('Replay runner did not start.');
+}
+function hasExited(pid) {
+  try {
+    process.kill(pid, 0);
+    return false;
+  } catch (err) {
+    if (err.code !== 'ESRCH') throw err;
+    return true;
+  }
+}
+test('replay deadline and runner failure release capacity', { timeout: 15000 }, async (t) => {
+  const { server, dir, replay } = await mountedReplay(t, 1000);
+  try {
+    const pending = replay(0);
+    const pid = await waitForRunner(dir, 0);
+    const result = await pending;
+    assert.equal(result.status, 504);
+    assert.match((await result.json()).error, /time limit/);
+    assert.ok(hasExited(pid));
+    assert.equal((await replay(3)).status, 500);
+    const success = await replay(2);
+    assert.equal(success.status, 200);
+    assert.equal((await success.json()).episode, '2');
+  } finally {
+    await server.close();
+  }
+});
+test('replay capacity, client disconnect and shutdown stop the right runners', { timeout: 15000 }, async (t) => {
+  const { server, dir, replay } = await mountedReplay(t, 60000);
+  const client = new AbortController();
+  // Consume rejections immediately. The second connection closes on shutdown.
+  const first = assert.rejects(replay(0, { signal: client.signal }), { name: 'AbortError' });
+  const second = assert.rejects(replay(1));
+  let remaining;
+  try {
+    const cancelled = await waitForRunner(dir, 0);
+    remaining = await waitForRunner(dir, 1);
+    assert.equal((await replay(2)).status, 429);
+    client.abort();
+    await first;
+    for (let i = 0; i < 200 && !hasExited(cancelled); i++) await delay(25);
+    assert.ok(hasExited(cancelled));
+    assert.equal((await replay(2)).status, 200);
+    assert.equal(hasExited(remaining), false);
+  } finally {
+    client.abort();
+    await server.close();
+    await second;
+  }
+  for (let i = 0; i < 200 && !hasExited(remaining); i++) await delay(25);
+  assert.ok(hasExited(remaining));
+});
 test(
   'Studio trains, persists and replays a real run at multiple checkpoints',
   { timeout: 120000 },

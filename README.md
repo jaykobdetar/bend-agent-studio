@@ -42,6 +42,8 @@ npm start -- --run runs/bridge
 
 Use `--run` to open a trusted, locally generated study in Studio. Replays execute the runner stored with that study and require its recorded Node version. Custom environments display their public observations and action telemetry. The four featured environments have dedicated renderers.
 
+Studio runs up to two replay processes at once. A third request receives HTTP 429 and can be retried when a slot opens. Closing the replay dialog or disconnecting the client cancels its pending replay. Each runner has 30 seconds to return a trace before Studio stops it and responds with HTTP 504. Set `BEND_STUDIO_REPLAY_TIMEOUT_MS` to a positive number of milliseconds at startup for longer studies.
+
 Start with [worlds/bridge.json](worlds/bridge.json) for a finite game, [worlds/inventory.bend](worlds/inventory.bend) for a custom Bend world, or [agents/ucb.bend](agents/ucb.bend) for a learning algorithm. The [experiment guide](EXPERIMENTS.md) covers authoring, offline learning, evaluation, and resuming studies. The engine's typed rules and proofs live in [LAWS.bend](LAWS.bend) and [PROOF.bend](PROOF.bend).
 
 ## Run the checks
@@ -56,4 +58,4 @@ bend study_checks.bend
 bend PROOF.bend
 ```
 
-The tests exercise training, replay, checkpoint persistence, offline evaluation, the browser-facing API, and GIF timing. For an independent proof verdict, run `bend PROOF.bend --verdict` with the matching BendTT kernel.
+The tests exercise training, replay, checkpoint persistence, offline evaluation, the browser-facing API, and GIF timing. For an independent proof verdict, install Lean 4.34.0 (for example, `elan toolchain install leanprover/lean4:v4.34.0`) and run `bend PROOF.bend --verdict`. Bend 2.0.40 builds and caches its bundled BendTT kernel on first use. You can also set `BENDTT` to a kernel built from the same release.

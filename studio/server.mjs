@@ -25,6 +25,10 @@ fs.mkdirSync(base, { recursive: true });
 const jobs = new Map(),
   mounted = new Map();
 const bend = process.env.BEND || 'bend';
+const replayTimeout = Number(process.env.BEND_STUDIO_REPLAY_TIMEOUT_MS ?? 30000);
+if (!Number.isInteger(replayTimeout) || replayTimeout < 1 || replayTimeout > 2147483647)
+  throw Error('BEND_STUDIO_REPLAY_TIMEOUT_MS must be a positive 32-bit integer.');
+const activeReplays = new Set();
 function fail(message, status = 400) {
   throw Object.assign(new Error(message), { status });
 }
@@ -176,7 +180,7 @@ async function create(input) {
   );
   return job;
 }
-async function replay(id, input) {
+async function replay(id, input, res) {
   const info = describe(id);
   if (info.status !== 'ready') fail('This run is not ready.', 409);
   const { game, arm, phase } = input,
@@ -197,8 +201,9 @@ async function replay(id, input) {
   integer(rep, 0, info.replicates - 1, 'replicate');
   integer(episode, 0, info[phase] - 1, 'episode');
   const dir = directory(id);
+  if (activeReplays.size >= 2) fail('Studio is running two replays. Try again shortly.', 429);
   // Only the local owner can attach existing executable runs, at server startup.
-  const { stdout } = await exec(
+  const pending = exec(
     process.execPath,
     [
       path.join(dir, 'code/experiment.mjs'),
@@ -211,9 +216,28 @@ async function replay(id, input) {
       phase,
       String(episode)
     ],
-    { maxBuffer: 32 * 1024 * 1024 }
+    { maxBuffer: 32 * 1024 * 1024, killSignal: 'SIGKILL' }
   );
-  const trace = JSON.parse(stdout);
+  const child = pending.child;
+  activeReplays.add(child);
+  const stop = () => child.kill('SIGKILL');
+  res.once('close', stop);
+  let timedOut = false;
+  const timer = setTimeout(() => {
+    timedOut = true;
+    stop();
+  }, replayTimeout);
+  let trace;
+  try {
+    trace = JSON.parse((await pending).stdout);
+  } catch (err) {
+    if (timedOut) fail('Replay exceeded its time limit.', 504);
+    throw err;
+  } finally {
+    clearTimeout(timer);
+    res.off('close', stop);
+    activeReplays.delete(child);
+  }
   return {
     ...trace,
     symmetry: info.games.find((g) => g.id === game).symmetry,
@@ -263,7 +287,7 @@ const server = http.createServer(async (req, res) => {
       return json(await create(await body(req)), 201);
     const m = /^\/api\/runs\/([a-z0-9-]+)\/replay$/.exec(u.pathname);
     if (req.method === 'GET' && m)
-      return json(await replay(m[1], Object.fromEntries(u.searchParams)));
+      return json(await replay(m[1], Object.fromEntries(u.searchParams), res));
     if (req.method !== 'GET' && req.method !== 'HEAD') fail('Method not allowed', 405);
     const f = path.resolve(
       web,
@@ -281,9 +305,16 @@ const server = http.createServer(async (req, res) => {
     stream.on('error', () => res.destroy());
     stream.pipe(res);
   } catch (e) {
+    if (res.destroyed) return;
     res.writeHead(e.status ?? 500, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify({ error: e.message }));
   }
+});
+// A service manager may signal only the Studio process during shutdown.
+process.once('SIGINT', () => process.exit(130));
+process.once('SIGTERM', () => process.exit(143));
+process.on('exit', () => {
+  for (const child of activeReplays) child.kill('SIGKILL');
 });
 server.on('error', (e) => {
   console.error(e.message);
