@@ -93,7 +93,7 @@ def count_recorded(-S:Data,-O:Data,-M:Data,inspect:S -> E.View<O>,learn:M -> E.T
       event = {E.Transition{obs,action,reward,view,E.truncated(O,remaining,view)} : E.Transition<O>}
       count_place(S,O,M,after,E.update(M,O,learn,mode,model,event),seed,F32.add(score,reward),1n+steps,view)
 
-def count_perform(-S:Data,-O:Data,-M:Data,hooks:E.Hooks<S,O,M>,mode:E.Mode,remaining:Nat,state:S,
+def count_perform(-S:Data,-O:Data,-M:Data,hooks:E.Hooks<S,O,M>,mode:E.Mode,remaining:Nat,+state:S,
     obs:O,model:M,+action:U32,+seed:U32,score:F32,steps:Nat) ->
   {Laws.run_steps(S,O,M,E.turn_run(S,O,M,E.perform(S,O,M,hooks,mode,remaining,state,obs,model,action,seed,score,steps)))
     == 1n+steps : Nat}:
@@ -102,6 +102,9 @@ def count_perform(-S:Data,-O:Data,-M:Data,hooks:E.Hooks<S,O,M>,mode:E.Mode,remai
       count_recorded(S,O,M,inspect,learn,mode,remaining,obs,model,action,E.next_seed(seed),score,steps,step(state,action,seed))
     case E.Finishing{E.World{reset,inspect,step},act,learn,finish}:
       count_recorded(S,O,M,inspect,learn,mode,remaining,obs,model,action,E.next_seed(seed),score,steps,step(state,action,seed))
+
+    case E.Contextual{E.World{reset,inspect,step},legal_at,act,learn,finish}:
+      count_recorded(S,O,M,inspect,m => ev => learn(m,legal_at(state),ev),mode,remaining,obs,model,action,E.next_seed(seed),score,steps,step(state,action,seed))
 
 def count_attempt(-S:Data,-O:Data,-M:Data,hooks:E.Hooks<S,O,M>,valid:Bool,mode:E.Mode,remaining:Nat,state:S,
     obs:O,model:M,action:U32,seed:U32,score:F32,steps:Nat) ->

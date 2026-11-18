@@ -179,8 +179,10 @@ function bridgeFunctions(plan) {
     // Only a top-level declaration in the entry module opts in. Old bundles
     // and built-ins keep their original Hooks constructor and cursor encoding.
     const finish=arm.method==='custom' && /^def[ \t]+finish[ \t]*\(/m.test(arm.agent.files[arm.agent.entry+'.bend']);
-    const hooks='~'+state+', ~'+obs+', ~'+model+', ~E.'+(finish?'Finishing':'Hooks')+
-      '{'+world+', '+module+'act, '+module+'learn'+(finish?', '+module+'finish':'')+'}';
+    const context=arm.method==='custom' && /^def[ \t]+learn_context[ \t]*\(/m.test(arm.agent.files[arm.agent.entry+'.bend']);
+    if(context&&!finish)throw Error('learn_context requires finish');
+    const hooks='~'+state+', ~'+obs+', ~'+model+', ~E.'+(context?'Contextual':finish?'Finishing':'Hooks')+
+      '{'+world+', '+(context?'s => E.legal_at('+state+','+obs+','+world+',s), ':'')+module+'act, '+module+(context?'learn_context':'learn')+(finish?', '+module+'finish':'')+'}';
     const types=state+','+obs+','+model;
     if (game.definition || game.world || arm.method==='custom') {
       code+='\ndef '+name+'(mode: E.Mode, model: '+model+', seed: U32, limit: Nat) -> E.Report<'+model+'>:\n'+

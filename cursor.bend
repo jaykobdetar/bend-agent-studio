@@ -85,6 +85,10 @@ def finalize(-S: Data,-O: Data,-M: Data,hooks: E.Hooks<S,O,M>,mode: E.Mode,+curs
     case E.Finishing{world,act,learn,finish} c:
       seal_result(S,O,M,E.Finishing{world,act,learn,finish},mode,c,finished(S,O,M,c))
 
+    case E.Contextual{world,legal_at,act,learn,finish} Finalized{r}: Finalized{r}
+    case E.Contextual{world,legal_at,act,learn,finish} c:
+      seal_result(S,O,M,E.Contextual{world,legal_at,act,learn,finish},mode,c,finished(S,O,M,c))
+
 # The host sees only this summary while scheduling training; it stores the
 # opaque cursor for an unfinished episode and hands it back to Bend to resume.
 type Segment<-S: Data,-O: Data,-M: Data> is Data:

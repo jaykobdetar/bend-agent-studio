@@ -25,6 +25,9 @@ type Hooks<-S: Data, -O: Data, -M: Data> is Type:
   Finishing{world: World<S,O>, act: M -> O -> List<&2,U32> -> Mode -> U32 -> U32,
             learn: M -> Transition<O> -> M, finish: M -> Stop -> M}
 
+  Contextual{world: World<S,O>, legal_at: S -> List<&2,U32>, act: M -> O -> List<&2,U32> -> Mode -> U32 -> U32,
+             learn: M -> List<&2,U32> -> Transition<O> -> M, finish: M -> Stop -> M}
+
 type Report<-M: Data> is Data:
   Report{model: M, score: F32, steps: Nat, reason: Stop}
 
@@ -54,12 +57,14 @@ def get_world(-S: Data, -O: Data, -M: Data, hooks: Hooks<S, O, M>) -> World<S, O
   match hooks:
     case Hooks{world,act,learn}: world
     case Finishing{world,act,learn,finish}: world
+    case Contextual{world,legal_at,act,learn,finish}: world
 
 def get_policy(-S: Data, -O: Data, -M: Data, hooks: Hooks<S, O, M>) ->
     M -> O -> List<&2, U32> -> Mode -> U32 -> U32:
   match hooks:
     case Hooks{world,act,learn}: act
     case Finishing{world,act,learn,finish}: act
+    case Contextual{world,legal_at,act,learn,finish}: act
 
 # Finishing is explicit and only at an episode boundary, never a checkpoint.
 def finish_model(-M: Data, finish: M -> Stop -> M, mode: Mode, model: M, reason: Stop) -> M:
@@ -71,6 +76,9 @@ def finish_report(-S: Data,-O: Data,-M: Data,hooks: Hooks<S,O,M>,mode: Mode,repo
   match hooks report:
     case Hooks{world,act,learn} r: r
     case Finishing{world,act,learn,finish} Report{model,score,steps,+reason}:
+      Report{finish_model(M,finish,mode,model,reason),score,steps,reason}
+
+    case Contextual{world,legal_at,act,learn,finish} Report{model,score,steps,+reason}:
       Report{finish_model(M,finish,mode,model,reason),score,steps,reason}
 
 def finish_observed(-S: Data,-O: Data,-M: Data,-A: Data,hooks: Hooks<S,O,M>,mode: Mode,result: Observed<A,M>) -> Observed<A,M>:
@@ -96,6 +104,10 @@ def mixed_hooks(-S: Data, -O: Data, -M: Data, hooks: Hooks<S, O, M>) -> Hooks<S,
     case Finishing{World{reset,view,step},act,learn,finish}:
       Finishing{World{reset,view,s => a => w => step(s,a,mix_word(U32.xor(w,2779096485)))},
         m => o => actions => mode => w => act(m,o,actions,mode,mix_word(U32.xor(w,1515870810))),learn,finish}
+
+    case Contextual{World{reset,view,step},legal_at,act,learn,finish}:
+      Contextual{World{reset,view,s => a => w => step(s,a,mix_word(U32.xor(w,2779096485)))},
+        legal_at,m => o => actions => mode => w => act(m,o,actions,mode,mix_word(U32.xor(w,1515870810))),learn,finish}
 
 def place(-S: Data, -O: Data, -M: Data, state: S, model: M, seed: U32,
           score: F32, steps: Nat, view: View<O>) -> Run<S, O, M>:
@@ -130,6 +142,15 @@ def recorded_step(-S: Data, -O: Data, -M: Data, inspect: S -> View<O>,
   learned = update(M, O, learn, mode, model, event)
   Turn{place(S, O, M, after, learned, seed, F32.add(score, reward), 1n+steps, view), Some{event}}
 
+def public_actions(-O: Data,v: View<O>) -> List<&2,U32>:
+  match v:
+    case End{o}: []
+    case Open{o,xs}: xs
+
+def legal_at(-S: Data,-O: Data,world: World<S,O>,state: S) -> List<&2,U32>:
+  World{reset,inspect,step}=world
+  public_actions(O,inspect(state))
+
 def perform(-S: Data, -O: Data, -M: Data, hooks: Hooks<S, O, M>,
             mode: Mode, remaining: Nat, state: S, observation: O, model: M,
             +action: U32, +seed: U32, score: F32, steps: Nat) -> Turn<S, O, M>:
@@ -138,6 +159,11 @@ def perform(-S: Data, -O: Data, -M: Data, hooks: Hooks<S, O, M>,
       recorded_step(S,O,M,inspect,learn,mode,remaining,observation,model,action,next_seed(seed),score,steps,step(state,action,seed))
     case Finishing{World{reset,inspect,step},act,learn,finish}:
       recorded_step(S,O,M,inspect,learn,mode,remaining,observation,model,action,next_seed(seed),score,steps,step(state,action,seed))
+
+    case Contextual{World{reset,inspect,step},legal_at,act,learn,finish}:
+      +before=state
+      +legal=legal_at(before)
+      recorded_step(S,O,M,inspect,m => ev => learn(m,legal,ev),mode,remaining,observation,model,action,next_seed(seed),score,steps,step(before,action,seed))
 
 def attempt(-S: Data, -O: Data, -M: Data, hooks: Hooks<S, O, M>,
             valid: Bool, mode: Mode, remaining: Nat, state: S, observation: O,
