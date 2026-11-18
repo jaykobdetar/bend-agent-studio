@@ -87,7 +87,7 @@ async function tournament(root,out) {
   checkedSnapshot(root,manifest);
   const api=(await import(pathToFileURL(path.join(root,'code','backend.mjs')).href)).default;
   const player=bundleAgent(path.join(here,'agents/self_play.bend'),here).entry;
-  const supported=['tictactoe','takeaway'].map(name=>bundleAgent(path.join(here,'worlds',name+'.bend'),here).entry);
+  const supported=['tictactoe','takeaway','two-pile-nim'].map(name=>bundleAgent(path.join(here,'worlds',name+'.bend'),here).entry);
   if(plan.arms.some(a=>a.agent?.entry!==player) || plan.games.some(g=>!supported.includes(g.world?.entry)))
     throw Error('this exact tournament supports the shipped self-play agent and deterministic arena games');
   const single=['game,arm,replicate,budget,checkpoint_hash,minimax_first,worst_first,worst_second,exploitability,self_play_first'];

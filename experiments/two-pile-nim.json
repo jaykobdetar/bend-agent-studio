@@ -1,0 +1,56 @@
+{
+  "schema": 1,
+  "name": "two-pile-nim",
+  "games": [
+    {
+      "id": "nim",
+      "domain": "arena",
+      "worldFile": "../worlds/two-pile-nim.bend",
+      "limit": 5,
+      "parameters": {
+        "left": 2,
+        "right": 3
+      }
+    }
+  ],
+  "arms": [
+    {
+      "id": "uniform",
+      "method": "custom",
+      "domain": "arena",
+      "agentFile": "../agents/self_play.bend",
+      "parameters": {
+        "rule": 0,
+        "alpha": 0.25,
+        "gamma": 1,
+        "epsilon": 0.25
+      }
+    },
+    {
+      "id": "negamax-q",
+      "method": "custom",
+      "domain": "arena",
+      "agentFile": "../agents/self_play.bend",
+      "parameters": {
+        "rule": 1,
+        "alpha": 0.25,
+        "gamma": 1,
+        "epsilon": 0.25
+      }
+    }
+  ],
+  "replicates": 2,
+  "checkpoints": [
+    0,
+    32,
+    128
+  ],
+  "validationEpisodes": 8,
+  "testEpisodes": 16,
+  "seeds": {
+    "train": 1120000000,
+    "validation": 2320000000,
+    "test": 3420000000,
+    "stride": 10000
+  }
+}
