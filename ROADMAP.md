@@ -33,7 +33,7 @@ Leftover from the review: delete the duplicate training check at `studio/server.
 
 ## Phase 1: laws (do these first)
 
-Context: `LAWS.bend` declares 26 laws and `PROOF.bend` proves each one. Laws should cover structure, accounting, and information flow. Do not attempt floating-point results (convergence, exact values, unbiasedness). Do not restate determinism, which purity gives, or hidden-state isolation, which the `Transition<O>` type already enforces. Host-side properties (seed blocks, storage, statistics) stay as Node tests.
+Context: `LAWS.bend` declares 28 laws and `PROOF.bend` proves each one. Laws should cover structure, accounting, and information flow. Do not attempt floating-point results (convergence, exact values, unbiasedness). Do not restate determinism, which purity gives, or hidden-state isolation, which the `Transition<O>` type already enforces. Host-side properties (seed blocks, storage, statistics) stay as Node tests.
 
 If Bend's `law` syntax cannot express a hypothesis (for example "for a key different from…"), use an unconditional special case or a guard expression, and record the limitation in a comment.
 
@@ -256,10 +256,11 @@ Update this table in the same PR as each item.
 | --- | --- | --- |
 | P0.1 | In progress | |
 | P0.2 | In progress | |
-| P0.3 | Assigned | |
-| P0.4 | Assigned | |
-| L1–L2 | Not started | |
-| L3 | Implemented; under review | roadmap/l3-observer-pause |
+| P0.3 | Implemented: Fixed-suite statistics and paired intervals | [#7](https://github.com/jaykobdetar/bend-agent-studio/pull/7) |
+| P0.4 | Implemented; review pending | [Gymnasium finite-world adapter](https://github.com/jaykobdetar/bend-agent-studio/pulls?q=is%3Apr+head%3Afeat%2Fgymnasium-finite-worlds) |
+| L1 | Implemented: Rejection law on the live engine path | [#5](https://github.com/jaykobdetar/bend-agent-studio/pull/5) |
+| L2 | Implemented: Whole-rollout evaluation and accepted-step accounting | [#8](https://github.com/jaykobdetar/bend-agent-studio/pull/8) |
+| L3 | Implemented: Generic observer invariance and cursor splitting | [#9](https://github.com/jaykobdetar/bend-agent-studio/pull/9) |
 | L4–L12 | Not started | |
 | T2.1–T2.3 | Not started | |
 | B3.1–B3.2 | Not started | |
