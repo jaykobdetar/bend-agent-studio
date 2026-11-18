@@ -259,7 +259,7 @@ Update this table in the same PR as each item.
 | P0.3 | Assigned | |
 | P0.4 | Assigned | |
 | L1–L3 | Not started | |
-| L4 | Implemented: nonempty Double Q bootstrap law and proof | |
+| L4 | Implemented: nonempty Double Q bootstrap law and proof | [#6](https://github.com/jaykobdetar/bend-agent-studio/pull/6) |
 | L5–L12 | Not started | |
 | T2.1–T2.3 | Not started | |
 | B3.1–B3.2 | Not started | |
