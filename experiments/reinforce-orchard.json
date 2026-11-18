@@ -1,0 +1,41 @@
+{
+  "schema": 1,
+  "name": "reinforce-orchard",
+  "games": [
+    {
+      "id": "orchard",
+      "limit": 1
+    }
+  ],
+  "arms": [
+    {
+      "id": "reinforce",
+      "method": "custom",
+      "agentFile": "../agents/reinforce.bend",
+      "parameters": {
+        "alpha": 0.05,
+        "beta": 0.1,
+        "gamma": 1
+      }
+    },
+    {
+      "id": "epsilon",
+      "method": "sample_mean",
+      "epsilon": 0.125
+    }
+  ],
+  "replicates": 4,
+  "checkpoints": [
+    0,
+    64,
+    256
+  ],
+  "validationEpisodes": 8,
+  "testEpisodes": 16,
+  "seeds": {
+    "train": 121000000,
+    "validation": 1900000000,
+    "test": 2900000000,
+    "stride": 10000
+  }
+}
