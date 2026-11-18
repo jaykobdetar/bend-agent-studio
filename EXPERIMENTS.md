@@ -119,7 +119,9 @@ node runs/planning/code/experiment.mjs rerun runs/planning runs/planning-copy
 node experiment.mjs verify runs/planning-copy
 ```
 
-Choose a fresh destination for a new study. Resume with the runner saved in its `code` directory and the recorded Node version. A fresh rerun uses the sealed source bundle and compiled Bend backend. Each checkpoint includes its parent hash. Publication uses a no-clobber operation so two workers can safely compute the same checkpoint. Use `--shard 0/2` and `--shard 1/2` for two workers on shared storage. Status lists progress. Verification reads the source and checkpoint hashes and checks accounting.
+Choose a fresh destination for a new study. Resume with the runner saved in its `code` directory and the recorded Node version. A fresh rerun uses the sealed source bundle and compiled Bend backend. Each checkpoint includes its parent hash. Publication uses a no-clobber operation so two workers can safely compute the same checkpoint. Use `--shard 0/2` and `--shard 1/2` for two workers on shared storage.
+
+To move a run, copy the whole directory, including `run.json`, `code/`, and `trials/`. Use the copied paths with the archived Node version; the original checkout and Bend compiler are not required for resume or replay. Use `status` to see how far an unfinished run got. Use `verify` after it finishes: it requires every declared checkpoint, so a missing future checkpoint in an unfinished run is expected, not evidence of corruption. Verification also reads the source and checkpoint hashes and checks accounting.
 
 Replay prints one episode's seed, ordered public observations, legal actions, decisions, rewards, terminal and truncation flags, and initial and final model hashes. For a training replay supply a checkpoint immediately before or inside the episode of interest, and the zero-based training episode index. A partial final episode is labeled `Paused`. Validation and test episode indices are relative to their own seed blocks.
 
