@@ -486,6 +486,10 @@ test(
       const summary=await (await fetch(server.url+'/api/runs/'+id+'/summary')).json();
       assert.deepEqual(summary.series[0].points.map(p=>p.budget),run.checkpoints);
       assert.ok(summary.series[0].points.every(p=>p.replicates===1&&p.interval===null));
+      const annotation={notes:'Pilot baseline',tags:['pilot']};
+      await writeFile(path.join(home,id,'run','notes.json'),JSON.stringify(annotation));
+      const annotated=await(await fetch(server.url+'/api/runs')).json();
+      assert.deepEqual(annotated.find(r=>r.id===id).annotations,annotation);
       const url =
         server.url + '/api/runs/' + id + '/replay?game=cliff&arm=q_learning&rep=0&episode=0';
       assert.equal((await fetch(url + '&phase=test&point=3')).status, 400);

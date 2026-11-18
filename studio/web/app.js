@@ -341,6 +341,9 @@ function showRuns() {
     ];
     if (run.episodes) description.push(number(run.episodes) + ' episodes', 'seed ' + run.seed);
     info.append(element('p', description.join(' · '), 'meta'));
+    if (run.annotations?.notes) info.append(element('p', run.annotations.notes, 'run-notes'));
+    if (run.annotations?.tags?.length) info.append(element('p', 'Tags: ' + run.annotations.tags.join(', '), 'meta'));
+    if (run.annotationWarning) info.append(element('p',run.annotationWarning,'meta'));
     if (run.error) info.append(element('p', run.error, 'meta'));
     row.append(info);
     if (run.status === 'ready') row.append(button('Open replay', () => openDialog(run), 'secondary'));
