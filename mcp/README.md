@@ -18,7 +18,7 @@ Configure that command in your MCP client's stdio server settings, for example:
       }
     }
 
-Use the project checkout as workspace to operate on the shipped examples. Alternatively copy input JSON and all its local dependencies into a dedicated workspace. The client/editor writes plan and world source files; there is intentionally no arbitrary file writer, raw shell, or general command tool. Set the optional **BEND_MCP_NODE_MAP** environment variable to a JSON object mapping exact Node versions (without leading v) to absolute executables, e.g. `{"24.22.3":"/opt/node-24.22.3/bin/node"}`. A mapped runtime is version-checked before archived execution. The current matching runtime is reused.
+Use the project checkout as workspace to operate on the shipped examples. Alternatively copy input JSON and all its local dependencies into a dedicated workspace. An agent can author self-contained plans and finite/grid worlds directly as tool arguments, even in an empty workspace. An editor is only needed for file-backed plans and custom Bend modules. There is intentionally no arbitrary file writer, raw shell, or general command tool. Set the optional **BEND_MCP_NODE_MAP** environment variable to a JSON object mapping exact Node versions (without leading v) to absolute executables, e.g. `{"24.22.3":"/opt/node-24.22.3/bin/node"}`. A mapped runtime is version-checked before archived execution. The current matching runtime is reused.
 
 ## A complete loop
 
@@ -27,6 +27,29 @@ Use the project checkout as workspace to operate on the shipped examples. Altern
 3. Call `start_run {"plan":"experiments/bridge.json","out":"bridge-study"}`. Save its jobId; poll `job_status {"jobId":"…"}` until completed. Failed and cancelled jobs still report their exit and stderr. Use a new output directory for another run or resume an existing trusted run.
 4. Call `summarize_results {"run":"bridge-study","phase":"test","metric":"return","reference":"random"}`. A replicate, not an individual episode, is the unit of inference.
 5. Call `explain_episode {"run":"bridge-study","game":"bridge","arm":"q","replicate":0,"checkpoint":256,"phase":"test","episode":0,"offset":0,"limit":10}` for the per-action public-history oracle gap. Use the same coordinates with replay_episode to see the frames. Follow nextOffset until null.
+
+## Author from an empty workspace
+
+No example files are required. Pass `{"world":{"schema":1,"grid":["SG"],"goalReward":1},"horizon":1}` to **solve_world**. Then pass this object to **start_run** (omit `out` when calling **validate_plan** first):
+
+```json
+{
+  "plan": {
+    "schema": 1,
+    "name": "one-step",
+    "games": [{"id":"hall","limit":1,"definition":{"schema":1,"grid":["SG"],"goalReward":1}}],
+    "arms": [{"id":"uniform","method":"random"}],
+    "replicates": 2,
+    "checkpoints": [0,2],
+    "validationEpisodes": 2,
+    "testEpisodes": 2,
+    "seeds": {"train":10,"validation":100,"test":200,"stride":10}
+  },
+  "out": "first-study"
+}
+```
+
+Both validations are read-only. An inline run validates its data and saves the original, reusable plan as `first-study/input-plan.json` before training. The filename is fixed and the output must not exist. Failed validation can leave an empty output directory but publishes neither a source plan nor a run. Do not feed the derived normalized validation response back as a source plan. For inline requests, embed worlds in `games[].definition`; use path-backed plans for relative files, custom agents or custom Bend worlds. A training plan itself may contain multiple distinct world definitions.
 
 ## Surface
 
@@ -40,7 +63,7 @@ Use the project checkout as workspace to operate on the shipped examples. Altern
 
 **The workspace is a code-trust boundary, not a sandbox.** Archived runners/backends are executable code and custom Bend inputs are compiled. Use a directory controlled by you, not a writable shared or downloads folder. Do not import arbitrary third-party archives. A self-consistent checksum detects accidental changes but does not authenticate the author. Use OS isolation/least privilege when evaluating code. Do not change workspace contents concurrently with a call; checks do not defend against a hostile local filesystem writer. Symlinks and special files are rejected at user-selected paths and throughout archive trees. Parents of output directories must already exist. Outputs are newly reserved directories, except resume_run, which intentionally fills missing checkpoints in place.
 
-One background job per server, up to eight concurrent calls. Job history is process-local (128 most recent jobs). Background work runs outside the server; cancellation targets the process group (Windows: taskkill /T). A separate IPC supervisor watches each child group, so the loss of the MCP owner triggers termination even during synchronous training. As with any user-space supervisor, killing both the supervisor and owner simultaneously can leave descendants. After a crash, inspect partial outputs and check for running workers before resume. Scratch directories can remain after an unclean exit. Do not share a workspace between MCP servers writing the same run. Background training has no fixed completion deadline: poll, or cancel explicitly.
+One background job per server, up to eight concurrent calls. Cancellation remains available even when the ordinary call slots are full. Snapshot preflight runs in a bounded child and concurrent progress polls share a short-lived result. Job history is process-local (128 most recent jobs). Background work runs outside the server; cancellation targets the process group (Windows: taskkill /T). A separate IPC supervisor watches each child group, so the loss of the MCP owner triggers termination even during synchronous training. As with any user-space supervisor, killing both the supervisor and owner simultaneously can leave descendants. After a crash, inspect partial outputs and check for running workers before resume. Scratch directories can remain after an unclean exit. Do not share a workspace between MCP servers writing the same run. Background training has no fixed completion deadline: poll, or cancel explicitly.
 
 Oracle computations run in isolated workers (12 s deadline); replay is limited to 30 s. Responses are capped at 1 MiB before the compatibility text copy; frames/decisions at 250 items and 256 KiB per page; opt-in models at 128 KiB. Partial live training cursors are never returned. An oversized underlying replay/export is rejected, not silently truncated. Runs above 200,000 planned checkpoints or files, snapshots above 128 MiB, or individual run files above 64 MiB exceed this local adapter's limits. Calls with optional writes, including learning_curve (SVG) and build_memory_world, do not advertise read-only hints. Inspection-only tools do. check_bend supports Base and conventional relative module imports; it is not an arbitrary Bend script runner.
 
@@ -50,4 +73,4 @@ Oracle computations run in isolated workers (12 s deadline); replay is limited t
     BEND=/path/to/bend npm test --prefix mcp
     BEND=/path/to/bend npm test
 
-Compiler-dependent tests skip if Bend is absent. The suite exercises raw protocol and official SDK clients, actual training, replay, oracle explanation, cancellation, rejected paths, and full offline workflows. Platform-specific process semantics should also be checked on Windows CI.
+Compiler-dependent tests skip if Bend is absent. The suite exercises raw protocol and official SDK clients, actual training, replay, oracle explanation, cancellation, rejected paths, and full offline workflows. To run the cross-version replay/resume test, set BEND_MCP_TEST_OTHER_NODE to an absolute path to a different Node 24 executable. The SVG test runs when matplotlib is available. Windows CI exercises the Node-only suite; POSIX-only lifecycle checks are explicitly marked.

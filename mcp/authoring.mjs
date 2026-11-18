@@ -1,70 +1,196 @@
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import {context,repo} from './context.mjs';
-import {choice,horizon,str,tool} from './schema.mjs';
+import {repo} from './context.mjs';
+import {choice, horizon, str, tool, planInput, worldInput} from './schema.mjs';
 import {readPlan} from '../experiment.mjs';
-import {worldDefinition,oracle,reactiveOracle} from '../finite_world.mjs';
-import {beliefOracle,clockOracle,policyOracle} from '../public_oracle.mjs';
+import {validate} from '../experiment_config.mjs';
+import {worldDefinition, oracle, reactiveOracle} from '../finite_world.mjs';
+import {beliefOracle, clockOracle, policyOracle} from '../public_oracle.mjs';
 import {memoryWorld} from '../memory_world.mjs';
-const table={type:'object',maxProperties:4096,additionalProperties:{oneOf:[{type:'integer',minimum:0},{type:'array',items:{type:'number',minimum:0,maximum:1},maxItems:4096}]}};
-export function guardedPlan(filename,ctx){
-  const guard=name=>{const p=ctx.input(name); if(fs.statSync(p).size>2**22)throw Error('input exceeds 4 MiB');return p};
-  const p=readPlan(guard(filename),guard);
+const table = {
+  type: 'object',
+  maxProperties: 4096,
+  additionalProperties: {
+    oneOf: [
+      {type: 'integer', minimum: 0},
+      {type: 'array', items: {type: 'number', minimum: 0, maximum: 1}, maxItems: 4096},
+    ],
+  },
+};
+export function guardedPlan(filename, ctx) {
+  const guard = (name) => {
+    const p = ctx.input(name);
+    if (fs.statSync(p).size > 2 ** 22) throw Error('input exceeds 4 MiB');
+    return p;
+  };
+  let p;
+  if (typeof filename === 'string') p = readPlan(guard(filename), guard);
+  else {
+    for (const item of [
+      ...(filename.games ?? []),
+      ...(filename.evaluationGames ?? []),
+      ...(filename.arms ?? []),
+    ])
+      if (['file', 'worldFile', 'agentFile', 'world', 'agent'].some((k) => Object.hasOwn(item, k)))
+        throw Error('inline plans must be self-contained data (embed finite or grid definitions)');
+    p = validate(filename);
+  }
   // Bend sources are code. Allow only the project's ordinary named/relative imports.
   // Paths in bundled local imports have already been rewritten to flat module names.
-  for(const b of [...p.games,...(p.evaluationGames??[]),...p.arms].map(x=>x.world??x.agent).filter(Boolean))
-    for(const source of Object.values(b.files))
-      for(const line of source.split(/\r?\n/))if(/\bimport\b/.test(line)&&!/^\s*import (?:Base|\.\/[\w-]+\.bend as [\w]+)\s*$/.test(line))throw Error('unsupported import in custom Bend source');
+  for (const b of [...p.games, ...(p.evaluationGames ?? []), ...p.arms]
+    .map((x) => x.world ?? x.agent)
+    .filter(Boolean))
+    for (const source of Object.values(b.files))
+      for (const line of source.split(/\r?\n/))
+        if (/\bimport\b/.test(line) && !/^\s*import (?:Base|\.\/[\w-]+\.bend as [\w]+)\s*$/.test(line))
+          throw Error('unsupported import in custom Bend source');
   return p;
 }
-function load(p,ctx){const f=ctx.input(p);if(fs.statSync(f).size>4*2**20)throw Error('input exceeds 4 MiB');return JSON.parse(fs.readFileSync(f,'utf8'))}
-export function compute(name,a,ctx){
-  if(name==='validate_plan'){
-    const p=guardedPlan(a.plan,ctx);
-    const counts={train:Math.max(1,p.maxTrainEpisodes??p.checkpoints.at(-1)),validation:p.validationEpisodes,test:p.testEpisodes};
-    return {plan:p,trialCount:p.games.length*p.arms.length*p.replicates,seedBlocks:Object.entries(counts).filter(([,n])=>n).map(([phase,n])=>({phase,first:p.seeds[phase],length:n,stride:p.seeds.stride,replicates:p.replicates}))};
+function load(p, ctx) {
+  const f = ctx.input(p);
+  if (fs.statSync(f).size > 4 * 2 ** 20) throw Error('input exceeds 4 MiB');
+  return JSON.parse(fs.readFileSync(f, 'utf8'));
+}
+export function compute(name, a, ctx) {
+  if (name === 'validate_plan') {
+    const p = guardedPlan(a.plan, ctx);
+    const counts = {
+      train: Math.max(1, p.maxTrainEpisodes ?? p.checkpoints.at(-1)),
+      validation: p.validationEpisodes,
+      test: p.testEpisodes,
+    };
+    return {
+      plan: p,
+      trialCount: p.games.length * p.arms.length * p.replicates,
+      seedBlocks: Object.entries(counts)
+        .filter(([, n]) => n)
+        .map(([phase, n]) => ({
+          phase,
+          first: p.seeds[phase],
+          length: n,
+          stride: p.seeds.stride,
+          replicates: p.replicates,
+        })),
+    };
   }
-  const w=worldDefinition(load(a.world,ctx));
-  if(name==='validate_world')return {states:w.states.length,observations:new Set(w.states.map(s=>s.observation)).size,actions:new Set(w.states.flatMap(s=>s.actions.map(x=>x.id))).size,terminalStates:w.states.filter(s=>!s.actions.length).map(s=>s.id)};
-  if(name==='solve_world'){
-    const f={full:oracle,reactive:reactiveOracle,history:beliefOracle,clock:clockOracle}[a.kind??'full'];
-    return {...oracle(w,a.horizon),...f(w,a.horizon)};
+  const w = worldDefinition(typeof a.world === 'string' ? load(a.world, ctx) : a.world);
+  if (name === 'validate_world')
+    return {
+      states: w.states.length,
+      observations: new Set(w.states.map((s) => s.observation)).size,
+      actions: new Set(w.states.flatMap((s) => s.actions.map((x) => x.id))).size,
+      terminalStates: w.states.filter((s) => !s.actions.length).map((s) => s.id),
+    };
+  if (name === 'solve_world') {
+    const f = {full: oracle, reactive: reactiveOracle, history: beliefOracle, clock: clockOracle}[
+      a.kind ?? 'full'
+    ];
+    if (f === oracle || f === reactiveOracle) return f(w, a.horizon);
+    return {...oracle(w, a.horizon), ...f(w, a.horizon)};
   }
-  if(name==='evaluate_policy_exact'){
-    const policy=t=>(obs)=>{if(!Object.hasOwn(t,obs))throw Error('missing policy observation '+obs);return t[obs]};
-    return policyOracle(w,a.horizon,policy(a.policy),{behavior:a.behavior?policy(a.behavior):null});
+  if (name === 'evaluate_policy_exact') {
+    const policy = (t) => (obs) => {
+      if (!Object.hasOwn(t, obs)) throw Error('missing policy observation ' + obs);
+      return t[obs];
+    };
+    return policyOracle(w, a.horizon, policy(a.policy), {
+      behavior: a.behavior ? policy(a.behavior) : null,
+    });
   }
-  if(name==='build_memory_world'){
-    const world=memoryWorld(w,load(a.rules,ctx),{maxStates:20000,taskHorizon:a.horizon??null});
-    if(Buffer.byteLength(JSON.stringify({world}))>2**20)throw Error('generated world exceeds 1 MiB');
-    if(a.out){const dir=ctx.output(a.out);fs.mkdirSync(dir,{mode:0o700});fs.writeFileSync(path.join(dir,'world.json'),JSON.stringify(world),{flag:'wx'});}
+  if (name === 'build_memory_world') {
+    const world = memoryWorld(w, load(a.rules, ctx), {maxStates: 20000, taskHorizon: a.horizon ?? null});
+    if (Buffer.byteLength(JSON.stringify({world})) > 2 ** 20)
+      throw Error('generated world exceeds 1 MiB');
+    if (a.out) {
+      const dir = ctx.output(a.out);
+      fs.mkdirSync(dir, {mode: 0o700});
+      fs.writeFileSync(path.join(dir, 'world.json'), JSON.stringify(world), {flag: 'wx'});
+    }
     return {world};
   }
   throw Error('unknown worker operation');
 }
-async function isolated(name,a,ctx) {
-  const temp=fs.mkdtempSync(path.join(os.tmpdir(),'bend-mcp-'));
-  try{
-    const req=path.join(temp,'request.json');fs.writeFileSync(req,JSON.stringify(a),{mode:0o600});
-    return JSON.parse(await ctx.exec(process.execPath,['--max-old-space-size=256',path.join(repo,'mcp/worker.mjs'),name,ctx.root,req],{cwd:ctx.root,timeout:12000,maxBytes:2**20}));
-  }finally{fs.rmSync(temp,{recursive:true,force:true})}
+async function isolated(name, a, ctx) {
+  const temp = fs.mkdtempSync(path.join(os.tmpdir(), 'bend-mcp-'));
+  try {
+    const req = path.join(temp, 'request.json');
+    fs.writeFileSync(req, JSON.stringify(a), {mode: 0o600});
+    return JSON.parse(
+      await ctx.exec(
+        process.execPath,
+        ['--max-old-space-size=256', path.join(repo, 'mcp/worker.mjs'), name, ctx.root, req],
+        {cwd: ctx.root, timeout: 12000, maxBytes: 2 ** 20},
+      ),
+    );
+  } finally {
+    fs.rmSync(temp, {recursive: true, force: true});
+  }
 }
-const make=(name,desc,props,required,ro=true)=>tool(desc,props,required,ro,(a,c)=>isolated(name,a,c));
-export const authoring={
- validate_plan:make('validate_plan','Normalize a training plan and describe its trial count and seed blocks.',{plan:str},['plan']),
- validate_world:make('validate_world','Expand and validate a finite or grid world.',{world:str},['world']),
- solve_world:make('solve_world','Solve a finite world for the selected information class, alongside its uniform baseline.',{world:str,horizon,kind:choice('full','reactive','history','clock')},['world','horizon']),
- evaluate_policy_exact:make('evaluate_policy_exact','Evaluate an observation-to-action (or probability vector) policy; optionally compare behavior support.',{world:str,horizon,policy:table,behavior:table},['world','horizon','policy']),
- build_memory_world:make('build_memory_world','Construct a memory-augmented world; optional out is a NEW directory for world.json.',{world:str,rules:str,horizon,out:str},['world','rules'],false),
- list_examples:tool('List bundled example plans, specs, worlds, memory rules and agents.',{},[],true,()=>{
-   const examples=[];
-   for(const dir of ['experiments','worlds','agents'])for(const file of fs.readdirSync(path.join(repo,dir)).sort()){
-     const rel=dir+'/'+file;let kind=dir==='agents'?'agent':'world';
-     if(file.endsWith('.json')){const x=JSON.parse(fs.readFileSync(path.join(repo,rel)));
-       if(dir==='experiments')kind=x.games?'training plan':x.targets?'assess spec':x.reference?'select spec':x.fitEpisodes?'collect spec':x.arms?'fit spec':'score spec';
-       else if(x.rules)kind='memory rules';}
-     examples.push({path:rel,kind});
-   }return {examples};
- })
+const make = (name, desc, props, required, ro = true) =>
+  tool(desc, props, required, ro, (a, c) => isolated(name, a, c));
+export const authoring = {
+  validate_plan: make(
+    'validate_plan',
+    'Normalize a training plan and describe its trial count and seed blocks.',
+    {plan: planInput},
+    ['plan'],
+  ),
+  validate_world: make(
+    'validate_world',
+    'Expand and validate a finite or grid world.',
+    {world: worldInput},
+    ['world'],
+  ),
+  solve_world: make(
+    'solve_world',
+    'Solve a finite world for the selected information class, alongside its uniform baseline.',
+    {world: worldInput, horizon, kind: choice('full', 'reactive', 'history', 'clock')},
+    ['world', 'horizon'],
+  ),
+  evaluate_policy_exact: make(
+    'evaluate_policy_exact',
+    'Evaluate an observation-to-action (or probability vector) policy; optionally compare behavior support.',
+    {world: worldInput, horizon, policy: table, behavior: table},
+    ['world', 'horizon', 'policy'],
+  ),
+  build_memory_world: make(
+    'build_memory_world',
+    'Construct a memory-augmented world; optional out is a NEW directory for world.json.',
+    {world: worldInput, rules: str, horizon, out: str},
+    ['world', 'rules'],
+    false,
+  ),
+  list_examples: tool(
+    'List bundled example plans, specs, worlds, memory rules and agents.',
+    {},
+    [],
+    true,
+    () => {
+      const examples = [];
+      for (const dir of ['experiments', 'worlds', 'agents'])
+        for (const file of fs.readdirSync(path.join(repo, dir)).sort()) {
+          const rel = dir + '/' + file;
+          let kind = dir === 'agents' ? 'agent' : 'world';
+          if (file.endsWith('.json')) {
+            const x = JSON.parse(fs.readFileSync(path.join(repo, rel)));
+            if (dir === 'experiments')
+              kind = x.games
+                ? 'training plan'
+                : x.targets
+                  ? 'assess spec'
+                  : x.reference
+                    ? 'select spec'
+                    : x.fitEpisodes
+                      ? 'collect spec'
+                      : x.arms
+                        ? 'fit spec'
+                        : 'score spec';
+            else if (x.rules) kind = 'memory rules';
+          }
+          examples.push({path: rel, kind});
+        }
+      return {examples};
+    },
+  ),
 };
