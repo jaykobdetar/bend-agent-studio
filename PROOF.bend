@@ -3,7 +3,6 @@ import ./LAWS.bend as Laws
 import ./engine.bend as E
 import ./study.bend as Study
 import ./weights.bend as W
-import ./ferry.bend as Ferry
 import ./cursor.bend as C
 import ./dyna.bend as Dyna
 import ./tabular.bend as T
@@ -96,9 +95,8 @@ def observer_invariant(~S: Data, ~O: Data, ~M: Data, ~hooks: E.Hooks<S,O,M>, ~A:
       next = observe(record,obs,actions,action,E.turn_event(S,O,M,turn))
       observer_invariant(~S,~O,~M,~hooks,~A,~observe,rest,mode,E.turn_run(S,O,M,turn),next)
 
-def Laws.ferry_observer_preserves_report(fuel, mode, run, record):
-  observer_invariant(~Ferry.Stage,~U32,~Study.Model,~E.Hooks{Ferry.world(),Study.act,Study.learn},
-    ~List<&2,E.Frame<U32>>,~E.remember(U32),fuel,mode,run,record)
+def Laws.observer_preserves_report(S,O,M,hooks,A,observe,fuel,mode,run,record):
+  observer_invariant(~S,~O,~M,~hooks,~A,~observe,fuel,mode,run,record)
 
 def stopped_stays_stopped(~S: Data, ~O: Data, ~M: Data, ~hooks: E.Hooks<S,O,M>, budget: Nat,
                           mode: E.Mode, left: Nat, report: E.Report<M>) ->
@@ -129,8 +127,8 @@ def split_budget(~S: Data,~O: Data,~M: Data,~hooks: E.Hooks<S,O,M>, first: Nat, 
       next = C.one(~S,~O,~M,~hooks,mode,C.Cursor{1n+left,E.Live{state,obs,acts,model,word,score,steps}})
       split_budget(~S,~O,~M,~hooks,p,second,mode,next)
 
-def Laws.ferry_pause_composes(first, second, mode, cursor):
-  split_budget(~Ferry.Stage,~U32,~Study.Model,~E.Hooks{Ferry.world(),Study.act,Study.learn},first,second,mode,cursor)
+def Laws.pause_composes(S,O,M,hooks,first,second,mode,cursor):
+  split_budget(~S,~O,~M,~hooks,first,second,mode,cursor)
 
 def Laws.planning_preserves_observed_experience(budget, values, experience, pairs, seed, alpha, gamma):
   match budget:
