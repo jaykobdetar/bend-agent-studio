@@ -97,6 +97,22 @@ test('fit uses only logged training rows, independently checks held-out data and
   assert.equal(body('fqi').sum,-60);assert.equal(body('fqi').unsupported,12);
   assert.equal(body('supported').sum,-20);assert.equal(body('supported').normalized,-2);
   assert.equal(body('supported').ess,12);
+  assert.equal(body('fqi').coverage_complete,false);assert.equal(body('fqi').doubly_robust,null);
+  assert.equal(body('supported').exact_value,-2);
+  for(const k of ['pdis','weighted_pdis','fqe','doubly_robust'])assert.equal(body('supported')[k+'_error'],0);
   const bytes=fs.readFileSync(f('scores/scores.csv'),'utf8');
   await score();assert.equal(fs.readFileSync(f('scores/scores.csv'),'utf8'),bytes);
+});
+
+test('prefix weights, absorbing padding, held-out residuals and missing support',async()=>{
+  const {stepEstimates,fitQEvaluation}=await import('./ope.mjs'),act=()=>0;
+  const frame=(reward,end,action=0)=>({observation:1,legal:[0,1],action,preferred:0,propensityBuckets:32768,reward,terminal:end,truncated:false,nextObservation:1,nextLegal:end?[]:[0,1]});
+  const logs=[{frames:[frame(1,true)]},{frames:[frame(1,false),frame(3,true)]},{frames:[frame(0,false,1),frame(8,true)]}];
+  const q=fitQEvaluation([{frames:[frame(8,true,1)]}],act);
+  const x=stepEstimates(logs,act,65536,q);
+  assert.equal(x.fqe,0);assert.equal(x.pdis,16/3);assert.equal(x.weighted_pdis,3);assert.equal(x.doubly_robust,x.pdis);
+  const short=stepEstimates([{frames:[frame(0,true,1)]}],act,65536,q);
+  assert.equal(short.pdis,0);assert.equal(short.weighted_pdis,null);
+  const ignored=stepEstimates([{frames:[{...frame(1,true,1),preferred:1}]}],act,0,q);
+  assert.equal(ignored.doubly_robust,null);
 });

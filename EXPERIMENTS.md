@@ -5,7 +5,7 @@ The simulation, policy, learning updates, and action-by-action replay run in Ben
 ## Rules for experiments
 
 1. The world owns private simulation state. Its public view contains an observation and legal action IDs, or a terminal observation.
-2. The engine checks legality before calling the world transition or the learner. A rejected action preserves the model, score, and accepted-step count and ends the episode.
+2. The engine checks legality before calling the world transition or the learner. The rejection law on the engine’s decision path proves that an invalid action preserves the model, score, and accepted-step count, produces no transition, and ends the episode.
 3. Every accepted training move generates exactly one public transition. A learner may use that transition for a TD update, planning, or a deferred episode-return update. Evaluation freezes the model.
 4. An episode has a declared horizon. Natural termination takes precedence at the horizon. An open next state at the limit carries a truncation flag. A scheduler pause retains the live cursor and the original horizon.
 5. All randomness is seeded. Policy and world draws are domain-separated, and paired arms receive matching episode seed blocks. Training, validation, test, and declared follow-up assessment blocks must be disjoint within their design.
@@ -14,7 +14,13 @@ The simulation, policy, learning updates, and action-by-action replay run in Ben
 8. A comparison declares its budget unit, metrics, replicate blocks, and evaluation conditions. Frozen evaluation decisions, saved weights, code fingerprints, and seed blocks remain traceable to their checkpoint. Hyperparameter selection uses validation. A confirmatory comparison retrains on fresh seeds.
 9. Offline fitting reads only the fit partition. Logging records the behavior probability of every taken action. The held-out log and fresh-simulator score have distinct seeds. Unsupported actions are explicitly reported.
 
-The project defines 26 propositions in `LAWS.bend` and `PROOF.bend`. They include update and rejection semantics, report accounting, untouched Double Q estimators, feature-tree read after write, public-history preservation, Dyna experience preservation, terminal critic targets and the exclusion of unsupported actions from restricted backups, and the two-seat payoff and terminal bootstrap rules. The observer and split-budget propositions instantiate generic proofs on the ferry world. Seed allocation, checkpoint storage, data partition separation and statistical procedures are enforced and tested by the host software.
+The project defines 41 propositions in `LAWS.bend` and `PROOF.bend`. They also cover feature-tree readback, logged-support restrictions, terminal critic and bootstrap targets, and two-seat payoff rules. The engine applies the learner once per training transition and preserves the model during evaluation. The whole-rollout counting-learner laws prove evaluation freezes the counter and training changes it by exactly the accepted-step delta; the proof preserves the signed difference from an arbitrary starting counter. Updating one Double Q table preserves the other. With a nonempty legal-action list, Double Q selects the bootstrap action with the table being updated and values it with the other table. Dyna planning preserves recorded experience. Completing a Monte Carlo self-play episode clears its buffered decisions, not the learned table. On the engine’s actual decision path, rejecting an illegal action preserves model, score and accepted steps, produces no transition and ends the episode. Only an open view at zero remaining fuel is truncated; positive fuel never causes truncation. Each report increases the episode count by one, including illegal exits. From any starting run, the final step count is at most the initial count plus available fuel. The history wrapper preserves legal actions and rewards. At each reset it restores the configured memory and seeds the underlying world anew. For any typed world and agent hooks, observing decisions preserves the final report, and splitting an interaction budget gives the same cursor as advancing once, including model, seed and remaining horizon. These laws cover both training and evaluation. Completing a fresh cursor yields exactly the ordinary episode report for all worlds and policies, including the model, score, steps and stop reason.
+
+The addressed observation/action key reads back the revised F32 value and its incremented U32 visit count. All other keys preserve both reads, even when a key was absent or input entries are not unique.
+
+Zero exploration buckets always select the preferred action, as does every masked 16-bit draw at or above the threshold. The base action is computed in evaluation mode with word zero. The propensity formula is separately tested across all 65,536 draws.
+
+Seed allocation, checkpoint storage, data partition separation and statistical procedures are enforced and tested by the host software.
 
 ## First run
 
@@ -94,6 +100,8 @@ Choose `budgetUnit` as `episodes` or `steps`. Checkpoints start at zero and incr
 Validation evaluates a frozen model at every checkpoint. The test block is used at the final checkpoint. Use `testEpisodes: 0` for screening. The engine counts terminal, limited, and illegal outcomes separately. Interpret these outcomes using the game's rules. For example, reaching the Mountain Car goal is terminal, while a successful 500-step CartPole episode ends at the limit.
 
 ## Resume, reproduce, and inspect
+
+The runner still archives a JavaScript backend. See the [native runtime evaluation](tools/native-spike/README.md) for the tested plan boundaries and why native execution is not a supported replay option.
 
 ```sh
 node experiment.mjs run experiments/planning-budget.json runs/planning --until 256
@@ -204,3 +212,69 @@ node world_campaign.mjs --bend bend --seed 30000 --worlds 4 --episodes 128 --bat
 ```
 
 The independent verdict needs a matching BendTT kernel available to Bend. The randomized campaign compiles newly generated games and compares boundary transitions, episode reports, and paused execution with an independent simulator. Its output lists the seed and source fingerprints so a failing batch can be repeated.
+
+### Parallel trials on one machine
+
+Add `--jobs 4` to `node experiment.mjs run PLAN OUT` to compile once and
+distribute independent trials to up to four archived Node workers. Each owns
+an ordinary disjoint shard; checkpoint contents and seeds are unchanged.
+Choose 1–32 workers, allowing for a model and backend in memory per worker.
+Use `--until N` to stop at a declared checkpoint. Resume without Bend with
+`node OUT/code/experiment.mjs resume OUT --jobs 4`. The worker count may
+change on resume. Do not combine this option with an explicit `--shard`.
+A failed worker stops its peers; resume from the last published checkpoints.
+Use `node OUT/code/experiment.mjs verify OUT` after completion.
+
+### Discounted full-state planning
+
+Run `node experiment.mjs oracle worlds/detour.json --discount 0.95 --tolerance 1e-9`.
+This returns two independent planning results: value iteration, and policy iteration
+with iterative policy evaluation. Both see the underlying state, even when the
+agent's observations do not distinguish states. Rewards on entering a terminal
+state count; its continuation value is zero. With discount below 1 the stopping
+residual is at most tolerance × (1 − discount), before floating-point roundoff.
+An iteration limit raises an error rather than returning an unconverged estimate.
+
+Discount 1 is supported only for acyclic positive-probability transition graphs,
+where exact backward propagation terminates. Merely having a goal is insufficient:
+Detour permits circling, and even an almost-surely terminating stochastic loop is
+outside this conservative undiscounted solver. Choose a discount below 1 or use
+the original finite-horizon oracle for such worlds.
+
+### Export a finite world for another solver
+
+`node tools/export_pomdp.mjs worlds/bridge.json bridge.pomdp --discount 0.95 --illegal-penalty -1000000`
+writes a new [Cassandra file](https://www.pomdp.org/code/pomdp-file-spec.html)
+without replacing existing files. Transitions use the Bend U32 buckets; observations
+are one-hot functions of the resulting state. Terminal states absorb with zero
+future reward. Globally available but locally illegal actions pay the chosen
+penalty once and enter a distinct absorbing sink. Select a penalty below the value
+of legal continuations; this is not a hard legality constraint.
+
+This exports expected reward, not the complete interaction history: outcomes
+with the same next state use their conditional mean reward. Solvers do not
+automatically see Bend's public legal list, sampled reward, or reset observation
+before choosing their first action. Results can therefore differ for partially
+observable games. For a deterministic initial state and fully observable model,
+`python tools/check_pomdp_lp.py bridge.pomdp` optionally checks the discounted
+value using SciPy's HiGHS linear-program solver, independent of the JS oracle.
+
+### Off-policy score columns
+
+The estimand is the undiscounted finite-episode value of the frozen target
+policy. `pdis` weights each reward by the target/logging likelihood ratio
+through that decision. `weighted_pdis` normalizes separately at each time;
+early terminal episodes contribute zero rewards and keep their final weight
+in later denominators. `fqe` estimates time-indexed observation/legal-list/action
+values by backward empirical means on **fit**, following the target action,
+not the maximizing action. Unseen cells default to zero. `doubly_robust`
+starts from the fitted initial prediction and applies prefix-weighted residual
+corrections on **holdout**. FQE can extrapolate badly under poor support or
+aliased observations. Self-normalized estimators need not be unbiased.
+
+For authored finite worlds `exact_value` uses the independent policy oracle
+and `coverage_complete` checks the archived logger across target paths.
+Each `*_error` is estimate minus exact value. Missing coverage blanks IS
+and doubly robust estimates, not FQE; a zero normalization denominator also
+gives a blank. Unknown global support on other worlds is not evidence of
+coverage. Compare errors across independent dataset replicates, not frames.
