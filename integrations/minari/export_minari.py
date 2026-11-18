@@ -136,11 +136,30 @@ def export(source, output, split="fit", dataset_id="bend-logged-v0", node="node"
                 require(saved.actions.tolist() == [f["action"] for f in ep["frames"]], "reloaded actions differ")
                 require(saved.terminations.tolist() == [f["terminal"] for f in ep["frames"]], "reloaded terminations differ")
                 require(saved.truncations.tolist() == [f["truncated"] for f in ep["frames"]], "reloaded truncations differ")
-            shutil.copytree(snapshot, output / "source")
+            retained = output / "source"
+            retained.mkdir()
+            # Preserve original seals without rewriting their contents or
+            # including raw episodes from an unselected split.
+            for name in ("design.json", "dataset.json"):
+                shutil.copyfile(snapshot / name, retained / name)
+            included_partitions, omitted_partitions = [], []
+            for part in index["body"]["parts"]:
+                name = f'{part["split"]}/{part["rep"]}.jsonl'
+                entry = {"file": name, "hash": part["hash"]}
+                if split == "all" or part["split"] == split:
+                    (retained / part["split"]).mkdir(exist_ok=True)
+                    shutil.copyfile(snapshot / name, retained / name)
+                    included_partitions.append(entry)
+                else:
+                    omitted_partitions.append(entry)
             info = {"schema": 1, "dataset_id": dataset_id, "split": split, "observation_codec": codec,
                     "source_design_hash": design["hash"], "source_dataset_hash": index["hash"],
                     "episodes": provenance, "total_episodes": reloaded.total_episodes, "total_steps": reloaded.total_steps,
-                    "format": "hdf5", "source_retention": "byte-for-byte verified full source collection",
+                    "format": "hdf5",
+                    "source_retention": ("byte-for-byte verified full source collection" if split == "all"
+                                         else "original seals plus byte-for-byte selected partitions only"),
+                    "included_source_partitions": included_partitions,
+                    "omitted_source_partitions": omitted_partitions,
                     "versions": {"minari": minari.__version__, "gymnasium": gym.__version__, "numpy": np.__version__}}
             (output / "provenance.json").write_text(json.dumps(info, indent=2) + "\n")
             return info

@@ -110,3 +110,5 @@ Custom learners may export `finish(model: Model, reason: E.Stop) -> Model` to fl
 For many-arm comparisons against one reference, [Holm-adjusted paired sign tests](EXPERIMENTS.md#multiple-arms-versus-one-reference) are opt-in; default mean intervals remain pointwise.
 
 [Two-pile Nim](docs/two-pile-nim.md) is a small CLI self-play arena with an independently checked optimal policy and exact exploitability comparisons.
+
+An optional [local Minari exporter](integrations/minari/README.md) converts collected trajectories to a reload-verified HDF5 dataset. It does not register or upload data.

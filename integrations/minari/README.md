@@ -10,9 +10,9 @@ Use a new virtual environment, not the system interpreter:
 
 ```sh
 python3 -m venv /tmp/bend-minari-venv
-/tmp/bend-minari-venv/bin/python -m pip install -r integration/minari/requirements-lock.txt
-/tmp/bend-minari-venv/bin/python integration/minari/export_minari.py COLLECTION NEW_OUTPUT --split fit --node /path/to/node
-NODE=/path/to/node /tmp/bend-minari-venv/bin/python -m unittest discover -s integration/minari -v
+/tmp/bend-minari-venv/bin/python -m pip install -r integrations/minari/requirements-lock.txt
+/tmp/bend-minari-venv/bin/python integrations/minari/export_minari.py COLLECTION NEW_OUTPUT --split fit --node /path/to/node
+NODE=/path/to/node /tmp/bend-minari-venv/bin/python -m unittest discover -s integrations/minari -v
 ```
 
 Node is required for the repository's own canonical seal/checksum and trajectory
@@ -22,9 +22,19 @@ The direct requirements and the exact tested transitive lock are both included.
 Pillow is needed by Minari's HDF5 backend even without image observations.
 
 `--split fit` is the default; `holdout` and explicit `all` are available.
-All original partitions, seals and logging masks/propensities are retained
-byte-for-byte under `NEW_OUTPUT/source`. Keep that directory when sharing a
-dataset, since those fields do not fit Minari's standard transition arrays.
+Only selected partition rows and their logging masks/propensities are retained
+byte-for-byte under `NEW_OUTPUT/source`: default `fit` excludes all holdout raw
+rows, and `holdout` excludes all fit raw rows. `--split all` retains the complete
+byte-exact collection. The original sealed `design.json` and `dataset.json`
+are always retained unchanged, including lineage hashes for omitted partitions.
+For a single-split export this is deliberately an incomplete source collection,
+not a standalone collection that `batch.mjs verify` can reopen. Do not infer
+that the omitted data is included just because its sealed index entry remains.
+`included_source_partitions` and `omitted_source_partitions` in
+`provenance.json` make the retention explicit. Keep the retained source directory
+when sharing a dataset, since legal masks and propensities do not fit Minari's
+standard transition arrays. Verification reads both source splits in a temporary
+snapshot, but unselected raw rows are never copied into the delivered export.
 The selected episode order follows the sealed partition index then line order.
 `provenance.json` maps Minari episode order to split, replicate, source line,
 seed, return, stop reason, checkpoint and partition hash. Source hashes identify
@@ -74,7 +84,7 @@ missing simulator and author fields; these are deliberate, not missing uploads.
 
 The fixture is real collection output: 24 Cliff episodes, 375 transitions.
 Tests load actual Minari data and compare every observation/action/reward/stop
-flag, returns and counts, plus corruption, no-overwrite, full-width action,
+flag, returns and counts, selected-split isolation, plus corruption, no-overwrite, full-width action,
 structured observation, illegal, zero-transition and F32-rounding edge cases.
 
 Official API reference:

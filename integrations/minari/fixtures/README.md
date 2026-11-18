@@ -8,5 +8,5 @@ There are 24 episodes and 375 accepted transitions across fit/holdout.
 The source run/backend/checkpoint hashes remain sealed in the collection.
 They identify provenance, not a bundled runnable source environment.
 Recreate by running that plan, then:
-`node batch.mjs collect RUN integration/minari/fixtures/collection.json OUT`.
+`node batch.mjs collect RUN integrations/minari/fixtures/collection.json OUT`.
 Source code changes can legitimately change archived hashes.

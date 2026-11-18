@@ -21,6 +21,8 @@ class ExportTests(unittest.TestCase):
             info = export(HERE / "fixtures/cliff", out, "all", node=NODE)
             self.assertEqual(info["total_episodes"], 24)
             self.assertEqual(info["total_steps"], 375)
+            self.assertEqual(info["omitted_source_partitions"], [])
+            self.assertEqual(len(info["included_source_partitions"]), 8)
             old = os.environ.get("MINARI_DATASETS_PATH")
             try:
                 os.environ["MINARI_DATASETS_PATH"] = str(out / "datasets")
@@ -44,6 +46,27 @@ class ExportTests(unittest.TestCase):
             finally:
                 if old is None: os.environ.pop("MINARI_DATASETS_PATH", None)
                 else: os.environ["MINARI_DATASETS_PATH"] = old
+
+    def test_selected_split_retains_no_other_split_raw_rows(self):
+        for split, excluded, count in [("fit", "holdout", 16), ("holdout", "fit", 8)]:
+            with self.subTest(split=split), tempfile.TemporaryDirectory() as tmp:
+                out = Path(tmp) / "export"
+                # Exercise the default fit path as well as explicit holdout.
+                args = {} if split == "fit" else {"split": split}
+                info = export(HERE / "fixtures/cliff", out, node=NODE, **args)
+                self.assertEqual(info["total_episodes"], count)
+                self.assertEqual({e["split"] for e in info["episodes"]}, {split})
+                self.assertFalse((out / "source" / excluded).exists())
+                retained = {p.relative_to(out / "source").as_posix()
+                            for p in (out / "source").rglob("*.jsonl")}
+                expected = {f"{split}/{i}.jsonl" for i in range(4)}
+                self.assertEqual(retained, expected)
+                self.assertEqual({p["file"] for p in info["included_source_partitions"]}, expected)
+                self.assertEqual({p["file"] for p in info["omitted_source_partitions"]},
+                                 {f"{excluded}/{i}.jsonl" for i in range(4)})
+                for name in ["design.json", "dataset.json", *sorted(expected)]:
+                    self.assertEqual((out / "source" / name).read_bytes(),
+                                     (HERE / "fixtures/cliff" / name).read_bytes())
 
     def test_invalid_checksum_and_path_never_create_output(self):
         with tempfile.TemporaryDirectory() as tmp:

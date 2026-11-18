@@ -252,7 +252,7 @@ Acceptance: covered by `studio/studio_checks.mjs`, including a damaged run in th
 
 Update this table in the same PR as each item.
 
-**What remains.** Optional Minari/MLflow exports and the remaining Phase 7 items are tracked below. Phase 5 learners now ship with their own laws. Packed finite-world code generation enables bounded, compiled Taxi and Blackjack studies; [the measurements](tools/finite-layout/README.md) distinguish completed candidate runs from memory-censored baseline runs. Keep JavaScript as the production backend (T2.3).
+**What remains.** The optional Minari export is available. MLflow and the remaining Phase 7 items are tracked below. Phase 5 learners now ship with their own laws. Packed finite-world code generation enables bounded, compiled Taxi and Blackjack studies; [the measurements](tools/finite-layout/README.md) distinguish completed candidate runs from memory-censored baseline runs. Keep JavaScript as the production backend (T2.3).
 
 | ID | Status | PR |
 | --- | --- | --- |
@@ -280,7 +280,7 @@ Update this table in the same PR as each item.
 | S4.1 | Implemented: discounted value and policy iteration; discount 1 restricted to acyclic worlds | [#19](https://github.com/jaykobdetar/bend-agent-studio/pull/19) |
 | S4.2 | Implemented: Cassandra export; independent LP value checks on fully observable examples | [#20](https://github.com/jaykobdetar/bend-agent-studio/pull/20) |
 | S4.3 | Implemented: additional off-policy estimators, exact finite-world scoring and dispatch diagnostics | [#21](https://github.com/jaykobdetar/bend-agent-studio/pull/21) |
-| S4.4 | Not started; optional Minari export | |
+| S4.4 | Implemented: verified local Minari HDF5 export with split isolation | [Guide and limits](integrations/minari/README.md) |
 | A5.0 | Implemented: optional train-only episode completion hook and exactly-once laws | |
 | A5.1 | Implemented: sampled SARSA(0), finish integration and three buffer laws | [Notes](docs/sarsa.md) |
 | A5.2 | Implemented: bounded n-step expected TD and three flush laws | [Notes](docs/n-step.md) |

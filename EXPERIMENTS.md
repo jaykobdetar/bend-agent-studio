@@ -371,3 +371,5 @@ family before inspecting results. Without the option CSV output is unchanged.
 For a small two-player perfect-information game, run the [two-pile Nim study](experiments/two-pile-nim.json) and [exhaustive graph and exploitability checks](docs/two-pile-nim.md).
 
 Larger finite worlds can use a packed compiled representation. [Taxi and Blackjack measurement details](tools/finite-layout/README.md) cover compiler memory, exhaustive transition probes, bounded learning studies and archived reruns; the old full-size baseline did not complete under the same memory cap.
+
+[Export a collected dataset to local Minari/HDF5](integrations/minari/README.md). Select fit or holdout explicitly for separate artifacts, or all for a complete copy. The exporter preserves observations, actions, stop flags and rewards, verifies the result by loading it, and refuses unsupported lossless conversions.

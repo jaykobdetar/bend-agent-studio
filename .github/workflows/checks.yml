@@ -60,6 +60,11 @@ jobs:
           python3 -m venv "$RUNNER_TEMP/bend-gym-env"
           "$RUNNER_TEMP/bend-gym-env/bin/pip" install -r requirements.txt
           "$RUNNER_TEMP/bend-gym-env/bin/python" -m unittest -v
+      - name: Verify optional local Minari HDF5 export
+        run: |
+          python3 -m venv "$RUNNER_TEMP/bend-minari-env"
+          "$RUNNER_TEMP/bend-minari-env/bin/pip" install -r integrations/minari/requirements-lock.txt
+          "$RUNNER_TEMP/bend-minari-env/bin/python" -m unittest discover -s integrations/minari -v
       - name: Run Bend checks
         run: |
           bend checks.bend
