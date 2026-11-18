@@ -216,3 +216,21 @@ where exact backward propagation terminates. Merely having a goal is insufficien
 Detour permits circling, and even an almost-surely terminating stochastic loop is
 outside this conservative undiscounted solver. Choose a discount below 1 or use
 the original finite-horizon oracle for such worlds.
+
+### Export a finite world for another solver
+
+`node tools/export_pomdp.mjs worlds/bridge.json bridge.pomdp --discount 0.95 --illegal-penalty -1000000`
+writes a new [Cassandra file](https://www.pomdp.org/code/pomdp-file-spec.html)
+without replacing existing files. Transitions use the Bend U32 buckets; observations
+are one-hot functions of the resulting state. Terminal states absorb with zero
+future reward. Globally available but locally illegal actions pay the chosen
+penalty once and enter a distinct absorbing sink. Select a penalty below the value
+of legal continuations; this is not a hard legality constraint.
+
+This exports expected reward, not the complete interaction history: outcomes
+with the same next state use their conditional mean reward. Solvers do not
+automatically see Bend's public legal list, sampled reward, or reset observation
+before choosing their first action. Results can therefore differ for partially
+observable games. For a deterministic initial state and fully observable model,
+`python tools/check_pomdp_lp.py bridge.pomdp` optionally checks the discounted
+value using SciPy's HiGHS linear-program solver, independent of the JS oracle.

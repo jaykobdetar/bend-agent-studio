@@ -60,3 +60,12 @@ for(const g of [0,.5,.99]){
     assert.ok(Math.abs(solver.optimalFullStateReturn-1/(1-g/2))<1e-10);
 }
 assert.throws(()=>discountedOracle(geometric,1),/acyclic/);
+
+const {exportPomdp}=await import('./tools/export_pomdp.mjs');
+const bridgeInput=JSON.parse(fs.readFileSync(new URL('./worlds/bridge.json',import.meta.url)));
+const file=exportPomdp(bridgeInput,{illegalPenalty:-42});
+assert.equal(file,exportPomdp(bridgeInput,{illegalPenalty:-42}));
+assert.match(file,/T: a9 : s0 : sink 1\nR: a9 : s0 : sink : \* -42/);
+assert.match(file,/T: a7 : s3 : s3 1/);
+assert.match(file,/O: \* : s2 : o2 1/);
+assert.throws(()=>exportPomdp(bridgeInput,{illegalPenalty:Infinity}),/penalty/);
