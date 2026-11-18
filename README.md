@@ -23,6 +23,8 @@ For training, install [Bend 2.0.40](https://github.com/bendlang/bend/releases/ta
 | Cliff Walk | A fall costs 100 reward and returns the walker to the start. | Q-learning, Expected SARSA, Dyna-Q, random |
 | Tic-Tac-Toe | A policy plays both seats on the same physical board. | Negamax Q-learning, Expected TD, Monte Carlo, random |
 
+Two more discrete learners are available through CLI experiment plans: [sampled SARSA(0)](docs/sarsa.md) and [n-step expected TD](docs/n-step.md).
+
 1. **Watch an example.** Choose a world and press **Play**. Use the timeline, step buttons, or speed selector to inspect the episode. Telemetry follows the selected step.
 2. **Train an agent.** Pick a learning algorithm, episode budget, and seed. Select **Train agent**. When training finishes, the simulator opens a held-out test episode. To stop early, open **Experiments** and choose **Cancel training** on that run.
 3. **Inspect a checkpoint.** In **Experiments**, choose **Open replay**. Select a checkpoint, replicate, evaluation split, and episode. Validation is available at intermediate checkpoints. Test episodes use the final checkpoint.
@@ -65,7 +67,7 @@ Start with [worlds/bridge.json](worlds/bridge.json) for a finite game, [worlds/i
 
 ## Formal Properties
 
-The project declares 46 laws. Their statements and proofs are in [LAWS.bend](LAWS.bend) and [PROOF.bend](PROOF.bend).
+The core declares 46 laws. The [SARSA](sarsa_laws.bend) and [n-step](n_step_laws.bend) modules add three learner laws each. Their statements and proofs are in [LAWS.bend](LAWS.bend) and [PROOF.bend](PROOF.bend).
 
 - **Learning.** The engine applies the learner once per training transition and preserves the model during evaluation. The whole-rollout counting-learner laws prove evaluation freezes the counter and training changes it by exactly the accepted-step delta; the proof preserves the signed difference from an arbitrary starting counter. Updating one Double Q table preserves the other. With a nonempty legal-action list, Double Q selects the bootstrap action with the table being updated and values it with the other table. Dyna planning preserves recorded experience. Completing a Monte Carlo self-play episode clears its buffered decisions, not the learned table.
 - **Episode completion.** A training report applies the optional finish callback once, without changing its score, step count or reason. Evaluation skips it; reading a completed segment again cannot apply it twice.
