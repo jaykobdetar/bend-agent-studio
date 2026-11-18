@@ -114,17 +114,17 @@ def read_rows(filename):
     return rows
 
 
-def analyze(rows, phase, metric, reference, draws):
+def study_groups(rows, phase, metric):
     grouped = defaultdict(dict)
     for row in rows:
         if not row[phase + "_episodes"] or (int(row[phase + "_episodes"]) == 0 and not (phase == "train" and metric == "reward_per_step" and int(row.get("partial_steps",0)))):
             continue
         key = row["game"], budget(row), row["arm"]
         grouped[key][int(row["replicate"])] = measure(row, phase, metric)
-    summarize(grouped, phase, metric, reference, draws)
+    return grouped
 
 
-def analyze_deployment(rows, metric, reference, draws):
+def deployment_groups(rows, metric):
     """Pair deployed policies on the same target, seeds, and episode count."""
     grouped = defaultdict(dict)
     blocks = {}
@@ -155,7 +155,16 @@ def analyze_deployment(rows, metric, reference, draws):
         rep_sets = [set(grouped[game, "deployed", a]) for a in arms]
         if any(s != rep_sets[0] for s in rep_sets):
             raise ValueError("missing paired deployment replicates")
-    summarize(grouped, "deployment", metric, reference, draws)
+    return grouped
+
+
+# Keep the original callable interface as well as the default CLI/CSV contract.
+def analyze(rows, phase, metric, reference, draws):
+    summarize(study_groups(rows, phase, metric), phase, metric, reference, draws)
+
+
+def analyze_deployment(rows, metric, reference, draws):
+    summarize(deployment_groups(rows, metric), "deployment", metric, reference, draws)
 
 
 def summarize(grouped, phase, metric, reference, draws):
@@ -185,7 +194,19 @@ def main():
     parser.add_argument("--metric", choices=["return","steps","completion","timeout","illegal","reward_per_step"], default="return")
     parser.add_argument("--reference", help="estimate paired arm-minus-reference differences")
     parser.add_argument("--draws", type=int, default=2000)
+    parser.add_argument("--aggregate", choices=["iqm", "probability-of-improvement", "profile"],
+                        help="opt in to fixed-suite statistics instead of per-game means")
+    parser.add_argument("--direction", choices=["higher", "lower"],
+                        help="which changes count as improvements (required for ambiguous endpoints)")
+    scale = parser.add_mutually_exclusive_group()
+    scale.add_argument("--comparable", action="store_true", help="raw scores have comparable units across games")
+    scale.add_argument("--anchors", help="JSON mapping every game to [bad,good], fixed before evaluation")
+    parser.add_argument("--threshold", type=float, help="strict score threshold for the profile statistic")
+    parser.add_argument("--blocks", choices=["within-game", "across-games"],
+                        help="resample IDs per fixed game (default), or share ID draws across games")
     args = parser.parse_args()
+    if not args.aggregate and any([args.direction, args.comparable, args.anchors, args.threshold is not None, args.blocks]):
+        parser.error("aggregate-only option requires --aggregate")
     if args.draws < 100:
         parser.error("supply at least 100 bootstrap draws")
     rows = read_csv(args.csv)
@@ -194,9 +215,24 @@ def main():
     if "source_checkpoint" in rows[0] or "holdout_episodes" in rows[0]:
         if args.phase:
             parser.error("deployment scores have a single evaluation phase")
-        analyze_deployment(rows, args.metric, args.reference, args.draws)
+        phase = "deployment"
+        groups = deployment_groups(rows, args.metric)
+        games = {r.get("target", r.get("game")) for r in rows}
+        unit = "deployment"
     else:
-        analyze(read_rows(args.csv), args.phase or "test", args.metric, args.reference, args.draws)
+        phase = args.phase or "test"
+        rows = read_rows(args.csv)
+        groups = study_groups(rows, phase, args.metric)
+        games = {r["game"] for r in rows}
+        units = {r.get("budget_unit", "episodes") for r in rows} if args.aggregate else set()
+        if args.aggregate and (len(units) != 1 or not units <= {"episodes", "steps"}):
+            parser.error("suite requires a single known budget unit")
+        unit = next(iter(units), None)
+    if args.aggregate:
+        from suite_stats import aggregate_csv
+        aggregate_csv(groups, games, phase, unit, args)
+    else:
+        summarize(groups, phase, args.metric, args.reference, args.draws)
 
 
 if __name__ == "__main__":

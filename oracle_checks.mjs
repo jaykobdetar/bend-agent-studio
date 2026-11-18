@@ -39,6 +39,28 @@ assert.equal(policyOracle(switches,2,()=>0).expectedReturn,0);
 assert.equal(policyOracle(switches,2,()=>1).expectedReturn,0);
 console.log('Public-history planning, decision auditing and importance-weight moments passed.');
 
+const {discountedOracle,oracle}=await import('./finite_world.mjs');
+const bridge=load('bridge'),detour=load('detour');
+for(const solution of ['valueIteration','policyIteration']){
+  assert.equal(discountedOracle(bridge,1)[solution].optimalFullStateReturn,oracle(bridge,100).optimalFullStateReturn);
+  const g=.95,steps=10;
+  // Nine ordinary step costs, then the terminal reward on step ten.
+  const expected=-(1-g**(steps-1))/(1-g)+8*g**(steps-1);
+  assert.ok(Math.abs(discountedOracle(detour,g)[solution].optimalFullStateReturn-expected)<1e-8);
+}
+assert.throws(()=>discountedOracle(detour,1),/acyclic/);
+assert.throws(()=>discountedOracle(bridge,.9,0),/tolerance/);
+assert.ok(Math.abs(oracle(detour,100,.95).optimalFullStateReturn-discountedOracle(detour,.95).valueIteration.optimalFullStateReturn)<1e-9);
+const geometric=worldDefinition({schema:1,initial:[{to:0,weight:1}],states:[
+  {id:0,actions:[{id:4,outcomes:[{to:0,reward:1,weight:1},{to:1,reward:1,weight:1}]}]}, {id:1,actions:[]}
+]});
+for(const g of [0,.5,.99]){
+  const result=discountedOracle(geometric,g,1e-10);
+  for(const solver of [result.policyIteration,result.valueIteration])
+    assert.ok(Math.abs(solver.optimalFullStateReturn-1/(1-g/2))<1e-10);
+}
+assert.throws(()=>discountedOracle(geometric,1),/acyclic/);
+
 const {exportPomdp}=await import('./tools/export_pomdp.mjs');
 const bridgeInput=JSON.parse(fs.readFileSync(new URL('./worlds/bridge.json',import.meta.url)));
 const file=exportPomdp(bridgeInput,{illegalPenalty:-42});
