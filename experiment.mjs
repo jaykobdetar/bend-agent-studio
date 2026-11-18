@@ -583,6 +583,7 @@ async function main(argv) {
   }
   if (cmd==='rerun' && arg && rest.length>=1) return report(await rerun(path.resolve(arg),path.resolve(rest[0]),rest.slice(1)));
   if (cmd==='select'&&arg&&rest.length===2) return selectStudy(path.resolve(arg),rest[0],path.resolve(rest[1]));
+  if (cmd==='report'&&arg&&rest.length===1) return (await import('./html_report.mjs')).writeReport(path.resolve(arg),path.resolve(rest[0]));
   if (cmd==='export'&&arg&&rest.length===0) return process.stdout.write(exportCsv(path.resolve(arg)));
   if ((cmd==='status'||cmd==='verify')&&arg&&rest.length===0) return console.log(JSON.stringify(status(path.resolve(arg),cmd==='verify')));
   if (cmd==='replay'&&arg&&rest.length===6) return process.stdout.write(numberPreservingJson(await replay(path.resolve(arg),...rest),2)+'\n');
