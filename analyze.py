@@ -167,12 +167,42 @@ def analyze_deployment(rows, metric, reference, draws):
     summarize(deployment_groups(rows, metric), "deployment", metric, reference, draws)
 
 
-def summarize(grouped, phase, metric, reference, draws):
+def sign_test(values):
+    """Exact two-sided conditional sign test of equally likely non-tie directions."""
+    pos = sum(v > 0 for v in values)
+    neg = sum(v < 0 for v in values)
+    n = pos + neg
+    if not n or abs(pos-neg) <= 1:
+        return n, 1.0
+    # Exact integer lower-tail sum; shared reference need not be independent
+    # across arms, but replicate pairs must be independent within an arm.
+    term = total = 1
+    for j in range(1, min(pos, neg)+1):
+        term = term * (n-j+1) // j
+        total += term
+    return n, max(math.ulp(0.0), min(1.0, (2*total) / (1 << n)))
+
+
+def holm(pvalues):
+    ordered = sorted(pvalues, key=pvalues.get)
+    adjusted, previous = {}, 0.0
+    for i, arm in enumerate(ordered):
+        previous = max(previous, min(1.0, (len(ordered)-i)*pvalues[arm]))
+        adjusted[arm] = previous
+    return adjusted
+
+
+def summarize(grouped, phase, metric, reference, draws, multiple=None):
     if not grouped:
         raise ValueError(f"no {phase} episodes in this experiment")
+    if multiple and (multiple != "holm-sign" or not reference):
+        raise ValueError("holm-sign requires a named reference")
+    families = defaultdict(dict)
+    records = []
     writer = csv.writer(sys.stdout, lineterminator="\n")
-    writer.writerow(["game", "budget", "arm", "reference", "phase", "metric",
-                     "replicates", "estimate", "ci_low", "ci_high", "replicate_sd"])
+    header = ["game", "budget", "arm", "reference", "phase", "metric",
+                     "replicates", "estimate", "ci_low", "ci_high", "replicate_sd"]
+    writer.writerow(header + (["family_size", "non_ties", "sign_p", "holm_sign_p"] if multiple else []))
     for (game, n, arm), block in sorted(grouped.items()):
         if reference and arm == reference:
             continue
@@ -183,8 +213,20 @@ def summarize(grouped, phase, metric, reference, draws):
                 raise ValueError(f"missing reference {reference} at {game}/{n}")
             values = [v - other[i] for i, v in sorted(block.items())]
         low, high = interval(values, draws, repr((game, n, arm, reference, phase, metric)))
-        writer.writerow([game, n, arm, reference or "", phase, metric, len(values),
-                         statistics.fmean(values), low, high, statistics.stdev(values) if len(values)>1 else ""])
+        result = [game, n, arm, reference or "", phase, metric, len(values),
+                         statistics.fmean(values), low, high, statistics.stdev(values) if len(values)>1 else ""]
+        if not multiple:
+            writer.writerow(result)
+            continue
+        non_ties, raw = sign_test(values)
+        families[game, n][arm] = raw
+        records.append((game, n, arm, result, non_ties, raw))
+    if multiple:
+        if not records:
+            raise ValueError("no non-reference arms to compare")
+        adjusted = {key: holm(ps) for key, ps in families.items()}
+        for game, n, arm, result, non_ties, raw in records:
+            writer.writerow(result + [len(families[game,n]), non_ties, raw, adjusted[game,n][arm]])
 
 
 def main():
@@ -204,7 +246,10 @@ def main():
     parser.add_argument("--threshold", type=float, help="strict score threshold for the profile statistic")
     parser.add_argument("--blocks", choices=["within-game", "across-games"],
                         help="resample IDs per fixed game (default), or share ID draws across games")
+    parser.add_argument("--multiple", choices=["holm-sign"], help="Holm-adjusted paired direction tests per game/budget; requires --reference")
     args = parser.parse_args()
+    if args.multiple and (args.aggregate or not args.reference):
+        parser.error("--multiple requires --reference and is not a suite aggregate")
     if not args.aggregate and any([args.direction, args.comparable, args.anchors, args.threshold is not None, args.blocks]):
         parser.error("aggregate-only option requires --aggregate")
     if args.draws < 100:
@@ -232,7 +277,7 @@ def main():
         from suite_stats import aggregate_csv
         aggregate_csv(groups, games, phase, unit, args)
     else:
-        summarize(groups, phase, args.metric, args.reference, args.draws)
+        summarize(groups, phase, args.metric, args.reference, args.draws, args.multiple)
 
 
 if __name__ == "__main__":

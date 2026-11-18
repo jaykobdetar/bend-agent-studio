@@ -350,3 +350,20 @@ The [TD(λ) study](experiments/cliff-td-lambda.json) compares tabular and sparse
 The [sparse linear study](experiments/cliff-linear.json) compares a typed authored feature map with tabular Q-learning. The [feature API and results](docs/linear.md) document duplicate coefficients, signed weights and the untuned baseline’s limitations.
 
 The [tiny clipped policy-gradient plan](experiments/clipped-pg-orchard.json) demonstrates frozen behavior probabilities across a multi-episode batch. See the [objective, limits, and replay notes](docs/clipped-policy-gradient.md).
+
+### Multiple arms versus one reference
+
+Use `python analyze.py results.csv --phase test --reference baseline --multiple holm-sign`
+for exact paired, two-sided **sign** tests followed by Holm's step-down
+adjustment. Each family contains all non-reference arms in **one game at one
+budget**, within the requested phase/metric. Reference sharing across arms
+is allowed. The replicate pairs within each comparison must be independent.
+The null is equal probabilities of positive and negative differences among
+non-ties. Ties are removed; no non-ties yields p=1. This is not a test of a
+zero **mean**: differences of mixed sizes can give a different conclusion.
+The leading CSV columns remain descriptive paired mean differences and their
+original **pointwise**, not simultaneous, bootstrap intervals. Added columns
+record family size, non-tie count, raw sign p and Holm-adjusted p. Compare
+the latter with your prespecified family alpha. No adjustment across games,
+checkpoints, metrics, phases, or repeated looks is implied. Preselect the
+family before inspecting results. Without the option CSV output is unchanged.
