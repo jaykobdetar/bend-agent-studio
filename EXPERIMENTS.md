@@ -5,7 +5,7 @@ The simulation, policy, learning updates, and action-by-action replay run in Ben
 ## Rules for experiments
 
 1. The world owns private simulation state. Its public view contains an observation and legal action IDs, or a terminal observation.
-2. The engine checks legality before calling the world transition or the learner. A rejected action preserves the model, score, and accepted-step count and ends the episode.
+2. The engine checks legality before calling the world transition or the learner. The rejection law on the engine’s decision path proves that an invalid action preserves the model, score, and accepted-step count, produces no transition, and ends the episode.
 3. Every accepted training move generates exactly one public transition. A learner may use that transition for a TD update, planning, or a deferred episode-return update. Evaluation freezes the model.
 4. An episode has a declared horizon. Natural termination takes precedence at the horizon. An open next state at the limit carries a truncation flag. A scheduler pause retains the live cursor and the original horizon.
 5. All randomness is seeded. Policy and world draws are domain-separated, and paired arms receive matching episode seed blocks. Training, validation, test, and declared follow-up assessment blocks must be disjoint within their design.
