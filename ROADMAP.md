@@ -257,7 +257,7 @@ Update this table in the same PR as each item.
 | P0.1 | In progress | |
 | P0.2 | In progress | |
 | P0.3 | Assigned | |
-| P0.4 | Assigned | |
+| P0.4 | Implemented; review pending | [Gymnasium finite-world adapter](https://github.com/jaykobdetar/bend-agent-studio/pulls?q=is%3Apr+head%3Afeat%2Fgymnasium-finite-worlds) |
 | L1–L12 | Not started | |
 | T2.1–T2.3 | Not started | |
 | B3.1–B3.2 | Not started | |

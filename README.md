@@ -2,6 +2,8 @@
 
 Train reinforcement-learning agents in Bend and watch how their decisions change. The local Studio opens with a playable episode. You can scrub through each move, inspect rewards, change learners, and keep a recording of a trained policy.
 
+A separate [Gymnasium adapter](integrations/gymnasium/README.md) lets Python agents play the same JSON finite and grid worlds without changing Studio or its dependencies.
+
 ## Start Studio
 
 Install Node.js 24 or newer, open a terminal in this directory, and run:
