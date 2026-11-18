@@ -234,3 +234,23 @@ before choosing their first action. Results can therefore differ for partially
 observable games. For a deterministic initial state and fully observable model,
 `python tools/check_pomdp_lp.py bridge.pomdp` optionally checks the discounted
 value using SciPy's HiGHS linear-program solver, independent of the JS oracle.
+
+### Off-policy score columns
+
+The estimand is the undiscounted finite-episode value of the frozen target
+policy. `pdis` weights each reward by the target/logging likelihood ratio
+through that decision. `weighted_pdis` normalizes separately at each time;
+early terminal episodes contribute zero rewards and keep their final weight
+in later denominators. `fqe` estimates time-indexed observation/legal-list/action
+values by backward empirical means on **fit**, following the target action,
+not the maximizing action. Unseen cells default to zero. `doubly_robust`
+starts from the fitted initial prediction and applies prefix-weighted residual
+corrections on **holdout**. FQE can extrapolate badly under poor support or
+aliased observations. Self-normalized estimators need not be unbiased.
+
+For authored finite worlds `exact_value` uses the independent policy oracle
+and `coverage_complete` checks the archived logger across target paths.
+Each `*_error` is estimate minus exact value. Missing coverage blanks IS
+and doubly robust estimates, not FQE; a zero normalization denominator also
+gives a blank. Unknown global support on other worlds is not evidence of
+coverage. Compare errors across independent dataset replicates, not frames.
