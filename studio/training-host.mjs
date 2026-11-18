@@ -43,7 +43,7 @@ if (!isMainThread) {
       fs.rmSync(scratch, { recursive: true, force: true });
       throw err;
     }
-    const current = { worker };
+    const current = { worker, dir };
     task = current;
     let failure;
     worker.on('error', err => { failure = err.message; });
@@ -91,8 +91,8 @@ if (!isMainThread) {
         try { return (await probe).stdout.trim(); }
         finally { probe = undefined; }
       case 'run': return start(dir);
-      case 'cancel': stop('cancelled'); return;
-      case 'interrupt': stop('interrupted'); return;
+      case 'cancel': if(task?.dir===dir) stop('cancelled'); return;
+      case 'interrupt': if(task?.dir===dir) stop('interrupted'); return;
       default: throw Error('Unknown training command.');
     }
   }

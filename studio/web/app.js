@@ -1,3 +1,4 @@
+import { comparisonUI } from './compare.js';
 import { actionName, boardStates, channels, cumulativeReturns, draw, gameName, observation, tickRate } from './scene.js';
 import { renderGif } from './exporter.js';
 import { deleteClip, listClips, saveClip } from './vault.js';
@@ -315,25 +316,27 @@ function empty(title, hint) {
   box.append(element('strong', title), element('span', hint));
   return box;
 }
+const refreshCompare = comparisonUI($('comparison'),api);
 function syncForm() {
-  const busy = state.submitting || state.runs.some((r) => r.status === 'training');
-  $('train-btn').disabled = !state.selected || busy;
-  $('train-btn').lastElementChild.textContent = busy ? 'Training…' : 'Train agent';
+  const busy = state.runs.some((r) => r.status === 'training' || r.status === 'queued');
+  $('train-btn').disabled = !state.selected || state.submitting;
+  $('train-btn').lastElementChild.textContent = state.submitting ? 'Submitting…' : busy ? 'Queue training' : 'Train agent';
   $('job-status').textContent =
     state.message ||
     (busy
-      ? 'Training in Bend. You can cancel this run in Experiments.'
+      ? 'One run trains at a time. Queued jobs can be cancelled in Experiments.'
       : state.selected
         ? 'New runs are saved in Experiments.'
         : 'Choose an environment to start a new run.');
 }
 function showRuns() {
+  refreshCompare(state.runs);
   const items = state.runs.map((run) => {
     const row = element('article', undefined, 'run-row'),
       info = element('div');
     info.append(element('strong', run.name));
     const description = [
-      run.status === 'ready' ? 'Ready' : run.status,
+      run.status === 'ready' ? 'Ready' : run.status === 'queued' ? 'Queued · position '+run.position : run.status,
       run.created ? new Date(run.created).toLocaleString() : 'Attached run'
     ];
     if (run.episodes) description.push(number(run.episodes) + ' episodes', 'seed ' + run.seed);
@@ -344,7 +347,7 @@ function showRuns() {
     if (run.error) info.append(element('p', run.error, 'meta'));
     row.append(info);
     if (run.status === 'ready') row.append(button('Open replay', () => openDialog(run), 'secondary'));
-    if (run.status === 'training') row.append(button('Cancel training', async (event) => {
+    if (['training','queued'].includes(run.status)) row.append(button(run.status==='queued'?'Cancel queued job':'Cancel training', async (event) => {
       const cancel = event.currentTarget;
       cancel.disabled = true;
       try {
@@ -376,7 +379,7 @@ async function refreshRuns() {
     state.runs = runs;
     showRuns();
     syncForm();
-    const finished = runs.find((r) => r.id === state.watch && r.status !== 'training');
+    const finished = runs.find((r) => r.id === state.watch && !['queued','training'].includes(r.status));
     if (finished) {
       state.watch = undefined;
       state.message =
@@ -402,7 +405,7 @@ async function refreshRuns() {
   } finally {
     refreshPending = undefined;
     clearTimeout(watchTimer);
-    if (state.watch || state.runs.some((r) => r.status === 'training'))
+    if (state.watch || state.runs.some((r) => ['queued','training'].includes(r.status)))
       watchTimer = setTimeout(() => refreshRuns().catch((e) => notify(e.message)), 900);
   }
 }
