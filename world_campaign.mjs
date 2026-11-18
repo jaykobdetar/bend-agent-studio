@@ -45,7 +45,7 @@ function wordsAtEdges(xs,rand) {
   }
   return words;
 }
-const rewardPool=[0,-0,1,-1,0.125,-0.25,1.5,-13.75,2**-20,2**-35,2**18];
+const rewardPool=[0,-0,1,-1,0.125,-0.25,1.5,-13.75,2**-20,2**-35,2**18,1e21,-1e21];
 function makeWorld(rand) {
   const length=2+rand()%7;
   const ids=new Set([0,0xffffffff]);
