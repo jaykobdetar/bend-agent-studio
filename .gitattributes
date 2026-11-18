@@ -1,0 +1,4 @@
+
+# Generated benchmark fixtures are byte-checked, including on Windows.
+worlds/benchmarks/probes/*.json text eol=lf
+experiments/probe-*.json text eol=lf
