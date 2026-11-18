@@ -298,3 +298,23 @@ def finish(m: Model,stop: E.Stop) -> Model:
   const name=symbol(games[1].definition)+'_'+bundle.entry;
   assert.deepEqual(api[name]({$:'Train'},init,11,0).model,{...init,finishes:1,reason:2});
 });
+
+test('contextual learner sees the source legal actions and resumes its exact policy snapshot',compilerTest,async t=>{
+  const dir=directory(t),file=path.join(dir,'plan.json'),paused=path.join(dir,'paused'),whole=path.join(dir,'whole');
+  const edge=(id,to,reward)=>({id,outcomes:[{to,reward,weight:1}]});
+  const game={id:'context',limit:2,definition:{schema:1,initial:[{to:10,weight:1}],states:[
+    {id:10,actions:[edge(3,20,1),edge(7,20,1)]},{id:20,actions:[edge(9,30,4)]},{id:30,actions:[]}]}};
+  write(file,plan({budgetUnit:'steps',games:[game],arms:[{id:'rf',method:'custom',agentFile:path.join(here,'agents','reinforce.bend'),parameters:{alpha:1,beta:.5,gamma:.5}}],replicates:1,checkpoints:[0,1,2],validationEpisodes:1,testEpisodes:1}));
+  await invoke('run',file,paused,'--bend',bend,'--until','1');
+  const cp=(root,n)=>read(path.join(root,'trials','context','rf','0',n+'.json')).body.model;
+  const frozen=cp(paused,1),first=frozen.history.head;
+  assert.equal(frozen.logits.$,'Nil');assert.equal(first.s,10);
+  assert.deepEqual([first.policy.head.a,first.policy.tail.head.a],[3,7]);
+  assert.deepEqual([first.policy.head.p,first.policy.tail.head.p],[.5,.5]);
+  await execute(process.execPath,[path.join(paused,'code','experiment.mjs'),'resume',paused]);
+  await invoke('run',file,whole,'--bend',bend);
+  const final=cp(paused,2);assert.equal(final.history.$,'Nil');assert.equal(final.power,1);
+  assert.deepEqual(final,cp(whole,2));
+  const replay=JSON.parse((await invoke('replay',paused,'context','rf','0','2','test','0')).stdout);
+  assert.equal(replay.initialModel,replay.finalModel);assert.equal(replay.score,5);
+});
