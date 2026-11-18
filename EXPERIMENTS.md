@@ -164,3 +164,18 @@ node world_campaign.mjs --bend bend --seed 30000 --worlds 4 --episodes 128 --bat
 ```
 
 The independent verdict needs a matching BendTT kernel available to Bend. The randomized campaign compiles newly generated games and compares boundary transitions, episode reports, and paused execution with an independent simulator. Its output lists the seed and source fingerprints so a failing batch can be repeated.
+
+### Notes and tags
+
+To annotate a run, create or edit `notes.json` beside its `run.json`:
+
+```json
+{"notes":"Baseline before the reward change.","tags":["baseline","pilot"]}
+```
+
+Both fields are optional. Use at most 4,096 characters for notes, and up to 16
+nonempty tags of at most 64 characters each (16 KiB file limit). Studio shows
+these as plain text on ready run cards. MCP `list_runs` returns them under
+`annotations` separately from verified metadata. Notes can be changed or
+removed without changing any checkpoint, run identity, or verification result.
+Local readers with access to the run can see them; do not store secrets here.

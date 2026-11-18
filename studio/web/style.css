@@ -856,3 +856,4 @@ dialog::backdrop {
     align-items: flex-start;
   }
 }
+.run-notes { white-space: pre-wrap; overflow-wrap: anywhere; }

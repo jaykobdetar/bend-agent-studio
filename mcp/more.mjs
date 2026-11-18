@@ -1,3 +1,4 @@
+import {readRunNotes} from '../run_notes.mjs';
 import fs from 'node:fs';
 import {assertBundledImports} from './authoring.mjs';
 import path from 'node:path';
@@ -65,6 +66,7 @@ export const more = {
           row.complete = row.progress.completeTrials === row.progress.totalTrials;
           await stat(c, d);
           row.verified = true;
+          Object.assign(row,readRunNotes(d));
         } catch (e) {
           row.error = e.message;
         }

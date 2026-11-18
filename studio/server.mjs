@@ -1,3 +1,4 @@
+import {readRunNotes} from '../run_notes.mjs';
 import http from 'node:http';
 import path from 'node:path';
 import fs from 'node:fs';
@@ -102,6 +103,7 @@ function describe(id) {
     p = manifest.body.plan;
   return {
     ...(j ?? { id, status: 'ready', name: p.name, created: null }),
+    ...readRunNotes(dir),
     nodeVersion: manifest.body.toolchain.node,
     games: p.games.map((g) => ({ id: g.id, symmetry: g.parameters?.symmetry })),
     arms: p.arms.map((a) => a.id),

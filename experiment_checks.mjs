@@ -173,3 +173,16 @@ test('transfer targets receive frozen models and validation ties choose the earl
   assert.equal(rows[0].model_hash,rows[1].model_hash);
   await invoke('assess',root,file,out);
 });
+
+test('optional run annotations reject oversize, malformed and linked files',async t=>{
+  const {readRunNotes}=await import('./run_notes.mjs'),dir=directory(t),file=path.join(dir,'notes.json');
+  assert.deepEqual(readRunNotes(dir),{});
+  for(const content of ['not json','x'.repeat(17000),'{"tags":[""]}','{"notes":null}']){
+    fs.writeFileSync(file,content);assert.ok(readRunNotes(dir).annotationWarning);
+  }
+  fs.writeFileSync(file,JSON.stringify({notes:'line one\n<script>x</script>',tags:['v1']}));
+  assert.deepEqual(readRunNotes(dir).annotations.tags,['v1']);
+  if(process.platform!=='win32'){
+    fs.renameSync(file,file+'.bak');fs.symlinkSync(file+'.bak',file);assert.ok(readRunNotes(dir).annotationWarning);
+  }
+});
