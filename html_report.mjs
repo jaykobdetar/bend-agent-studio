@@ -10,11 +10,11 @@ import {explainDecisions} from './public_oracle.mjs';
 const esc=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]);
 function table(head,rows){return '<table><thead><tr>'+head.map(x=>'<th>'+esc(x)+'</th>').join('')+'</tr></thead><tbody>'+rows.map(r=>'<tr>'+r.map(x=>'<td>'+esc(x)+'</td>').join('')+'</tr>').join('')+'</tbody></table>';}
 function chart(rows){
-  const nums=rows.map(r=>[r.budget,r.estimate,r.ci_low,r.ci_high].map(Number));
-  if(nums.some(a=>a.some(x=>!Number.isFinite(x))))throw Error('invalid analysis coordinates');
-  const xmin=Math.min(...nums.map(r=>r[0])),xmax=Math.max(...nums.map(r=>r[0])),ymin=Math.min(...nums.map(r=>r[2])),ymax=Math.max(...nums.map(r=>r[3]));
+  const nums=rows.map(r=>[Number(r.budget),Number(r.estimate),r.ci_low===''?null:Number(r.ci_low),r.ci_high===''?null:Number(r.ci_high)]);
+  if(nums.some(a=>a.some(x=>x!==null&&!Number.isFinite(x))))throw Error('invalid analysis coordinates');
+  const xmin=Math.min(...nums.map(r=>r[0])),xmax=Math.max(...nums.map(r=>r[0])),ymin=Math.min(...nums.map(r=>r[2]??r[1])),ymax=Math.max(...nums.map(r=>r[3]??r[1]));
   const x=v=>xmin===xmax?230:32+400*(v-xmin)/(xmax-xmin),y=v=>ymin===ymax?65:116-100*(v-ymin)/(ymax-ymin);
-  return '<svg role="img" aria-label="Mean return and confidence intervals by checkpoint" viewBox="0 0 464 144"><path d="M32 8V116H432" fill="none" stroke="#555"/><polyline fill="none" stroke="#13598a" points="'+nums.map(([n,v])=>x(n)+','+y(v)).join(' ')+'"/>'+nums.map(([n,v,l,h])=>'<line x1="'+x(n)+'" x2="'+x(n)+'" y1="'+y(l)+'" y2="'+y(h)+'" stroke="#00765e"/><circle cx="'+x(n)+'" cy="'+y(v)+'" r="3" fill="#13598a"/>').join('')+'<text x="32" y="138">'+xmin+'</text><text x="405" y="138">'+xmax+'</text></svg>';
+  return '<svg role="img" aria-label="Mean return and confidence intervals by checkpoint" viewBox="0 0 464 144"><path d="M32 8V116H432" fill="none" stroke="#555"/><polyline fill="none" stroke="#13598a" points="'+nums.map(([n,v])=>x(n)+','+y(v)).join(' ')+'"/>'+nums.map(([n,v,l,h])=>(l===null||h===null?'':'<line x1="'+x(n)+'" x2="'+x(n)+'" y1="'+y(l)+'" y2="'+y(h)+'" stroke="#00765e"/>')+'<circle cx="'+x(n)+'" cy="'+y(v)+'" r="3" fill="#13598a"/>').join('')+'<text x="32" y="138">'+xmin+'</text><text x="405" y="138">'+xmax+'</text></svg>';
 }
 export async function writeReport(root,out){
   const m=unseal(manifestPath(root)),p=m.body.plan;

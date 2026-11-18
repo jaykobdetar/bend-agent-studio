@@ -176,10 +176,10 @@ test('transfer targets receive frozen models and validation ties choose the earl
 
 test('portable report embeds analyze.py rows and exact finite-world replay decisions',compilerTest,async t=>{
   const d=directory(t),root=path.join(d,'run'),file=path.join(d,'bridge.json'),out=path.join(d,'report.html');
-  const p=plan({games:[{id:'bridge',definition:read(path.join(here,'worlds','bridge.json')),limit:2}],replicates:2,checkpoints:[0,2]});
+  const p=plan({games:[{id:'bridge',definition:read(path.join(here,'worlds','bridge.json')),limit:2}],replicates:1,checkpoints:[0,2]});
   write(file,p);await invoke('run',file,root,'--bend',bend);await invoke('report',root,out);
   const html=fs.readFileSync(out,'utf8');
-  assert.match(html,/<svg /);assert.match(html,/Full-state optimum: 2; uniform baseline: 1.5/);
+  assert.match(html,/<svg /);assert.doesNotMatch(html,/<line x1=/);assert.match(html,/Full-state optimum: 2; uniform baseline: 1.5/);
   assert.match(html,/Best test episode/);assert.match(html,/Worst test episode/);assert.match(html,/Decision gap/);
   assert.doesNotMatch(html,/<script\b|\b(?:src|href)\s*=/i);
   const csv=path.join(d,'metrics.csv');fs.writeFileSync(csv,(await invoke('export',root)).stdout);
