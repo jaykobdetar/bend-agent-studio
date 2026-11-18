@@ -270,7 +270,8 @@ Update this table in the same PR as each item.
 | L10 | Implemented: Completed Monte Carlo episode drops its decision buffer | [#14](https://github.com/jaykobdetar/bend-agent-studio/pull/14) |
 | L11 | Implemented: Logging policy follows its exact 16-bit draw rule | [#16](https://github.com/jaykobdetar/bend-agent-studio/pull/16) |
 | L12 | Not started | |
-| T2.1–T2.2 | Not started | |
+| T2.1 | Implemented: parallel archived trial workers | [#17](https://github.com/jaykobdetar/bend-agent-studio/pull/17) |
+| T2.2 | Implemented; review pending | [Keyed tables](https://github.com/jaykobdetar/bend-agent-studio/pulls?q=is%3Apr+head%3Aperf%2Fkeyed-tabular) |
 | T2.3 | Spike complete; keep JS backend | [findings](tools/native-spike/README.md) |
 | B3.1 | Toy-text ports verified; non-dyadic runtime probabilities quantized | [Methods and checks](integrations/gymnasium/toy_text/README.md) |
 | B3.2 | Six diagnostic families with verified two-size sweeps and oracle baselines | [Probe definitions and reproduction](worlds/benchmarks/probes/README.md) |

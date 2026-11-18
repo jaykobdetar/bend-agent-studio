@@ -79,3 +79,8 @@ bend PROOF.bend
 For an independent proof verdict, install Lean 4.34.0 (for example, `elan toolchain install leanprover/lean4:v4.34.0`) and run `bend PROOF.bend --verdict`. Bend 2.0.40 builds and caches its bundled BendTT kernel on first use. You can also set `BENDTT` to a kernel built from the same release.
 
 For fixed-suite comparisons, [analyze.py supports IQM, probability of improvement, and performance profiles](EXPERIMENTS.md#comparing-a-fixed-suite-of-games), with replicate bootstrap intervals and no extra dependencies. Per-game analysis remains the default.
+
+New tabular learners index observation/action IDs with a persistent digital
+search tree. Legal-list order still breaks ties. See the
+[archive parity and timing procedure](EXPERIMENTS.md#compare-keyed-tabular-training-against-list-backed-archives)
+for the benchmark and its limits.

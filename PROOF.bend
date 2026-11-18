@@ -346,6 +346,45 @@ def key_eq_self(s: U32, a: U32) -> {(U32.is_eq(s,s) && U32.is_eq(a,a)) == True{}
   Equal.trans(Bool, U32.is_eq(s,s) && U32.is_eq(a,a), True{} && U32.is_eq(a,a), True{},
     Equal.cong(Bool,Bool,b => b && U32.is_eq(a,a),U32.is_eq(s,s),True{},u32_eq_self(s)),u32_eq_self(a))
 
+def read_insert_case(hit: Bool,branch: Bool,s: U32,a: U32,c: T.Cell,lo: T.Tree,hi: T.Tree,k: U32,l: U32,bits: U32,other: U32,new: T.Cell,
+  eq: {hit == T.keyeq(s,a,k,l) : Bool}, beq: {branch == T.right(bits) : Bool},
+  il: {T.search(T.insert(lo,k,l,other,U32.shr(bits),new),k,l,other,U32.shr(bits)) == new : T.Cell},
+  ir: {T.search(T.insert(hi,k,l,other,U32.shr(bits),new),k,l,other,U32.shr(bits)) == new : T.Cell}) ->
+  {T.search(T.insert_at(hit,branch,s,a,c,lo,hi,new,u => T.insert(lo,k,l,other,U32.shr(bits),new),u => T.insert(hi,k,l,other,U32.shr(bits),new)),k,l,bits,other) == new : T.Cell}:
+  match hit branch:
+    case True{} _:
+      %eq : {T.seek_if(_,new,u => T.seek_child(T.right(bits),u => T.search(lo,k,l,other,U32.shr(bits)),u => T.search(hi,k,l,other,U32.shr(bits)))) == new : T.Cell}
+      {==}
+    case False{} False{}:
+      %eq : {T.seek_if(_,c,u => T.seek_child(T.right(bits),u => T.search(T.insert(lo,k,l,other,U32.shr(bits),new),k,l,other,U32.shr(bits)),u => T.search(hi,k,l,other,U32.shr(bits)))) == new : T.Cell}
+      %beq : {T.seek_child(_,u => T.search(T.insert(lo,k,l,other,U32.shr(bits),new),k,l,other,U32.shr(bits)),u => T.search(hi,k,l,other,U32.shr(bits))) == new : T.Cell}
+      il
+    case False{} True{}:
+      %eq : {T.seek_if(_,c,u => T.seek_child(T.right(bits),u => T.search(lo,k,l,other,U32.shr(bits)),u => T.search(T.insert(hi,k,l,other,U32.shr(bits),new),k,l,other,U32.shr(bits)))) == new : T.Cell}
+      %beq : {T.seek_child(_,u => T.search(lo,k,l,other,U32.shr(bits)),u => T.search(T.insert(hi,k,l,other,U32.shr(bits),new),k,l,other,U32.shr(bits))) == new : T.Cell}
+      ir
+
+def read_insert(tree: T.Tree,+k: U32,+l: U32,+bits: U32,+other: U32,+new: T.Cell) ->
+  {T.search(T.insert(tree,k,l,bits,other,new),k,l,bits,other) == new : T.Cell}:
+  match tree:
+    case T.Vacant{}:
+      %Equal.sym(Bool,T.keyeq(k,l,k,l),True{},key_eq_self(k,l)) :
+        {T.seek_if(_,new,u => T.seek_child(T.right(bits),u => T.Cell{0,0.0},u => T.Cell{0,0.0})) == new : T.Cell}
+      {==}
+    case T.Node{+s,+a,c,+lo,+hi}:
+      read_insert_case(T.keyeq(s,a,k,l),T.right(bits),s,a,c,lo,hi,k,l,bits,other,new,{==},{==},
+        read_insert(lo,k,l,other,U32.shr(bits),new),read_insert(hi,k,l,other,U32.shr(bits),new))
+
+def updated_visits(r: T.Rate,k: U32,l: U32,c: T.Cell,target: F32) ->
+  {T.cell_visits(T.update_cell(r,k,l,c,target)) == U32.add(T.cell_visits(c),1) : U32}:
+  match c:
+    case T.Cell{n,v}: {==}
+
+def updated_value(r: T.Rate,k: U32,l: U32,c: T.Cell,target: F32) ->
+  {T.cell_value(T.update_cell(r,k,l,c,target)) == T.entry_value(T.revised(r,k,l,U32.add(T.cell_visits(c),1),T.cell_value(c),target)) : F32}:
+  match c:
+    case T.Cell{n,v}: {==}
+
 def adjust_visits_cons(b: Bool,s: U32,a: U32,n: U32,v: F32,t: T.Table,k: U32,j: U32,r: T.Rate,target: F32,
                        ih: {T.visits(T.adjust(t,k,j,r,target),k,j) == U32.add(T.visits(t,k,j),1) : U32},
                        eq: {b == (U32.is_eq(s,k) && U32.is_eq(a,j)) : Bool}) ->
@@ -362,8 +401,17 @@ def adjust_visits_cons(b: Bool,s: U32,a: U32,n: U32,v: F32,t: T.Table,k: U32,j: 
 def Laws.table_adjust_visits(t,s,a,r,target):
   match t:
     case Nil{}:
-      %Equal.sym(Bool,U32.is_eq(s,s) && U32.is_eq(a,a),True{},key_eq_self(s,a)) : {Bool.pick(U32,_,1,0) == 1 : U32}
-      {==}
+      Equal.cong(T.Cell,U32,T.cell_visits,
+        T.search(T.insert(T.Vacant{},s,a,s,a,T.update_cell(r,s,a,T.Cell{0,0.0},target)),s,a,s,a),
+        T.update_cell(r,s,a,T.Cell{0,0.0},target),
+        read_insert(T.Vacant{},s,a,s,a,T.update_cell(r,s,a,T.Cell{0,0.0},target)))
+    case T.Indexed{+tree} <> rest:
+      +old=T.search(tree,s,a,s,a)
+      +new=T.update_cell(r,s,a,old,target)
+      Equal.trans(U32,T.cell_visits(T.search(T.insert(tree,s,a,s,a,new),s,a,s,a)),T.cell_visits(new),
+        U32.add(T.cell_visits(old),1),
+        Equal.cong(T.Cell,U32,T.cell_visits,T.search(T.insert(tree,s,a,s,a,new),s,a,s,a),new,read_insert(tree,s,a,s,a,new)),
+        updated_visits(r,s,a,old,target))
     case T.Entry{+x,+y,n,v} <> +tail:
       adjust_visits_cons(U32.is_eq(x,s) && U32.is_eq(y,a),x,y,n,v,tail,s,a,r,target,Laws.table_adjust_visits(tail,s,a,r,target),{==})
 
@@ -387,9 +435,17 @@ def adjust_value_cons(b: Bool,s: U32,a: U32,n: U32,v: F32,t: T.Table,k: U32,j: U
 def Laws.table_adjust_value(t,s,a,r,target):
   match t:
     case Nil{}:
-      %Equal.sym(Bool,U32.is_eq(s,s) && U32.is_eq(a,a),True{},key_eq_self(s,a)) :
-        {Bool.pick(F32,_,T.entry_value(T.revised(r,s,a,1,0.0,target)),0.0) == T.entry_value(T.revised(r,s,a,1,0.0,target)) : F32}
-      {==}
+      Equal.cong(T.Cell,F32,T.cell_value,
+        T.search(T.insert(T.Vacant{},s,a,s,a,T.update_cell(r,s,a,T.Cell{0,0.0},target)),s,a,s,a),
+        T.update_cell(r,s,a,T.Cell{0,0.0},target),
+        read_insert(T.Vacant{},s,a,s,a,T.update_cell(r,s,a,T.Cell{0,0.0},target)))
+    case T.Indexed{+tree} <> rest:
+      +old=T.search(tree,s,a,s,a)
+      +new=T.update_cell(r,s,a,old,target)
+      Equal.trans(F32,T.cell_value(T.search(T.insert(tree,s,a,s,a,new),s,a,s,a)),T.cell_value(new),
+        T.entry_value(T.revised(r,s,a,U32.add(T.cell_visits(old),1),T.cell_value(old),target)),
+        Equal.cong(T.Cell,F32,T.cell_value,T.search(T.insert(tree,s,a,s,a,new),s,a,s,a),new,read_insert(tree,s,a,s,a,new)),
+        updated_value(r,s,a,old,target))
     case T.Entry{+x,+y,n,v} <> +tail:
       adjust_value_cons(U32.is_eq(x,s) && U32.is_eq(y,a),x,y,n,v,tail,s,a,r,target,Laws.table_adjust_value(tail,s,a,r,target),{==})
 
@@ -465,6 +521,50 @@ def transfer_distinct(b: Bool,c: Bool,s: U32,a: U32,k: U32,l: U32,q: U32,j: U32,
     case False{} _:
       absurd({key_test(s,a,q,j) == False{} : Bool},impossible(Equal.sym(Bool,False{},True{},hit)))
 
+def other_insert_case(hit: Bool,ib: Bool,qb: Bool,+s: U32,+a: U32,c: T.Cell,lo: T.Tree,hi: T.Tree,+k: U32,+l: U32,bits: U32,other: U32,new: T.Cell,+q: U32,+j: U32,qbits: U32,qother: U32,
+  eq: {T.keyeq(s,a,k,l) == hit : Bool}, ie: {ib == T.right(bits) : Bool}, qe: {qb == T.right(qbits) : Bool},
+  distinct: {key_test(k,l,q,j) == False{} : Bool},
+  il: {key_test(k,l,q,j) == False{} : Bool} -> {T.search(T.insert(lo,k,l,other,U32.shr(bits),new),q,j,qother,U32.shr(qbits)) == T.search(lo,q,j,qother,U32.shr(qbits)) : T.Cell},
+  ir: {key_test(k,l,q,j) == False{} : Bool} -> {T.search(T.insert(hi,k,l,other,U32.shr(bits),new),q,j,qother,U32.shr(qbits)) == T.search(hi,q,j,qother,U32.shr(qbits)) : T.Cell}) ->
+  {T.search(T.insert_at(hit,ib,s,a,c,lo,hi,new,u => T.insert(lo,k,l,other,U32.shr(bits),new),u => T.insert(hi,k,l,other,U32.shr(bits),new)),q,j,qbits,qother) == T.search(T.Node{s,a,c,lo,hi},q,j,qbits,qother) : T.Cell}:
+  match hit ib qb:
+    case True{} _ _:
+      miss=transfer_distinct(U32.is_eq(s,k),U32.is_eq(a,l),s,a,k,l,q,j,{==},{==},eq,distinct)
+      %Equal.sym(Bool,key_test(s,a,q,j),False{},miss) :
+        {T.seek_if(_,new,u => T.seek_child(T.right(qbits),u => T.search(lo,q,j,qother,U32.shr(qbits)),u => T.search(hi,q,j,qother,U32.shr(qbits)))) ==
+         T.seek_if(_,c,u => T.seek_child(T.right(qbits),u => T.search(lo,q,j,qother,U32.shr(qbits)),u => T.search(hi,q,j,qother,U32.shr(qbits)))) : T.Cell}
+      {==}
+    case False{} False{} False{}:
+      %qe : {T.seek_if(key_test(s,a,q,j),c,u => T.seek_child(_,u => T.search(T.insert(lo,k,l,other,U32.shr(bits),new),q,j,qother,U32.shr(qbits)),u => T.search(hi,q,j,qother,U32.shr(qbits)))) == T.seek_if(key_test(s,a,q,j),c,u => T.seek_child(_,u => T.search(lo,q,j,qother,U32.shr(qbits)),u => T.search(hi,q,j,qother,U32.shr(qbits)))) : T.Cell}
+      Equal.cong(T.Cell,T.Cell,x => T.seek_if(key_test(s,a,q,j),c,u => x),T.search(T.insert(lo,k,l,other,U32.shr(bits),new),q,j,qother,U32.shr(qbits)),T.search(lo,q,j,qother,U32.shr(qbits)),il(distinct))
+    case False{} False{} True{}:
+      %qe : {T.seek_if(key_test(s,a,q,j),c,u => T.seek_child(_,u => T.search(T.insert(lo,k,l,other,U32.shr(bits),new),q,j,qother,U32.shr(qbits)),u => T.search(hi,q,j,qother,U32.shr(qbits)))) == T.seek_if(key_test(s,a,q,j),c,u => T.seek_child(_,u => T.search(lo,q,j,qother,U32.shr(qbits)),u => T.search(hi,q,j,qother,U32.shr(qbits)))) : T.Cell}
+      {==}
+    case False{} True{} False{}:
+      %qe : {T.seek_if(key_test(s,a,q,j),c,u => T.seek_child(_,u => T.search(lo,q,j,qother,U32.shr(qbits)),u => T.search(T.insert(hi,k,l,other,U32.shr(bits),new),q,j,qother,U32.shr(qbits)))) == T.seek_if(key_test(s,a,q,j),c,u => T.seek_child(_,u => T.search(lo,q,j,qother,U32.shr(qbits)),u => T.search(hi,q,j,qother,U32.shr(qbits)))) : T.Cell}
+      {==}
+    case False{} True{} True{}:
+      %qe : {T.seek_if(key_test(s,a,q,j),c,u => T.seek_child(_,u => T.search(lo,q,j,qother,U32.shr(qbits)),u => T.search(T.insert(hi,k,l,other,U32.shr(bits),new),q,j,qother,U32.shr(qbits)))) == T.seek_if(key_test(s,a,q,j),c,u => T.seek_child(_,u => T.search(lo,q,j,qother,U32.shr(qbits)),u => T.search(hi,q,j,qother,U32.shr(qbits)))) : T.Cell}
+      Equal.cong(T.Cell,T.Cell,x => T.seek_if(key_test(s,a,q,j),c,u => x),T.search(T.insert(hi,k,l,other,U32.shr(bits),new),q,j,qother,U32.shr(qbits)),T.search(hi,q,j,qother,U32.shr(qbits)),ir(distinct))
+
+def seek_same(b: Bool,c: T.Cell) -> {T.seek_child(b,u => c,u => c) == c : T.Cell}:
+  match b:
+    case True{}: {==}
+    case False{}: {==}
+
+def other_insert(tree: T.Tree,+k: U32,+l: U32,+bits: U32,+other: U32,+new: T.Cell,+q: U32,+j: U32,+qbits: U32,+qother: U32,
+  distinct: {key_test(k,l,q,j) == False{} : Bool}) ->
+  {T.search(T.insert(tree,k,l,bits,other,new),q,j,qbits,qother) == T.search(tree,q,j,qbits,qother) : T.Cell}:
+  match tree:
+    case T.Vacant{}:
+      %Equal.sym(Bool,key_test(k,l,q,j),False{},distinct) :
+        {T.seek_if(_,new,u => T.seek_child(T.right(qbits),u => T.Cell{0,0.0},u => T.Cell{0,0.0})) == T.Cell{0,0.0} : T.Cell}
+      seek_same(T.right(qbits),T.Cell{0,0.0})
+    case T.Node{+s,+a,c,+lo,+hi}:
+      other_insert_case(key_test(s,a,k,l),T.right(bits),T.right(qbits),s,a,c,lo,hi,k,l,bits,other,new,q,j,qbits,qother,{==},{==},{==},distinct,
+        d => other_insert(lo,k,l,other,U32.shr(bits),new,q,j,qother,U32.shr(qbits),d),
+        d => other_insert(hi,k,l,other,U32.shr(bits),new,q,j,qother,U32.shr(qbits),d))
+
 def other_lookup_cons(b: Bool,+s: U32,+a: U32,n: U32,v: F32,t: T.Table,+k: U32,+l: U32,r: T.Rate,target: F32,+q: U32,+j: U32,
   same: {key_test(s,a,k,l) == b : Bool}, distinct: {key_test(k,l,q,j) == False{} : Bool},
   ih: {key_test(k,l,q,j) == False{} : Bool} -> {T.lookup(T.adjust(t,k,l,r,target),q,j) == T.lookup(t,q,j) : F32}) ->
@@ -482,8 +582,14 @@ def other_lookup_cons(b: Bool,+s: U32,+a: U32,n: U32,v: F32,t: T.Table,+k: U32,+
 def Laws.table_adjust_preserves_other_lookup(t,k,l,r,target,q,j,distinct):
   match t:
     case Nil{}:
-      %Equal.sym(Bool,key_test(k,l,q,j),False{},distinct) : {Bool.pick(F32,_,T.entry_value(T.revised(r,k,l,1,0.0,target)),0.0) == 0.0 : F32}
-      {==}
+      Equal.cong(T.Cell,F32,T.cell_value,
+        T.search(T.insert(T.Vacant{},k,l,k,l,T.update_cell(r,k,l,T.Cell{0,0.0},target)),q,j,q,j),T.Cell{0,0.0},
+        other_insert(T.Vacant{},k,l,k,l,T.update_cell(r,k,l,T.Cell{0,0.0},target),q,j,q,j,distinct))
+    case T.Indexed{+tree} <> rest:
+      +new=T.update_cell(r,k,l,T.search(tree,k,l,k,l),target)
+      Equal.cong(T.Cell,F32,T.cell_value,
+        T.search(T.insert(tree,k,l,k,l,new),q,j,q,j),T.search(tree,q,j,q,j),
+        other_insert(tree,k,l,k,l,new,q,j,q,j,distinct))
     case T.Entry{+s,+a,n,v} <> +tail:
       other_lookup_cons(key_test(s,a,k,l),s,a,n,v,tail,k,l,r,target,q,j,{==},distinct,
         d => Laws.table_adjust_preserves_other_lookup(tail,k,l,r,target,q,j,d))
@@ -505,8 +611,14 @@ def other_visits_cons(b: Bool,+s: U32,+a: U32,n: U32,v: F32,t: T.Table,+k: U32,+
 def Laws.table_adjust_preserves_other_visits(t,k,l,r,target,q,j,distinct):
   match t:
     case Nil{}:
-      %Equal.sym(Bool,key_test(k,l,q,j),False{},distinct) : {Bool.pick(U32,_,1,0) == 0 : U32}
-      {==}
+      Equal.cong(T.Cell,U32,T.cell_visits,
+        T.search(T.insert(T.Vacant{},k,l,k,l,T.update_cell(r,k,l,T.Cell{0,0.0},target)),q,j,q,j),T.Cell{0,0.0},
+        other_insert(T.Vacant{},k,l,k,l,T.update_cell(r,k,l,T.Cell{0,0.0},target),q,j,q,j,distinct))
+    case T.Indexed{+tree} <> rest:
+      +new=T.update_cell(r,k,l,T.search(tree,k,l,k,l),target)
+      Equal.cong(T.Cell,U32,T.cell_visits,
+        T.search(T.insert(tree,k,l,k,l,new),q,j,q,j),T.search(tree,q,j,q,j),
+        other_insert(tree,k,l,k,l,new,q,j,q,j,distinct))
     case T.Entry{+s,+a,n,v} <> +tail:
       other_visits_cons(key_test(s,a,k,l),s,a,n,v,tail,k,l,r,target,q,j,{==},distinct,
         d => Laws.table_adjust_preserves_other_visits(tail,k,l,r,target,q,j,d))
