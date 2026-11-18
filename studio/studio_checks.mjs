@@ -4,7 +4,7 @@ import assert from 'node:assert/strict';
 import { spawn } from 'node:child_process';
 import { once } from 'node:events';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import { mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
+import { mkdir, mkdtemp, readFile, readdir, rm, writeFile } from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 import { setTimeout as delay } from 'node:timers/promises';
@@ -117,9 +117,9 @@ async function start(home, args = [], extra = {}) {
     exited.then(() => reject(Error(errors || 'Server exited')));
   });
   return {
-    url,
-    async close() {
-      child.kill();
+    url, exited,
+    async close(signal) {
+      child.kill(signal);
       await exited;
     }
   };
@@ -232,26 +232,140 @@ test('replay deadline and runner failure release capacity', { timeout: 15000 }, 
     await server.close();
   }
 });
-test('training cancellation stops both runner and compiler and persists the result', { timeout: 30000 }, async (t) => {
-  const home = await mkdtemp(path.join(os.tmpdir(), 'studio-cancel-'));
-  t.after(() => rm(home, { recursive: true, force: true }));
+async function controlledCompiler(home, cpuBound = false) {
   const shim = path.join(home, 'compiler.mjs'), marker = path.join(home, 'compiler.pid');
-  // Use Node as a controllable compiler on both Windows and POSIX.
   await writeFile(shim, `
     import path from 'node:path';
     import fs from 'node:fs';
+    import { isMainThread } from 'node:worker_threads';
+    if (isMainThread && path.basename(process.argv[1] ?? '') === 'training-host.mjs' && process.env.TEST_HOST_EXIT) {
+      setInterval(() => {
+        if (fs.existsSync(process.env.TEST_HOST_EXIT)) process.exit(77);
+      }, 20).unref();
+    }
     if (path.basename(process.argv[1] ?? '') === 'version') {
       console.log('bend 2.0.40');
       process.exit(0);
     }
     if (process.argv[1]?.endsWith('.bend')) {
+      if (process.env.TEST_CPU_BOUND === 'true') {
+        // A backend stuck in synchronous JS cannot service its own IPC callbacks.
+        fs.writeFileSync(process.argv.at(-1), [
+          "import fs from 'node:fs';",
+          "fs.writeFileSync(process.env.TEST_COMPILER_PID, String(process.pid));",
+          "const deadline = Date.now() + 20000;",
+          "while (Date.now() < deadline) {}",
+          "throw Error('CPU fixture expired');"
+        ].join('\\n'));
+        process.exit(0);
+      }
       fs.writeFileSync(process.env.TEST_COMPILER_PID, String(process.pid));
-      setInterval(() => {}, 60000);
+      setTimeout(() => process.exit(1), Number(process.env.TEST_COMPILER_TTL ?? 20000));
       await new Promise(() => {});
     }
   `);
-  const server = await start(home, [], { BEND: process.execPath, TEST_COMPILER_PID: marker,
-    NODE_OPTIONS: '--import=' + pathToFileURL(shim).href });
+  return { BEND: process.execPath, TEST_COMPILER_PID: marker, TEST_CPU_BOUND: String(cpuBound),
+    NODE_OPTIONS: '--import=' + pathToFileURL(shim).href };
+}
+const tinyRun = { world: 'cliff', algorithm: 'q_learning', episodes: 2, seed: 0 };
+for (const cpuBound of [false, true]) {
+  test('forced Studio exit during ' + (cpuBound ? 'CPU training' : 'compilation') +
+    ' permits a clean restart', { timeout: 30000 }, async (t) => {
+    const home = await mkdtemp(path.join(os.tmpdir(), 'studio-crash-'));
+    t.after(() => rm(home, { recursive: true, force: true }));
+    const options = await controlledCompiler(home, cpuBound);
+    const first = await start(home, [], options);
+    let job, oldPid;
+    try {
+      const response = await post(first.url, tinyRun);
+      assert.equal(response.status, 201);
+      job = await response.json();
+      oldPid = await waitForRunner(home, 'compiler');
+      assert.equal((await post(first.url, tinyRun)).status, 409);
+    } finally {
+      await first.close('SIGKILL');
+    }
+
+    // Restart immediately. The disk record alone cannot authorize a new run.
+    const second = await start(home, [], options);
+    try {
+      const [recovered] = await (await fetch(second.url + '/api/runs')).json();
+      assert.equal(recovered.id, job.id);
+      assert.equal(recovered.status, 'interrupted');
+      // The CPU fixture shares its supervisor's PID, which can exit just after unlocking.
+      for (let i = 0; i < 100 && !hasExited(oldPid); i++) await delay(25);
+      assert.ok(hasExited(oldPid), 'previous training process must have exited');
+      assert.ok(!(await readdir(path.join(home, job.id))).some(name => name.startsWith('tmp-')));
+      await rm(options.TEST_COMPILER_PID);
+      const response = await post(second.url, tinyRun);
+      assert.equal(response.status, 201);
+      const next = await response.json();
+      await waitForRunner(home, 'compiler');
+      const cancel = await fetch(second.url + '/api/runs/' + next.id + '/cancel', { method: 'POST' });
+      assert.equal((await cancel.json()).status, 'cancelled');
+    } finally {
+      await second.close();
+    }
+  });
+}
+test('loss of the supervisor keeps new training blocked until ownership is resolved', { timeout: 15000 }, async (t) => {
+  const home = await mkdtemp(path.join(os.tmpdir(), 'studio-host-loss-'));
+  t.after(() => rm(home, { recursive: true, force: true }));
+  const options = await controlledCompiler(home);
+  const trigger = path.join(home, 'exit-host');
+  const first = await start(home, [], { ...options, TEST_HOST_EXIT: trigger, TEST_COMPILER_TTL: '3000' });
+  let compiler;
+  try {
+    assert.equal((await post(first.url, tinyRun)).status, 201);
+    compiler = await waitForRunner(home, 'compiler');
+    await writeFile(trigger, '');
+    assert.equal((await first.exited)[0], 1);
+  } finally {
+    await first.close();
+  }
+  const second = await start(home, [], options);
+  try {
+    assert.equal((await post(second.url, tinyRun)).status, 409);
+    assert.equal((await (await fetch(second.url + '/api/runs')).json())[0].status, 'interrupted');
+    for (let i = 0; i < 200 && !hasExited(compiler); i++) await delay(25);
+    assert.ok(hasExited(compiler), 'bounded fixture exits on its own');
+    assert.equal((await post(second.url, tinyRun)).status, 409);
+    await rm(path.join(home, 'training-active.json'));
+    const response = await post(second.url, tinyRun);
+    assert.equal(response.status, 201);
+    const { id } = await response.json();
+    await fetch(second.url + '/api/runs/' + id + '/cancel', { method: 'POST' });
+  } finally {
+    await second.close();
+  }
+});
+test('a second Studio cannot recover a live home or act on a saved PID', { timeout: 15000 }, async (t) => {
+  const home = await mkdtemp(path.join(os.tmpdir(), 'studio-owner-'));
+  t.after(() => rm(home, { recursive: true, force: true }));
+  const id = 'd'.repeat(36);
+  await mkdir(path.join(home, id));
+  // A stale or unrelated PID in a legacy record is data only.
+  await writeFile(path.join(home, id, 'studio.json'), JSON.stringify({ id, name: 'old',
+    status: 'training', pid: process.pid, runnerPid: process.pid }));
+  const owner = await start(home);
+  try {
+    await assert.rejects(start(home), /Studio home is in use/);
+    const [job] = await (await fetch(owner.url + '/api/runs')).json();
+    assert.equal(job.status, 'interrupted');
+    const blocked = await post(owner.url, tinyRun);
+    assert.equal(blocked.status, 409);
+    assert.match((await blocked.json()).error, /training-active.json/);
+    assert.deepEqual(JSON.parse(await readFile(path.join(home, 'training-active.json'), 'utf8')), { legacyRun: id });
+  } finally {
+    await owner.close();
+  }
+});
+test('training cancellation stops both runner and compiler and persists the result', { timeout: 30000 }, async (t) => {
+  const home = await mkdtemp(path.join(os.tmpdir(), 'studio-cancel-'));
+  t.after(() => rm(home, { recursive: true, force: true }));
+  const options = await controlledCompiler(home);
+  const marker = options.TEST_COMPILER_PID;
+  const server = await start(home, [], options);
   async function begin() {
     const response = await post(server.url, { world: 'cliff', algorithm: 'q_learning', episodes: 2, seed: 0 });
     assert.equal(response.status, 201);
