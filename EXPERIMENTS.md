@@ -24,7 +24,7 @@ Seed allocation, checkpoint storage, data partition separation and statistical p
 
 ## First run
 
-Use Bend 2.0.40 and Node 24. Run the following commands from the directory containing this file. Set `BEND` to the Bend executable when it is outside your PATH.
+Use Bend 2.0.40, Node 24 or newer, and Python 3 for analysis (standard library only). Run the following commands from the directory containing this file. Set `BEND` to the Bend executable when it is outside your PATH.
 
 ```sh
 node experiment.mjs validate experiments/bridge.json
@@ -34,6 +34,10 @@ node experiment.mjs export runs/bridge > bridge.csv
 python3 analyze.py bridge.csv --reference random
 node runs/bridge/code/experiment.mjs replay runs/bridge bridge q 0 256 test 0
 ```
+
+A complete run has 24 trials (three arms × eight replicates) and 72 checkpoints. `verify` reports these counts; `export` writes one row per checkpoint, plus the CSV header. With `--reference random`, the analysis estimates paired differences from the random arm, not absolute returns.
+
+To save a standalone HTML report of the validation and test returns, run `node experiment.mjs report runs/bridge bridge-report.html` and open the resulting file in a browser.
 
 The bridge has two choices. The safe choice ends the game with one point. The risky choice leads to a second move and has expected return two. Run `node experiment.mjs oracle worlds/bridge.json 2` to compute the optimal full-state return and the uniform baseline from the transition probabilities.
 

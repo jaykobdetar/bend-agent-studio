@@ -47,6 +47,8 @@ Use a local filesystem with working SQLite file locks, and point `BEND` directly
 
 ## Design an experiment
 
+The commands below use Node 24 or newer and Bend 2.0.40; the analysis step also requires Python 3 (standard library only). Run them from the repository root.
+
 The visual presets train one model and evaluate eight episodes per split. For comparisons across independently trained models, use an experiment manifest. Bend owns the world, model, policy and update rule. The Node runner schedules replicates, keeps seed blocks disjoint, freezes models during evaluation, and stores immutable checkpoints.
 
 ```sh
