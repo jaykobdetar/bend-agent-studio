@@ -22,6 +22,8 @@ type Transition<-O: Data> is Data:
 type Hooks<-S: Data, -O: Data, -M: Data> is Type:
   Hooks{world: World<S, O>, act: M -> O -> List<&2, U32> -> Mode -> U32 -> U32,
         learn: M -> Transition<O> -> M}
+  Finishing{world: World<S,O>, act: M -> O -> List<&2,U32> -> Mode -> U32 -> U32,
+            learn: M -> Transition<O> -> M, finish: M -> Stop -> M}
 
 type Report<-M: Data> is Data:
   Report{model: M, score: F32, steps: Nat, reason: Stop}
@@ -49,13 +51,31 @@ def report_of(-A: Data, -M: Data, result: Observed<A, M>) -> Report<M>:
   report
 
 def get_world(-S: Data, -O: Data, -M: Data, hooks: Hooks<S, O, M>) -> World<S, O>:
-  Hooks{world, act, learn} = hooks
-  world
+  match hooks:
+    case Hooks{world,act,learn}: world
+    case Finishing{world,act,learn,finish}: world
 
 def get_policy(-S: Data, -O: Data, -M: Data, hooks: Hooks<S, O, M>) ->
     M -> O -> List<&2, U32> -> Mode -> U32 -> U32:
-  Hooks{world, act, learn} = hooks
-  act
+  match hooks:
+    case Hooks{world,act,learn}: act
+    case Finishing{world,act,learn,finish}: act
+
+# Finishing is explicit and only at an episode boundary, never a checkpoint.
+def finish_model(-M: Data, finish: M -> Stop -> M, mode: Mode, model: M, reason: Stop) -> M:
+  match mode:
+    case Train{}: finish(model,reason)
+    case Evaluate{}: model
+
+def finish_report(-S: Data,-O: Data,-M: Data,hooks: Hooks<S,O,M>,mode: Mode,report: Report<M>) -> Report<M>:
+  match hooks report:
+    case Hooks{world,act,learn} r: r
+    case Finishing{world,act,learn,finish} Report{model,score,steps,+reason}:
+      Report{finish_model(M,finish,mode,model,reason),score,steps,reason}
+
+def finish_observed(-S: Data,-O: Data,-M: Data,-A: Data,hooks: Hooks<S,O,M>,mode: Mode,result: Observed<A,M>) -> Observed<A,M>:
+  Observed{record,report}=result
+  Observed{record,finish_report(S,O,M,hooks,mode,report)}
 
 # A reproducible stream of unsigned 32-bit words (arithmetic wraps).
 def next_seed(seed: U32) -> U32:
@@ -69,9 +89,13 @@ def mix_word(+word: U32) -> U32:
   U32.xor(b, U32.shrn(b, 16n))
 
 def mixed_hooks(-S: Data, -O: Data, -M: Data, hooks: Hooks<S, O, M>) -> Hooks<S, O, M>:
-  Hooks{World{reset, view, step}, act, learn} = hooks
-  Hooks{World{reset, view, s => a => w => step(s, a, mix_word(U32.xor(w, 2779096485)))},
-        m => o => actions => mode => w => act(m, o, actions, mode, mix_word(U32.xor(w, 1515870810))), learn}
+  match hooks:
+    case Hooks{World{reset,view,step},act,learn}:
+      Hooks{World{reset,view,s => a => w => step(s,a,mix_word(U32.xor(w,2779096485)))},
+        m => o => actions => mode => w => act(m,o,actions,mode,mix_word(U32.xor(w,1515870810))),learn}
+    case Finishing{World{reset,view,step},act,learn,finish}:
+      Finishing{World{reset,view,s => a => w => step(s,a,mix_word(U32.xor(w,2779096485)))},
+        m => o => actions => mode => w => act(m,o,actions,mode,mix_word(U32.xor(w,1515870810))),learn,finish}
 
 def place(-S: Data, -O: Data, -M: Data, state: S, model: M, seed: U32,
           score: F32, steps: Nat, view: View<O>) -> Run<S, O, M>:
@@ -109,9 +133,11 @@ def recorded_step(-S: Data, -O: Data, -M: Data, inspect: S -> View<O>,
 def perform(-S: Data, -O: Data, -M: Data, hooks: Hooks<S, O, M>,
             mode: Mode, remaining: Nat, state: S, observation: O, model: M,
             +action: U32, +seed: U32, score: F32, steps: Nat) -> Turn<S, O, M>:
-  Hooks{World{reset, inspect, step}, act, learn} = hooks
-  recorded_step(S, O, M, inspect, learn, mode, remaining, observation, model, action,
-                next_seed(seed), score, steps, step(state, action, seed))
+  match hooks:
+    case Hooks{World{reset,inspect,step},act,learn}:
+      recorded_step(S,O,M,inspect,learn,mode,remaining,observation,model,action,next_seed(seed),score,steps,step(state,action,seed))
+    case Finishing{World{reset,inspect,step},act,learn,finish}:
+      recorded_step(S,O,M,inspect,learn,mode,remaining,observation,model,action,next_seed(seed),score,steps,step(state,action,seed))
 
 def attempt(-S: Data, -O: Data, -M: Data, hooks: Hooks<S, O, M>,
             valid: Bool, mode: Mode, remaining: Nat, state: S, observation: O,
@@ -163,9 +189,9 @@ def reset_run(-S: Data, -O: Data, -M: Data, world: World<S, O>, model: M, +seed:
   place(S, O, M, state, model, next_seed(seed), 0.0, 0n, inspect(state))
 
 def episode_raw(~S: Data, ~O: Data, ~M: Data, ~hooks: Hooks<S, O, M>,
-            mode: Mode, model: M, seed: U32, limit: Nat) -> Report<M>:
+            +mode: Mode, model: M, seed: U32, limit: Nat) -> Report<M>:
   run = reset_run(S, O, M, get_world(S, O, M, hooks), model, seed)
-  roll(~S, ~O, ~M, ~hooks, limit, mode, run)
+  finish_report(S,O,M,hooks,mode,roll(~S, ~O, ~M, ~hooks, limit, mode, run))
 
 def episode(~S: Data, ~O: Data, ~M: Data, ~hooks: Hooks<S, O, M>,
             mode: Mode, model: M, seed: U32, limit: Nat) -> Report<M>:
@@ -173,9 +199,9 @@ def episode(~S: Data, ~O: Data, ~M: Data, ~hooks: Hooks<S, O, M>,
 
 def fold_episode(~S: Data, ~O: Data, ~M: Data, ~hooks: Hooks<S, O, M>, ~A: Data,
                  ~observe: A -> O -> List<&2, U32> -> U32 -> Maybe<&2, Transition<O>> -> A,
-                 mode: Mode, model: M, seed: U32, limit: Nat, record: A) -> Observed<A, M>:
+                 +mode: Mode, model: M, seed: U32, limit: Nat, record: A) -> Observed<A, M>:
   run = reset_run(S, O, M, get_world(S, O, M, hooks), model, seed)
-  drive(~S, ~O, ~M, ~mixed_hooks(S, O, M, hooks), ~A, ~observe, limit, mode, run, record)
+  finish_observed(S,O,M,A,hooks,mode,drive(~S, ~O, ~M, ~mixed_hooks(S, O, M, hooks), ~A, ~observe, limit, mode, run, record))
 
 type Frame<-O: Data> is Data:
   Applied{observation: O, legal: List<&2, U32>, action: U32, reward: F32, next: View<O>, truncated: Bool}

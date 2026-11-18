@@ -176,7 +176,11 @@ function bridgeFunctions(plan) {
       const [s,module]=builtins[game.id]; state=s; world=module+'.world()';
     }
     const module=arm.method==='custom'?'A'+arm.agent.entry+'.':car?'Tile.':pole?'AC.':'';
-    const hooks='~'+state+', ~'+obs+', ~'+model+', ~E.Hooks{'+world+', '+module+'act, '+module+'learn}';
+    // Only a top-level declaration in the entry module opts in. Old bundles
+    // and built-ins keep their original Hooks constructor and cursor encoding.
+    const finish=arm.method==='custom' && /^def[ \t]+finish[ \t]*\(/m.test(arm.agent.files[arm.agent.entry+'.bend']);
+    const hooks='~'+state+', ~'+obs+', ~'+model+', ~E.'+(finish?'Finishing':'Hooks')+
+      '{'+world+', '+module+'act, '+module+'learn'+(finish?', '+module+'finish':'')+'}';
     const types=state+','+obs+','+model;
     if (game.definition || game.world || arm.method==='custom') {
       code+='\ndef '+name+'(mode: E.Mode, model: '+model+', seed: U32, limit: Nat) -> E.Report<'+model+'>:\n'+

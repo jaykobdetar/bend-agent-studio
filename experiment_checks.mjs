@@ -242,3 +242,59 @@ test('a failed local worker cancels its live peer before the supervisor returns'
   const peer=Number(fs.readFileSync(ready,'utf8'));
   assert.throws(()=>process.kill(peer,0),{code:'ESRCH'});
 });
+
+test('optional custom finish is train-only, once per completed report, never per segment',compilerTest,async t=>{
+  const d=directory(t), file=path.join(d,'counter.bend'), cfg=path.join(d,'p.json'), out=path.join(d,'run');
+  fs.writeFileSync(file,`import Base
+import ./engine.bend as E
+import ./parameters.bend as P
+
+type Model is Data:
+  Counts{learns: U32, finishes: U32, reason: U32}
+
+def initial(seed: U32,params: P.Parameters) -> Model: Counts{0,0,0}
+def act(m: Model,o: U32,a: List<&2,U32>,mode: E.Mode,w: U32) -> U32: 0
+def learn(m: Model,e: E.Transition<U32>) -> Model:
+  Counts{n,f,r}=m
+  Counts{U32.add(n,1),f,r}
+def marker(stop: E.Stop) -> U32:
+  match stop:
+    case E.Terminal{}: 1
+    case E.Limit{}: 2
+    case E.Illegal{a}: 3
+def finish(m: Model,stop: E.Stop) -> Model:
+  Counts{n,f,r}=m
+  Counts{n,U32.add(f,1),marker(stop)}
+`);
+  const game=(id,action,to,initial=0)=>{
+    const definition={schema:1,initial:[{to:initial,weight:1}],states:[
+      {id:0,actions:[{id:action,outcomes:[{to,reward:1,weight:1}]}]},{id:1,actions:[]}]};
+    return {id,limit:3,definition};
+  };
+  const games=[game('terminal',0,1),game('limit',0,0),game('illegal',9,0),game('initially_terminal',0,1,1)];
+  const bundle=bundleAgent(file,here);
+  // Build the step adapter, but do not ask the host to consume a nonzero step
+  // budget in a world which can finish without accepting a step.
+  write(cfg,plan({games,arms:[{id:'counter',method:'custom',agentFile:file}],
+    budgetUnit:'steps',replicates:1,checkpoints:[0,1],validationEpisodes:1,testEpisodes:1}));
+  await invoke('run',cfg,out,'--until','0','--bend',bend);
+  const api=(await import(new URL('file:'+path.join(out,'code/backend.mjs')).href)).default;
+  const init={$:'Counts',learns:0,finishes:0,reason:0};
+  for (const [i,g] of games.entries()){
+    const name=symbol(g.definition)+'_'+bundle.entry;
+    for(const mode of ['Train','Evaluate']){
+      const tag={$:mode}, expected=mode==='Evaluate'?init:{...init,learns:[1,3,0,0][i],finishes:1,reason:[1,2,3,1][i]};
+      assert.deepEqual(api[name](tag,init,11,3).model,expected);
+      assert.deepEqual(api['trace_'+name](tag,init,11,3).report.model,expected);
+      let seg=api['segment_'+name](tag,1,api['begin_'+name](init,11,3));
+      if(i===1) assert.equal(seg.model.finishes,0);
+      seg=api['segment_'+name](tag,3,seg.cursor);
+      assert.deepEqual(seg.model,expected);
+      assert.deepEqual(seg.finished.value.model,expected);
+      const repeated=api['segment_'+name](tag,10,seg.cursor);
+      assert.deepEqual(repeated.model,expected);
+    }
+  }
+  const name=symbol(games[1].definition)+'_'+bundle.entry;
+  assert.deepEqual(api[name]({$:'Train'},init,11,0).model,{...init,finishes:1,reason:2});
+});

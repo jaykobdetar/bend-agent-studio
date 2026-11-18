@@ -167,7 +167,7 @@ Options:
 - **(a) Recommended.** Add a `finish: M -> E.Stop -> M` hook, called once at every episode end. Provide a default that leaves the model unchanged, so existing agents need only a mechanical update. This changes the `E.Hooks` type and the generated adapter code in `experiment.mjs` (`bridgeFunctions`). Add a law: `finish` is called exactly once per report.
 - (b) Document that buffering learners require worlds and policies that never produce illegal actions, and assert that in the host. Weaker.
 
-Ask the project owner before choosing. The decision affects every learner below.
+Decision: implement the optional finish hook (a). Evaluation skips it; only completed training reports finalize. See [the lifecycle contract](EXPERIMENTS.md#learner-episode-completion).
 
 ### Learners
 
@@ -252,7 +252,7 @@ Acceptance: covered by `studio/studio_checks.mjs`, including a damaged run in th
 
 Update this table in the same PR as each item.
 
-**What to do next.** Decide A5.0 before adding learners that buffer decisions or transitions. Start with SARSA(0) and L12 tests/laws for whichever episode-end contract is chosen. In parallel, cap peak compiler memory for larger benchmark worlds if compiled Taxi/Blackjack studies are important; their ports and oracle checks work, but a complete compiled study was not verified. Minari and MLflow exports and the Phase 7 ideas remain optional. Keep JavaScript as the production backend (T2.3).
+**What to do next.** The A5.0 finish hook is available. Add SARSA(0) and its learner-specific L12 laws. In parallel, cap peak compiler memory for larger benchmark worlds if compiled Taxi/Blackjack studies are important; their ports and oracle checks work, but a complete compiled study was not verified. Minari and MLflow exports and the Phase 7 ideas remain optional. Keep JavaScript as the production backend (T2.3).
 
 | ID | Status | PR |
 | --- | --- | --- |
@@ -281,7 +281,7 @@ Update this table in the same PR as each item.
 | S4.2 | Implemented: Cassandra export; independent LP value checks on fully observable examples | [#20](https://github.com/jaykobdetar/bend-agent-studio/pull/20) |
 | S4.3 | Implemented: additional off-policy estimators, exact finite-world scoring and dispatch diagnostics | [#21](https://github.com/jaykobdetar/bend-agent-studio/pull/21) |
 | S4.4 | Not started; optional Minari export | |
-| A5.0 | Open design decision: choose the episode-end hook before adding buffered learners | |
+| A5.0 | Implemented: optional train-only episode completion hook and exactly-once laws | |
 | A5.1–A5.6 | Not started | Depends on A5.0 where a learner buffers across transitions |
 | V6.1 | Not started; optional MLflow exporter | |
 | V6.2 | Implemented: unsealed notes and tags in Studio and MCP | [#23](https://github.com/jaykobdetar/bend-agent-studio/pull/23) |

@@ -434,3 +434,79 @@ law logging_base_evaluates_at_zero:
   for obs: O
   for actions: List<&2,U32>
   {Logged.base(~O,~M,~act,model,obs,actions) == act(model,obs,actions,E.Evaluate{},0) : U32}
+
+# Episode-end learning is separate from per-transition learning.
+law evaluation_skips_finish:
+  for -M: Data
+  for finish: M -> E.Stop -> M
+  for model: M
+  for reason: E.Stop
+  {E.finish_model(M,finish,E.Evaluate{},model,reason) == model : M}
+
+law training_finishes_once:
+  for -S: Data
+  for -O: Data
+  for -M: Data
+  for world: E.World<S,O>
+  for act: M -> O -> List<&2,U32> -> E.Mode -> U32 -> U32
+  for learn: M -> E.Transition<O> -> M
+  for finish: M -> E.Stop -> M
+  for model: M
+  for score: F32
+  for steps: Nat
+  for +reason: E.Stop
+  {E.finish_report(S,O,M,E.Finishing{world,act,learn,finish},E.Train{},E.Report{model,score,steps,reason})
+    == E.Report{finish(model,reason),score,steps,reason} : E.Report<M>}
+
+law completed_cursor_never_finishes_twice:
+  for ~S: Data
+  for ~O: Data
+  for ~M: Data
+  for ~world: E.World<S,O>
+  for ~act: M -> O -> List<&2,U32> -> E.Mode -> U32 -> U32
+  for ~learn: M -> E.Transition<O> -> M
+  for ~finish: M -> E.Stop -> M
+  for budget: Nat
+  for mode: E.Mode
+  for report: E.Report<M>
+  {C.segment(~S,~O,~M,~E.Finishing{world,act,learn,finish},mode,budget,C.Finalized{report})
+    == C.Segment{C.Finalized{report},E.get_model(M,report),C.steps(S,O,M,C.Finalized{report}),C.score(S,O,M,C.Finalized{report}),Some{report}} : C.Segment<S,O,M>}
+
+law unfinished_cursor_does_not_finish:
+  for -S: Data
+  for -O: Data
+  for -M: Data
+  for world: E.World<S,O>
+  for act: M -> O -> List<&2,U32> -> E.Mode -> U32 -> U32
+  for learn: M -> E.Transition<O> -> M
+  for finish: M -> E.Stop -> M
+  for mode: E.Mode
+  for left: Nat
+  for state: S
+  for obs: O
+  for actions: List<&2,U32>
+  for model: M
+  for word: U32
+  for score: F32
+  for steps: Nat
+  {C.finalize(S,O,M,E.Finishing{world,act,learn,finish},mode,C.Cursor{1n+left,E.Live{state,obs,actions,model,word,score,steps}})
+    == C.Cursor{1n+left,E.Live{state,obs,actions,model,word,score,steps}} : C.Cursor<S,O,M>}
+
+# This pins the actual complete-episode path, including reset-time terminal
+# states and zero limits: one boundary operation after the entire raw rollout.
+law episode_applies_finish_at_boundary:
+  for ~S: Data
+  for ~O: Data
+  for ~M: Data
+  for ~world: E.World<S,O>
+  for ~act: M -> O -> List<&2,U32> -> E.Mode -> U32 -> U32
+  for ~learn: M -> E.Transition<O> -> M
+  for ~finish: M -> E.Stop -> M
+  for +mode: E.Mode
+  for model: M
+  for seed: U32
+  for limit: Nat
+  {E.episode_raw(~S,~O,~M,~E.Finishing{world,act,learn,finish},mode,model,seed,limit)
+    == E.finish_report(S,O,M,E.Finishing{world,act,learn,finish},mode,
+      E.roll(~S,~O,~M,~E.Finishing{world,act,learn,finish},limit,mode,
+        E.reset_run(S,O,M,world,model,seed))) : E.Report<M>}

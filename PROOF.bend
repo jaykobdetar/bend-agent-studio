@@ -100,6 +100,8 @@ def count_perform(-S:Data,-O:Data,-M:Data,hooks:E.Hooks<S,O,M>,mode:E.Mode,remai
   match hooks:
     case E.Hooks{E.World{reset,inspect,step},act,learn}:
       count_recorded(S,O,M,inspect,learn,mode,remaining,obs,model,action,E.next_seed(seed),score,steps,step(state,action,seed))
+    case E.Finishing{E.World{reset,inspect,step},act,learn,finish}:
+      count_recorded(S,O,M,inspect,learn,mode,remaining,obs,model,action,E.next_seed(seed),score,steps,step(state,action,seed))
 
 def count_attempt(-S:Data,-O:Data,-M:Data,hooks:E.Hooks<S,O,M>,valid:Bool,mode:E.Mode,remaining:Nat,state:S,
     obs:O,model:M,action:U32,seed:U32,score:F32,steps:Nat) ->
@@ -217,12 +219,19 @@ def exhausted_stays_exhausted(~S: Data, ~O: Data, ~M: Data, ~hooks: E.Hooks<S,O,
     case 0n: {==}
     case 1n+p: {==}
 
+def finalized_stays_finalized(~S: Data,~O: Data,~M: Data,~hooks: E.Hooks<S,O,M>,budget: Nat,mode: E.Mode,report: E.Report<M>) ->
+  {C.Finalized{report} == C.advance(~S,~O,~M,~hooks,budget,mode,C.Finalized{report}) : C.Cursor<S,O,M>}:
+  match budget:
+    case 0n: {==}
+    case 1n+p: {==}
+
 def split_budget(~S: Data,~O: Data,~M: Data,~hooks: E.Hooks<S,O,M>, first: Nat, second: Nat,
                  +mode: E.Mode, cursor: C.Cursor<S,O,M>) ->
   {C.advance(~S,~O,~M,~hooks,Nat.add(first,second),mode,cursor) ==
    C.advance(~S,~O,~M,~hooks,second,mode,C.advance(~S,~O,~M,~hooks,first,mode,cursor)) : C.Cursor<S,O,M>}:
   match first cursor:
     case 0n c: {==}
+    case 1n+p C.Finalized{r}: finalized_stays_finalized(~S,~O,~M,~hooks,second,mode,r)
     case 1n+p C.Cursor{left,E.Stopped{r}}:
       stopped_stays_stopped(~S,~O,~M,~hooks,second,mode,left,r)
     case 1n+p C.Cursor{0n,E.Live{state,obs,acts,model,word,score,steps}}:
@@ -660,3 +669,17 @@ def Laws.logging_prefers_outside_buckets(actions,preferred,buckets,word,outside)
   {==}
 
 def Laws.logging_base_evaluates_at_zero(O,M,act,model,obs,actions): {==}
+
+def Laws.evaluation_skips_finish(M,finish,model,reason): {==}
+def Laws.training_finishes_once(S,O,M,world,act,learn,finish,model,score,steps,reason): {==}
+def Laws.unfinished_cursor_does_not_finish(S,O,M,world,act,learn,finish,mode,left,state,obs,actions,model,word,score,steps): {==}
+def Laws.completed_cursor_never_finishes_twice(S,O,M,world,act,learn,finish,budget,mode,report):
+  %finalized_stays_finalized(~S,~O,~M,~E.Finishing{world,act,learn,finish},budget,mode,report) :
+    {C.Segment{C.finalize(S,O,M,E.Finishing{world,act,learn,finish},mode,_),
+      C.model(S,O,M,C.finalize(S,O,M,E.Finishing{world,act,learn,finish},mode,_)),
+      C.steps(S,O,M,C.finalize(S,O,M,E.Finishing{world,act,learn,finish},mode,_)),
+      C.score(S,O,M,C.finalize(S,O,M,E.Finishing{world,act,learn,finish},mode,_)),
+      C.finished(S,O,M,C.finalize(S,O,M,E.Finishing{world,act,learn,finish},mode,_))}
+    == C.Segment{C.Finalized{report},E.get_model(M,report),C.steps(S,O,M,C.Finalized{report}),C.score(S,O,M,C.Finalized{report}),Some{report}} : C.Segment<S,O,M>}
+  {==}
+def Laws.episode_applies_finish_at_boundary(S,O,M,world,act,learn,finish,mode,model,seed,limit): {==}
