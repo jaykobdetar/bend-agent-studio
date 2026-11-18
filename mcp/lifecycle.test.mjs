@@ -29,21 +29,25 @@ test(
     const child = path.join(dir, 'child.mjs'),
       parent = path.join(dir, 'parent.mjs'),
       ready = path.join(dir, 'ready'),
-      marker = path.join(dir, 'marker');
+      marker = path.join(dir, 'marker'),
+      challenge = path.join(dir, 'after-timeout');
     await fs.writeFile(
       child,
-      `import fs from 'node:fs';fs.writeFileSync(process.argv[2],'ready');setTimeout(()=>fs.writeFileSync(process.argv[3],'finished'),5000);`,
+      `import fs from 'node:fs';fs.writeFileSync(process.argv[2],'ready');const poll=setInterval(()=>{if(fs.existsSync(process.argv[4])){fs.writeFileSync(process.argv[3],'survived');clearInterval(poll)}},25);setTimeout(()=>clearInterval(poll),15000).unref();`,
     );
     await fs.writeFile(
       parent,
       `import {spawn} from 'node:child_process';spawn(process.execPath,process.argv.slice(2),{stdio:'ignore'});setInterval(()=>{},10000);`,
     );
     await assert.rejects(
-      exec(process.execPath, [parent, child, ready, marker], {cwd: dir, timeout: 4000}),
+      exec(process.execPath, [parent, child, ready, marker, challenge], {cwd: dir, timeout: 4000}),
       /timed out/,
     );
     assert.equal(await fs.readFile(ready, 'utf8'), 'ready');
-    await wait(5200);
+    // The Windows tree kill may take time. Challenge the descendant after teardown,
+    // not a fixed interval after startup while cancellation might still be running.
+    await fs.writeFile(challenge, 'go');
+    await wait(1200);
     await assert.rejects(fs.access(marker), {code: 'ENOENT'});
   },
 );
