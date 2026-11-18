@@ -2,6 +2,8 @@
 
 Train reinforcement-learning agents in Bend and watch how their decisions change. The local Studio opens with a playable episode. You can scrub through each move, inspect rewards, change learners, and keep a recording of a trained policy.
 
+A separate [Gymnasium adapter](integrations/gymnasium/README.md) lets Python agents play the same JSON finite and grid worlds without changing Studio or its dependencies.
+
 ## Start Studio
 
 Install Node.js 24 or newer, open a terminal in this directory, and run:
@@ -71,3 +73,5 @@ bend PROOF.bend
 `npm test` runs the Node checks, including public-policy oracles and generated memory worlds. If the Bend executable is absent, the six compiler integration tests are marked skipped. With Bend installed, they exercise training, replay, checkpoint persistence, and offline evaluation.
 
 For an independent proof verdict, install Lean 4.34.0 (for example, `elan toolchain install leanprover/lean4:v4.34.0`) and run `bend PROOF.bend --verdict`. Bend 2.0.40 builds and caches its bundled BendTT kernel on first use. You can also set `BENDTT` to a kernel built from the same release.
+
+For fixed-suite comparisons, [analyze.py supports IQM, probability of improvement, and performance profiles](EXPERIMENTS.md#comparing-a-fixed-suite-of-games), with replicate bootstrap intervals and no extra dependencies. Per-game analysis remains the default.

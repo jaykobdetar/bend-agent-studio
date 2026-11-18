@@ -31,6 +31,10 @@ node runs/bridge/code/experiment.mjs replay runs/bridge bridge q 0 256 test 0
 
 The bridge has two choices. The safe choice ends the game with one point. The risky choice leads to a second move and has expected return two. Run `node experiment.mjs oracle worlds/bridge.json 2` to compute the optimal full-state return and the uniform baseline from the transition probabilities.
 
+## Play a finite world in Gymnasium
+
+The optional [Gymnasium adapter](integrations/gymnasium/README.md) uses the same JSON validator, grid expansion and exact integer sampling buckets as the runner. Supply a positive horizon and an explicit U32 seed to reproduce a Bend episode with the same actions. Gym action indices map to potentially sparse Bend IDs; consult the legal-action IDs in the public info. Natural terminal states win over time-limit truncation. For the exact undiscounted report score, use `info["bend_episode_score"]`, which rounds after each accepted move just as Bend does. Run the adapter's Python unittest suite for the Gym checker, sampling comparison, and optional compiled Bend replay comparison.
+
 ## Change the world, policy, or learner
 
 * **A finite state machine** can be written as JSON. Each state has a unique numeric ID, an optional public observation ID, and a list of legal actions. Each action lists possible destination IDs, positive integer weights, and finite rewards. An empty action list marks a terminal state. Start from `worlds/bridge.json`.
@@ -94,6 +98,22 @@ The confirmation specification declares a reference arm, selection metric, budge
 `analyze.py` reports a pointwise 95% percentile bootstrap interval. It resamples trained replicate blocks, keeping paired arms together when a reference is specified. With one replicate the interval is blank. With a few replicates or identical observed values, the interval can be narrow and its coverage can be poor. Report the replicate count and inspect the individual paired differences. Increasing bootstrap draws only refines the resampling calculation. [Hesterberg, 2015](https://doi.org/10.1080/00031305.2015.1089789)
 
 The engine advances a 32-bit linear congruential generator. Its mixed hooks use separate constants and a mixing function for the policy and world draws. Episode starts within a seed block are consecutive. These choices reproduce trajectories and pair comparisons across arms. Statistical independence is an assumption about the experimental design. Changing the generator changes trajectories and would require a separately identified design.
+
+### Comparing a fixed suite of games
+
+Per-game means above remain the default. Opt into suite statistics for a balanced export (training, assessment, or offline scores). For each selected phase and budget, the suite requires the same arms and trained replicate IDs for every game. It never pools checkpoints or counts evaluation episodes as fresh trained replicates. These examples use a CSV with at least two arms, one named `random`:
+
+```sh
+python3 analyze.py study.csv --aggregate probability-of-improvement --reference random
+python3 analyze.py study.csv --aggregate iqm --metric completion
+python3 analyze.py study.csv --aggregate profile --metric completion --threshold 0.8
+```
+
+**IQM** sorts the balanced game-by-replicate scores and trims `floor(N/4)` values off each tail before averaging. With a reference it reports the difference of the two IQMs (not the IQM of individual differences). A **profile** reports the fraction of oriented scores *strictly* above a prespecified threshold; with a reference the output is the difference in fractions. **Probability of improvement** averages, with equal weight per game, the probability that a candidate draw beats a reference draw; ties receive half credit. It compares all cross-arm pairs within each game, so this is not the fraction of matched seeds won. It needs no common reward scale.
+
+For multi-game IQM and profiles, normalize unlike task scales using `--anchors anchors.json`, or declare that native score units are comparable with `--comparable`. Completion, timeout and illegal fractions already share units. The anchor file maps **every** game to `[bad, good]`, for example `{"bridge":[0,2],"detour":[-10,0]}`. Set these before examining test performance. The transform is `(score-bad)/(good-bad)`; it permits reversed anchors, does not clip, and rejects equal endpoints. Without anchors, higher returns/completion and lower timeout/illegal rates count as better; `steps` requires an explicit `--direction higher|lower`. For lower-is-better metrics the oriented score is the negative raw value, so a threshold of `-0.1` for timeout means fewer than 10% timeouts. The output retains phase, budget unit, game count, replicates per game and resampling scheme.
+
+The suite reports *pointwise*, nominal 95% percentile intervals. The default (`--blocks within-game`) holds the game suite fixed, resamples trained replicates within each game and uses the same indices for paired arms. With a shared cross-game replicate effect, choose `--blocks across-games` to move whole replicate vectors together. Neither estimates uncertainty over newly sampled games. Matched Studio arms should not be bootstrapped independently; independent, unrelated arm designs are not supported by this paired interface. A single replicate per game gives a blank interval. Few replicates or tied outcomes can cause severe undercoverage or a zero-width interval; more bootstrap draws do not replace more runs. Repeated thresholds/checkpoints are not simultaneous confidence bands. See [rliable's evaluation methodology](https://github.com/google-research/rliable) for the reference metrics.
 
 ## Transfer and checkpoint selection
 
