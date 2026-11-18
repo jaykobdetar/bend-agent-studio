@@ -227,6 +227,21 @@ law zero_planning_keeps_real_update:
   for gamma: F32
   {Dyna.values(Dyna.plan(0n,q,experience,pairs,seed,alpha,gamma)) == q : T.Table}
 
+# Read only the episode buffer, not the table of learned returns. Keeping this
+# projection in the law module leaves the archived agent's executable unchanged.
+def episode_buffer(model: Player.Model) -> List<&2,Player.DecisionRecord>:
+  Player.Player{cfg,table,history} = model
+  history
+
+law monte_carlo_episode_end_clears_buffer:
+  for cfg: Player.Settings
+  for table: ArenaTable.Tree
+  for history: List<&2,Player.DecisionRecord>
+  for gamma: F32
+  for future: F32
+  {episode_buffer(Player.monte_ending(True{},cfg,table,history,gamma,future))
+    == [] : List<&2,Player.DecisionRecord>}
+
 # Arena rewards use first-seat units; player values use the acting seat's units.
 law arena_second_seat_payoff:
   for reward: F32

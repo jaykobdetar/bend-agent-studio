@@ -50,9 +50,9 @@ Start with [worlds/bridge.json](worlds/bridge.json) for a finite game, [worlds/i
 
 ## Formal Properties
 
-The project declares 26 laws. Their statements and proofs are in [LAWS.bend](LAWS.bend) and [PROOF.bend](PROOF.bend).
+The project declares 27 laws. Their statements and proofs are in [LAWS.bend](LAWS.bend) and [PROOF.bend](PROOF.bend).
 
-- **Learning.** The engine applies the learner once per training transition and preserves the model during evaluation. Updating one Double Q table preserves the other. Dyna planning preserves the recorded experience.
+- **Learning.** The engine applies the learner once per training transition and preserves the model during evaluation. Updating one Double Q table preserves the other. Dyna planning preserves the recorded experience. At episode end the Monte Carlo self-play learner clears its per-episode decision buffer.
 - **Episode boundaries.** Rejecting an illegal action preserves the model, score, and accepted-step count. An open state at the horizon is truncated. A terminal state ends the episode even on the last step. Each report increases the episode count by one, including illegal exits.
 - **Observations and replay.** The history wrapper preserves legal actions and rewards. For the Ferry world, recording a trace preserves the final report, and splitting a step budget produces the same cursor, including the model, random seed, and remaining horizon.
 

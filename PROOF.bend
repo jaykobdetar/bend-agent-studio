@@ -145,5 +145,7 @@ def Laws.offline_terminal_has_no_continuation(method,q,counts,s): {==}
 def Laws.unsupported_action_cannot_enter_backup(a,q,s,options): {==}
 def Laws.zero_planning_keeps_real_update(q,experience,pairs,seed,alpha,gamma): {==}
 
+def Laws.monte_carlo_episode_end_clears_buffer(cfg,table,history,gamma,future): {==}
+
 def Laws.arena_second_seat_payoff(reward): {==}
 def Laws.arena_finished_game_has_no_bootstrap(method,buckets,table): {==}
