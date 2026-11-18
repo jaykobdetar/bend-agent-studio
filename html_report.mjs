@@ -6,7 +6,7 @@ import {fileURLToPath,pathToFileURL} from 'node:url';
 import {execute} from './process_output.mjs';
 import {checkedSnapshot,exportCsv,status,unseal,manifestPath} from './experiment.mjs';
 import {oracle} from './finite_world.mjs';
-import {explainDecisions} from './public_oracle.mjs';
+import {explainDecisions,publicTraceFrames} from './public_oracle.mjs';
 const esc=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]);
 function table(head,rows){return '<table><thead><tr>'+head.map(x=>'<th>'+esc(x)+'</th>').join('')+'</tr></thead><tbody>'+rows.map(r=>'<tr>'+r.map(x=>'<td>'+esc(x)+'</td>').join('')+'</tr>').join('')+'</tbody></table>';}
 function chart(rows){
@@ -58,9 +58,7 @@ export async function writeReport(root,out){
         if(traced.report.score!==r.score)throw Error('archived episode and trace scores differ');
         r.frames=internals.unpack(traced.record).map(internals.frameData);
         body.push('<h3>'+label+' test episode</h3><p>'+esc(arm.id)+' · replicate '+esc(r.replicate)+' · episode '+esc(r.index)+' · seed '+esc(r.seed)+' · return '+esc(r.score)+'</p>');
-        const ids=[...new Set(game.definition.states.map(s=>s.observation))].sort((a,b)=>a-b);
-        const decoded=v=>ids[v%ids.length];
-        const frames=arm.observation==='previous'?r.frames.map(f=>({...f,observation:decoded(f.observation),nextObservation:decoded(f.nextObservation)})):r.frames;
+        const frames=publicTraceFrames(game.definition,r.frames,arm.observation);
         const explain=explainDecisions(game.definition,game.limit,frames,{maxBeliefs:20000});
         body.push(table(['Step','Observation','Action','Reward','Optimal public action','Decision gap'],explain.decisions.map((d,i)=>[d.step,d.observation,d.action,frames[i].reward,d.bestAction,d.gap])));
       }

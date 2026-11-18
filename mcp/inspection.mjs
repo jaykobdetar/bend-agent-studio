@@ -1,3 +1,5 @@
+import {numberPreservingJson} from '../finite_world.mjs';
+import {publicTraceFrames} from '../public_oracle.mjs';
 import path from 'node:path';
 import os from 'node:os';
 import fs from 'node:fs/promises';
@@ -172,8 +174,10 @@ export const inspection = {
       try {
         const world = path.join(tmp, 'world.json'),
           trace = path.join(tmp, 'trace.json');
-        await fs.writeFile(world, JSON.stringify(game.definition), {mode: 0o600});
-        await fs.writeFile(trace, JSON.stringify({frames}), {mode: 0o600});
+        const arm=manifest.body.plan.arms?.find(x=>x.id===a.arm);
+        const source=publicTraceFrames(game.definition,frames,arm?.observation);
+        await fs.writeFile(world, numberPreservingJson(game.definition), {mode: 0o600});
+        await fs.writeFile(trace, numberPreservingJson({frames:source}), {mode: 0o600});
         const out = await ctx.exec(
           process.execPath,
           [
@@ -191,7 +195,7 @@ export const inspection = {
         );
         const {decisions, ...summary} = JSON.parse(out),
           {slice, ...pagination} = paginate(decisions, a);
-        return {...summary, decisions: slice, ...pagination};
+        return {...summary, decisions: slice.map(d=>({...d,observation:frames[d.step].observation})), ...pagination};
       } finally {
         await fs.rm(tmp, {recursive: true, force: true});
       }

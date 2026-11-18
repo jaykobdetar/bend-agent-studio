@@ -133,6 +133,19 @@ export function beliefOracle(world,horizon,options) {
   return publicPlanner(world,horizon,options).summary();
 }
 
+// In a previous-observation arm, H.history_id encodes the ranked public
+// observation in the low radix digit; the planner consumes original world IDs.
+export function publicTraceFrames(world, frames, encoding) {
+  if (encoding !== 'previous') return frames;
+  const ids=[...new Set(world.states.map(s=>s.observation??s.id))].sort((a,b)=>a-b);
+  const n=ids.length;
+  const decode=v=>{
+    if (!Number.isSafeInteger(v)||v<0||v>=n*(n+1)) throw Error('invalid history-encoded observation');
+    return ids[v%n];
+  };
+  return frames.map(f=>({...f,observation:decode(f.observation),nextObservation:decode(f.nextObservation)}));
+}
+
 export function explainDecisions(world,horizon,frames,options={}) {
   if (!Array.isArray(frames) || frames.length>horizon) throw Error('invalid public trace length');
   const planner=publicPlanner(world,horizon,options);

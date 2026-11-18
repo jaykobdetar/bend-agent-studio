@@ -138,4 +138,10 @@ test('replay and explanation use archived coordinates; real oracle computes Brid
   assert.equal(e.decisions[0].step, 1);
   assert.equal(e.discountedDecisionGaps, 0);
   assert.equal(e.nextOffset, null);
+  // Same public trajectory, encoded by H.history_id for a previous-view arm.
+  await fs.writeFile(path.join(dir,'run.json'),seal({plan:{games:[{id:'bridge',definition:world,limit:2}],arms:[{id:'q',observation:'previous'}]}}));
+  frames[0].nextObservation=5; frames[1].observation=5; frames[1].nextObservation=11;
+  const historical=await inspection.explain_episode.run({...a,offset:1},c);
+  assert.equal(historical.decisions[0].observation,5);
+  assert.equal(historical.decisions[0].gap,0);
 });
