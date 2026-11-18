@@ -220,7 +220,8 @@ test('one damaged run leaves healthy runs and the catalog accessible', async (t)
   }
 });
 test('replay deadline and runner failure release capacity', { timeout: 15000 }, async (t) => {
-  const { server, dir, replay } = await mountedReplay(t, 1000);
+  // Give the fixture time to start on loaded CI runners; it still sleeps for two minutes.
+  const { server, dir, replay } = await mountedReplay(t, 3000);
   try {
     const pending = replay(0);
     const pid = await waitForRunner(dir, 0);
@@ -279,13 +280,20 @@ for (const cpuBound of [false, true]) {
     t.after(() => rm(home, { recursive: true, force: true }));
     const options = await controlledCompiler(home, cpuBound);
     const first = await start(home, [], options);
-    let job, oldPid;
+    let job, queued, tail, oldPid;
     try {
       const response = await post(first.url, tinyRun);
       assert.equal(response.status, 201);
       job = await response.json();
       oldPid = await waitForRunner(home, 'compiler');
-      assert.equal((await post(first.url, tinyRun)).status, 409);
+      queued = await (await post(first.url, {...tinyRun,seed:1})).json();
+      const cancelled = await (await post(first.url, {...tinyRun,seed:2})).json();
+      tail = await (await post(first.url, {...tinyRun,seed:3})).json();
+      assert.deepEqual([queued.position,cancelled.position,tail.position],[1,2,3]);
+      assert.equal((await (await fetch(first.url+'/api/runs/'+cancelled.id+'/cancel',{method:'POST'})).json()).status,'cancelled');
+      assert.equal((await readdir(path.join(home,cancelled.id))).includes('plan.json'),false);
+      // A recovered job must use the stored allowlisted specification, not a damaged plan.
+      await writeFile(path.join(home,queued.id,'plan.json'),'{damaged');
     } finally {
       await first.close('SIGKILL');
     }
@@ -293,20 +301,23 @@ for (const cpuBound of [false, true]) {
     // Restart immediately. The disk record alone cannot authorize a new run.
     const second = await start(home, [], options);
     try {
-      const [recovered] = await (await fetch(second.url + '/api/runs')).json();
+      const list = await (await fetch(second.url + '/api/runs')).json();
+      const recovered = list.find(r=>r.id===job.id);
       assert.equal(recovered.id, job.id);
       assert.equal(recovered.status, 'interrupted');
       // The CPU fixture shares its supervisor's PID, which can exit just after unlocking.
       for (let i = 0; i < 100 && !hasExited(oldPid); i++) await delay(25);
       assert.ok(hasExited(oldPid), 'previous training process must have exited');
       assert.ok(!(await readdir(path.join(home, job.id))).some(name => name.startsWith('tmp-')));
-      await rm(options.TEST_COMPILER_PID);
-      const response = await post(second.url, tinyRun);
-      assert.equal(response.status, 201);
-      const next = await response.json();
-      await waitForRunner(home, 'compiler');
-      const cancel = await fetch(second.url + '/api/runs/' + next.id + '/cancel', { method: 'POST' });
-      assert.equal((await cancel.json()).status, 'cancelled');
+      const lookup=async id=>(await (await fetch(second.url+'/api/runs')).json()).find(r=>r.id===id);
+      for(let i=0;i<150&&(await lookup(queued.id)).status==='queued';i++)await delay(30);
+      assert.equal((await lookup(queued.id)).status,'training');
+      assert.equal((await lookup(tail.id)).position,1);
+      assert.equal(JSON.parse(await readFile(path.join(home,queued.id,'plan.json'))).seeds.train,1);
+      const cancel=async id=>(await (await fetch(second.url+'/api/runs/'+id+'/cancel',{method:'POST'})).json()).status;
+      assert.equal(await cancel(queued.id),'cancelled');
+      assert.equal((await lookup(tail.id)).status,'training');
+      assert.equal(await cancel(tail.id),'cancelled');
     } finally {
       await second.close();
     }
@@ -318,9 +329,11 @@ test('loss of the supervisor keeps new training blocked until ownership is resol
   const options = await controlledCompiler(home);
   const trigger = path.join(home, 'exit-host');
   const first = await start(home, [], { ...options, TEST_HOST_EXIT: trigger, TEST_COMPILER_TTL: '3000' });
-  let compiler;
+  let compiler,waiting;
   try {
     assert.equal((await post(first.url, tinyRun)).status, 201);
+    waiting=await (await post(first.url, {...tinyRun,seed:99})).json();
+    assert.equal(waiting.status,'queued');
     compiler = await waitForRunner(home, 'compiler');
     await writeFile(trigger, '');
     assert.equal((await first.exited)[0], 1);
@@ -330,15 +343,21 @@ test('loss of the supervisor keeps new training blocked until ownership is resol
   const second = await start(home, [], options);
   try {
     assert.equal((await post(second.url, tinyRun)).status, 409);
-    assert.equal((await (await fetch(second.url + '/api/runs')).json())[0].status, 'interrupted');
+    const jobs=await (await fetch(second.url + '/api/runs')).json();
+    assert.ok(jobs.some(j=>j.status==='interrupted'));
+    assert.equal(jobs.find(j=>j.id===waiting.id).status,'queued');
     for (let i = 0; i < 200 && !hasExited(compiler); i++) await delay(25);
     assert.ok(hasExited(compiler), 'bounded fixture exits on its own');
     assert.equal((await post(second.url, tinyRun)).status, 409);
     await rm(path.join(home, 'training-active.json'));
     const response = await post(second.url, tinyRun);
     assert.equal(response.status, 201);
-    const { id } = await response.json();
-    await fetch(second.url + '/api/runs/' + id + '/cancel', { method: 'POST' });
+    const { id,status } = await response.json();
+    assert.equal(status,'queued');
+    const current=await (await fetch(second.url+'/api/runs')).json();
+    assert.equal(current.find(j=>j.id===waiting.id).status,'training');
+    await fetch(second.url+'/api/runs/'+id+'/cancel',{method:'POST'});
+    await fetch(second.url+'/api/runs/'+waiting.id+'/cancel',{method:'POST'});
   } finally {
     await second.close();
   }
@@ -451,14 +470,22 @@ test(
       const result = await response.json();
       assert.equal(response.status, 201, result.error);
       id = result.id;
+      const next = await (await post(server.url,{...tinyRun,seed:123})).json();
+      assert.equal(next.status,'queued');
       let run;
       for (let i = 0; i < 300; i++) {
-        [run] = await (await fetch(server.url + '/api/runs')).json();
-        if (run.status !== 'training') break;
+        const listing=await (await fetch(server.url + '/api/runs')).json();
+        run=listing.find(r=>r.id===id);
+        if (run.status !== 'training' && listing.find(r=>r.id===next.id).status==='ready') break;
         await delay(200);
       }
       assert.equal(run.status, 'ready', run.error);
       assert.deepEqual(run.checkpoints, [0, 3, 6, 12]);
+      const nextInfo=(await (await fetch(server.url+'/api/runs')).json()).find(r=>r.id===next.id);
+      assert.equal(nextInfo.status,'ready');assert.ok(nextInfo.started>=run.finished);
+      const summary=await (await fetch(server.url+'/api/runs/'+id+'/summary')).json();
+      assert.deepEqual(summary.series[0].points.map(p=>p.budget),run.checkpoints);
+      assert.ok(summary.series[0].points.every(p=>p.replicates===1&&p.interval===null));
       const url =
         server.url + '/api/runs/' + id + '/replay?game=cliff&arm=q_learning&rep=0&episode=0';
       assert.equal((await fetch(url + '&phase=test&point=3')).status, 400);
@@ -500,4 +527,84 @@ test('demo playback and catalog work without a compiler', async (t) => {
   } finally {
     await server.close();
   }
+});
+
+test('comparison reads sealed validation checkpoints only, groups compatible curves and isolates damage', async t=>{
+  const {comparisonGroups}=await import('./web/compare.js');
+  const home=await mkdtemp(path.join(os.tmpdir(),'studio-summary-'));
+  t.after(()=>rm(home,{recursive:true,force:true}));
+  async function fixture(suffix,unit) {
+    const id='00000000-0000-4000-a000-'+suffix.padStart(12,'0');
+    const job=path.join(home,id),run=path.join(job,'run');
+    await mkdir(run,{recursive:true});
+    await writeFile(path.join(job,'studio.json'),JSON.stringify({id,name:'run '+suffix,status:'ready'}));
+    const plan={name:'fixture',games:[{id:'cliff'}],arms:[{id:'q'},{id:'random'}],
+      checkpoints:[0,8],replicates:2,validationEpisodes:2,testEpisodes:1,budgetUnit:unit};
+    const bytes=seal({plan,toolchain:{node:process.versions.node}}),hash=JSON.parse(bytes).hash;
+    await writeFile(path.join(run,'run.json'),bytes);
+    // No code or backend files exist. A replay-based endpoint could not succeed.
+    for(const arm of plan.arms)for(const rep of [0,1]) {
+      const dir=path.join(run,'trials','cliff',arm.id,String(rep));
+      await mkdir(dir,{recursive:true});let parent=null;
+      for(const budget of plan.checkpoints){
+        const row=seal({experiment:hash,parent,game:'cliff',arm:arm.id,rep,episodes:budget,
+          validation:{episodes:2,sum:2*(2*rep+budget+(arm.id==='q'?0:1))}});
+        await writeFile(path.join(dir,budget+'.json'),row);parent=JSON.parse(row).hash;
+      }
+    }
+    return {id,run,name:'run '+suffix};
+  }
+  const a=await fixture('1','episodes'),b=await fixture('2','steps'),c=await fixture('3','episodes');
+  const server=await start(home,['--run',path.join(home,'absent-archive')]);
+  try {
+    const entries=await(await fetch(server.url+'/api/runs')).json();
+    const unavailable=entries.find(r=>r.name==='absent-archive');
+    assert.equal(unavailable.status,'unavailable');
+    assert.equal((await fetch(server.url+'/api/runs/'+unavailable.id+'/summary')).status,409);
+    const get=async r=>fetch(server.url+'/api/runs/'+r.id+'/summary');
+    const r=await get(a);assert.equal(r.status,200);const good=await r.json();
+    assert.deepEqual(good.series[0].points,[{budget:0,mean:1,interval:[0,2],replicates:2},
+      {budget:8,mean:9,interval:[8,10],replicates:2}]);
+    assert.deepEqual(await (await get(a)).json(),good);
+    const second=await (await get(b)).json(),third=await(await get(c)).json();
+    const selected=new Set([[a.id,'q'],[a.id,'random'],[b.id,'q'],[c.id,'q']].map(k=>JSON.stringify(k)));
+    const result=comparisonGroups([{...a,data:good},{...b,data:second},{...c,data:third}],selected);
+    assert.deepEqual(result.groups.map(g=>[g.unit,g.lines.length]),[['episodes',3],['steps',1]]);
+    await writeFile(path.join(b.run,'trials','cliff','q','1','8.json'),'{}');
+    const damaged=await get(b);assert.equal(damaged.status,422);
+    const withError=comparisonGroups([{...a,data:good},{...b,error:(await damaged.json()).error}],selected);
+    assert.equal(withError.errors.length,1);assert.equal(withError.groups[0].lines.length,2);
+    assert.equal((await get(a)).status,200);
+  } finally {await server.close();}
+});
+
+test('comparison UI builds a line and interval per selected series, preserves healthy data on an error',async(t)=>{
+  // Tiny DOM seam: validates selections, labels, SVG structure and accessible
+  // exact values without making a graphical browser a test dependency.
+  class Element {
+    constructor(tag){this.tag=tag;this.children=[];this.attrs={};this.style={};}
+    append(...nodes){this.children.push(...nodes);}
+    replaceChildren(...nodes){this.children=nodes;}
+    setAttribute(k,v){this.attrs[k]=v;}
+    all(tag){return [...(this.tag===tag?[this]:[]),...this.children.flatMap(c=>c.all(tag))];}
+    text(){return (this.textContent??'')+this.children.map(c=>c.text()).join('');}
+  }
+  const previous=Object.getOwnPropertyDescriptor(globalThis,'document');
+  Object.defineProperty(globalThis,'document',{configurable:true,value:{
+    createElement:tag=>new Element(tag),createElementNS:(_ns,tag)=>new Element(tag),
+    createTextNode:text=>Object.assign(new Element('#text'),{textContent:text})}});
+  t.after(()=>{if(previous)Object.defineProperty(globalThis,'document',previous);else delete globalThis.document;});
+  const {comparisonUI}=await import('./web/compare.js');
+  const panel=new Element('div');
+  const refresh=comparisonUI(panel,async url=>{
+    if(url.includes('/bad/'))throw Error('damaged');
+    return {budgetUnit:'episodes',series:['a','b'].map(arm=>({arm,game:'cliff',gameSpecHash:'f'.repeat(64),
+      points:[{budget:0,mean:-1,interval:[-2,0],replicates:2},{budget:4,mean:1,interval:[0,2],replicates:2}]}))};
+  });
+  refresh([{id:'one',name:'<Run 1>',status:'ready',arms:['a','b']},{id:'bad',name:'Broken',status:'ready',arms:['a']}]);
+  for(const checkbox of panel.all('input')){checkbox.checked=true;checkbox.onchange();}
+  await panel.all('button')[0].onclick();
+  assert.equal(panel.all('polyline').length,2);assert.equal(panel.all('polygon').length,2);
+  assert.equal(panel.all('circle').length,4);assert.equal(panel.all('tr').length,5);
+  assert.match(panel.text(),/Skipped Broken: damaged/);assert.match(panel.text(),/<Run 1>/);
 });

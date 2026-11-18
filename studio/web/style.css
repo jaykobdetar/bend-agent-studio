@@ -856,3 +856,13 @@ dialog::backdrop {
     align-items: flex-start;
   }
 }
+
+.comparison { padding: 1.25rem; margin-top: 1rem; }
+.comparison fieldset { border: 0; padding: .5rem 0; }
+.comparison label { display: block; margin: .25rem 0; }
+.comparison label input { width: auto; }
+.comparison svg { width: 100%; max-width: 56rem; }
+.comparison ul { padding: 0; }
+.comparison li { list-style: none; padding-left: .6rem; margin: .3rem 0; }
+.comparison table { font-size: .85rem; border-spacing: .5rem; text-align: left; }
+.comparison details { overflow-x: auto; }

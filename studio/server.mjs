@@ -7,6 +7,7 @@ import { execFile, execFileSync } from 'node:child_process';
 import { promisify } from 'node:util';
 import { openTrainingHost } from './training-client.mjs';
 import { worlds } from './catalog.mjs';
+import { readSummary } from './summary-reader.mjs';
 import { unseal, checkedSnapshot } from '../experiment.mjs';
 
 const exec = promisify(execFile);
@@ -29,12 +30,14 @@ for (let i = 0; i < args.length; i += 2) {
 if (!Number.isInteger(port) || port < 0 || port > 65535) throw Error('Invalid port');
 fs.mkdirSync(base, { recursive: true });
 const jobs = new Map(),
-  mounted = new Map();
+  mounted = new Map(), unavailableMounts = new Map();
 const replayTimeout = Number(process.env.BEND_STUDIO_REPLAY_TIMEOUT_MS ?? 30000);
 if (!Number.isInteger(replayTimeout) || replayTimeout < 1 || replayTimeout > 2147483647)
   throw Error('BEND_STUDIO_REPLAY_TIMEOUT_MS must be a positive 32-bit integer.');
 const activeReplays = new Set();
 let training;
+let nextOrder = 1, restoring = true;
+const QUEUE_LIMIT = 32;
 let shuttingDown = false;
 function fail(message, status = 400) {
   throw Object.assign(new Error(message), { status });
@@ -45,10 +48,16 @@ function integer(n, min, max, title) {
 }
 const read = (p) => JSON.parse(fs.readFileSync(p, 'utf8'));
 const iso = () => new Date().toISOString();
-for (const dir of mounts) {
-  const m = unseal(path.join(dir, 'run.json'));
-  checkedSnapshot(dir, m);
-  mounted.set('import-' + m.hash, dir);
+for (const [i,dir] of mounts.entries()) {
+  try {
+    const m = unseal(path.join(dir, 'run.json'));
+    checkedSnapshot(dir, m);
+    mounted.set('import-' + m.hash, dir);
+  } catch {
+    // Never register a damaged archive as executable or let it hide healthy runs.
+    const id = 'unavailable-import-'+i;
+    unavailableMounts.set(id,{id,name:path.basename(dir),status:'unavailable',error:'Attached archive failed validation.'});
+  }
 }
 function jobPath(id) {
   if (!/^[a-f0-9-]{36}$/.test(id)) fail('Run not found', 404);
@@ -73,8 +82,14 @@ for (const entry of fs.readdirSync(base, { withFileTypes: true })) {
     try {
       const job = read(p);
       if (job?.id !== entry.name || typeof job.name !== 'string' ||
-          !['training', 'ready', 'failed', 'interrupted', 'cancelled'].includes(job.status))
+          !['training', 'queued', 'ready', 'failed', 'interrupted', 'cancelled'].includes(job.status))
         throw Error('Invalid Studio metadata.');
+      if (job.status === 'queued') {
+        if (!Number.isSafeInteger(job.queueOrder) || job.queueOrder < 1) throw Error('Invalid queue position.');
+        checkSpec(job);
+      }
+      if (Number.isSafeInteger(job.queueOrder) && job.queueOrder > 0)
+        nextOrder = Math.max(nextOrder, job.queueOrder + 1);
       if (job.status === 'training') {
         if (!job.supervised && !fs.existsSync(trainingMarker)) {
           // Legacy runners have no IPC owner. Their identities cannot be recovered safely.
@@ -90,12 +105,15 @@ for (const entry of fs.readdirSync(base, { withFileTypes: true })) {
   }
 }
 function directory(id) {
+  if (unavailableMounts.has(id)) fail('Attached archive is unavailable.',409);
   if (mounted.has(id)) return mounted.get(id);
   if (!jobs.has(id)) fail('Run not found', 404);
   return path.join(jobPath(id), 'run');
 }
 function describe(id) {
+  if (unavailableMounts.has(id)) return unavailableMounts.get(id);
   const j = jobs.get(id);
+  if (j?.status === 'queued') return { ...j, position: pendingJobs().findIndex(q => q.id === id) + 1 };
   if (j && j.status !== 'ready') return j;
   const dir = directory(id),
     manifest = unseal(path.join(dir, 'run.json')),
@@ -112,15 +130,21 @@ function describe(id) {
     budgetUnit: p.budgetUnit ?? 'episodes'
   };
 }
-async function create(input) {
-  if (!training && fs.existsSync(trainingMarker))
-    fail('Previous training needs review. Verify its processes have stopped, then remove training-active.json from the Studio home.', 409);
+function checkSpec(input) {
   if (!input || typeof input !== 'object' || Array.isArray(input)) fail('Expected a JSON object.');
   const w = worlds.find((x) => x.id === input.world),
     a = w?.algorithms.find((x) => x.id === input.algorithm);
   if (!w || !a) fail('Choose an environment and a compatible agent.');
   const n = integer(input.episodes, 1, 32768, 'training budget'),
     seed = integer(input.seed, 0, 1000000000, 'seed');
+  return { w, a, n, seed };
+}
+let versionCheck;
+function checkVersion() {
+  versionCheck ??= probeVersion().catch(err => { versionCheck = undefined; throw err; });
+  return versionCheck;
+}
+async function probeVersion() {
   let version;
   try {
     version = await trainingHost.request('version');
@@ -135,12 +159,12 @@ async function create(input) {
       'Training requires Bend 2.0.40. The configured compiler reports ' + version.trim() + '.',
       503
     );
-  if (shuttingDown) fail('Studio is stopping.', 503);
-  if (training)
-    fail('A training run is already in progress.', 409);
-  const id = randomUUID(),
-    dir = jobPath(id);
-  fs.mkdirSync(dir);
+}
+function pendingJobs() {
+  return [...jobs.values()].filter(j => j.status === 'queued')
+    .sort((a,b) => a.queueOrder-b.queueOrder || a.id.localeCompare(b.id));
+}
+function makePlan({w,a,n,seed}) {
   const { id: method, name, ...params } = a;
   const arena = w.id === 'tic-tac-toe';
   const arm = arena
@@ -172,36 +196,68 @@ async function create(input) {
     testEpisodes: 8,
     seeds: { train: seed, validation: seed + 1100000000, test: seed + 2200000000, stride: 50000 }
   };
-  fs.writeFileSync(path.join(dir, 'plan.json'), JSON.stringify(config, null, 2));
+  return config;
+}
+async function create(input) {
+  if (!training && fs.existsSync(trainingMarker))
+    fail('Previous training needs review. Verify its processes have stopped, then remove training-active.json from the Studio home.', 409);
+  const {w,a,n,seed} = checkSpec(input);
+  await checkVersion();
+  if (shuttingDown) fail('Studio is stopping.', 503);
+  if (pendingJobs().length >= QUEUE_LIMIT) fail('Training queue is full.', 429);
+  if (!Number.isSafeInteger(nextOrder)) fail('Queue order exhausted.', 503);
+  const id = randomUUID(), dir = jobPath(id);
+  fs.mkdirSync(dir);
+
   const job = {
     id,
-    name: w.name + ' · ' + name,
+    name: w.name + ' · ' + a.name,
     world: w.id,
-    algorithm: method,
+    algorithm: a.id,
     episodes: n,
     seed,
     created: iso(),
-    status: 'training',
+    status: 'queued',
+    queueOrder: nextOrder++,
     supervised: true
   };
   save(job);
+  pump();
+  return describe(id);
+}
+function pump() {
+  if (restoring || shuttingDown || training || fs.existsSync(trainingMarker)) return;
+  const queued = pendingJobs()[0];
+  if (!queued) return;
+  const id = queued.id, dir = jobPath(id), job = { ...queued, status: 'training', started: iso() };
+  try {
+    // Reconstruct the catalog-only plan; never execute a stored, edited plan.json on restart.
+    const tmp = path.join(dir, 'plan-'+randomUUID()+'.tmp');
+    fs.writeFileSync(tmp, JSON.stringify(makePlan(checkSpec(job)), null, 2), {flag:'wx'});
+    fs.renameSync(tmp, path.join(dir, 'plan.json'));
+    save(job);
+  } catch (err) {
+    jobs.set(id, { ...job, status: 'unavailable', error: err.message });
+    queueMicrotask(pump);
+    return;
+  }
   const task = { id };
   training = task;
   task.done = trainingHost.request('run', dir)
     .catch(err => ({ status: 'failed', error: err.message }))
     .then(result => {
       try {
-        save({ ...job, ...result });
+        save({ ...job, ...result, finished: iso() });
       } catch (err) {
         jobs.set(id, { ...job, status: 'unavailable', error: err.message });
       }
       training = undefined;
+      pump();
       return jobs.get(id);
     });
-  return job;
 }
 async function stopTraining(task, command) {
-  await trainingHost.request(command);
+  await trainingHost.request(command,jobPath(task.id));
   return task.done;
 }
 async function replay(id, input, res) {
@@ -309,7 +365,7 @@ const server = http.createServer(async (req, res) => {
     };
     if (req.method === 'GET' && u.pathname === '/api/catalog') return json(worlds);
     if (req.method === 'GET' && u.pathname === '/api/runs')
-      return json([...jobs.keys(), ...mounted.keys()].map((id) => {
+      return json([...jobs.keys(), ...mounted.keys(), ...unavailableMounts.keys()].map((id) => {
         try {
           return describe(id);
         } catch (err) {
@@ -320,8 +376,20 @@ const server = http.createServer(async (req, res) => {
       return json(await create(await body(req)), 201);
     const cancel = /^\/api\/runs\/([a-z0-9-]+)\/cancel$/.exec(u.pathname);
     if (req.method === 'POST' && cancel) {
+      const queued = jobs.get(cancel[1]);
+      if (queued?.status === 'queued') {
+        const cancelled = { ...queued, status: 'cancelled', error: 'Cancelled before training.', finished: iso() };
+        save(cancelled);
+        return json(cancelled);
+      }
       if (!training || training.id !== cancel[1]) fail('This run is not training.', 409);
       return json(await stopTraining(training, 'cancel'));
+    }
+    const summary = /^\/api\/runs\/([a-z0-9-]+)\/summary$/.exec(u.pathname);
+    if (req.method === 'GET' && summary) {
+      const id = summary[1], dir = directory(id);
+      if (jobs.has(id) && jobs.get(id).status !== 'ready') fail('This run is not ready.', 409);
+      return json(await readSummary(dir,res));
     }
     const m = /^\/api\/runs\/([a-z0-9-]+)\/replay$/.exec(u.pathname);
     if (req.method === 'GET' && m)
@@ -370,6 +438,18 @@ server.on('error', (e) => {
   trainingHost.close();
   process.exitCode = 1;
 });
-server.listen(port, '127.0.0.1', () =>
-  console.log('Bend Studio is ready at http://127.0.0.1:' + server.address().port)
-);
+server.listen(port, '127.0.0.1', async () => {
+  console.log('Bend Studio is ready at http://127.0.0.1:' + server.address().port);
+  if (pendingJobs().length && !fs.existsSync(trainingMarker)) {
+    try { await checkVersion(); }
+    catch (err) {
+      // No run has started. Preserve queued jobs; a later successful submit
+      // or a restart with a usable compiler can resume FIFO processing.
+      console.error('Recovered jobs remain queued:', err.message);
+      restoring = false;
+      return;
+    }
+  }
+  restoring = false;
+  pump();
+});
