@@ -75,6 +75,27 @@ law terminal_is_never_truncated:
   for obs: O
   {E.truncated(O, remaining, E.End{obs}) == False{} : Bool}
 
+# Natural counters include all steps already taken before entry to this run.
+def report_steps(-M: Data, report: E.Report<M>) -> Nat:
+  E.Report{model,score,steps,reason} = report
+  steps
+
+def run_steps(-S: Data, -O: Data, -M: Data, run: E.Run<S,O,M>) -> Nat:
+  match run:
+    case E.Live{state,obs,actions,model,seed,score,steps}: steps
+    case E.Stopped{report}: report_steps(M,report)
+
+law roll_steps_within_budget:
+  for ~S: Data
+  for ~O: Data
+  for ~M: Data
+  for ~hooks: E.Hooks<S,O,M>
+  for fuel: Nat
+  for +mode: E.Mode
+  for run: E.Run<S,O,M>
+  {Nat.is_le(report_steps(M,E.roll(~S,~O,~M,~hooks,fuel,mode,run)),
+    Nat.add(fuel,run_steps(S,O,M,run))) == True{} : Bool}
+
 # Averages and completion rates use this denominator, including failed episodes.
 law every_report_counts_once:
   for totals: E.Totals
