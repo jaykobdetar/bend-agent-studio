@@ -1,0 +1,1 @@
+{"schema":1,"name":"minari-fixture","game":"cliff","arm":"q-learning","checkpoint":128,"epsilon":0.5,"fitEpisodes":4,"holdoutEpisodes":2,"seeds":{"fit":800000000,"holdout":900000000,"stride":10000}}
