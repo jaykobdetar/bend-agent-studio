@@ -229,6 +229,22 @@ test('one damaged run leaves healthy runs and the catalog accessible', async (t)
     await server.close();
   }
 });
+test('reopening a Studio home preserves newest-first job order, including legacy timestamps', async t => {
+  const home = await mkdtemp(path.join(os.tmpdir(),'studio-order-'));
+  t.after(()=>rm(home,{recursive:true,force:true}));
+  const records = [
+    ['a','newer',{queueOrder:2}], ['b','older',{queueOrder:1}],
+    ['c','legacy-newer',{created:'2023-01-01T00:00:00Z'}],
+    ['d','legacy-older',{created:'2022-01-01T00:00:00Z'}]
+  ];
+  for(const [letter,name,detail] of records) {
+    const id=letter.repeat(36),dir=path.join(home,id);await mkdir(dir);
+    await writeFile(path.join(dir,'studio.json'),JSON.stringify({id,name,status:'cancelled',...detail}));
+  }
+  const server=await start(home);
+  try {assert.deepEqual((await(await fetch(server.url+'/api/runs')).json()).map(j=>j.name),records.map(r=>r[1]));}
+  finally {await server.close();}
+});
 test('replay deadline and runner failure release capacity', { timeout: 15000 }, async (t) => {
   // Give the fixture time to start on loaded CI runners; it still sleeps for two minutes.
   const { server, dir, replay } = await mountedReplay(t, 3000);
@@ -624,4 +640,14 @@ test('comparison UI builds a line and interval per selected series, preserves he
   assert.equal(panel.all('polyline').length,2);assert.equal(panel.all('polygon').length,2);
   assert.equal(panel.all('circle').length,4);assert.equal(panel.all('tr').length,5);
   assert.match(panel.text(),/Skipped Broken: damaged/);assert.match(panel.text(),/<Run 1>/);
+
+  // Two native runs of one preset have the same display name, not the same identity.
+  refresh([['first',4,0],['second',16,3141]].map(([id,episodes,seed])=>({
+    id,name:'Cliff Walk · Q-learning',status:'ready',arms:['a'],algorithm:'a',episodes,seed})));
+  const labels=panel.all('label').map(el=>el.text().trim());
+  assert.match(labels[0],/4 episodes · seed 0/);assert.match(labels[1],/16 episodes · seed 3141/);
+  for(const checkbox of panel.all('input')){checkbox.checked=true;checkbox.onchange();}
+  await panel.all('button')[0].onclick();
+  assert.deepEqual(panel.all('li').map(el=>el.text()),labels.map(label=>label+' · 2 replicate(s)'));
+
 });

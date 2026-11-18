@@ -105,6 +105,16 @@ for (const entry of fs.readdirSync(base, { withFileTypes: true })) {
     }
   }
 }
+// The live map is insertion ordered; UUID directory enumeration is not.
+// Restore that ordering once so a restart doesn't shuffle the run list.
+{
+  const order = j => Number.isSafeInteger(j.queueOrder) && j.queueOrder > 0 ? j.queueOrder : 0;
+  const created = j => typeof j.created === 'string' ? j.created : '';
+  const recovered = [...jobs.values()].sort((a,b) => order(a)-order(b) ||
+    created(a).localeCompare(created(b)) || a.id.localeCompare(b.id));
+  jobs.clear();
+  for (const job of recovered) jobs.set(job.id,job);
+}
 function directory(id) {
   if (unavailableMounts.has(id)) fail('Attached archive is unavailable.',409);
   if (mounted.has(id)) return mounted.get(id);

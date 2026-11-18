@@ -2,6 +2,12 @@
 const palette=['#71d4bc','#ff986f','#b69aff','#80b8ff','#d6bd62','#ee99c4','#96c973','#a2a8ee'];
 const E=(tag,text)=>{const e=document.createElement(tag);if(text!==undefined)e.textContent=text;return e;};
 const svg=(tag,attrs)=>{const e=document.createElementNS('http://www.w3.org/2000/svg',tag);for(const [k,v] of Object.entries(attrs))e.setAttribute(k,v);return e;};
+// Keep the chooser, legend and exact-value table on the same run identity.
+function seriesLabel(run,arm) {
+  const detail=run.algorithm===arm && Number.isInteger(run.seed) && Number.isInteger(run.episodes)
+    ? run.episodes+' episodes · seed '+run.seed : arm;
+  return run.name+' · '+detail+' · '+run.id.slice(-8);
+}
 export function comparisonGroups(results,selected) {
   const groups=new Map(),errors=[];
   for(const r of results) {
@@ -10,7 +16,7 @@ export function comparisonGroups(results,selected) {
       if(!selected.has(JSON.stringify([r.id,s.arm])))continue;
       const key=JSON.stringify([s.game,s.gameSpecHash,r.data.budgetUnit]);
       if(!groups.has(key))groups.set(key,{game:s.game,gameSpecHash:s.gameSpecHash,unit:r.data.budgetUnit,lines:[]});
-      groups.get(key).lines.push({label:r.name+' · '+s.arm+' · '+r.id.slice(-8),points:s.points});
+      groups.get(key).lines.push({label:seriesLabel(r,s.arm),points:s.points});
     }
   }
   return {groups:[...groups.values()],errors};
@@ -64,14 +70,14 @@ export function comparisonUI(container,api) {
   };
   return all=>{
     runs=all.filter(r=>r.status==='ready');
-    const list=JSON.stringify(runs.map(r=>[r.id,r.name,r.arms]));if(list===lastList)return;lastList=list;
+    const list=JSON.stringify(runs.map(r=>[r.id,r.name,r.arms,r.algorithm,r.seed,r.episodes]));if(list===lastList)return;lastList=list;
     const valid=new Set(runs.flatMap(r=>r.arms.map(a=>JSON.stringify([r.id,a]))));
     for(const k of selected)if(!valid.has(k))selected.delete(k);
     const entries=[];
     for(const r of runs)for(const a of r.arms){
       const k=JSON.stringify([r.id,a]),label=E('label'),input=E('input');input.type='checkbox';input.checked=selected.has(k);
       input.onchange=()=>{generation++;if(input.checked && selected.size>=limit){input.checked=false;output.replaceChildren(E('p','Compare at most eight series selections.'));}else{if(input.checked)selected.add(k);else selected.delete(k);output.replaceChildren();}go.disabled=!selected.size;};
-      label.append(input,document.createTextNode(' '+r.name+' · '+a));entries.push(label);
+      label.append(input,document.createTextNode(' '+seriesLabel(r,a)));entries.push(label);
     }
     form.replaceChildren(legend,...(entries.length?entries:[E('p','No ready runs to compare.')]));
     go.disabled=!selected.size;
