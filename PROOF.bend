@@ -24,6 +24,9 @@ def Laws.terminal_view_stops(S, O, M, state, model, seed, score, steps, observat
 def Laws.open_at_limit_is_truncated(O, obs, actions):
   {==}
 
+def Laws.positive_budget_is_never_truncated(O, n, view):
+  {==}
+
 def Laws.terminal_is_never_truncated(O, remaining, obs):
   match remaining:
     case 0n:
