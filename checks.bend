@@ -1,6 +1,7 @@
 import Base
 import ./engine.bend as E
 import ./doors.bend as Doors
+import ./history.bend as H
 import ./main.bend as Demo
 import ./bandit.bend as Bandit
 
@@ -77,6 +78,29 @@ def totals_are(got: Pair(U32, E.Totals), model: U32, score: F32, steps: Nat,
   U32.is_eq(m, model) && F32.is_eq(s, score) && Nat.is_eq(n, steps) &&
     Nat.is_eq(t, terminal) && Nat.is_eq(l, limited) && Nat.is_eq(i, illegal)
 
+# Use the adapter's actual start and step callbacks. A prior episode advances
+# its public memory; the next reset has the new world seed and the original memory.
+def fresh_after_step(prior: Pair(H.State<Nat,U32>, F32), fresh: H.State<Nat,U32>) -> Bool:
+  (H.Remembered{first_state, advanced_memory}, reward) = prior
+  H.Remembered{next_state, fresh_memory} = fresh
+  Nat.is_eq(first_state, 3n) && U32.is_eq(advanced_memory, 42) &&
+    Nat.is_eq(next_state, 9n) && U32.is_eq(fresh_memory, 41)
+
+def advanced_history(world: E.World<H.State<Nat,U32>,U32>) -> Pair(H.State<Nat,U32>, F32):
+  E.World{start, show, move} = world
+  move(start(4), 7, 0)
+
+def new_history(world: E.World<H.State<Nat,U32>,U32>) -> H.State<Nat,U32>:
+  E.World{start, show, move} = world
+  start(9)
+
+def wrapped_resets(~world: E.World<H.State<Nat,U32>,U32>) -> Bool:
+  fresh_after_step(advanced_history(world), new_history(world))
+
+def counting_history() -> E.World<H.State<Nat,U32>,U32>:
+  H.wrap(~Nat, ~Nat, ~U32, ~U32, ~reset, ~view, ~step, ~41,
+    ~(h => o => h), ~(h => o => a => r => next => U32.add(h, 1)))
+
 def check(label: String, ok: Bool) -> IO(Unit):
   match ok:
     case True{}:
@@ -94,6 +118,7 @@ def main() -> IO(Unit):
   before = Demo.score(Demo.evaluate(Bandit.initial()))
   after = Demo.after_training(Demo.train(Bandit.initial()))
   do IO<Unit>:
+    check("history wrapper resets world seed and episode memory", wrapped_resets(~counting_history()))
     check("terminal at reset", report_is(run(E.Train{}, 0, 4n), 0, 0.0, 0n, E.Terminal{}))
     check("zero step limit", report_is(run(E.Train{}, 2, 0n), 0, 0.0, 0n, E.Limit{}))
     check("terminal at reset with zero fuel", report_is(run(E.Train{}, 0, 0n), 0, 0.0, 0n, E.Terminal{}))
