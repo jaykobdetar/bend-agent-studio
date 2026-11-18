@@ -1,0 +1,62 @@
+{
+  "deep-sea-3": {
+    "horizon": 3,
+    "optimal": 0.9900000030174851,
+    "uniform": 0.12000000028638169
+  },
+  "deep-sea-5": {
+    "horizon": 5,
+    "optimal": 0.9900000253692269,
+    "uniform": 0.02625000057014404
+  },
+  "umbrella-3": {
+    "horizon": 3,
+    "optimal": 1,
+    "uniform": 0
+  },
+  "umbrella-5": {
+    "horizon": 5,
+    "optimal": 1,
+    "uniform": 0
+  },
+  "memory-3": {
+    "horizon": 3,
+    "optimal": 1,
+    "uniform": 0
+  },
+  "memory-5": {
+    "horizon": 5,
+    "optimal": 1,
+    "uniform": 0
+  },
+  "discount-3": {
+    "horizon": 3,
+    "optimal": 1.25,
+    "uniform": 1.125
+  },
+  "discount-6": {
+    "horizon": 6,
+    "optimal": 1.25,
+    "uniform": 1.125
+  },
+  "bandit-2": {
+    "horizon": 1,
+    "optimal": 0.5,
+    "uniform": 0
+  },
+  "bandit-4": {
+    "horizon": 1,
+    "optimal": 0.5,
+    "uniform": -0.25
+  },
+  "catch-2": {
+    "horizon": 2,
+    "optimal": 1,
+    "uniform": 0
+  },
+  "catch-4": {
+    "horizon": 2,
+    "optimal": 1,
+    "uniform": -0.4999999999999999
+  }
+}
