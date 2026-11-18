@@ -57,10 +57,13 @@ test(
     });
     assert.equal(s.rows.length, 1);
     assert.equal(s.rows[0].replicates, 2);
+    const annotation={notes:'Baseline <b>trial</b>',tags:['pilot']};
+    await fs.writeFile(path.join(dir,'run','notes.json'),JSON.stringify(annotation));
     const verified = await call('verify_run', {run: 'run'});
     assert.equal(verified.verified, true);
     const listed = await call('list_runs', {root: '.'});
     assert.ok(listed.runs.some((x) => x.verified && x.complete && x.name === 'run'));
+    assert.deepEqual(listed.runs.find(x=>x.name==='run').annotations,annotation);
     const curve = await call('learning_curve', {run: 'run', phase: 'validation', draws: 100});
     assert.ok(curve.series.some((s) => s.arm === 'q' && s.points.length >= 2));
     const checkpoint = await call('get_checkpoint', {
