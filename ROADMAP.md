@@ -256,7 +256,7 @@ Update this table in the same PR as each item.
 | --- | --- | --- |
 | P0.1 | In progress | |
 | P0.2 | In progress | |
-| P0.3 | Assigned | |
+| P0.3 | Implemented; under review | roadmap/p03-statistics |
 | P0.4 | Assigned | |
 | L1–L12 | Not started | |
 | T2.1–T2.3 | Not started | |

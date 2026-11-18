@@ -95,6 +95,22 @@ The confirmation specification declares a reference arm, selection metric, budge
 
 The engine advances a 32-bit linear congruential generator. Its mixed hooks use separate constants and a mixing function for the policy and world draws. Episode starts within a seed block are consecutive. These choices reproduce trajectories and pair comparisons across arms. Statistical independence is an assumption about the experimental design. Changing the generator changes trajectories and would require a separately identified design.
 
+### Comparing a fixed suite of games
+
+Per-game means above remain the default. Opt into suite statistics for a balanced export (training, assessment, or offline scores). For each selected phase and budget, the suite requires the same arms and trained replicate IDs for every game. It never pools checkpoints or counts evaluation episodes as fresh trained replicates. These examples use a CSV with at least two arms, one named `random`:
+
+```sh
+python3 analyze.py study.csv --aggregate probability-of-improvement --reference random
+python3 analyze.py study.csv --aggregate iqm --metric completion
+python3 analyze.py study.csv --aggregate profile --metric completion --threshold 0.8
+```
+
+**IQM** sorts the balanced game-by-replicate scores and trims `floor(N/4)` values off each tail before averaging. With a reference it reports the difference of the two IQMs (not the IQM of individual differences). A **profile** reports the fraction of oriented scores *strictly* above a prespecified threshold; with a reference the output is the difference in fractions. **Probability of improvement** averages, with equal weight per game, the probability that a candidate draw beats a reference draw; ties receive half credit. It compares all cross-arm pairs within each game, so this is not the fraction of matched seeds won. It needs no common reward scale.
+
+For multi-game IQM and profiles, normalize unlike task scales using `--anchors anchors.json`, or declare that native score units are comparable with `--comparable`. Completion, timeout and illegal fractions already share units. The anchor file maps **every** game to `[bad, good]`, for example `{"bridge":[0,2],"detour":[-10,0]}`. Set these before examining test performance. The transform is `(score-bad)/(good-bad)`; it permits reversed anchors, does not clip, and rejects equal endpoints. Without anchors, higher returns/completion and lower timeout/illegal rates count as better; `steps` requires an explicit `--direction higher|lower`. For lower-is-better metrics the oriented score is the negative raw value, so a threshold of `-0.1` for timeout means fewer than 10% timeouts. The output retains phase, budget unit, game count, replicates per game and resampling scheme.
+
+The suite reports *pointwise*, nominal 95% percentile intervals. The default (`--blocks within-game`) holds the game suite fixed, resamples trained replicates within each game and uses the same indices for paired arms. With a shared cross-game replicate effect, choose `--blocks across-games` to move whole replicate vectors together. Neither estimates uncertainty over newly sampled games. Matched Studio arms should not be bootstrapped independently; independent, unrelated arm designs are not supported by this paired interface. A single replicate per game gives a blank interval. Few replicates or tied outcomes can cause severe undercoverage or a zero-width interval; more bootstrap draws do not replace more runs. Repeated thresholds/checkpoints are not simultaneous confidence bands. See [rliable's evaluation methodology](https://github.com/google-research/rliable) for the reference metrics.
+
 ## Transfer and checkpoint selection
 
 Declare additional test-only worlds in `evaluationGames`. Specify which training game and arm supply each model, the target games, and a fresh assessment seed block. A comparison can choose a fixed checkpoint, `final`, or `best-validation`. The latter compares mean source validation returns within each replicate and chooses the earliest tied checkpoint. `minimumBudget` can limit the candidates. Targets must use compatible observation and action meanings.
