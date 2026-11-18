@@ -7,7 +7,7 @@ import {randomUUID} from 'node:crypto';
 import {canonical,checkSeedBlocks,digest,games,seedOf,settings,trials,validate} from './experiment_config.mjs';
 
 import {bundleAgent} from './agent_source.mjs';
-import {bendSource,floatLiteral,numberPreservingJson,oracle,reactiveOracle,symbol,worldDefinition} from './finite_world.mjs';
+import {discountedOracle,bendSource,floatLiteral,numberPreservingJson,oracle,reactiveOracle,symbol,worldDefinition} from './finite_world.mjs';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const json = filename => JSON.parse(fs.readFileSync(filename,'utf8'));
@@ -559,6 +559,10 @@ async function main(argv) {
   const [cmd,arg,...rest]=argv;
   if (cmd==='validate'&&arg&&rest.length===0) {
     const p=readPlan(arg); console.log('Valid plan: '+p.name+', '+p.games.length*p.arms.length*p.replicates+' trials.'); return;
+  }
+  if(cmd==='oracle'&&arg&&rest[0]==='--discount'){
+    if(!(rest.length===2 || rest.length===4&&rest[2]==='--tolerance')) throw Error('expected --discount G [--tolerance E]');
+    console.log(JSON.stringify(discountedOracle(worldDefinition(json(arg)),Number(rest[1]),rest.length===4?Number(rest[3]):undefined),null,2));return;
   }
   if (cmd==='oracle'&&arg&&(rest.length===1 || (rest.length===2 && rest[1]==='--reactive'))) {
     const solve=rest.length===2?reactiveOracle:oracle;
