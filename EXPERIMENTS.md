@@ -186,3 +186,15 @@ node world_campaign.mjs --bend bend --seed 30000 --worlds 4 --episodes 128 --bat
 ```
 
 The independent verdict needs a matching BendTT kernel available to Bend. The randomized campaign compiles newly generated games and compares boundary transitions, episode reports, and paused execution with an independent simulator. Its output lists the seed and source fingerprints so a failing batch can be repeated.
+
+### Parallel trials on one machine
+
+Add `--jobs 4` to `node experiment.mjs run PLAN OUT` to compile once and
+distribute independent trials to up to four archived Node workers. Each owns
+an ordinary disjoint shard; checkpoint contents and seeds are unchanged.
+Choose 1–32 workers, allowing for a model and backend in memory per worker.
+Use `--until N` to stop at a declared checkpoint. Resume without Bend with
+`node OUT/code/experiment.mjs resume OUT --jobs 4`. The worker count may
+change on resume. Do not combine this option with an explicit `--shard`.
+A failed worker stops its peers; resume from the last published checkpoints.
+Use `node OUT/code/experiment.mjs verify OUT` after completion.
