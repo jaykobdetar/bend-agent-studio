@@ -137,3 +137,8 @@ def q_learning(model: Table, event: E.Transition<U32>) -> Table:
 
 def expected_sarsa(model: Table, event: E.Transition<U32>) -> Table:
   td(Expected{}, model, event)
+
+# Representation-independent observation of the entry produced by revised.
+def entry_value(entry: Entry) -> F32:
+  match entry:
+    case Entry{s,a,n,v}: v
