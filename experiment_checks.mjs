@@ -174,6 +174,19 @@ test('transfer targets receive frozen models and validation ties choose the earl
   await invoke('assess',root,file,out);
 });
 
+test('optional run annotations reject oversize, malformed and linked files',async t=>{
+  const {readRunNotes}=await import('./run_notes.mjs'),dir=directory(t),file=path.join(dir,'notes.json');
+  assert.deepEqual(readRunNotes(dir),{});
+  for(const content of ['not json','x'.repeat(17000),'{"tags":[""]}','{"notes":null}']){
+    fs.writeFileSync(file,content);assert.ok(readRunNotes(dir).annotationWarning);
+  }
+  fs.writeFileSync(file,JSON.stringify({notes:'line one\n<script>x</script>',tags:['v1']}));
+  assert.deepEqual(readRunNotes(dir).annotations.tags,['v1']);
+  if(process.platform!=='win32'){
+    fs.renameSync(file,file+'.bak');fs.symlinkSync(file+'.bak',file);assert.ok(readRunNotes(dir).annotationWarning);
+  }
+});
+
 test('portable report embeds analyze.py rows and exact finite-world replay decisions',compilerTest,async t=>{
   const d=directory(t),root=path.join(d,'run'),file=path.join(d,'bridge.json'),out=path.join(d,'report.html');
   const p=plan({games:[{id:'bridge',definition:read(path.join(here,'worlds','bridge.json')),limit:2}],replicates:1,checkpoints:[0,2]});
