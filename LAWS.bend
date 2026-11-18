@@ -237,3 +237,23 @@ law arena_finished_game_has_no_bootstrap:
   for buckets: U32
   for table: ArenaTable.Tree
   {Player.first_value(method,buckets,table,E.End{Arena.Over{}}) == 0.0 : F32}
+
+# Replay reconstructs completed episodes with E.episode; training may advance
+# the opaque cursor one segment at a time. The equivalence covers every field
+# of the report, including model, F32 score, accepted steps, and stop reason.
+law cursor_finishes_as_episode:
+  for ~S: Data
+  for ~O: Data
+  for ~M: Data
+  for ~reset: U32 -> S
+  for ~inspect: S -> E.View<O>
+  for ~step: S -> U32 -> U32 -> Pair(S,F32)
+  for ~act: M -> O -> List<&2,U32> -> E.Mode -> U32 -> U32
+  for ~learn: M -> E.Transition<O> -> M
+  for +model: M
+  for +seed: U32
+  for +mode: E.Mode
+  for +limit: Nat
+  {C.finished(S,O,M,C.advance(~S,~O,~M,~E.Hooks{E.World{reset,inspect,step},act,learn},limit,mode,
+    C.start(~S,~O,~M,~E.Hooks{E.World{reset,inspect,step},act,learn},model,seed,limit))) ==
+    Some{E.episode(~S,~O,~M,~E.Hooks{E.World{reset,inspect,step},act,learn},mode,model,seed,limit)} : Maybe<&2,E.Report<M>>}

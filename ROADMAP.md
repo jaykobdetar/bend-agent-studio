@@ -258,7 +258,8 @@ Update this table in the same PR as each item.
 | P0.2 | In progress | |
 | P0.3 | Assigned | |
 | P0.4 | Assigned | |
-| L1–L12 | Not started | |
+| L5 | Implemented; review pending | [Cursor/episode equivalence](https://github.com/jaykobdetar/bend-agent-studio/pulls?q=is%3Apr+head%3Alaw%2Fcursor-completes-episode) |
+| L1–L4, L6–L12 | Not started | |
 | T2.1–T2.3 | Not started | |
 | B3.1–B3.2 | Not started | |
 | S4.1–S4.4 | Not started | |

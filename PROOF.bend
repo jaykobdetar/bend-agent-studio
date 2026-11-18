@@ -147,3 +147,21 @@ def Laws.zero_planning_keeps_real_update(q,experience,pairs,seed,alpha,gamma): {
 
 def Laws.arena_second_seat_payoff(reward): {==}
 def Laws.arena_finished_game_has_no_bootstrap(method,buckets,table): {==}
+
+# Stronger induction hypothesis: resume from any run with exactly its fuel.
+# Cursor.one applies the mixed hooks; roll itself receives the same mixed hooks.
+def cursor_completes_roll(~S:Data,~O:Data,~M:Data,~hooks:E.Hooks<S,O,M>,+fuel:Nat,+mode:E.Mode,+run:E.Run<S,O,M>) ->
+  {C.finished(S,O,M,C.advance(~S,~O,~M,~hooks,fuel,mode,C.Cursor{fuel,run})) ==
+    Some{E.roll(~S,~O,~M,~E.mixed_hooks(S,O,M,hooks),fuel,mode,run)} : Maybe<&2,E.Report<M>>}:
+  match fuel run:
+    case 0n E.Stopped{report}: {==}
+    case 0n E.Live{state,obs,actions,model,word,score,steps}: {==}
+    case 1n+left E.Stopped{report}: {==}
+    case 1n++left E.Live{state,obs,actions,model,word,score,steps}:
+      choice=E.decide(~S,~O,~M,~E.mixed_hooks(S,O,M,hooks),mode,left,state,obs,actions,model,word,score,steps)
+      next=E.turn_run(S,O,M,E.decision_turn(S,O,M,choice))
+      cursor_completes_roll(~S,~O,~M,~hooks,left,mode,next)
+
+def Laws.cursor_finishes_as_episode(S,O,M,reset,inspect,step,act,learn,model,seed,mode,limit):
+  cursor_completes_roll(~S,~O,~M,~E.Hooks{E.World{reset,inspect,step},act,learn},limit,mode,
+    E.reset_run(S,O,M,E.World{reset,inspect,step},model,seed))
