@@ -237,3 +237,51 @@ law arena_finished_game_has_no_bootstrap:
   for buckets: U32
   for table: ArenaTable.Tree
   {Player.first_value(method,buckets,table,E.End{Arena.Over{}}) == 0.0 : F32}
+
+# A signed natural difference: (a,0) or (0,b), never saturating at zero.
+# Equality of these normal forms says two counters changed by the same amount.
+def counter_difference(m: Nat, s: Nat) -> Pair(Nat, Nat):
+  match m s:
+    case 0n b: (0n, b)
+    case 1n+a 0n: (1n+a, 0n)
+    case 1n+a 1n+b: counter_difference(a,b)
+
+def accounting(mode: E.Mode, m: Nat, s: Nat) -> Pair(Nat,Nat):
+  match mode:
+    case E.Evaluate{}: (m,0n)
+    case E.Train{}: counter_difference(m,s)
+
+def report_account(mode: E.Mode, report: E.Report<Nat>) -> Pair(Nat,Nat):
+  E.Report{m,score,steps,reason} = report
+  accounting(mode,m,steps)
+
+def run_account(-S: Data, -O: Data, +mode: E.Mode, run: E.Run<S,O,Nat>) -> Pair(Nat,Nat):
+  match run:
+    case E.Live{s,o,acts,m,seed,score,steps}: accounting(mode,m,steps)
+    case E.Stopped{report}: report_account(mode,report)
+
+def counting(-O: Data, m: Nat, event: E.Transition<O>) -> Nat: 1n+m
+
+law evaluation_episode_freezes_counter:
+  for ~S: Data
+  for ~O: Data
+  for ~reset: U32 -> S
+  for ~inspect: S -> E.View<O>
+  for ~step: S -> U32 -> U32 -> Pair(S,F32)
+  for ~act: Nat -> O -> List<&2,U32> -> E.Mode -> U32 -> U32
+  for fuel: Nat
+  for +run: E.Run<S,O,Nat>
+  {report_account(E.Evaluate{}, E.roll(~S,~O,~Nat,~E.Hooks{E.World{reset,inspect,step},act,counting(O)},fuel,E.Evaluate{},run))
+   == run_account(S,O,E.Evaluate{},run) : Pair(Nat,Nat)}
+
+law training_episode_counts_accepted_steps:
+  for ~S: Data
+  for ~O: Data
+  for ~reset: U32 -> S
+  for ~inspect: S -> E.View<O>
+  for ~step: S -> U32 -> U32 -> Pair(S,F32)
+  for ~act: Nat -> O -> List<&2,U32> -> E.Mode -> U32 -> U32
+  for fuel: Nat
+  for +run: E.Run<S,O,Nat>
+  {report_account(E.Train{}, E.roll(~S,~O,~Nat,~E.Hooks{E.World{reset,inspect,step},act,counting(O)},fuel,E.Train{},run))
+   == run_account(S,O,E.Train{},run) : Pair(Nat,Nat)}
