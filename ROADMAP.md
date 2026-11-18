@@ -287,7 +287,7 @@ Update this table in the same PR as each item.
 | A5.3 | Implemented: tabular and linear expected TD(λ) | [Notes](docs/td-lambda.md) |
 | A5.4 | Implemented: softmax REINFORCE with frozen state baseline | [Notes](docs/reinforce.md) |
 | A5.5 | Implemented: typed sparse feature maps and action-specific linear weights | [Notes and measured limitations](docs/linear.md) |
-| A5.6 | Not started | Depends on A5.0 where a learner buffers across transitions |
+| A5.6 | Implemented: tiny clipped-ratio policy gradient with frozen batches | [Notes](docs/clipped-policy-gradient.md) |
 | V6.1 | Not started; optional MLflow exporter | |
 | V6.2 | Implemented: unsealed notes and tags in Studio and MCP | [#23](https://github.com/jaykobdetar/bend-agent-studio/pull/23) |
 | V6.3 | Implemented: self-contained offline reports | [#25](https://github.com/jaykobdetar/bend-agent-studio/pull/25) |

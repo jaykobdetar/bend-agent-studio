@@ -62,6 +62,7 @@ jobs:
           bend td_lambda_checks.bend
           bend reinforce_checks.bend
           bend linear_checks.bend
+          bend clipped_pg_checks.bend
           bend PROOF.bend
 
       - name: Install Lean 4.34.0 for the independent proof check
@@ -79,6 +80,7 @@ jobs:
           bend td_lambda_proof.bend --verdict
           bend reinforce_proof.bend --verdict
           bend linear_proof.bend --verdict
+          bend clipped_pg_proof.bend --verdict
 
   windows:
     name: Node-only checks on Windows
