@@ -52,11 +52,11 @@ Start with [worlds/bridge.json](worlds/bridge.json) for a finite game, [worlds/i
 
 ## Formal Properties
 
-The project declares 26 laws. Their statements and proofs are in [LAWS.bend](LAWS.bend) and [PROOF.bend](PROOF.bend).
+The project declares 28 laws. Their statements and proofs are in [LAWS.bend](LAWS.bend) and [PROOF.bend](PROOF.bend).
 
-- **Learning.** The engine applies the learner once per training transition and preserves the model during evaluation. Updating one Double Q table preserves the other. Dyna planning preserves the recorded experience.
-- **Episode boundaries.** On the engine’s actual decision path, rejecting an illegal action preserves the model, score, and accepted-step count and emits no learning event. An open state at the horizon is truncated. A terminal state ends the episode even on the last step. Each report increases the episode count by one, including illegal exits.
-- **Observations and replay.** The history wrapper preserves legal actions and rewards. For the Ferry world, recording a trace preserves the final report, and splitting a step budget produces the same cursor, including the model, random seed, and remaining horizon.
+- **Learning.** The engine applies the learner once per training transition and preserves the model during evaluation. The whole-rollout counting-learner laws prove evaluation freezes the counter and training changes it by exactly the accepted-step delta; the proof preserves the signed difference from an arbitrary starting counter. Updating one Double Q table preserves the other. Dyna planning preserves recorded experience.
+- **Episode boundaries.** On the engine’s actual decision path, rejecting an illegal action preserves model, score and accepted steps, produces no transition and ends the episode. An open view at the horizon is truncated; a terminal view is not. Each report increases the episode count by one, including illegal exits.
+- **Observations and replay.** The history wrapper preserves legal actions and rewards. On Ferry, observing decisions preserves the final report, and splitting a step budget gives the same full cursor.
 
 ## Run the checks
 
