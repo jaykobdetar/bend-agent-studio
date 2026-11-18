@@ -347,3 +347,41 @@ law cursor_finishes_as_episode:
   {C.finished(S,O,M,C.advance(~S,~O,~M,~E.Hooks{E.World{reset,inspect,step},act,learn},limit,mode,
     C.start(~S,~O,~M,~E.Hooks{E.World{reset,inspect,step},act,learn},model,seed,limit))) ==
     Some{E.episode(~S,~O,~M,~E.Hooks{E.World{reset,inspect,step},act,learn},mode,model,seed,limit)} : Maybe<&2,E.Report<M>>}
+
+law table_adjust_value:
+  for +t: T.Table
+  for +s: U32
+  for +a: U32
+  for +r: T.Rate
+  for +target: F32
+  {T.lookup(T.adjust(t,s,a,r,target),s,a) == T.entry_value(T.revised(r,s,a,U32.add(T.visits(t,s,a),1),T.lookup(t,s,a),target)) : F32}
+
+law table_adjust_visits:
+  for +t: T.Table
+  for +s: U32
+  for +a: U32
+  for +r: T.Rate
+  for +target: F32
+  {T.visits(T.adjust(t,s,a,r,target),s,a) == U32.add(T.visits(t,s,a),1) : U32}
+
+law table_adjust_preserves_other_lookup:
+  for +t: T.Table
+  for +k: U32
+  for +l: U32
+  for +r: T.Rate
+  for +target: F32
+  for +q: U32
+  for +j: U32
+  for distinct: {(U32.is_eq(k,q) && U32.is_eq(l,j)) == False{} : Bool}
+  {T.lookup(T.adjust(t,k,l,r,target),q,j) == T.lookup(t,q,j) : F32}
+
+law table_adjust_preserves_other_visits:
+  for +t: T.Table
+  for +k: U32
+  for +l: U32
+  for +r: T.Rate
+  for +target: F32
+  for +q: U32
+  for +j: U32
+  for distinct: {(U32.is_eq(k,q) && U32.is_eq(l,j)) == False{} : Bool}
+  {T.visits(T.adjust(t,k,l,r,target),q,j) == T.visits(t,q,j) : U32}
