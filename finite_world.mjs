@@ -134,7 +134,8 @@ export function bendSource(d) {
   }
   return lines.join('\n');
 }
-export function oracle(world,horizon) {
+export function oracle(world,horizon,discount=1) {
+  if (!Number.isFinite(discount)||discount<0||discount>1) throw Error('discount must be in [0,1]');
   if (!Number.isSafeInteger(horizon) || horizon<0) throw Error('horizon must be a nonnegative integer');
   const index=new Map(world.states.map((s,i)=>[s.id,i]));
   const transitions=world.states.map(s=>s.actions.map(a=>buckets(a.outcomes).map(x=>({...x,to:index.get(x.to)}))));
@@ -146,8 +147,8 @@ export function oracle(world,horizon) {
       for (const outcomes of as) {
         let qo=0, qu=0;
         for (const x of outcomes) {
-          qo+=x.probability*(x.reward+best[x.to]);
-          qu+=x.probability*(x.reward+uniform[x.to]);
+          qo+=x.probability*(x.reward+discount*best[x.to]);
+          qu+=x.probability*(x.reward+discount*uniform[x.to]);
         }
         maximum=Math.max(maximum,qo); total+=qu;
       }
@@ -185,4 +186,43 @@ export function reactiveOracle(world,horizon) {
     for (let j=0;j<choices.length;j++) { if (++choices[j]<groups[j]) break; choices[j]=0; }
   }
   return {...baseline,deterministicReactivePolicies:Number(policies),optimalStationaryReactiveReturn:best};
+}
+
+// Full-state planning, not a policy restricted to observations. At gamma=1
+// require a finite bound on time to absorption under every possible action.
+export function discountedOracle(world,discount,tolerance=1e-9) {
+  if(!Number.isFinite(discount)||discount<0||discount>1) throw Error('discount must be in [0,1]');
+  if(!Number.isFinite(tolerance)||tolerance<=0) throw Error('tolerance must be positive and finite');
+  const idx=new Map(world.states.map((s,i)=>[s.id,i]));
+  const rows=world.states.map(s=>s.actions.map(a=>buckets(a.outcomes).filter(x=>x.probability>0).map(x=>({...x,to:idx.get(x.to)}))));
+  if(discount===1) {
+    const incoming=rows.map(()=>0),queue=[];
+    for(const actions of rows) for(const outcomes of actions) for(const x of outcomes) incoming[x.to]++;
+    incoming.forEach((n,i)=>{if(!n)queue.push(i)});
+    for(let i=0;i<queue.length;i++) for(const outcomes of rows[queue[i]]) for(const x of outcomes) if(!--incoming[x.to])queue.push(x.to);
+    if(queue.length!==rows.length)throw Error('discount 1 requires an acyclic transition graph; use a discount below 1 for cyclic worlds');
+  }
+  const q=(out,v)=>out.reduce((a,x)=>a+x.probability*(x.reward+discount*v[x.to]),0);
+  const best=(actions,v)=>actions.reduce((b,a,i)=>{const value=q(a,v);return value>b.value?{i,value}:b},{i:-1,value:-Infinity});
+  const zeros=()=>rows.map(()=>0);
+  function iterate(policy,start) {
+    let v=start;
+    for(let n=1;n<=100000;n++){
+      const next=rows.map((a,i)=>!a.length?0:policy?q(a[policy[i]],v):best(a,v).value);
+      let delta=0;for(let i=0;i<v.length;i++)delta=Math.max(delta,Math.abs(v[i]-next[i]));
+      if(!Number.isFinite(delta))throw Error('non-finite discounted value');
+      if(delta===0||(discount<1 && delta<=tolerance*(1-discount)))return {v:next,n};
+      v=next;
+    }
+    throw Error('discounted iteration budget exceeded');
+  }
+  const vi=iterate(null,zeros()),policy=zeros();let v=zeros(),evaluations=0;
+  const start=v=>buckets(world.initial).reduce((z,x)=>z+x.probability*v[idx.get(x.to)],0);
+  for(let n=1;n<=10000;n++){
+    const evaluated=iterate(policy,v);v=evaluated.v;evaluations+=evaluated.n;
+    let changed=false;
+    rows.forEach((a,i)=>{if(!a.length)return;const b=best(a,v);if(b.value>q(a[policy[i]],v)){policy[i]=b.i;changed=true;}});
+    if(!changed)return {discount,tolerance,states:rows.length,valueIteration:{optimalFullStateReturn:start(vi.v),iterations:vi.n},policyIteration:{optimalFullStateReturn:start(v),iterations:n,evaluationSweeps:evaluations}};
+  }
+  throw Error('policy improvement budget exceeded');
 }

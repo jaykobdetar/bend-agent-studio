@@ -2,7 +2,7 @@
 
 Train reinforcement-learning agents in Bend and watch how their decisions change. The local Studio opens with a playable episode. You can scrub through each move, inspect rewards, change learners, and keep a recording of a trained policy.
 
-A separate [Gymnasium adapter](integrations/gymnasium/README.md) lets Python agents play the same JSON finite and grid worlds without changing Studio or its dependencies.
+A separate [Gymnasium adapter](integrations/gymnasium/README.md) lets Python agents play the same JSON finite and grid worlds without changing Studio or its dependencies. Seven [toy-text benchmark worlds](EXPERIMENTS.md#benchmark-worlds) include FrozenLake, Taxi, CliffWalking and Blackjack.
 
 ## Start Studio
 
@@ -59,6 +59,8 @@ The project declares 41 laws. Their statements and proofs are in [LAWS.bend](LAW
 - **Observations and replay.** The history wrapper preserves legal actions and rewards. At each reset it restores the configured memory and seeds the underlying world anew. For any typed world and agent hooks, observing decisions preserves the final report, and splitting an interaction budget gives the same cursor as advancing once, including model, seed and remaining horizon. These laws cover both training and evaluation. Completing a fresh cursor yields exactly the ordinary episode report for all worlds and policies, including the model, score, steps and stop reason.
 - **Sparse table updates.** The addressed observation/action key reads back the revised F32 value and its incremented U32 visit count. All other keys preserve both reads, even when a key was absent or input entries are not unique.
 - **Offline logging.** Zero exploration buckets always select the preferred action, as does every masked 16-bit draw at or above the threshold. The base action is computed in evaluation mode with word zero. The propensity formula is separately tested across all 65,536 draws.
+
+The [native runtime spike](tools/native-spike/README.md) reports sampled CPU/JS replay parity and timings; the supported backend remains JavaScript.
 
 ## Run the checks
 

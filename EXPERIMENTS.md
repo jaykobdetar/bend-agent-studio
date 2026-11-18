@@ -41,6 +41,30 @@ The bridge has two choices. The safe choice ends the game with one point. The ri
 
 The optional [Gymnasium adapter](integrations/gymnasium/README.md) uses the same JSON validator, grid expansion and exact integer sampling buckets as the runner. Supply a positive horizon and an explicit U32 seed to reproduce a Bend episode with the same actions. Gym action indices map to potentially sparse Bend IDs; consult the legal-action IDs in the public info. Natural terminal states win over time-limit truncation. For the exact undiscounted report score, use `info["bend_episode_score"]`, which rounds after each accepted move just as Bend does. Run the adapter's Python unittest suite for the Gym checker, sampling comparison, and optional compiled Bend replay comparison.
 
+## Benchmark worlds
+
+The first seven benchmarks are [Gymnasium 1.4.0 ports](integrations/gymnasium/toy_text/README.md); all benchmarks use the general state-machine schema. Values below are expected **undiscounted episode scores**, computed on the Bend integer sampling buckets. “Optimal” is a finite-horizon optimal policy; “uniform” chooses uniformly among all available action IDs. They are not fitted scores.
+
+| World | Horizon | Optimal | Uniform | What it tests |
+| --- | ---: | ---: | ---: | --- |
+| [FrozenLake 4×4 dry](worlds/benchmarks/toy-text/lake4-dry.json) | 100 | 1 | 0.013940 | Sparse goal; wall actions do not advance the agent. |
+| [FrozenLake 4×4 slippery](worlds/benchmarks/toy-text/lake4-slip.json) | 100 | 0.744190 | 0.013940 | Same map, with stochastic directional slips. |
+| [FrozenLake 8×8 dry](worlds/benchmarks/toy-text/lake8-dry.json) | 200 | 1 | 0.001901 | Longer sparse-reward search. |
+| [FrozenLake 8×8 slippery](worlds/benchmarks/toy-text/lake8-slip.json) | 200 | 0.913220 | 0.001901 | Navigation under slip over the larger fixed map. |
+| [Taxi-v4](worlds/benchmarks/toy-text/taxi.json) | 200 | 7.930000 | −771.090999 | Plan pickup and delivery despite costly invalid attempts. |
+| [CliffWalking 4×12](worlds/benchmarks/toy-text/cliff4x12.json) | 200* | −13 | −2079.115971 | Cliff falls reset position and incur a penalty; not the smaller built-in Cliff. |
+| [Blackjack-v1](worlds/benchmarks/toy-text/blackjack.json) | 32* | −0.043113 | −0.394175 | Hit or stick with a hidden dealer card and the registered natural-hand rule. |
+| [Deep Sea, N=3/5](experiments/probe-deep-sea.json) | 3 / 5 | 0.99 / 0.99 | 0.12000 / 0.02625 | Directed exploration with a fixed per-cell action map and costly right moves. |
+| [Umbrella, N=3/5](experiments/probe-umbrella.json) | 3 / 5 | 1 / 1 | 0 / 0 | Delayed credit for the first choice, masked by zero-mean reward noise. |
+| [Memory, N=3/5](experiments/probe-memory.json) | 3 / 5 | 1 / 1 | 0 / 0 | Recall an initial cue after a delay; reactive optimal value is zero. |
+| [Discount chain, N=3/6](experiments/probe-discount.json) | 3 / 6 | 1.25 / 1.25 | 1.125 / 1.125 | Changing the delay changes which choice a discounted learner prefers. |
+| [Noisy bandit, N=2/4](experiments/probe-bandit.json) | 1 / 1 | 0.5 / 0.5 | 0 / −0.25 | Identify a better arm amid stochastic positive and negative payoffs. |
+| [Catch, N=2/4](experiments/probe-catch.json) | 2 / 2 | 1 / 1 | 0 / −0.5 | Move a paddle to intercept a visible falling ball across grid widths. |
+
+For the six diagnostic families, slash-separated values follow their two sizes in order. They are [bsuite-style probes, not upstream replications](worlds/benchmarks/probes/README.md); each link runs both sizes and produces one plot panel per size.
+
+The Lakes and Taxi use their registered episode limits; *Gymnasium registers no limit for CliffWalking or Blackjack, so these are explicit study budgets.* Authored tabular rows preserve the intended rational probabilities; sampling uses the existing one-word approximation for non-dyadic probabilities, not Gym's RNG. See [generation, numerical precision and Blackjack checks](integrations/gymnasium/toy_text/README.md) and [full-precision baselines](integrations/gymnasium/toy_text/baselines.json). Run the [example plan](experiments/toy-text.json) with `node experiment.mjs run experiments/toy-text.json runs/toy-text`.
+
 ## Change the world, policy, or learner
 
 * **A finite state machine** can be written as JSON. Each state has a unique numeric ID, an optional public observation ID, and a list of legal actions. Each action lists possible destination IDs, positive integer weights, and finite rewards. An empty action list marks a terminal state. Start from `worlds/bridge.json`.
@@ -76,6 +100,8 @@ Choose `budgetUnit` as `episodes` or `steps`. Checkpoints start at zero and incr
 Validation evaluates a frozen model at every checkpoint. The test block is used at the final checkpoint. Use `testEpisodes: 0` for screening. The engine counts terminal, limited, and illegal outcomes separately. Interpret these outcomes using the game's rules. For example, reaching the Mountain Car goal is terminal, while a successful 500-step CartPole episode ends at the limit.
 
 ## Resume, reproduce, and inspect
+
+The runner still archives a JavaScript backend. See the [native runtime evaluation](tools/native-spike/README.md) for the tested plan boundaries and why native execution is not a supported replay option.
 
 ```sh
 node experiment.mjs run experiments/planning-budget.json runs/planning --until 256
@@ -186,6 +212,72 @@ node world_campaign.mjs --bend bend --seed 30000 --worlds 4 --episodes 128 --bat
 ```
 
 The independent verdict needs a matching BendTT kernel available to Bend. The randomized campaign compiles newly generated games and compares boundary transitions, episode reports, and paused execution with an independent simulator. Its output lists the seed and source fingerprints so a failing batch can be repeated.
+
+### Parallel trials on one machine
+
+Add `--jobs 4` to `node experiment.mjs run PLAN OUT` to compile once and
+distribute independent trials to up to four archived Node workers. Each owns
+an ordinary disjoint shard; checkpoint contents and seeds are unchanged.
+Choose 1–32 workers, allowing for a model and backend in memory per worker.
+Use `--until N` to stop at a declared checkpoint. Resume without Bend with
+`node OUT/code/experiment.mjs resume OUT --jobs 4`. The worker count may
+change on resume. Do not combine this option with an explicit `--shard`.
+A failed worker stops its peers; resume from the last published checkpoints.
+Use `node OUT/code/experiment.mjs verify OUT` after completion.
+
+### Discounted full-state planning
+
+Run `node experiment.mjs oracle worlds/detour.json --discount 0.95 --tolerance 1e-9`.
+This returns two independent planning results: value iteration, and policy iteration
+with iterative policy evaluation. Both see the underlying state, even when the
+agent's observations do not distinguish states. Rewards on entering a terminal
+state count; its continuation value is zero. With discount below 1 the stopping
+residual is at most tolerance × (1 − discount), before floating-point roundoff.
+An iteration limit raises an error rather than returning an unconverged estimate.
+
+Discount 1 is supported only for acyclic positive-probability transition graphs,
+where exact backward propagation terminates. Merely having a goal is insufficient:
+Detour permits circling, and even an almost-surely terminating stochastic loop is
+outside this conservative undiscounted solver. Choose a discount below 1 or use
+the original finite-horizon oracle for such worlds.
+
+### Export a finite world for another solver
+
+`node tools/export_pomdp.mjs worlds/bridge.json bridge.pomdp --discount 0.95 --illegal-penalty -1000000`
+writes a new [Cassandra file](https://www.pomdp.org/code/pomdp-file-spec.html)
+without replacing existing files. Transitions use the Bend U32 buckets; observations
+are one-hot functions of the resulting state. Terminal states absorb with zero
+future reward. Globally available but locally illegal actions pay the chosen
+penalty once and enter a distinct absorbing sink. Select a penalty below the value
+of legal continuations; this is not a hard legality constraint.
+
+This exports expected reward, not the complete interaction history: outcomes
+with the same next state use their conditional mean reward. Solvers do not
+automatically see Bend's public legal list, sampled reward, or reset observation
+before choosing their first action. Results can therefore differ for partially
+observable games. For a deterministic initial state and fully observable model,
+`python tools/check_pomdp_lp.py bridge.pomdp` optionally checks the discounted
+value using SciPy's HiGHS linear-program solver, independent of the JS oracle.
+
+### Off-policy score columns
+
+The estimand is the undiscounted finite-episode value of the frozen target
+policy. `pdis` weights each reward by the target/logging likelihood ratio
+through that decision. `weighted_pdis` normalizes separately at each time;
+early terminal episodes contribute zero rewards and keep their final weight
+in later denominators. `fqe` estimates time-indexed observation/legal-list/action
+values by backward empirical means on **fit**, following the target action,
+not the maximizing action. Unseen cells default to zero. `doubly_robust`
+starts from the fitted initial prediction and applies prefix-weighted residual
+corrections on **holdout**. FQE can extrapolate badly under poor support or
+aliased observations. Self-normalized estimators need not be unbiased.
+
+For authored finite worlds `exact_value` uses the independent policy oracle
+and `coverage_complete` checks the archived logger across target paths.
+Each `*_error` is estimate minus exact value. Missing coverage blanks IS
+and doubly robust estimates, not FQE; a zero normalization denominator also
+gives a blank. Unknown global support on other worlds is not evidence of
+coverage. Compare errors across independent dataset replicates, not frames.
 
 ### Compare keyed tabular training against list-backed archives
 
