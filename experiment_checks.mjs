@@ -1,3 +1,4 @@
+import { compilerTest } from './bend_test_support.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import * as fs from 'node:fs';
@@ -78,7 +79,7 @@ test('source graph follows local agent helpers and changes identity when a helpe
   assert.throws(()=>bundleAgent(entry,here),/cyclic/);
 });
 
-test('interruption, concurrent resume, independent rerun and checksum rejection',async t=>{
+test('interruption, concurrent resume, independent rerun and checksum rejection',compilerTest,async t=>{
   const d=directory(t), cfg=path.join(d,'p.json'), one=path.join(d,'one'), two=path.join(d,'two');
   write(cfg,plan());
   await invoke('run',cfg,one,'--bend',bend,'--until','3');
@@ -107,7 +108,7 @@ test('interruption, concurrent resume, independent rerun and checksum rejection'
   await assert.rejects(invoke('verify',one),/checksum/);
 });
 
-test('mid-episode pause preserves every update, horizon and replayed prefix',async t=>{
+test('mid-episode pause preserves every update, horizon and replayed prefix',compilerTest,async t=>{
   const d=directory(t), cfg=path.join(d,'p.json'), one=path.join(d,'one'), two=path.join(d,'two');
   const game={id:'walk',limit:5,definition:{schema:1,initial:[{to:0,weight:1}],states:[{id:0,actions:[
     {id:11,outcomes:[{to:0,weight:1,reward:1}]}
@@ -130,7 +131,7 @@ test('mid-episode pause preserves every update, horizon and replayed prefix',asy
   for (const k of ['partial','model','train','validation','test']) assert.deepEqual(result[k],direct[k]);
 });
 
-test('screening uses validation only and confirmation seed reuse is rejected',async t=>{
+test('screening uses validation only and confirmation seed reuse is rejected',compilerTest,async t=>{
   const d=directory(t), cfg=path.join(d,'p.json'), root=path.join(d,'screen'), out=path.join(d,'decision'), spec=path.join(d,'confirm.json');
   const p=plan({testEpisodes:0,budgetUnit:'steps'});
   write(cfg,p);
@@ -144,10 +145,18 @@ test('screening uses validation only and confirmation seed reuse is rejected',as
   assert.equal(selection.metric,'return');
   assert.equal(read(path.join(out,'plan.json')).budgetUnit,'steps');
   assert.ok(read(path.join(out,'plan.json')).arms.some(a=>a.id===selection.winner));
+  const repeat=path.join(d,'reference-first');
+  write(spec,{...read(spec),reference:selection.winner});
+  await invoke('select',root,spec,repeat);
+  const decision=read(path.join(repeat,'selection.json')).body;
+  assert.equal(decision.winner,decision.reference);
+  assert.notEqual(decision.challenger,decision.reference);
+  assert.deepEqual(new Set(read(path.join(repeat,'plan.json')).arms.map(a=>a.id)),
+    new Set([decision.reference,decision.challenger]));
   await assert.rejects(invoke('replay',root,'ferry','q','0','9','test','0'),/outside/);
 });
 
-test('transfer targets receive frozen models and validation ties choose the earliest eligible checkpoint',async t=>{
+test('transfer targets receive frozen models and validation ties choose the earliest eligible checkpoint',compilerTest,async t=>{
   const d=directory(t), cfg=path.join(d,'plan.json'), root=path.join(d,'study'), file=path.join(d,'assess.json'), out=path.join(d,'result');
   const world=reward=>({schema:1,initial:[{to:0,weight:1}],states:[{id:0,actions:[{id:9,outcomes:[{to:1,weight:1,reward}]}]},{id:1,actions:[]}]});
   write(cfg,plan({games:[{id:'from',definition:world(1),limit:1}],evaluationGames:[{id:'to',definition:world(-3),limit:1}],

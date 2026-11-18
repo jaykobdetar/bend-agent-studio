@@ -1,4 +1,4 @@
-import { actionName, boardStates, channels, draw, gameName, observation, tickRate } from './scene.js';
+import { actionName, boardStates, channels, cumulativeReturns, draw, gameName, observation, tickRate } from './scene.js';
 import { renderGif } from './exporter.js';
 import { deleteClip, listClips, saveClip } from './vault.js';
 
@@ -97,6 +97,7 @@ function selectPreset(world) {
 }
 async function chooseWorld(world) {
   pause();
+  activeReplay?.abort();
   const ticket = ++state.generation;
   selectPreset(world);
   try {
@@ -129,8 +130,7 @@ function showTrace(trace, source) {
   state.trace = trace;
   state.frame = 0;
   state.boards = ['tic-tac-toe', 'raw-board'].includes(trace.game) ? boardStates(trace) : [];
-  const totals = [0];
-  for (const f of trace.frames) totals.push(totals.at(-1) + f.reward);
+  const totals = cumulativeReturns(trace.frames);
   state.totals = totals;
   $('game-name').textContent = gameName(trace.game);
   $('source').textContent = source;
@@ -322,7 +322,7 @@ function syncForm() {
   $('job-status').textContent =
     state.message ||
     (busy
-      ? 'Training in Bend. You can keep exploring.'
+      ? 'Training in Bend. You can cancel this run in Experiments.'
       : state.selected
         ? 'New runs are saved in Experiments.'
         : 'Choose an environment to start a new run.');
@@ -341,6 +341,17 @@ function showRuns() {
     if (run.error) info.append(element('p', run.error, 'meta'));
     row.append(info);
     if (run.status === 'ready') row.append(button('Open replay', () => openDialog(run), 'secondary'));
+    if (run.status === 'training') row.append(button('Cancel training', async (event) => {
+      const cancel = event.currentTarget;
+      cancel.disabled = true;
+      try {
+        await api('/api/runs/' + run.id + '/cancel', { method: 'POST' });
+        await refreshRuns();
+      } catch (err) {
+        notify(err.message);
+        cancel.disabled = false;
+      }
+    }, 'secondary'));
     return row;
   });
   $('run-list').replaceChildren(
@@ -420,15 +431,30 @@ $('train').onsubmit = async (e) => {
     syncForm();
   }
 };
+let activeReplay;
 async function loadRun(run, params) {
+  activeReplay?.abort();
+  const controller = new AbortController();
+  activeReplay = controller;
   const generation = ++state.generation;
-  const trace = await api('/api/runs/' + run.id + '/replay?' + new URLSearchParams(params));
-  if (generation !== state.generation) return;
-  const world = state.worlds.find((w) => w.id === trace.game);
-  if (world?.id !== state.selected) selectPreset(world);
-  showTrace(trace, 'Experiment replay');
+  try {
+    const trace = await api('/api/runs/' + run.id + '/replay?' + new URLSearchParams(params), {
+      signal: controller.signal
+    });
+    if (controller.signal.aborted || generation !== state.generation) return false;
+    const world = state.worlds.find((w) => w.id === trace.game);
+    if (world?.id !== state.selected) selectPreset(world);
+    showTrace(trace, 'Experiment replay');
+    return true;
+  } catch (err) {
+    if (controller.signal.aborted) return false;
+    throw err;
+  } finally {
+    if (activeReplay === controller) activeReplay = undefined;
+  }
 }
 function openDialog(run) {
+  activeReplay?.abort();
   const box = $('replay-options');
   box.className = 'option-grid';
   box.replaceChildren();
@@ -499,9 +525,10 @@ function openDialog(run) {
   $('load-replay').onclick = async () => {
     if (!ep.reportValidity()) return;
     $('load-replay').disabled = true;
+    for (const field of [game, arm, point, rep, phase, ep]) field.disabled = true;
     note.textContent = 'Loading replay…';
     try {
-      await loadRun(run, {
+      const loaded = await loadRun(run, {
         game: game.value,
         arm: arm.value,
         point: point.value,
@@ -509,16 +536,21 @@ function openDialog(run) {
         phase: phase.value,
         episode: Number(ep.value) - 1
       });
+      if (!loaded || !$('run-dialog').open) return;
       $('run-dialog').close();
       navigate('simulator');
     } catch (err) {
       note.textContent = err.message;
     } finally {
-      $('load-replay').disabled = false;
+      for (const field of [game, arm, point, rep, phase, ep]) field.disabled = false;
+      if (note.isConnected) $('load-replay').disabled = !phase.value;
     }
   };
   $('run-dialog').showModal();
 }
+$('run-dialog').addEventListener('close', () => {
+  if (!$('run-dialog').open) activeReplay?.abort();
+});
 
 let recording;
 function recordLabel(text) {
@@ -652,9 +684,13 @@ async function showClips() {
     $('clip-list').replaceChildren(empty('Recordings unavailable', err.message));
   }
 }
-function navigate(name) {
+function navigate(name, fromAddress = false) {
   if (!Object.hasOwn(pages, name)) name = 'simulator';
-  if (location.hash !== '#' + name) history.pushState(null, '', '#' + name);
+  if (state.page !== name) activeReplay?.abort();
+  if (location.hash !== '#' + name) {
+    if (fromAddress) history.replaceState(null, '', '#' + name);
+    else history.pushState(null, '', '#' + name);
+  }
   pause();
   releaseClips();
   state.page = name;
@@ -672,12 +708,12 @@ function navigate(name) {
 }
 for (const el of document.querySelectorAll('[data-nav],[data-go]'))
   el.onclick = () => navigate(el.dataset.nav ?? el.dataset.go);
-window.onhashchange = () => navigate(location.hash.slice(1));
+window.onhashchange = () => navigate(location.hash.slice(1), true);
 try {
   state.worlds = await api('/api/catalog');
   showWorlds();
   await chooseWorld(state.worlds[0]);
-  navigate(location.hash.slice(1));
+  navigate(location.hash.slice(1), true);
   await refreshRuns();
 } catch (err) {
   $('job-status').textContent = err.message;

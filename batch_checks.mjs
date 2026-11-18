@@ -1,3 +1,4 @@
+import { compilerTest } from './bend_test_support.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
@@ -6,6 +7,8 @@ import path from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {execute} from './process_output.mjs';
 import {offPolicy} from './batch.mjs';
+import {seal} from './experiment.mjs';
+import {digest} from './experiment_config.mjs';
 import {actionBuckets,checkEpisode,openDataset} from './dataset.mjs';
 
 const here=path.dirname(fileURLToPath(import.meta.url));
@@ -41,7 +44,30 @@ test('dataset verification validates adjacent observations, stop flags and prope
   }
 });
 
-test('fit uses only logged training rows, independently checks held-out data and reproduces online evaluation',async t=>{
+test('dataset reader accepts portable and legacy Windows partition names',t=>{
+  const dir=fs.mkdtempSync(path.join(os.tmpdir(),'bend-paths-'));
+  t.after(()=>fs.rmSync(dir,{recursive:true,force:true}));
+  const spec={fitEpisodes:1,holdoutEpisodes:1,seeds:{fit:7,holdout:9,stride:1},epsilon:0};
+  const design=seal({spec,replicates:1,horizon:0});
+  fs.writeFileSync(path.join(dir,'design.json'),design);
+  const parts=['fit','holdout'].map(split=>{
+    const bytes=JSON.stringify({seed:spec.seeds[split],score:0,reason:'Terminal',frames:[]})+'\n';
+    fs.mkdirSync(path.join(dir,split));
+    fs.writeFileSync(path.join(dir,split,'0.jsonl'),bytes);
+    return {split,rep:0,episodes:1,steps:0,file:path.win32.join(split,'0.jsonl'),hash:digest(bytes)};
+  });
+  const index=()=>fs.writeFileSync(path.join(dir,'dataset.json'),seal({design:JSON.parse(design).hash,parts}));
+  index();
+  assert.equal(openDataset(dir).episodes('fit',0)[0].seed,7);
+  parts[0].file='fit/0.jsonl';
+  index();
+  assert.equal(openDataset(dir).episodes('fit',0)[0].seed,7);
+  parts[0].file='../fit/0.jsonl';
+  index();
+  assert.throws(()=>openDataset(dir),/invalid dataset partition/);
+});
+
+test('fit uses only logged training rows, independently checks held-out data and reproduces online evaluation',compilerTest,async t=>{
   const dir=fs.mkdtempSync(path.join(os.tmpdir(),'bend-batch-test-'));
   t.after(()=>fs.rmSync(dir,{recursive:true,force:true}));
   const f=name=>path.join(dir,name);
@@ -53,6 +79,7 @@ test('fit uses only logged training rows, independently checks held-out data and
   logger.fitEpisodes=8;logger.holdoutEpisodes=12;
   write(f('log.json'),logger);
   await run('batch.mjs','collect',f('source'),f('log.json'),f('dataset'));
+  assert.ok(read(f('dataset/dataset.json')).body.parts.every(p=>p.file===p.split+'/'+p.rep+'.jsonl'));
   await run('batch.mjs','verify',f('dataset'));
   const heldout=f('dataset/holdout/0.jsonl'), clean=fs.readFileSync(heldout);
   fs.writeFileSync(heldout,'invalid holdout');

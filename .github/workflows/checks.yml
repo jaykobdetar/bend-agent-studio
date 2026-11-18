@@ -1,0 +1,65 @@
+name: Studio checks
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  checks:
+    name: Node, Bend and BendTT
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    env:
+      BEND_NO_TELEMETRY: "1"
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version: 24.22.3
+
+      - name: Install Bend 2.0.40
+        working-directory: ${{ runner.temp }}
+        run: |
+          curl -fsSL --retry 3 -o bend.tar.gz https://github.com/bendlang/bend/releases/download/v2.0.40/bend-2.0.40-linux-x64.tar.gz
+          echo 'c9ff8d67bd903fb6ad9a26b43d8a62c01021de82a44d55ce4a3dcd4732113d6b  bend.tar.gz' | sha256sum --check
+          tar -xzf bend.tar.gz
+          test "$(./bend/bin/bend version)" = 'bend 2.0.40'
+          echo "$RUNNER_TEMP/bend/bin" >> "$GITHUB_PATH"
+
+      - name: Run Node tests
+        run: npm test
+      - name: Run Bend checks
+        run: |
+          bend checks.bend
+          bend benchmark_checks.bend
+          bend study_checks.bend
+          bend PROOF.bend
+
+      - name: Install Lean 4.34.0 for the independent proof check
+        working-directory: ${{ runner.temp }}
+        run: |
+          curl -fsSL --retry 3 -o lean.tar.zst https://github.com/leanprover/lean4/releases/download/v4.34.0/lean-4.34.0-linux.tar.zst
+          echo 'caaa98356098c85dc0fcbbd28e1ec66f39eb6551829972b752ff20e1286b646b  lean.tar.zst' | sha256sum --check
+          tar --zstd -xf lean.tar.zst
+          echo "$RUNNER_TEMP/lean-4.34.0-linux/bin" >> "$GITHUB_PATH"
+      - name: Verify proofs with BendTT
+        run: bend PROOF.bend --verdict
+
+  windows:
+    name: Node-only checks on Windows
+    runs-on: windows-2025
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version: 24.22.3
+      - run: npm test

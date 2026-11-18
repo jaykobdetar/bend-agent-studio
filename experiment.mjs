@@ -480,6 +480,7 @@ function selectStudy(root,specFile,output) {
   if (Object.keys(spec).some(k=>!allowed.includes(k)) || required.some(k=>!Object.hasOwn(spec,k))) throw Error('invalid confirmation specification');
   if (!['return','completion'].includes(spec.metric)) throw Error('selection metric must be return or completion');
   if (!p.arms.some(a=>a.id===spec.reference)) throw Error('reference arm is absent from the screen');
+  if (p.arms.length<2 || !p.validationEpisodes) throw Error('selection needs a challenger and validation episodes');
   if (spec.testEpisodes<1) throw Error('confirmation requires held-out test episodes');
   const scores=new Map(p.arms.map(a=>[a.id,0]));
   const final=p.checkpoints.at(-1);
@@ -498,12 +499,13 @@ function selectStudy(root,specFile,output) {
   }
   const ranking=[...scores].sort((a,b)=>b[1]-a[1]);
   const winner=ranking[0][0];
-  const arms=p.arms.filter(a=>a.id===winner || a.id===spec.reference).map(({buckets,...a})=>a);
+  const challenger=ranking.find(([id])=>id!==spec.reference)[0];
+  const arms=p.arms.filter(a=>a.id===challenger || a.id===spec.reference).map(({buckets,...a})=>a);
   const {reference,metric,...design}=spec;
   const raw={schema:1,budgetUnit:p.budgetUnit??'episodes',...design,games:p.games,arms};
   const confirm=validate(raw);
   checkSeedBlocks([p,confirm]);
-  const selection=seal({screen:m.hash,metric,reference,winner,checkpoint:final,ranking,
+  const selection=seal({screen:m.hash,metric,reference,winner,challenger,checkpoint:final,ranking,
     confirmationPlan:digest(canonical(confirm))});
   immutable(path.join(output,'selection.json'),selection);
   immutable(path.join(output,'plan.json'),numberPreservingJson(raw,2)+'\n');

@@ -3,7 +3,7 @@ import path from 'node:path';
 import fs from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { randomUUID } from 'node:crypto';
-import { execFile } from 'node:child_process';
+import { execFile, execFileSync, spawn } from 'node:child_process';
 import { promisify } from 'node:util';
 import { worlds } from './catalog.mjs';
 import { unseal, checkedSnapshot } from '../experiment.mjs';
@@ -15,16 +15,27 @@ const args = process.argv.slice(2);
 let port = Number(process.env.PORT ?? 4173),
   base = path.resolve(process.env.BEND_STUDIO_HOME ?? path.join(root, '.bend-studio'));
 const mounts = [];
+const replayNodes = new Map([[process.versions.node, process.execPath]]);
 for (let i = 0; i < args.length; i += 2) {
   if (args[i] === '--port') port = Number(args[i + 1]);
   else if (args[i] === '--run' && args[i + 1]) mounts.push(path.resolve(args[i + 1]));
-  else throw Error('Usage: node studio/server.mjs [--port PORT] [--run TRUSTED_RUN_DIRECTORY]');
+  else if (args[i] === '--replay-node' && args[i + 1]) {
+    const executable = path.resolve(args[i + 1]);
+    const version = execFileSync(executable, ['-p', 'process.versions.node'], { encoding: 'utf8', timeout: 5000 }).trim();
+    replayNodes.set(version, executable);
+  } else throw Error('Usage: node studio/server.mjs [--port PORT] [--run TRUSTED_RUN_DIRECTORY] [--replay-node NODE_PATH]');
 }
 if (!Number.isInteger(port) || port < 0 || port > 65535) throw Error('Invalid port');
 fs.mkdirSync(base, { recursive: true });
 const jobs = new Map(),
   mounted = new Map();
 const bend = process.env.BEND || 'bend';
+const replayTimeout = Number(process.env.BEND_STUDIO_REPLAY_TIMEOUT_MS ?? 30000);
+if (!Number.isInteger(replayTimeout) || replayTimeout < 1 || replayTimeout > 2147483647)
+  throw Error('BEND_STUDIO_REPLAY_TIMEOUT_MS must be a positive 32-bit integer.');
+const activeReplays = new Set();
+let training;
+let shuttingDown = false;
 function fail(message, status = 400) {
   throw Object.assign(new Error(message), { status });
 }
@@ -53,13 +64,19 @@ for (const entry of fs.readdirSync(base, { withFileTypes: true })) {
   if (entry.isDirectory() && /^[a-f0-9-]{36}$/.test(entry.name)) {
     const p = path.join(base, entry.name, 'studio.json');
     if (!fs.existsSync(p)) continue;
-    const job = read(p);
-    if (job.id !== entry.name) continue;
-    if (job.status === 'training') {
-      job.status = 'interrupted';
-      job.error = 'Studio stopped before training finished.';
-      save(job);
-    } else jobs.set(job.id, job);
+    try {
+      const job = read(p);
+      if (job?.id !== entry.name || typeof job.name !== 'string' ||
+          !['training', 'ready', 'failed', 'interrupted', 'cancelled'].includes(job.status))
+        throw Error('Invalid Studio metadata.');
+      if (job.status === 'training') {
+        job.status = 'interrupted';
+        job.error = 'Studio stopped before training finished.';
+        save(job);
+      } else jobs.set(job.id, job);
+    } catch (err) {
+      jobs.set(entry.name, { id: entry.name, name: entry.name, status: 'unavailable', error: err.message });
+    }
   }
 }
 function directory(id) {
@@ -75,6 +92,7 @@ function describe(id) {
     p = manifest.body.plan;
   return {
     ...(j ?? { id, status: 'ready', name: p.name, created: null }),
+    nodeVersion: manifest.body.toolchain.node,
     games: p.games.map((g) => ({ id: g.id, symmetry: g.parameters?.symmetry })),
     arms: p.arms.map((a) => a.id),
     checkpoints: p.checkpoints,
@@ -107,7 +125,8 @@ async function create(input) {
       'Training requires Bend 2.0.40. The configured compiler reports ' + version.trim() + '.',
       503
     );
-  if ([...jobs.values()].some((j) => j.status === 'training'))
+  if (shuttingDown) fail('Studio is stopping.', 503);
+  if (training)
     fail('A training run is already in progress.', 409);
   const id = randomUUID(),
     dir = jobPath(id);
@@ -155,28 +174,54 @@ async function create(input) {
     status: 'training'
   };
   save(job);
-  exec(
-    process.execPath,
-    [
-      path.join(root, 'experiment.mjs'),
-      'run',
-      path.join(dir, 'plan.json'),
-      path.join(dir, 'run'),
-      '--bend',
-      bend
-    ],
-    { maxBuffer: 2 ** 20 }
-  ).then(
-    () => {
-      save({ ...job, status: 'ready' });
-    },
-    (err) => {
-      save({ ...job, status: 'failed', error: (err.stderr || err.message).trim().slice(-700) });
+  const scratch = fs.mkdtempSync(path.join(dir, 'tmp-'));
+  // Give the runner its own POSIX process group so cancellation also reaches Bend.
+  const child = spawn(process.execPath, [
+    path.join(root, 'experiment.mjs'), 'run', path.join(dir, 'plan.json'), path.join(dir, 'run'), '--bend', bend
+  ], { detached: process.platform !== 'win32', stdio: ['ignore', 'ignore', 'pipe'],
+    env: { ...process.env, TMPDIR: scratch, TMP: scratch, TEMP: scratch } });
+  let stderr = '';
+  child.stderr.setEncoding('utf8');
+  child.stderr.on('data', (chunk) => { stderr = (stderr + chunk).slice(-700); });
+  child.on('error', (err) => { stderr = err.message; });
+  const task = { id, child };
+  training = task;
+  task.done = new Promise((resolve) => child.once('close', (code, signal) => {
+    const status = task.stopStatus ?? (code === 0 ? 'ready' : 'failed');
+    const error = { cancelled: 'Training cancelled.', interrupted: 'Studio stopped during training.',
+      failed: stderr.trim() || 'Runner stopped: ' + (signal ?? code) }[status];
+    const result = { ...job, status, error };
+    try {
+      fs.rmSync(scratch, { recursive: true, force: true });
+      save(result);
+    } catch (err) {
+      jobs.set(id, { ...result, status: 'unavailable', error: err.message });
     }
-  );
+    training = undefined;
+    resolve(jobs.get(id));
+  }));
   return job;
 }
-async function replay(id, input) {
+async function stopTraining(task, status) {
+  if (!task.stopStatus && task.child.pid && task.child.exitCode === null && task.child.signalCode === null) {
+    task.stopStatus = status;
+    try {
+      if (process.platform === 'win32') {
+        await exec(path.join(process.env.SystemRoot, 'System32', 'taskkill.exe'),
+          ['/PID', String(task.child.pid), '/T', '/F']);
+      } else {
+        process.kill(-task.child.pid, 'SIGKILL');
+      }
+    } catch (err) {
+      if (err.code !== 'ESRCH' && task.child.exitCode === null && task.child.signalCode === null) {
+        delete task.stopStatus;
+        throw err;
+      }
+    }
+  }
+  return task.done;
+}
+async function replay(id, input, res) {
   const info = describe(id);
   if (info.status !== 'ready') fail('This run is not ready.', 409);
   const { game, arm, phase } = input,
@@ -197,9 +242,13 @@ async function replay(id, input) {
   integer(rep, 0, info.replicates - 1, 'replicate');
   integer(episode, 0, info[phase] - 1, 'episode');
   const dir = directory(id);
+  if (activeReplays.size >= 2) fail('Studio is running two replays. Try again shortly.', 429);
   // Only the local owner can attach existing executable runs, at server startup.
-  const { stdout } = await exec(
-    process.execPath,
+  const runtime = replayNodes.get(info.nodeVersion);
+  if (!runtime) fail('Replay requires Node ' + info.nodeVersion + '. Studio is running Node ' +
+    process.versions.node + '. Restart Studio with --replay-node pointing to the recorded Node executable.', 409);
+  const pending = exec(
+    runtime,
     [
       path.join(dir, 'code/experiment.mjs'),
       'replay',
@@ -211,9 +260,28 @@ async function replay(id, input) {
       phase,
       String(episode)
     ],
-    { maxBuffer: 32 * 1024 * 1024 }
+    { maxBuffer: 32 * 1024 * 1024, killSignal: 'SIGKILL' }
   );
-  const trace = JSON.parse(stdout);
+  const child = pending.child;
+  activeReplays.add(child);
+  const stop = () => child.kill('SIGKILL');
+  res.once('close', stop);
+  let timedOut = false;
+  const timer = setTimeout(() => {
+    timedOut = true;
+    stop();
+  }, replayTimeout);
+  let trace;
+  try {
+    trace = JSON.parse((await pending).stdout);
+  } catch (err) {
+    if (timedOut) fail('Replay exceeded its time limit.', 504);
+    throw err;
+  } finally {
+    clearTimeout(timer);
+    res.off('close', stop);
+    activeReplays.delete(child);
+  }
   return {
     ...trace,
     symmetry: info.games.find((g) => g.id === game).symmetry,
@@ -258,17 +326,31 @@ const server = http.createServer(async (req, res) => {
     };
     if (req.method === 'GET' && u.pathname === '/api/catalog') return json(worlds);
     if (req.method === 'GET' && u.pathname === '/api/runs')
-      return json([...jobs.keys(), ...mounted.keys()].map(describe).reverse());
+      return json([...jobs.keys(), ...mounted.keys()].map((id) => {
+        try {
+          return describe(id);
+        } catch (err) {
+          return { ...jobs.get(id), id, name: jobs.get(id)?.name ?? id, status: 'unavailable', error: err.message };
+        }
+      }).reverse());
     if (req.method === 'POST' && u.pathname === '/api/runs')
       return json(await create(await body(req)), 201);
+    const cancel = /^\/api\/runs\/([a-z0-9-]+)\/cancel$/.exec(u.pathname);
+    if (req.method === 'POST' && cancel) {
+      if (!training || training.id !== cancel[1]) fail('This run is not training.', 409);
+      return json(await stopTraining(training, 'cancelled'));
+    }
     const m = /^\/api\/runs\/([a-z0-9-]+)\/replay$/.exec(u.pathname);
     if (req.method === 'GET' && m)
-      return json(await replay(m[1], Object.fromEntries(u.searchParams)));
+      return json(await replay(m[1], Object.fromEntries(u.searchParams), res));
     if (req.method !== 'GET' && req.method !== 'HEAD') fail('Method not allowed', 405);
-    const f = path.resolve(
-      web,
-      '.' + decodeURIComponent(u.pathname === '/' ? '/index.html' : u.pathname)
-    );
+    let pathname;
+    try {
+      pathname = decodeURIComponent(u.pathname);
+    } catch {
+      fail('Invalid URL encoding.', 400);
+    }
+    const f = path.resolve(web, '.' + (pathname === '/' ? '/index.html' : pathname));
     if (!f.startsWith(web + path.sep) || !fs.existsSync(f) || !fs.statSync(f).isFile())
       fail('File not found', 404);
     res.writeHead(200, {
@@ -281,9 +363,23 @@ const server = http.createServer(async (req, res) => {
     stream.on('error', () => res.destroy());
     stream.pipe(res);
   } catch (e) {
+    if (res.destroyed) return;
     res.writeHead(e.status ?? 500, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify({ error: e.message }));
   }
+});
+// A service manager may signal only the Studio process during shutdown.
+async function shutdown(code) {
+  shuttingDown = true;
+  server.close();
+  server.closeAllConnections();
+  if (training) await stopTraining(training, 'interrupted');
+  process.exit(code);
+}
+process.once('SIGINT', () => shutdown(130));
+process.once('SIGTERM', () => shutdown(143));
+process.on('exit', () => {
+  for (const child of activeReplays) child.kill('SIGKILL');
 });
 server.on('error', (e) => {
   console.error(e.message);
