@@ -200,3 +200,19 @@ Use `--until N` to stop at a declared checkpoint. Resume without Bend with
 change on resume. Do not combine this option with an explicit `--shard`.
 A failed worker stops its peers; resume from the last published checkpoints.
 Use `node OUT/code/experiment.mjs verify OUT` after completion.
+
+### Discounted full-state planning
+
+Run `node experiment.mjs oracle worlds/detour.json --discount 0.95 --tolerance 1e-9`.
+This returns two independent planning results: value iteration, and policy iteration
+with iterative policy evaluation. Both see the underlying state, even when the
+agent's observations do not distinguish states. Rewards on entering a terminal
+state count; its continuation value is zero. With discount below 1 the stopping
+residual is at most tolerance × (1 − discount), before floating-point roundoff.
+An iteration limit raises an error rather than returning an unconverged estimate.
+
+Discount 1 is supported only for acyclic positive-probability transition graphs,
+where exact backward propagation terminates. Merely having a goal is insufficient:
+Detour permits circling, and even an almost-surely terminating stochastic loop is
+outside this conservative undiscounted solver. Choose a discount below 1 or use
+the original finite-horizon oracle for such worlds.
