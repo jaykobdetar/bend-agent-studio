@@ -38,3 +38,12 @@ assert.equal(policyOracle(switches,2,()=>[.5,.5]).expectedReturn,.25);
 assert.equal(policyOracle(switches,2,()=>0).expectedReturn,0);
 assert.equal(policyOracle(switches,2,()=>1).expectedReturn,0);
 console.log('Public-history planning, decision auditing and importance-weight moments passed.');
+
+const {exportPomdp}=await import('./tools/export_pomdp.mjs');
+const bridgeInput=JSON.parse(fs.readFileSync(new URL('./worlds/bridge.json',import.meta.url)));
+const file=exportPomdp(bridgeInput,{illegalPenalty:-42});
+assert.equal(file,exportPomdp(bridgeInput,{illegalPenalty:-42}));
+assert.match(file,/T: a9 : s0 : sink 1\nR: a9 : s0 : sink : \* -42/);
+assert.match(file,/T: a7 : s3 : s3 1/);
+assert.match(file,/O: \* : s2 : o2 1/);
+assert.throws(()=>exportPomdp(bridgeInput,{illegalPenalty:Infinity}),/penalty/);

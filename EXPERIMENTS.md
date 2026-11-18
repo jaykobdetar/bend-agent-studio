@@ -164,3 +164,21 @@ node world_campaign.mjs --bend bend --seed 30000 --worlds 4 --episodes 128 --bat
 ```
 
 The independent verdict needs a matching BendTT kernel available to Bend. The randomized campaign compiles newly generated games and compares boundary transitions, episode reports, and paused execution with an independent simulator. Its output lists the seed and source fingerprints so a failing batch can be repeated.
+
+### Export a finite world for another solver
+
+`node tools/export_pomdp.mjs worlds/bridge.json bridge.pomdp --discount 0.95 --illegal-penalty -1000000`
+writes a new [Cassandra file](https://www.pomdp.org/code/pomdp-file-spec.html)
+without replacing existing files. Transitions use the Bend U32 buckets; observations
+are one-hot functions of the resulting state. Terminal states absorb with zero
+future reward. Globally available but locally illegal actions pay the chosen
+penalty once and enter a distinct absorbing sink. Select a penalty below the value
+of legal continuations; this is not a hard legality constraint.
+
+This exports expected reward, not the complete interaction history: outcomes
+with the same next state use their conditional mean reward. Solvers do not
+automatically see Bend's public legal list, sampled reward, or reset observation
+before choosing their first action. Results can therefore differ for partially
+observable games. For a deterministic initial state and fully observable model,
+`python tools/check_pomdp_lp.py bridge.pomdp` optionally checks the discounted
+value using SciPy's HiGHS linear-program solver, independent of the JS oracle.
