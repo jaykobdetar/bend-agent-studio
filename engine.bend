@@ -106,13 +106,6 @@ def recorded_step(-S: Data, -O: Data, -M: Data, inspect: S -> View<O>,
   learned = update(M, O, learn, mode, model, event)
   Turn{place(S, O, M, after, learned, seed, F32.add(score, reward), 1n+steps, view), Some{event}}
 
-def record_step(-S: Data, -O: Data, -M: Data, inspect: S -> View<O>,
-                learn: M -> Transition<O> -> M, mode: Mode, remaining: Nat,
-                observation: O, model: M, action: U32, seed: U32, score: F32,
-                steps: Nat, result: Pair(S, F32)) -> Run<S, O, M>:
-  turn_run(S, O, M, recorded_step(S, O, M, inspect, learn, mode, remaining, observation,
-                                  model, action, seed, score, steps, result))
-
 def perform(-S: Data, -O: Data, -M: Data, hooks: Hooks<S, O, M>,
             mode: Mode, remaining: Nat, state: S, observation: O, model: M,
             +action: U32, +seed: U32, score: F32, steps: Nat) -> Turn<S, O, M>:
@@ -120,22 +113,12 @@ def perform(-S: Data, -O: Data, -M: Data, hooks: Hooks<S, O, M>,
   recorded_step(S, O, M, inspect, learn, mode, remaining, observation, model, action,
                 next_seed(seed), score, steps, step(state, action, seed))
 
-def take_step(-S: Data, -O: Data, -M: Data, hooks: Hooks<S, O, M>,
-              mode: Mode, remaining: Nat, state: S, observation: O, model: M,
-              action: U32, seed: U32, score: F32, steps: Nat) -> Run<S, O, M>:
-  turn_run(S, O, M, perform(S, O, M, hooks, mode, remaining, state, observation, model, action, seed, score, steps))
-
 def attempt(-S: Data, -O: Data, -M: Data, hooks: Hooks<S, O, M>,
             valid: Bool, mode: Mode, remaining: Nat, state: S, observation: O,
             model: M, action: U32, world_seed: U32, score: F32, steps: Nat) -> Turn<S, O, M>:
   match valid:
     case False{}: Turn{Stopped{Report{model, score, steps, Illegal{action}}}, None{}}
     case True{}: perform(S, O, M, hooks, mode, remaining, state, observation, model, action, world_seed, score, steps)
-
-def accept(-S: Data, -O: Data, -M: Data, hooks: Hooks<S, O, M>,
-           valid: Bool, mode: Mode, remaining: Nat, state: S, observation: O,
-           model: M, action: U32, world_seed: U32, score: F32, steps: Nat) -> Run<S, O, M>:
-  turn_run(S, O, M, attempt(S, O, M, hooks, valid, mode, remaining, state, observation, model, action, world_seed, score, steps))
 
 type Decision<-S: Data, -O: Data, -M: Data> is Data:
   Decision{action: U32, turn: Turn<S,O,M>}

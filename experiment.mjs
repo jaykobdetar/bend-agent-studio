@@ -7,7 +7,7 @@ import {randomUUID} from 'node:crypto';
 import {canonical,checkSeedBlocks,digest,games,seedOf,settings,trials,validate} from './experiment_config.mjs';
 
 import {bundleAgent} from './agent_source.mjs';
-import {bendSource,floatLiteral,numberPreservingJson,oracle,reactiveOracle,symbol,worldDefinition} from './finite_world.mjs';
+import {discountedOracle,bendSource,floatLiteral,numberPreservingJson,oracle,reactiveOracle,symbol,worldDefinition} from './finite_world.mjs';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const json = filename => JSON.parse(fs.readFileSync(filename,'utf8'));
@@ -92,11 +92,17 @@ function testModel(runner, game, model, seed, count) {
 }
 
 function options(argv) {
+  const withJobs=argv.includes('--jobs');
+  if (withJobs && argv.includes('--shard')) throw Error('--jobs and --shard cannot be combined');
+  if (argv.filter(x=>x==='--jobs').length>1) throw Error('duplicate --jobs');
   const result={bend:process.env.BEND ?? 'bend', shard:[0,1], until:Infinity};
   for (let i=0;i<argv.length;i+=2) {
     const flag=argv[i], value=argv[i+1];
     if (value===undefined) throw Error('missing value for '+flag);
-    if (flag==='--bend') result.bend=value;
+    if (flag==='--jobs') {
+      if (!/^[1-9]\d*$/.test(value) || Number(value)>32) throw Error('--jobs requires an integer from 1 to 32');
+      result.jobs=Number(value);
+    } else if (flag==='--bend') result.bend=value;
     else if (flag==='--shard' && /^\d+\/[1-9]\d*$/.test(value)) {
       result.shard=value.split('/').map(Number);
       if (!result.shard.every(Number.isSafeInteger) || result.shard[0]>=result.shard[1]) throw Error('shard index starts at zero and must be below the total');
@@ -125,6 +131,7 @@ function sourceFiles(plan) {
   add('finite_world.mjs');
   add('agent_source.mjs');
   add('process_output.mjs');
+  add('parallel_trials.mjs');
   add('parameters.bend');
   add('finite.bend');
   add('history.bend');
@@ -332,14 +339,20 @@ async function run(config,root,args) {
     for (const [name,contents] of sources) immutable(path.join(root,'code',name),contents);
     immutable(path.join(root,'code','backend.mjs'),compiled);
     immutable(manifestPath(root),bytes);
-    executeTrials(api,root,JSON.parse(bytes),opts);
+    return executeTrials(api,root,JSON.parse(bytes),opts);
   } finally {fs.rmSync(dir,{recursive:true,force:true});}
 }
 
 function executeTrials(api,root,manifest,opts) {
   const plan=manifest.body.plan;
   if (opts.until!==Infinity && !plan.checkpoints.includes(opts.until)) throw Error('--until must be a declared checkpoint');
+  if (opts.jobs>1) return parallelTrials(root,manifest,opts);
   let index=0,finished=0,created=0;
+  // The CLI stays human-readable. A supervised worker additionally returns
+  // exact counters to its owner, without parsing progress text.
+  if (process.send && process.env.BEND_REPORT_SHARD===opts.shard.join('/')) {
+    process.once('beforeExit',()=>{if(process.connected) process.send({shard:opts.shard.join('/'),finished,created});});
+  }
   for (const t of trials(plan)) {
     if (index++%opts.shard[1]!==opts.shard[0]) continue;
     created+=runTrial(api,root,manifest,t,opts.until);
@@ -373,7 +386,18 @@ function checkedSnapshot(root, manifest) {
   return files;
 }
 
+async function parallelTrials(root,manifest,opts) {
+  // Resume executes archived code: verify its bytes before launching any child.
+  checkedSnapshot(root,manifest);
+  if (!Object.hasOwn(manifest.body.toolchain.sources,'parallel_trials.mjs'))
+    throw Error('this archive predates --jobs; use its archived --shard option');
+  const {launchShards}=await import(pathToFileURL(path.join(root,'code','parallel_trials.mjs')).href);
+  const p=manifest.body.plan;
+  return launchShards(root,opts.jobs,opts.until,p.name,p.games.length*p.arms.length*p.replicates);
+}
+
 async function rerun(root, target, args) {
+  if (args.includes('--jobs')) throw Error('--jobs is supported only by run and resume');
   if (root===target || fs.existsSync(manifestPath(target))) throw Error('rerun needs a fresh output directory');
   const opts=options(args);
   const {api,manifest}=await frozen(root);
@@ -557,8 +581,26 @@ function status(root,verify=false) {
 
 async function main(argv) {
   const [cmd,arg,...rest]=argv;
+  // Leave ordinary run/resume reporting untouched, including older archives.
+  if ((cmd==='run'||cmd==='resume') && arg && rest.includes('--jobs')) {
+    const flags=cmd==='run'?rest.slice(1):rest, opts=options(flags);
+    if (cmd==='run' && !rest[0]) throw Error('run requires an output directory');
+    if (opts.jobs===1) {
+      const i=flags.indexOf('--jobs');
+      return main([cmd,arg,...(cmd==='run'?[rest[0]]:[]),...flags.slice(0,i),...flags.slice(i+2)]);
+    }
+    if (cmd==='run') return run(arg,path.resolve(rest[0]),flags);
+    const root=path.resolve(arg), {manifest}=await frozen(root);
+    if (opts.until!==Infinity && !manifest.body.plan.checkpoints.includes(opts.until))
+      throw Error('--until must be a declared checkpoint');
+    return parallelTrials(root,manifest,opts);
+  }
   if (cmd==='validate'&&arg&&rest.length===0) {
     const p=readPlan(arg); console.log('Valid plan: '+p.name+', '+p.games.length*p.arms.length*p.replicates+' trials.'); return;
+  }
+  if(cmd==='oracle'&&arg&&rest[0]==='--discount'){
+    if(!(rest.length===2 || rest.length===4&&rest[2]==='--tolerance')) throw Error('expected --discount G [--tolerance E]');
+    console.log(JSON.stringify(discountedOracle(worldDefinition(json(arg)),Number(rest[1]),rest.length===4?Number(rest[3]):undefined),null,2));return;
   }
   if (cmd==='oracle'&&arg&&(rest.length===1 || (rest.length===2 && rest[1]==='--reactive'))) {
     const solve=rest.length===2?reactiveOracle:oracle;
@@ -579,7 +621,7 @@ async function main(argv) {
   if (cmd==='export'&&arg&&rest.length===0) return exportCsv(path.resolve(arg));
   if ((cmd==='status'||cmd==='verify')&&arg&&rest.length===0) return status(path.resolve(arg),cmd==='verify');
   if (cmd==='replay'&&arg&&rest.length===6) return replay(path.resolve(arg),...rest);
-  throw Error('usage: node experiment.mjs validate PLAN | oracle WORLD HORIZON [--reactive] | run PLAN OUTPUT [--bend PATH] [--until EPISODES] [--shard I/N] | resume OUTPUT [--until EPISODES] [--shard I/N] | assess OUTPUT ASSESSMENT_SPEC DIRECTORY | rerun OUTPUT NEW_OUTPUT [--until BUDGET] | select SCREEN CONFIRM_SPEC OUTPUT | status OUTPUT | verify OUTPUT | export OUTPUT | replay OUTPUT GAME ARM REP CHECKPOINT PHASE INDEX');
+  throw Error('usage: node experiment.mjs validate PLAN | oracle WORLD HORIZON [--reactive] | run PLAN OUTPUT [--bend PATH] [--until EPISODES] [--shard I/N | --jobs N] | resume OUTPUT [--until EPISODES] [--shard I/N | --jobs N] | assess OUTPUT ASSESSMENT_SPEC DIRECTORY | rerun OUTPUT NEW_OUTPUT [--until BUDGET] | select SCREEN CONFIRM_SPEC OUTPUT | status OUTPUT | verify OUTPUT | export OUTPUT | replay OUTPUT GAME ARM REP CHECKPOINT PHASE INDEX');
 }
 
 export {adapterName, allGames, frameData, record, stats, unpack, checkedSnapshot, existing, gameRunner, immutable, json, manifestPath, seal, testModel, unseal};
