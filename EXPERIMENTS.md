@@ -77,6 +77,8 @@ Validation evaluates a frozen model at every checkpoint. The test block is used 
 
 ## Resume, reproduce, and inspect
 
+The runner still archives a JavaScript backend. See the [native runtime evaluation](tools/native-spike/README.md) for the tested plan boundaries and why native execution is not a supported replay option.
+
 ```sh
 node experiment.mjs run experiments/planning-budget.json runs/planning --until 256
 node experiment.mjs status runs/planning

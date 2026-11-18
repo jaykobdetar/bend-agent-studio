@@ -60,6 +60,8 @@ The project declares 41 laws. Their statements and proofs are in [LAWS.bend](LAW
 - **Sparse table updates.** The addressed observation/action key reads back the revised F32 value and its incremented U32 visit count. All other keys preserve both reads, even when a key was absent or input entries are not unique.
 - **Offline logging.** Zero exploration buckets always select the preferred action, as does every masked 16-bit draw at or above the threshold. The base action is computed in evaluation mode with word zero. The propensity formula is separately tested across all 65,536 draws.
 
+The [native runtime spike](tools/native-spike/README.md) reports sampled CPU/JS replay parity and timings; the supported backend remains JavaScript.
+
 ## Run the checks
 
 With Bend 2.0.40 and Node 24 installed:
