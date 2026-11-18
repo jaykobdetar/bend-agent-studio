@@ -346,3 +346,5 @@ For two complete discrete custom-agent examples, run the [sampled SARSA(0) plan]
 The [TD(λ) study](experiments/cliff-td-lambda.json) compares tabular and sparse linear accumulating traces. See [update and reset semantics](docs/td-lambda.md).
 
 [REINFORCE with a state baseline](docs/reinforce.md) uses `learn_context(model,legal,event)` with `finish` to record the ordered public action set at each accepted decision. Try the [Orchard experiment](experiments/reinforce-orchard.json).
+
+The [sparse linear study](experiments/cliff-linear.json) compares a typed authored feature map with tabular Q-learning. The [feature API and results](docs/linear.md) document duplicate coefficients, signed weights and the untuned baseline’s limitations.
