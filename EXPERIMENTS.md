@@ -35,6 +35,22 @@ The bridge has two choices. The safe choice ends the game with one point. The ri
 
 The optional [Gymnasium adapter](integrations/gymnasium/README.md) uses the same JSON validator, grid expansion and exact integer sampling buckets as the runner. Supply a positive horizon and an explicit U32 seed to reproduce a Bend episode with the same actions. Gym action indices map to potentially sparse Bend IDs; consult the legal-action IDs in the public info. Natural terminal states win over time-limit truncation. For the exact undiscounted report score, use `info["bend_episode_score"]`, which rounds after each accepted move just as Bend does. Run the adapter's Python unittest suite for the Gym checker, sampling comparison, and optional compiled Bend replay comparison.
 
+## Benchmark worlds
+
+These [Gymnasium 1.4.0 ports](integrations/gymnasium/toy_text/README.md) use the general state-machine schema. Values below are expected **undiscounted episode scores**, computed on the Bend integer sampling buckets. “Optimal” is a finite-horizon optimal policy; “uniform” chooses uniformly among all available action IDs. They are not fitted scores.
+
+| World | Horizon | Optimal | Uniform | What it tests |
+| --- | ---: | ---: | ---: | --- |
+| [FrozenLake 4×4 dry](worlds/benchmarks/toy-text/lake4-dry.json) | 100 | 1 | 0.013940 | Sparse goal; wall actions do not advance the agent. |
+| [FrozenLake 4×4 slippery](worlds/benchmarks/toy-text/lake4-slip.json) | 100 | 0.744190 | 0.013940 | Same map, with stochastic directional slips. |
+| [FrozenLake 8×8 dry](worlds/benchmarks/toy-text/lake8-dry.json) | 200 | 1 | 0.001901 | Longer sparse-reward search. |
+| [FrozenLake 8×8 slippery](worlds/benchmarks/toy-text/lake8-slip.json) | 200 | 0.913220 | 0.001901 | Navigation under slip over the larger fixed map. |
+| [Taxi-v4](worlds/benchmarks/toy-text/taxi.json) | 200 | 7.930000 | −771.090999 | Plan pickup and delivery despite costly invalid attempts. |
+| [CliffWalking 4×12](worlds/benchmarks/toy-text/cliff4x12.json) | 200* | −13 | −2079.115971 | Cliff falls reset position and incur a penalty; not the smaller built-in Cliff. |
+| [Blackjack-v1](worlds/benchmarks/toy-text/blackjack.json) | 32* | −0.043113 | −0.394175 | Hit or stick with a hidden dealer card and the registered natural-hand rule. |
+
+The Lakes and Taxi use their registered episode limits; *Gymnasium registers no limit for CliffWalking or Blackjack, so these are explicit study budgets.* Authored tabular rows preserve the intended rational probabilities; sampling uses the existing one-word approximation for non-dyadic probabilities, not Gym's RNG. See [generation, numerical precision and Blackjack checks](integrations/gymnasium/toy_text/README.md) and [full-precision baselines](integrations/gymnasium/toy_text/baselines.json). Run the [example plan](experiments/toy-text.json) with `node experiment.mjs run experiments/toy-text.json runs/toy-text`.
+
 ## Change the world, policy, or learner
 
 * **A finite state machine** can be written as JSON. Each state has a unique numeric ID, an optional public observation ID, and a list of legal actions. Each action lists possible destination IDs, positive integer weights, and finite rewards. An empty action list marks a terminal state. Start from `worlds/bridge.json`.
