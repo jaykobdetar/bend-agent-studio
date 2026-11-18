@@ -24,7 +24,7 @@ def frequencies(batch: D.Model) -> T.Table:
   match batch:
     case Nil{}: []
     case D.PairModel{s,a,+n,outcomes} <> rest:
-      T.Entry{s,a,n,U32.to_f32(n)} <> frequencies(rest)
+      T.store(frequencies(rest),s,a,T.Cell{n,U32.to_f32(n)})
 
 def consider(method: Method, +a: U32, n: U32, q: T.Table, s: U32, options: T.Choices) -> T.Choices:
   match method n:
@@ -72,7 +72,7 @@ def sweep(batch: D.Model, +method: Method, +q: T.Table, +counts: T.Table, +gamma
     case Nil{}: []
     case D.PairModel{s,a,+n,outcomes} <> rest:
       estimate=F32.div(targets(outcomes,method,q,counts,gamma),U32.to_f32(n))
-      T.Entry{s,a,n,estimate} <> sweep(rest,method,q,counts,gamma)
+      T.store(sweep(rest,method,q,counts,gamma),s,a,T.Cell{n,estimate})
 
 def iterate(n: Nat, +batch: D.Model, +method: Method, q: T.Table, +counts: T.Table, +gamma: F32) -> T.Table:
   match n:

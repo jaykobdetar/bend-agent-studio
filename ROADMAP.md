@@ -270,7 +270,8 @@ Update this table in the same PR as each item.
 | L10 | Implemented: Completed Monte Carlo episode drops its decision buffer | [#14](https://github.com/jaykobdetar/bend-agent-studio/pull/14) |
 | L11 | Implemented: Logging policy follows its exact 16-bit draw rule | [#16](https://github.com/jaykobdetar/bend-agent-studio/pull/16) |
 | L12 | Not started | |
-| T2.1–T2.3 | Not started | |
+| T2.1, T2.3 | Not started | |
+| T2.2 | Implemented; review pending | [Keyed tables](https://github.com/jaykobdetar/bend-agent-studio/pulls?q=is%3Apr+head%3Aperf%2Fkeyed-tabular) |
 | B3.1–B3.2 | Not started | |
 | S4.1–S4.4 | Not started | |
 | A5.0–A5.6 | Not started | |
