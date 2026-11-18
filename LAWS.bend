@@ -68,6 +68,12 @@ law open_at_limit_is_truncated:
   for actions: List<&2, U32>
   {E.truncated(O, 0n, E.Open{obs, actions}) == True{} : Bool}
 
+law positive_budget_is_never_truncated:
+  for -O: Data
+  for n: Nat
+  for view: E.View<O>
+  {E.truncated(O, 1n+n, view) == False{} : Bool}
+
 law terminal_is_never_truncated:
   for -O: Data
   for remaining: Nat
