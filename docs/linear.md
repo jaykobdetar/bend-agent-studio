@@ -56,3 +56,11 @@ legal-order ties and evaluation behavior. Four independent-kernel laws pin
 scalar read-after-write, empty-gradient identity, no terminal bootstrap and
 greedy evaluation. The existing engine laws enforce no learning in evaluation.
 The Node integration test trains, verifies, replays and resumes a sealed run.
+
+On the shipped four-replicate, 128-episode study (Bend 2.0.40, Node 24.22.3),
+all four linear final test means were −60, versus −6 for all four tabular
+Q-learning replicates. Linear evaluation hit the 60-step limit; the table
+reached the terminal in six steps. This deliberately reported failure shows
+that the supplied shared-bias map and learning rate are not tuned for Cliff.
+The library is useful for authoring and testing feature maps, not as a claim of
+a better default learner.
