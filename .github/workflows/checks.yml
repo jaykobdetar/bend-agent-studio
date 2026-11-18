@@ -44,6 +44,10 @@ jobs:
         run: |
           python3 -m unittest test_multiple_comparisons test_suite_stats
           node world_campaign.mjs --bend bend --seed 30000 --worlds 2 --episodes 12 --batches 1
+      - name: Verify two-pile Nim arena and every starting position
+        run: |
+          node experiment.mjs run experiments/two-pile-nim.json "$RUNNER_TEMP/nim-study"
+          node nim_checks.mjs "$RUNNER_TEMP/nim-study"
       - name: Test MCP with real Bend
         working-directory: mcp
         run: |

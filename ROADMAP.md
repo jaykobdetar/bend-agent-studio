@@ -292,6 +292,8 @@ Update this table in the same PR as each item.
 | V6.2 | Implemented: unsealed notes and tags in Studio and MCP | [#23](https://github.com/jaykobdetar/bend-agent-studio/pull/23) |
 | V6.3 | Implemented: self-contained offline reports | [#25](https://github.com/jaykobdetar/bend-agent-studio/pull/25) |
 | V6.4 | Implemented: local FIFO training queue and validation-curve comparison | [#28](https://github.com/jaykobdetar/bend-agent-studio/pull/28) |
-| O7.1–O7.3 | Not started | |
+| O7.1 | Not started | |
+| O7.2 | Implemented: bounded two-pile Nim, complete transition graph and exact exploitability checks | [Notes](docs/two-pile-nim.md) |
+| O7.3 | Deferred: requires a concrete research question | |
 | O7.4 | Verified: compiler campaign includes positive-exponent F32 rewards | [Campaign](world_campaign.mjs) |
 | O7.5 | Implemented: optional Holm-adjusted paired sign tests across arms | [Method](EXPERIMENTS.md#multiple-arms-versus-one-reference) |

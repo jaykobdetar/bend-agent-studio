@@ -367,3 +367,5 @@ record family size, non-tie count, raw sign p and Holm-adjusted p. Compare
 the latter with your prespecified family alpha. No adjustment across games,
 checkpoints, metrics, phases, or repeated looks is implied. Preselect the
 family before inspecting results. Without the option CSV output is unchanged.
+
+For a small two-player perfect-information game, run the [two-pile Nim study](experiments/two-pile-nim.json) and [exhaustive graph and exploitability checks](docs/two-pile-nim.md).
