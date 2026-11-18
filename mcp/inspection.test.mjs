@@ -144,4 +144,9 @@ test('replay and explanation use archived coordinates; real oracle computes Brid
   const historical=await inspection.explain_episode.run({...a,offset:1},c);
   assert.equal(historical.decisions[0].observation,5);
   assert.equal(historical.decisions[0].gap,0);
+  frames[1]={observation:5,legal:[9],action:99,accepted:false};
+  const illegal=await inspection.explain_episode.run({...a,offset:1},c);
+  assert.equal(illegal.decisions[0].accepted,false);
+  assert.equal(illegal.decisions[0].observation,5);
+  assert.equal(illegal.decisions[0].gap,null);
 });

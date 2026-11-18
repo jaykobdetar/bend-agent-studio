@@ -143,7 +143,8 @@ export function publicTraceFrames(world, frames, encoding) {
     if (!Number.isSafeInteger(v)||v<0||v>=n*(n+1)) throw Error('invalid history-encoded observation');
     return ids[v%n];
   };
-  return frames.map(f=>({...f,observation:decode(f.observation),nextObservation:decode(f.nextObservation)}));
+  return frames.map(f=>({...f,observation:decode(f.observation),
+    ...(f.accepted ? {nextObservation:decode(f.nextObservation)} : {})}));
 }
 
 export function explainDecisions(world,horizon,frames,options={}) {
