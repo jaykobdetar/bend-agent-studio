@@ -175,6 +175,15 @@ law tile_terminal_has_no_continuation:
   for state: Car.State
   {Tile.future(method, buckets, tree, E.End{state}) == 0.0 : F32}
 
+law history_reset_starts_with_initial_memory:
+  for -S: Data
+  for -Hid: Data
+  for start: U32 -> S
+  for initial: Hid
+  for seed: U32
+  {H.reset(S, Hid, start, initial, seed)
+    == H.Remembered{start(seed), initial} : H.State<S,Hid>}
+
 law history_preserves_legal_actions:
   for -O: Data
   for -Hid: Data

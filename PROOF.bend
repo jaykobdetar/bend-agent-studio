@@ -179,6 +179,8 @@ def Laws.high_write_preserves_low(suffix, tree, row): {==}
 
 def Laws.tile_terminal_has_no_continuation(method, buckets, tree, state): {==}
 
+def Laws.history_reset_starts_with_initial_memory(S, Hid, start, initial, seed): {==}
+
 def Laws.history_preserves_legal_actions(O, Hid, F, encode, h, obs, legal): {==}
 def Laws.history_preserves_reward(S, O, Hid, show, remember, h, obs, action, next, reward): {==}
 
