@@ -40,6 +40,23 @@ The bridge has two choices. The safe choice ends the game with one point. The ri
 
 A manifest binds a game file using `file` for JSON or `worldFile` for Bend. Paths are relative to the manifest. Set the same observation domain on a custom game and agent when using a custom observation type. Local Bend dependencies and parameter values are included in the saved source identity. A game can also be assembled directly with `E.Hooks{world, act, learn}`.
 
+## Regenerate the Tiger worlds
+
+The Tiger experiment reads three generated JSON files. Each starts from the same seven-state world and uses a different rule file to determine what the agent can observe after listening. Sound exposes the latest sound. Clock adds the number of listens. Evidence exposes a memory state encoding the listen count and the difference between the two sound counts. See the [base Tiger world](worlds/tiger.json) and [experiment manifest](experiments/tiger.json).
+
+The generator enumerates reachable combinations of underlying world state, memory state, and step number. It copies each action's outcome order, weights, and rewards. At depth eight it emits a terminal state with an empty action list. Explicitly storing these states and transitions produces 42 states for Sound, 42 for Clock, and 182 for Evidence. The generator is [memory_world.mjs](memory_world.mjs).
+
+To rebuild all three files after editing the base world or a `worlds/tiger-*-rules.json` file, run this from the repository root with Node 24:
+
+```sh
+for variant in sound clock evidence; do
+  node memory_world.mjs worlds/tiger.json "worlds/tiger-${variant}-rules.json" \
+    --task-horizon 8 > "worlds/tiger-${variant}-h8.json" || exit 1
+done
+```
+
+Run `node memory_checks.mjs` to rebuild the worlds in memory, compare them with the checked-in JSON, and verify that always listening ends the task after eight steps with a return of −8.
+
 ## Declare the comparison
 
 Put the algorithms or hyperparameter choices in `arms`. The Cartesian product of training games, arms, and replicate numbers defines the trials. Within a replicate, all arms share the same starting episode seeds. Separate, nonoverlapping seed blocks cover training, validation, and test. Make the stride large enough for the longest block. The compiler records effective floating-point parameters and epsilon thresholds.
