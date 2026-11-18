@@ -252,7 +252,7 @@ Acceptance: covered by `studio/studio_checks.mjs`, including a damaged run in th
 
 Update this table in the same PR as each item.
 
-**What to do next.** The A5.0 finish hook is available. SARSA(0) and n-step expected TD ship with learner-specific L12 laws. Expected TD(λ) now adds tabular and linear accumulating traces; continue with A5.4. In parallel, cap peak compiler memory for larger benchmark worlds if compiled Taxi/Blackjack studies are important; their ports and oracle checks work, but a complete compiled study was not verified. Minari and MLflow exports and the Phase 7 ideas remain optional. Keep JavaScript as the production backend (T2.3).
+**What to do next.** The A5.0 finish hook is available. SARSA(0) and n-step expected TD ship with learner-specific L12 laws. Expected TD(λ) now adds tabular and linear accumulating traces; REINFORCE adds episodic policy gradients with a frozen baseline. In parallel, cap peak compiler memory for larger benchmark worlds if compiled Taxi/Blackjack studies are important; their ports and oracle checks work, but a complete compiled study was not verified. Minari and MLflow exports and the Phase 7 ideas remain optional. Keep JavaScript as the production backend (T2.3).
 
 | ID | Status | PR |
 | --- | --- | --- |
@@ -285,7 +285,8 @@ Update this table in the same PR as each item.
 | A5.1 | Implemented: sampled SARSA(0), finish integration and three buffer laws | [Notes](docs/sarsa.md) |
 | A5.2 | Implemented: bounded n-step expected TD and three flush laws | [Notes](docs/n-step.md) |
 | A5.3 | Implemented: tabular and linear expected TD(λ) | [Notes](docs/td-lambda.md) |
-| A5.4–A5.6 | Not started | Depends on A5.0 where a learner buffers across transitions |
+| A5.4 | Implemented: softmax REINFORCE with frozen state baseline | [Notes](docs/reinforce.md) |
+| A5.5–A5.6 | Not started | Depends on A5.0 where a learner buffers across transitions |
 | V6.1 | Not started; optional MLflow exporter | |
 | V6.2 | Implemented: unsealed notes and tags in Studio and MCP | [#23](https://github.com/jaykobdetar/bend-agent-studio/pull/23) |
 | V6.3 | Implemented: self-contained offline reports | [#25](https://github.com/jaykobdetar/bend-agent-studio/pull/25) |
