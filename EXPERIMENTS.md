@@ -135,7 +135,7 @@ node experiment.mjs export runs/confirmation > confirmation.csv
 python3 analyze.py confirmation.csv --reference q-a05-e00625
 ```
 
-The confirmation specification declares a reference arm, selection metric, budget, sample size, and new seed allocations. Selection ranks final-checkpoint validation scores and records the overall winner. Confirmation retrains the reference and the highest-ranked distinct challenger from scratch, including when the reference wins the screen. Ties follow the screen's arm order.
+The confirmation specification declares a reference arm, selection metric, budget, sample size, and new seed allocations. Selection ranks final-checkpoint validation scores and records the overall winner. Confirmation retrains the reference and the highest-ranked distinct challenger from scratch, including when the reference wins the screen. Ties follow the screen's arm order. Finish all screen trials before running `select`; it rejects an unfinished screen rather than comparing only the trials that finished first.
 
 `analyze.py` reports a pointwise 95% percentile bootstrap interval. It resamples trained replicate blocks, keeping paired arms together when a reference is specified. With one replicate the interval is blank. With a few replicates or identical observed values, the interval can be narrow and its coverage can be poor. Report the replicate count and inspect the individual paired differences. Increasing bootstrap draws only refines the resampling calculation. [Hesterberg, 2015](https://doi.org/10.1080/00031305.2015.1089789)
 
@@ -160,6 +160,8 @@ The suite reports *pointwise*, nominal 95% percentile intervals. The default (`-
 ## Transfer and checkpoint selection
 
 Declare additional test-only worlds in `evaluationGames`. Specify which training game and arm supply each model, the target games, and a fresh assessment seed block. A comparison can choose a fixed checkpoint, `final`, or `best-validation`. The latter compares mean source validation returns within each replicate and chooses the earliest tied checkpoint. `minimumBudget` can limit the candidates. Targets must use compatible observation and action meanings.
+
+A fixed-checkpoint assessment can run from a paused source as soon as every requested trial has reached that checkpoint. `final` needs the final source checkpoints, and `best-validation` needs the complete source checkpoint chains so earlier finishes cannot bias selection. If assessment stops at a missing source checkpoint, finish the source run and repeat the same assessment command with the same output directory. It reuses already saved results and only writes `assessment.csv` when complete. Use a fresh output directory if changing the assessment specification.
 
 ```sh
 node experiment.mjs run experiments/ledge-transfer.json runs/ledge
