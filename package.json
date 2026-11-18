@@ -9,6 +9,6 @@
   },
   "scripts": {
     "start": "node studio/server.mjs",
-    "test": "node --test experiment_checks.mjs batch_checks.mjs studio/studio_checks.mjs oracle_checks.mjs memory_checks.mjs statistics_checks.mjs"
+    "test": "node --test experiment_checks.mjs batch_checks.mjs studio/studio_checks.mjs oracle_checks.mjs memory_checks.mjs statistics_checks.mjs && node --test worlds/benchmarks/probes/checks.mjs"
   }
 }

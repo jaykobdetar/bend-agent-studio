@@ -261,7 +261,7 @@ Update this table in the same PR as each item.
 | L1–L12 | Not started | |
 | T2.1–T2.3 | Not started | |
 | B3.1 | Toy-text ports verified; non-dyadic runtime probabilities quantized | [Methods and checks](integrations/gymnasium/toy_text/README.md) |
-| B3.2 | Not started | |
+| B3.2 | Six diagnostic families with verified two-size sweeps and oracle baselines | [Probe definitions and reproduction](worlds/benchmarks/probes/README.md) |
 | S4.1–S4.4 | Not started | |
 | A5.0–A5.6 | Not started | |
 | V6.1–V6.4 | Not started | |

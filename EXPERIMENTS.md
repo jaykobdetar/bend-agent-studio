@@ -37,7 +37,7 @@ The optional [Gymnasium adapter](integrations/gymnasium/README.md) uses the same
 
 ## Benchmark worlds
 
-These [Gymnasium 1.4.0 ports](integrations/gymnasium/toy_text/README.md) use the general state-machine schema. Values below are expected **undiscounted episode scores**, computed on the Bend integer sampling buckets. “Optimal” is a finite-horizon optimal policy; “uniform” chooses uniformly among all available action IDs. They are not fitted scores.
+The first seven benchmarks are [Gymnasium 1.4.0 ports](integrations/gymnasium/toy_text/README.md); all benchmarks use the general state-machine schema. Values below are expected **undiscounted episode scores**, computed on the Bend integer sampling buckets. “Optimal” is a finite-horizon optimal policy; “uniform” chooses uniformly among all available action IDs. They are not fitted scores.
 
 | World | Horizon | Optimal | Uniform | What it tests |
 | --- | ---: | ---: | ---: | --- |
@@ -48,6 +48,14 @@ These [Gymnasium 1.4.0 ports](integrations/gymnasium/toy_text/README.md) use the
 | [Taxi-v4](worlds/benchmarks/toy-text/taxi.json) | 200 | 7.930000 | −771.090999 | Plan pickup and delivery despite costly invalid attempts. |
 | [CliffWalking 4×12](worlds/benchmarks/toy-text/cliff4x12.json) | 200* | −13 | −2079.115971 | Cliff falls reset position and incur a penalty; not the smaller built-in Cliff. |
 | [Blackjack-v1](worlds/benchmarks/toy-text/blackjack.json) | 32* | −0.043113 | −0.394175 | Hit or stick with a hidden dealer card and the registered natural-hand rule. |
+| [Deep Sea, N=3/5](experiments/probe-deep-sea.json) | 3 / 5 | 0.99 / 0.99 | 0.12000 / 0.02625 | Directed exploration with a fixed per-cell action map and costly right moves. |
+| [Umbrella, N=3/5](experiments/probe-umbrella.json) | 3 / 5 | 1 / 1 | 0 / 0 | Delayed credit for the first choice, masked by zero-mean reward noise. |
+| [Memory, N=3/5](experiments/probe-memory.json) | 3 / 5 | 1 / 1 | 0 / 0 | Recall an initial cue after a delay; reactive optimal value is zero. |
+| [Discount chain, N=3/6](experiments/probe-discount.json) | 3 / 6 | 1.25 / 1.25 | 1.125 / 1.125 | Changing the delay changes which choice a discounted learner prefers. |
+| [Noisy bandit, N=2/4](experiments/probe-bandit.json) | 1 / 1 | 0.5 / 0.5 | 0 / −0.25 | Identify a better arm amid stochastic positive and negative payoffs. |
+| [Catch, N=2/4](experiments/probe-catch.json) | 2 / 2 | 1 / 1 | 0 / −0.5 | Move a paddle to intercept a visible falling ball across grid widths. |
+
+For the six diagnostic families, slash-separated values follow their two sizes in order. They are [bsuite-style probes, not upstream replications](worlds/benchmarks/probes/README.md); each link runs both sizes and produces one plot panel per size.
 
 The Lakes and Taxi use their registered episode limits; *Gymnasium registers no limit for CliffWalking or Blackjack, so these are explicit study budgets.* Authored tabular rows preserve the intended rational probabilities; sampling uses the existing one-word approximation for non-dyadic probabilities, not Gym's RNG. See [generation, numerical precision and Blackjack checks](integrations/gymnasium/toy_text/README.md) and [full-precision baselines](integrations/gymnasium/toy_text/baselines.json). Run the [example plan](experiments/toy-text.json) with `node experiment.mjs run experiments/toy-text.json runs/toy-text`.
 

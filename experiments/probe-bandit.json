@@ -1,0 +1,40 @@
+{
+  "schema": 1,
+  "name": "probe-bandit",
+  "games": [
+    {
+      "id": "bandit-2",
+      "file": "../worlds/benchmarks/probes/bandit-2.json",
+      "limit": 1
+    },
+    {
+      "id": "bandit-4",
+      "file": "../worlds/benchmarks/probes/bandit-4.json",
+      "limit": 1
+    }
+  ],
+  "arms": [
+    {
+      "id": "random",
+      "method": "random"
+    },
+    {
+      "id": "q",
+      "method": "q_learning"
+    }
+  ],
+  "replicates": 2,
+  "checkpoints": [
+    0,
+    8,
+    32
+  ],
+  "validationEpisodes": 8,
+  "testEpisodes": 8,
+  "seeds": {
+    "train": 60000000,
+    "validation": 1600000000,
+    "test": 2600000000,
+    "stride": 10000
+  }
+}
