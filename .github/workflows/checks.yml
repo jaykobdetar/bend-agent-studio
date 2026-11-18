@@ -40,6 +40,10 @@ jobs:
 
       - name: Run Node tests
         run: npm test
+      - name: Check statistical comparisons and positive-exponent Bend literals
+        run: |
+          python3 -m unittest test_multiple_comparisons test_suite_stats
+          node world_campaign.mjs --bend bend --seed 30000 --worlds 2 --episodes 12 --batches 1
       - name: Test MCP with real Bend
         working-directory: mcp
         run: |

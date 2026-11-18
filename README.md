@@ -106,3 +106,5 @@ search tree. Legal-list order still breaks ties. See the
 for the benchmark and its limits.
 
 Custom learners may export `finish(model: Model, reason: E.Stop) -> Model` to flush episode-local state. It runs once per training episode, never on a partial checkpoint or during evaluation. Omitting it keeps the original behavior. See [the learner lifecycle](EXPERIMENTS.md#learner-episode-completion).
+
+For many-arm comparisons against one reference, [Holm-adjusted paired sign tests](EXPERIMENTS.md#multiple-arms-versus-one-reference) are opt-in; default mean intervals remain pointwise.
