@@ -15,12 +15,14 @@ import {authoring} from './authoring.mjs';
 import {jobs} from './jobs.mjs';
 import {inspection} from './inspection.mjs';
 import {more} from './more.mjs';
+import {environmentTools} from './environment.mjs';
 import {worlds} from '../studio/catalog.mjs';
 const [flag, workspace, ...rest] = process.argv.slice(2);
 if (flag !== '--workspace' || !workspace || rest.length)
   throw Error('usage: node mcp/server.mjs --workspace OWNER_CONTROLLED_DIRECTORY');
 const ctx = serverContext(workspace, JSON.parse(process.env.BEND_MCP_NODE_MAP ?? '{}'));
-const tools = {...authoring, ...jobs, ...inspection, ...more};
+const environment = environmentTools();
+const tools = {...authoring, ...jobs, ...inspection, ...more, ...environment.tools};
 const ajv = new Ajv({allErrors: false});
 const validators = new Map(Object.entries(tools).map(([k, t]) => [k, ajv.compile(t.inputSchema)]));
 const resources = {
@@ -79,7 +81,10 @@ server.setRequestHandler(CallToolRequestSchema, async ({params: {name, arguments
     if (counted) --pending;
   }
 });
-server.onclose = shutdown;
+server.onclose = () => {
+  environment.close();
+  shutdown();
+};
 const transport = new StdioServerTransport(process.stdin, process.stdout, {maxBufferSize: 2 ** 20});
 process.stdin.once('end', () => {
   shutdown();

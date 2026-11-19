@@ -21,3 +21,10 @@ All paths in a tool call are relative to the configured workspace (absolute path
 | Sequential test | `design:{lower,upper,margin?,alpha?,comparisons?}, rows:[{replicate,candidate,reference}]`. Declare bounds externally; contiguous paired replicates start at zero. | analysis/sequential.mjs |
 
 Use the experiments guide for full semantics and the tool schemas for arguments. The normalized plan contains bundled code and internal derived fields: edit the source plan, not the normalized return.
+
+## Finite-world play
+
+`env_reset` takes a finite-table or grid JSON path, a U32 seed and optional
+limit. `env_step` takes that same world path, its opaque session token and a
+U32 action. The [MCP guide](README.md#play-a-finite-world) describes the
+public frame fields, lifetime and size limits.

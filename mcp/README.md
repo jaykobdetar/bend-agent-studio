@@ -56,9 +56,38 @@ Both validations are read-only. An inline run validates its data and saves the o
 - **Write confined starters and sweeps:** init_agent, init_world, init_plan and sweep. See the [scaffolding guide](../docs/scaffolding.md).
 - **Author/check:** list_examples, validate_plan, validate_world, solve_world (full/reactive/history/clock), evaluate_policy_exact (JSON observation keys to action ID or probability vector in legal-action order), build_memory_world, check_bend.
 - **Jobs:** start_run, resume_run, rerun, start_assessment, start_offline (collect/fit/score), job_status, cancel_job. select_confirmation is synchronous.
+- **Play:** env_reset and env_step for bounded seeded finite-world sessions; see [public frames](#play-a-finite-world).
 - **Inspect:** list_runs, verify_run, summarize_results, learning_curve, get_checkpoint, replay_episode, explain_episode, sequential_test, arena_tournament. The last returns separate rating and cross-play tables. Verification requires a complete run; status can report a partial one.
 - **Resources:** bend://docs/experiments, bend://docs/fields, bend://docs/laws, bend://studio/catalog.
 - Successful tools return structuredContent and matching JSON text for older clients. Failures return isError and a structured error message. No CLI progress enters protocol stdout. Resource and tool listings describe supported inputs; unknown properties are refused.
+
+## Play a finite world
+
+Call **env_reset** with the workspace JSON path `world`, a U32 `seed`, and
+an optional action `limit` (default 256, range 1–4,096). Finite tables and
+authored JSON grids share the runner's validator, F32 rewards and exact
+32-bit outcome buckets. The response is the public observation, ordered
+legal actions, terminal flag and an opaque session token (null if the
+initial view is terminal).
+
+Call **env_step** with the same `world`, the returned `session` token and a
+U32 `action`. Its `frame` has the same public fields as an episode replay:
+the prior observation and legal actions, requested action, and whether it
+was accepted. For an accepted action it also includes reward, next public
+observation/actions, terminal and truncated flags. `done` indicates the
+episode ended. An illegal action produces a refused frame and closes the
+session. A limit hit is truncated only if the next state is nonterminal.
+Neither tool exposes private state, random words or unobserved outcomes, or
+compiles/executes workspace code.
+
+Each MCP server holds at most 32 live sessions, at most four per canonical
+world path. Sessions are separate even with the same seed and path; keep
+the bearer token with the client that started the episode. They expire ten
+minutes after creation (not sliding), are removed when done, and are not
+persisted across server restart. Reset rejects capacity exhaustion rather
+than evicting a live session. The loaded definition is fixed for its
+session; keep the source file at its original path. World input is limited
+to 1 MiB, 4,096 states or grid cells, and 16,384 outcomes.
 
 ## Trust, limits and recovery
 
