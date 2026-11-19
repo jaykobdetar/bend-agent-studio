@@ -1,0 +1,87 @@
+{
+  "schema": 1,
+  "name": "memory-capacity-width16",
+  "games": [
+    {
+      "id": "retain-0",
+      "worldFile": "switchboard_suffix.bend",
+      "parameters": {
+        "retain": 0
+      },
+      "limit": 17
+    },
+    {
+      "id": "retain-2",
+      "worldFile": "switchboard_suffix.bend",
+      "parameters": {
+        "retain": 2
+      },
+      "limit": 17
+    },
+    {
+      "id": "retain-4",
+      "worldFile": "switchboard_suffix.bend",
+      "parameters": {
+        "retain": 4
+      },
+      "limit": 17
+    },
+    {
+      "id": "retain-6",
+      "worldFile": "switchboard_suffix.bend",
+      "parameters": {
+        "retain": 6
+      },
+      "limit": 17
+    },
+    {
+      "id": "retain-8",
+      "worldFile": "switchboard_suffix.bend",
+      "parameters": {
+        "retain": 8
+      },
+      "limit": 17
+    },
+    {
+      "id": "retain-12",
+      "worldFile": "switchboard_suffix.bend",
+      "parameters": {
+        "retain": 12
+      },
+      "limit": 17
+    },
+    {
+      "id": "retain-16",
+      "worldFile": "switchboard_suffix.bend",
+      "parameters": {
+        "retain": 16
+      },
+      "limit": 17
+    }
+  ],
+  "arms": [
+    {
+      "id": "q",
+      "method": "q_learning",
+      "alpha": 0.25,
+      "gamma": 1,
+      "epsilon": 0.125
+    }
+  ],
+  "replicates": 8,
+  "checkpoints": [
+    0,
+    128,
+    512,
+    2048,
+    8192
+  ],
+  "validationEpisodes": 128,
+  "testEpisodes": 1024,
+  "seeds": {
+    "train": 570000000,
+    "validation": 1800000000,
+    "test": 3414000000,
+    "stride": 35000
+  }
+}

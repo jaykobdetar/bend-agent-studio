@@ -1,0 +1,311 @@
+{
+  "replicates": 8,
+  "rows": {
+    "0": {
+      "0": {
+        "exact": 0.0,
+        "visited": 0,
+        "validation": -0.03320312,
+        "iid_first_visit_return": -0.0
+      },
+      "2": {
+        "exact": 0.0,
+        "visited": 0,
+        "validation": -0.03320312,
+        "iid_first_visit_return": 0.0
+      },
+      "4": {
+        "exact": 0.0,
+        "visited": 0,
+        "validation": -0.03320312,
+        "iid_first_visit_return": 0.0
+      },
+      "6": {
+        "exact": 0.0,
+        "visited": 0,
+        "validation": -0.03320312,
+        "iid_first_visit_return": 0.0
+      },
+      "8": {
+        "exact": 0.0,
+        "visited": 0,
+        "validation": -0.03320312,
+        "iid_first_visit_return": 0.0
+      },
+      "12": {
+        "exact": 0.0,
+        "visited": 0,
+        "validation": -0.03320312,
+        "iid_first_visit_return": 0.0
+      },
+      "16": {
+        "exact": 0.0,
+        "visited": 0,
+        "validation": -0.03320312,
+        "iid_first_visit_return": 0.0
+      }
+    },
+    "128": {
+      "0": {
+        "exact": 0.0,
+        "visited": 16,
+        "validation": -0.00585937,
+        "iid_first_visit_return": -0.0
+      },
+      "2": {
+        "exact": 0.11328125,
+        "visited": 54.625,
+        "validation": 0.12304687,
+        "iid_first_visit_return": 0.1083481
+      },
+      "4": {
+        "exact": 0.10253906,
+        "visited": 100.75,
+        "validation": 0.06054688,
+        "iid_first_visit_return": 0.09851573
+      },
+      "6": {
+        "exact": 0.05029297,
+        "visited": 119,
+        "validation": 0.03125,
+        "iid_first_visit_return": 0.04408387
+      },
+      "8": {
+        "exact": 0.01721191,
+        "visited": 125.5,
+        "validation": -0.00390625,
+        "iid_first_visit_return": 0.01538523
+      },
+      "12": {
+        "exact": 0.00155258,
+        "visited": 127.5,
+        "validation": -0.03125,
+        "iid_first_visit_return": 0.00146343
+      },
+      "16": {
+        "exact": 0.00012612,
+        "visited": 128,
+        "validation": -0.03320312,
+        "iid_first_visit_return": 0.00012206
+      }
+    },
+    "512": {
+      "0": {
+        "exact": 0.0,
+        "visited": 16,
+        "validation": -0.02148437,
+        "iid_first_visit_return": -0.0
+      },
+      "2": {
+        "exact": 0.125,
+        "visited": 64,
+        "validation": 0.09570312,
+        "iid_first_visit_return": 0.12496063
+      },
+      "4": {
+        "exact": 0.22070312,
+        "visited": 221.875,
+        "validation": 0.16796875,
+        "iid_first_visit_return": 0.21629843
+      },
+      "6": {
+        "exact": 0.15087891,
+        "visited": 401,
+        "validation": 0.11523437,
+        "iid_first_visit_return": 0.14760656
+      },
+      "8": {
+        "exact": 0.06011963,
+        "visited": 481.125,
+        "validation": 0.04296875,
+        "iid_first_visit_return": 0.05875828
+      },
+      "12": {
+        "exact": 0.00587463,
+        "visited": 509,
+        "validation": -0.02734375,
+        "iid_first_visit_return": 0.00583659
+      },
+      "16": {
+        "exact": 0.00049663,
+        "visited": 511.75,
+        "validation": -0.03320312,
+        "iid_first_visit_return": 0.00048816
+      }
+    },
+    "2048": {
+      "0": {
+        "exact": 0.0,
+        "visited": 16,
+        "validation": 0.05273438,
+        "iid_first_visit_return": -0.0
+      },
+      "2": {
+        "exact": 0.125,
+        "visited": 64,
+        "validation": 0.09375,
+        "iid_first_visit_return": 0.125
+      },
+      "4": {
+        "exact": 0.25,
+        "visited": 255.875,
+        "validation": 0.24609375,
+        "iid_first_visit_return": 0.24991744
+      },
+      "6": {
+        "exact": 0.32421875,
+        "visited": 884.125,
+        "validation": 0.31054687,
+        "iid_first_visit_return": 0.32429884
+      },
+      "8": {
+        "exact": 0.20001221,
+        "visited": 1606.625,
+        "validation": 0.19921875,
+        "iid_first_visit_return": 0.19675318
+      },
+      "12": {
+        "exact": 0.02314377,
+        "visited": 2013.5,
+        "validation": -0.00390625,
+        "iid_first_visit_return": 0.02307525
+      },
+      "16": {
+        "exact": 0.00195718,
+        "visited": 2045.5,
+        "validation": -0.02929687,
+        "iid_first_visit_return": 0.00195122
+      }
+    },
+    "8192": {
+      "0": {
+        "exact": 0.0,
+        "visited": 16,
+        "validation": 0.0234375,
+        "iid_first_visit_return": -0.0,
+        "test": 0.01196289
+      },
+      "2": {
+        "exact": 0.125,
+        "visited": 64,
+        "validation": 0.0703125,
+        "iid_first_visit_return": 0.125,
+        "test": 0.12890625
+      },
+      "4": {
+        "exact": 0.25,
+        "visited": 256,
+        "validation": 0.19921875,
+        "iid_first_visit_return": 0.25,
+        "test": 0.25878906
+      },
+      "6": {
+        "exact": 0.37475586,
+        "visited": 1023.5,
+        "validation": 0.31054687,
+        "iid_first_visit_return": 0.37487469,
+        "test": 0.38305664
+      },
+      "8": {
+        "exact": 0.43231201,
+        "visited": 3536.25,
+        "validation": 0.4453125,
+        "iid_first_visit_return": 0.43234888,
+        "test": 0.42480469
+      },
+      "12": {
+        "exact": 0.08827972,
+        "visited": 7696.75,
+        "validation": 0.05859375,
+        "iid_first_visit_return": 0.08812795,
+        "test": 0.07568359
+      },
+      "16": {
+        "exact": 0.00780702,
+        "visited": 8162,
+        "validation": -0.0234375,
+        "iid_first_visit_return": 0.00778207,
+        "test": -0.01342773
+      }
+    }
+  },
+  "paired_differences": [
+    {
+      "episodes": 128,
+      "left": 2,
+      "right": 4,
+      "metric": "exact",
+      "mean_difference": 0.01074219,
+      "paired_t_interval_95": [
+        -0.00523262,
+        0.02671699
+      ]
+    },
+    {
+      "episodes": 512,
+      "left": 4,
+      "right": 6,
+      "metric": "exact",
+      "mean_difference": 0.06982422,
+      "paired_t_interval_95": [
+        0.05761286,
+        0.08203558
+      ]
+    },
+    {
+      "episodes": 2048,
+      "left": 6,
+      "right": 16,
+      "metric": "exact",
+      "mean_difference": 0.32226157,
+      "paired_t_interval_95": [
+        0.31272579,
+        0.33179735
+      ]
+    },
+    {
+      "episodes": 2048,
+      "left": 6,
+      "right": 0,
+      "metric": "exact",
+      "mean_difference": 0.32421875,
+      "paired_t_interval_95": [
+        0.31465774,
+        0.33377976
+      ]
+    },
+    {
+      "episodes": 8192,
+      "left": 8,
+      "right": 6,
+      "metric": "exact",
+      "mean_difference": 0.05755615,
+      "paired_t_interval_95": [
+        0.05372405,
+        0.06138825
+      ]
+    },
+    {
+      "episodes": 8192,
+      "left": 8,
+      "right": 6,
+      "metric": "test",
+      "mean_difference": 0.04174805,
+      "paired_t_interval_95": [
+        0.01996416,
+        0.06353194
+      ]
+    },
+    {
+      "episodes": 8192,
+      "left": 16,
+      "right": 0,
+      "metric": "test",
+      "mean_difference": -0.02539063,
+      "paired_t_interval_95": [
+        -0.06369438,
+        0.01291313
+      ]
+    }
+  ]
+}

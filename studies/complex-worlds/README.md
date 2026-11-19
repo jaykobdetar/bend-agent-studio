@@ -72,6 +72,8 @@ sampled aggregate proportional memory; this is not a general speed claim.
 
 * **Courier:** On 12 fresh matched seed blocks at 8,192 steps, Dyna with zero planning backups matched vanilla Q and both timed out; five backups reached the optimum. By 49,152 steps all three were optimal. The 5,076-state variant still compiled, trained, resumed and verified; at 32,768 interactions all three arms scored −1,603 (no deliveries) versus the exact +948. Running a world is not the same as learning it.
 * **Switchboard:** The explicit eight-cue compile was stopped by a 1.5 GiB proportional-memory guard. The [compact implementation](../../worlds/challenges/switchboard/switchboard.bend) ran the eight-cue study in 54 s at 299 MiB, and on the smaller encodings matched 30 seeded compiled replay pairs. At 16 cues, the compact world has 1,048,576 possible query contexts *without materializing them*. After 16,384 episodes, eight independent tabular models had visited 1.5504% on average, versus 1.5504% predicted under independent uniform contexts. All visited contexts were answered correctly. This is a sample-coverage result, not evidence that a rule-based or generalizing agent needs a million examples.
+  A [memory-capacity follow-up](memory-capacity/README.md) compares how many
+  cues to retain when training data is limited.
 * **Storm Reserve:** The [offline overlap study](offline/README.md) uses the same twelve-period market to distinguish seeing similar behavior in a log from having statistical support for policy evaluation. Giving every action nonzero probability fixes support, but it does not guarantee useful sample size over twelve decisions.
 
 ## Optional larger run
@@ -88,3 +90,25 @@ node studies/complex-worlds/storm-factorial.mjs runs/reserve-design
 node experiment.mjs run runs/reserve-design/reserve-8x2-q.json runs/reserve-8x2-q --until 256
 node runs/reserve-8x2-q/code/experiment.mjs resume runs/reserve-8x2-q
 ```
+
+All eight archives completed and verified: **64 training trials, 320 checkpoints**.
+The table scores the archived greedy policies exactly under each specified
+world model. Each cell is a mean over eight fresh fits, with seeds matched
+between Q and Dyna. To repeat the calculation after a full run, use
+`node studies/complex-worlds/frozen-values.mjs runs/reserve-8x2-q` (and
+likewise for each other archive); group the `exact_return` rows by budget.
+
+| Periods × capacity | Reachable states | Optimal | Q / Dyna at 4,096 episodes | Q / Dyna at 16,384 |
+| --- | ---: | ---: | ---: | ---: |
+| 8 × 2 | 65 | 7.59 | 7.38 / 7.48 | 7.29 / 7.45 |
+| 8 × 8 | 155 | 10.47 | 7.96 / 10.03 | 9.77 / 10.30 |
+| 24 × 2 | 209 | 24.02 | 19.81 / 23.64 | 23.16 / 23.74 |
+| 24 × 8 | 587 | 39.04 | 24.04 / 37.07 | 32.45 / 38.39 |
+
+With both a long horizon and more storage, extra real episodes narrowed
+Dyna's mean advantage from +13.04 to +5.94 but did not erase it (final
+descriptive paired 95% t interval [+5.57, +6.31]). Held-out rollouts yielded
+31.89 / 37.95 at that endpoint. Dyna used five additional planning backups
+per observed step: on that cell, compilation, training and evaluation across
+the staged run used 834 CPU seconds for Dyna versus 250 for Q. This is an
+equal-interaction comparison, not an equal-compute result.
