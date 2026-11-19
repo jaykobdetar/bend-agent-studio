@@ -24,8 +24,14 @@ for (let i = 0; i < args.length; i += 2) {
   else if (args[i] === '--run' && args[i + 1]) mounts.push(path.resolve(args[i + 1]));
   else if (args[i] === '--replay-node' && args[i + 1]) {
     const executable = path.resolve(args[i + 1]);
-    const version = execFileSync(executable, ['-p', 'process.versions.node'], { encoding: 'utf8', timeout: 5000 }).trim();
-    replayNodes.set(version, executable);
+    try {
+      const version = execFileSync(executable, ['-p', 'process.versions.node'],
+        { encoding: 'utf8', timeout: 5000, stdio: 'pipe' }).trim();
+      replayNodes.set(version, executable);
+    } catch {
+      console.error('Cannot use --replay-node at ' + executable + '. Point it to an installed Node executable you can run.');
+      process.exit(1);
+    }
   } else throw Error('Usage: node studio/server.mjs [--port PORT] [--run TRUSTED_RUN_DIRECTORY] [--replay-node NODE_PATH]');
 }
 if (!Number.isInteger(port) || port < 0 || port > 65535) throw Error('Invalid port');

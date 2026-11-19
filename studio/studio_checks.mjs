@@ -1,7 +1,7 @@
 import { compilerTest } from '../bend_test_support.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { spawn } from 'node:child_process';
+import { spawn, spawnSync } from 'node:child_process';
 import { once } from 'node:events';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { mkdir, mkdtemp, readFile, readdir, rm, writeFile } from 'node:fs/promises';
@@ -236,6 +236,16 @@ test('attached archive is listed without complete checkpoints; a missing Node ve
   } finally {
     await server.close();
   }
+});
+test('an unavailable explicit replay executable gives startup recovery guidance', async t => {
+  const home=await mkdtemp(path.join(os.tmpdir(),'studio-no-node-'));
+  t.after(()=>rm(home,{recursive:true,force:true}));
+  const missing=path.join(home,'missing Node executable');
+  const result=spawnSync(process.execPath,[fileURLToPath(new URL('./server.mjs',import.meta.url)),
+    '--port','0','--replay-node',missing],{encoding:'utf8',timeout:8000,env:{...process.env,BEND_STUDIO_HOME:home}});
+  assert.equal(result.status,1);
+  assert.equal(result.stdout,'');
+  assert.equal(result.stderr.trim(),'Cannot use --replay-node at '+missing+'. Point it to an installed Node executable you can run.');
 });
 test('one damaged run leaves healthy runs and the catalog accessible', async (t) => {
   const home = await mkdtemp(path.join(os.tmpdir(), 'studio-list-'));
