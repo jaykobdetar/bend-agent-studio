@@ -107,6 +107,35 @@ jobs:
           bend agents/linear/proof.bend --verdict
           bend agents/clipped_pg/proof.bend --verdict
 
+  fresh-setup:
+    name: Fresh setup and zero-skip tests
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+      - name: Set up pinned tools and isolated packages
+        run: bash scripts/setup.sh --with-test-extras
+      - name: Run root and MCP tests with no skipped cases
+        shell: bash
+        run: |
+          source .bend-setup/env.sh
+          npm test | tee "$RUNNER_TEMP/setup-root.tap"
+          PATH="$(dirname "$BEND_MCP_TEST_PYTHON"):$PATH" npm --prefix mcp test | tee "$RUNNER_TEMP/setup-mcp.tap"
+          for report in "$RUNNER_TEMP/setup-root.tap" "$RUNNER_TEMP/setup-mcp.tap"; do
+            grep -qx '# skipped 0' "$report"
+            if grep -qE '^# skipped [1-9][0-9]*$' "$report"; then
+              echo "Unexpected test skips in $report" >&2
+              exit 1
+            fi
+          done
+      - name: Check the environments created by setup
+        run: |
+          source .bend-setup/env.sh
+          (cd integrations/gymnasium && "$BEND_GYM_PYTHON" -m unittest -v)
+          "$BEND_MINARI_PYTHON" -m unittest discover -s integrations/minari -v
+
   windows:
     name: Node-only checks on Windows
     runs-on: windows-2025

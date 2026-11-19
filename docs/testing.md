@@ -1,5 +1,30 @@
 # Testing
 
+## Set up a machine
+
+Use a trusted checkout on Linux or macOS (x86-64 or ARM64). The bootstrap needs Bash, curl, tar, zstd, a SHA-256 utility, and Python 3.12 with working `venv`. On Ubuntu 24.04 the corresponding packages include `python3.12-venv` and `zstd`; on macOS install Python 3.12 and zstd before running the script. If the interpreter has a different path, set `BEND_SETUP_PYTHON` to the Python 3.12 executable. For Windows, use WSL or follow the Node-only job in CI.
+
+From the repository root:
+
+```sh
+bash scripts/setup.sh
+source .bend-setup/env.sh
+npm test
+```
+
+Setup installs and checks Bend 2.0.40, Node 24.22.3 and Lean 4.34.0 from checksum-pinned distributions. It prints the resolved versions, creates separate Gymnasium and Minari virtual environments from their existing lock files, and runs the locked MCP install with lifecycle scripts disabled. Run it again to reuse verified-version tools and reconcile packages with the locks. No global tool or shell profile is changed. The generated activation file applies to this checkout; source it in each new shell. The initial download includes the full Lean distribution and can take several minutes.
+
+The [devcontainer](../.devcontainer/devcontainer.json) runs setup with the test extras when it opens. To match the fresh-runner CI job outside it, run:
+
+```sh
+bash scripts/setup.sh --with-test-extras
+source .bend-setup/env.sh
+npm test
+PATH="$(dirname "$BEND_MCP_TEST_PYTHON"):$PATH" npm --prefix mcp test
+```
+
+The extras install Node 24.22.1 alongside, not in place of, 24.22.3 for the cross-version archive fixture, and a separate locked Python environment for the MCP SVG fixture. The fresh setup job requires zero skips in both Node suites and tests the two adapter environments made by setup. The original Linux and Windows jobs still run, including archive gates and proofs as before.
+
 ## Which checks run where?
 
 Run commands from the repository root unless a different working directory is specified. The [CI workflow](../.github/workflows/checks.yml) is the source of truth for the pinned tools and steps.
