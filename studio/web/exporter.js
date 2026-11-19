@@ -35,7 +35,7 @@ export async function renderGif(trace, speed, onProgress, cancel, canvas) {
   let encoder;
   for (const [i, { step, delay }] of frames.entries()) {
     if (cancel()) throw Error('Recording cancelled');
-    draw(canvas, trace.game, observation(trace, step), boards[step]);
+    draw(canvas, trace.game, observation(trace, step), boards[step], trace.gridLayout);
     const pixels = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
     encoder ??= new Gif(canvas.width, canvas.height, pixels);
     encoder.frame(pixels, delay);

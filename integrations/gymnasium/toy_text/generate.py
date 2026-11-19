@@ -1,6 +1,7 @@
 """Export pinned Gymnasium toy-text benchmarks. Optional build-time dependency only."""
 
 import argparse
+import hashlib
 import json
 from collections import Counter, deque
 from fractions import Fraction as F
@@ -192,7 +193,9 @@ def main():
     args = arg.parse_args()
     if gym.__version__ != "1.4.0":
         raise RuntimeError("generator requires gymnasium 1.4.0")
+    layouts = {}
     for name, (id, opts) in SPECS.items():
+        layout = None
         spec = gym.spec(id)
         if name == "blackjack":
             assert spec.kwargs == {"sab": True, "natural": False}
@@ -200,11 +203,27 @@ def main():
         else:
             env = gym.make(id, **opts)
             try:
-                w = official(env.unwrapped)
+                raw = env.unwrapped
+                w = official(raw)
+                if name.startswith("lake"):
+                    glyphs = {"F": ".", "H": "P", "S": "S", "G": "G"}
+                    layout = {"rows": ["".join(glyphs[cell.decode("ascii")] for cell in row) for row in raw.desc]}
+                elif name == "cliff4x12":
+                    layout = {"rows": ["............"] * 3 + ["SPPPPPPPPPPG"]}
+                elif name == "taxi":
+                    # The public observation encodes row, column, passenger and destination.
+                    rows = [row.tobytes().decode("ascii") for row in raw.desc[1:-1]]
+                    layout = {
+                        "rows": ["".join(c if c in "RGBY" else "." for c in row[1::2]) for row in rows],
+                        "verticalWalls": [[r, c] for r, row in enumerate(rows) for c, char in enumerate(row[2:-1:2]) if char == "|"],
+                        "decoder": "taxi",
+                    }
             finally:
                 env.close()
         f = OUT / (name + ".json")
         data = render(w).encode()
+        if layout is not None:
+            layouts[f.name] = {"sha256": hashlib.sha256(data).hexdigest(), **layout}
         if args.check:
             if f.read_bytes() != data:
                 raise RuntimeError(f"generated world differs: {name}")
@@ -212,6 +231,13 @@ def main():
             OUT.mkdir(parents=True, exist_ok=True)
             f.write_bytes(data)
         print(name, len(w["states"]), spec.max_episode_steps, len(data))
+    sidecar = OUT / "layouts.json"
+    data = (json.dumps(layouts, indent=2) + "\n").encode()
+    if args.check:
+        if sidecar.read_bytes() != data:
+            raise RuntimeError("generated toy-text layouts differ")
+    else:
+        sidecar.write_bytes(data)
 
 
 if __name__ == "__main__":

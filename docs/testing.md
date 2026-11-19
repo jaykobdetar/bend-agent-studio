@@ -38,6 +38,8 @@ Run commands from the repository root unless a different working directory is sp
 
 A green Windows job means the Node-only workflow passed. It does **not** mean Bend, Lean, the compiled backend hash checks, Gymnasium or Minari ran on Windows. For the quick local smoke test use `npm test`; for a change to archive layout, learner semantics or Python integration, run the matching row above as well.
 
+The [Bend upgrade watch](upgrading-bend.md) is a separate weekly/manual check against the latest official 2.x version. It does not replace any pinned job, and its results are never required for a merge.
+
 ### Running individual checks
 
 Run `node --test checks/scaffold_checks.mjs` for starter validity, no-clobber
@@ -109,3 +111,16 @@ bend laws/PROOF.bend --verdict
 ```
 
 With Bend installed, the second command compiles literal and packed versions of the same generated worlds, checks every 16-bit draw for sampled logging policies, and compares chunked and direct episode reports for both completion hook types. These cases complement the independent proof verdict, which the pinned workflow and advisory Bend watch both run. See [the proof boundaries](laws.md#phase-9-proof-boundaries) for what is formal and what is empirical.
+
+## Studio browser smoke
+
+With the normal pinned Node and Bend tools on PATH, run this isolated Playwright harness:
+
+```sh
+cd tools/studio-smoke
+npm ci --ignore-scripts
+PLAYWRIGHT_BROWSERS_PATH=0 npx --no-install playwright install --no-shell chromium
+PLAYWRIGHT_BROWSERS_PATH=0 npm test
+```
+
+The Linux job installs browser prerequisites on its fresh runner. The smoke test starts a loopback Studio with a temporary home, selects and trains a multi-world manifest, verifies the planned hook types, dismisses and reopens the replay picker, checks the expected rendered grid colors, and fails on console or script errors or page overflow at 390 px. Studio's root Node tests separately cover manifest/source confinement, FIFO crash recovery, and generated sidecar identity.
