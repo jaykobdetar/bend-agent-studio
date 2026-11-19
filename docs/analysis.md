@@ -73,6 +73,8 @@ Larger finite worlds can use a packed compiled representation. [Taxi and Blackja
 
 [Export a collected dataset to local Minari/HDF5](../integrations/minari/README.md). Select fit or holdout explicitly for separate artifacts, or all for a complete copy. The exporter preserves observations, actions, stop flags and rewards, verifies the result by loading it, and refuses unsupported lossless conversions.
 
+To inspect per-replicate checkpoints in MLflow, use the optional [local tracking-store exporter](../integrations/mlflow/README.md). It uses the same metric definitions and budget steps as the learning curves.
+
 ### Share an offline report
 
 From the current checkout run `node experiment.mjs report RUN OUT.html` using

@@ -193,7 +193,7 @@ Do not implement DQN-style deep networks or image observations. Use the P0.4 bri
 
 ## Phase 6: tracking, reports, and Studio
 
-**V6.1. MLflow exporter (S).** An optional Python tool reads an `experiment.mjs export` CSV, or a run folder directly, and logs to a local MLflow tracking store.
+**V6.1. MLflow exporter (S).** An optional Python tool reads a verified, complete run folder and logs checkpoint metrics to a local MLflow tracking store.
 - One MLflow run per (game, arm, replicate).
 - Parameters come from the arm settings in the sealed plan. Metrics are logged per checkpoint, with `step` set to the budget.
 - Tags record the run hash, backend hash and Bend version.
@@ -267,7 +267,7 @@ Acceptance: covered by `studio/studio_checks.mjs`, including a damaged run in th
 
 Update this table in the same PR as each item.
 
-**What remains.** The optional Minari export is available. MLflow and the remaining Phase 7 items are tracked below. Phase 5 learners now ship with their own laws. Packed finite-world code generation enables bounded, compiled Taxi and Blackjack studies; [the measurements](tools/finite-layout/README.md) distinguish completed candidate runs from memory-censored baseline runs. Keep JavaScript as the production backend (T2.3).
+**What remains.** The optional Minari export is available. The MLflow exporter is implemented under N9.10; the remaining Phase 7 items are tracked below. Phase 5 learners now ship with their own laws. Packed finite-world code generation enables bounded, compiled Taxi and Blackjack studies; [the measurements](tools/finite-layout/README.md) distinguish completed candidate runs from memory-censored baseline runs. Keep JavaScript as the production backend (T2.3).
 
 | ID | Status | PR |
 | --- | --- | --- |
@@ -303,7 +303,7 @@ Update this table in the same PR as each item.
 | A5.4 | Implemented: softmax REINFORCE with frozen state baseline | [Notes](agents/reinforce/README.md) |
 | A5.5 | Implemented: typed sparse feature maps and action-specific linear weights | [Notes and measured limitations](agents/linear/README.md) |
 | A5.6 | Implemented: tiny clipped-ratio policy gradient with frozen batches | [Notes](agents/clipped_pg/README.md) |
-| V6.1 | Not started; optional MLflow exporter | |
+| V6.1 | Merged with N9.10; [PR #40](https://github.com/jaykobdetar/bend-agent-studio/pull/40) | [Exporter](integrations/mlflow/README.md) |
 | V6.2 | Implemented: unsealed notes and tags in Studio and MCP | [#23](https://github.com/jaykobdetar/bend-agent-studio/pull/23) |
 | V6.3 | Implemented: self-contained offline reports | [#25](https://github.com/jaykobdetar/bend-agent-studio/pull/25) |
 | V6.4 | Implemented: local FIFO training queue and validation-curve comparison | [#28](https://github.com/jaykobdetar/bend-agent-studio/pull/28) |
@@ -329,12 +329,12 @@ Work in ID order, on one branch per item. Merge only after the full Linux and Wi
 | N9.2 | Flagship study | Run and verify the eight-learner toy-text/probe study; publish outputs, uncertainty and a deterministic CI slice. | Merged; see [PR #32](https://github.com/jaykobdetar/bend-agent-studio/pull/32), the [worked example](studies/flagship-toy-text/README.md) and [handoff](docs/history/overnight-2026-11-19.md) |
 | N9.3 | Studio manifests and grid rendering | Validate and queue training plans from experiments/; render layout metadata with text fallback and mobile coverage. | Merged; [PR #33](https://github.com/jaykobdetar/bend-agent-studio/pull/33) |
 | N9.4 | Upgrade warning | Weekly non-blocking latest-Bend-2.x check and single failure issue; document the pin upgrade procedure. | Merged; [PR #34](https://github.com/jaykobdetar/bend-agent-studio/pull/34) |
-| N9.5 | Scaffolding and sweeps | Add safe agent/world/plan initialization and seeded sweeps with matching MCP tools. | Implemented; [guide](docs/scaffolding.md) |
-| N9.6 | Replicate planning | Estimate paired bootstrap precision and sign-test power from pilot exports, for planning only. | Implemented on planning branch; pinned CI pending |
-| N9.7 | Laws and generated cases | Check finite lookups, logging mass and hook pause/resume; exercise validation, export and MCP boundaries. | Implemented on item branch; pending CI |
-| N9.8 | Formatter | Pin an isolated formatter outside archive inputs; separate formatting-only commit from CI enforcement. | Implemented; [scope and commands](docs/testing.md#formatting-javascript) |
-| N9.9 | More environments | Add tested Acrobot dynamics and simultaneous zero-sum games with exact values and exploitability. | Implemented on item branch; pending CI |
-| N9.10 | MLflow export | Isolated optional tracking exporter with checkpoint curves checked against the plotting data. | Queued |
+| N9.5 | Scaffolding and sweeps | Add safe agent/world/plan initialization and seeded sweeps with matching MCP tools. | Merged; [PR #35](https://github.com/jaykobdetar/bend-agent-studio/pull/35) |
+| N9.6 | Replicate planning | Estimate paired bootstrap precision and sign-test power from pilot exports, for planning only. | Merged; [PR #36](https://github.com/jaykobdetar/bend-agent-studio/pull/36) |
+| N9.7 | Laws and generated cases | Check finite lookups, logging mass and hook pause/resume; exercise validation, export and MCP boundaries. | Merged; [PR #37](https://github.com/jaykobdetar/bend-agent-studio/pull/37) |
+| N9.8 | Formatter | Pin an isolated formatter outside archive inputs; separate formatting-only commit from CI enforcement. | Merged; [PR #38](https://github.com/jaykobdetar/bend-agent-studio/pull/38) |
+| N9.9 | More environments | Add tested Acrobot dynamics and simultaneous zero-sum games with exact values and exploitability. | Merged; [PR #39](https://github.com/jaykobdetar/bend-agent-studio/pull/39) |
+| N9.10 | MLflow export | Isolated optional tracking exporter with checkpoint curves checked against the plotting data. | Merged; [PR #40](https://github.com/jaykobdetar/bend-agent-studio/pull/40) |
 | N9.11 | MCP environment tools | Expose bounded seeded finite-world sessions and check public frames against replay. | Implemented; [MCP guide](mcp/README.md#play-a-finite-world) |
 
 Core files stay out of the formatter. Format any core file only when a future
