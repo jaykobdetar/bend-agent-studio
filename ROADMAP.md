@@ -227,6 +227,15 @@ Acceptance: covered by `studio/studio_checks.mjs`, including a damaged run in th
 | O7.4 | Exponent literals | S | `floatLiteral` in `core/finite_world.mjs` can emit `e+21`. Check that Bend 2.0.40 parses it by adding a reward of at least 1e21 to `checks/world_campaign.mjs`'s reward pool, or emit literals without `+`. |
 | O7.5 | Multiple-comparison handling across many arms | S | Apply `analysis/sequential.mjs`'s `comparisons` parameter, or a Holm correction, in `analysis/analyze.py` when several arms are compared to one reference. |
 
+## Follow-ups
+
+| ID | Work |
+| --- | --- |
+| F8.1 | Give contextual learners only legal actions from the public world view. |
+| F8.2 | Report the selected learning hook for every arm in CLI and MCP plan validation. |
+| F8.3 | Run the full small-board arena check against a compiled self-play study in CI. |
+| F8.4 | Document and recheck Studio's Node SQLite startup warning on each Node version bump. |
+
 ## Non-goals
 
 - Deep RL at scale, image observations, or GPU training. Use the Gymnasium bridge to move ideas to mainstream libraries.
@@ -301,5 +310,9 @@ Update this table in the same PR as each item.
 | O7.2 | Implemented: bounded two-pile Nim, complete transition graph and exact exploitability checks | [Notes](docs/two-pile-nim.md) |
 | O7.3 | Deferred: requires a concrete research question | |
 | O7.4 | Verified: compiler campaign includes positive-exponent F32 rewards | [Campaign](checks/world_campaign.mjs) |
-| O7.5 | Implemented: optional Holm-adjusted paired sign tests across arms | [Method](EXPERIMENTS.md#multiple-arms-versus-one-reference) |
+| O7.5 | Implemented: optional Holm-adjusted paired sign tests across arms | [Method](docs/analysis.md#multiple-arms-versus-one-reference) |
 | Repository reorganization | Completed: flat runtime, grouped learners, compatible entry points, task guides and archive gates | [Implementation record and original plan](docs/history/reorganization.md) |
+| F8.1 | Planned | |
+| F8.2 | Planned | |
+| F8.3 | Planned | |
+| F8.4 | Planned | |

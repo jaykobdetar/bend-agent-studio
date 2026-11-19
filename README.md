@@ -56,7 +56,7 @@ The [local MCP server](mcp/README.md) exposes typed authoring, training jobs, re
 
 ## Repository layout
 
-- [core/](core/): runner and shared Bend runtime. Root [experiment.mjs](experiment.mjs) remains the public study CLI.
+- [core/](core/): runner and shared Bend runtime. Root [experiment.mjs](experiment.mjs) remains the public study CLI, and [public_oracle.mjs](public_oracle.mjs) is the oracle compatibility shim.
 - [offline/](offline/): dataset collection and fitting. Root [batch.mjs](batch.mjs) remains the public offline CLI.
 - [studio/](studio/): local browser application and training supervision.
 - [worlds/](worlds/), [agents/](agents/) and [experiments/](experiments/): environments, learners and runnable plans.
