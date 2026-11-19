@@ -43,6 +43,11 @@ jobs:
 
       - name: Check representative compiled archive backend hashes
         run: node tools/archive-gates.mjs check-backends
+      - name: Check scoped JavaScript formatting
+        working-directory: tools/format
+        run: |
+          npm ci --ignore-scripts
+          npm run check
       - name: Run Node tests
         run: npm test
       - name: Reproduce two flagship checkpoint byte hashes

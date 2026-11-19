@@ -42,6 +42,9 @@ The [Bend upgrade watch](upgrading-bend.md) is a separate weekly/manual check ag
 
 ### Running individual checks
 
+The Linux CI job checks Prettier formatting of authored, tracked JavaScript.
+See [formatter setup and scope](#formatting-javascript).
+
 Run `node --test checks/scaffold_checks.mjs` for starter validity, no-clobber
 behavior, seeded sweep determinism, compiled multi-arm screening, halving and held-out-data rejection. With
 pinned Lean available, `BEND_CHECK_SCAFFOLD_VERDICT=1 node --test checks/scaffold_checks.mjs`
@@ -125,3 +128,22 @@ PLAYWRIGHT_BROWSERS_PATH=0 npm test
 ```
 
 The Linux job installs browser prerequisites on its fresh runner. The smoke test starts a loopback Studio with a temporary home, selects and trains a multi-world manifest, verifies the planned hook types, dismisses and reopens the replay picker, checks the expected rendered grid colors, and fails on console or script errors or page overflow at 390 px. Studio's root Node tests separately cover manifest/source confinement, FIFO crash recovery, and generated sidecar identity.
+
+## Formatting JavaScript
+
+Run this from the repository root using the pinned Node version:
+
+```sh
+npm --prefix tools/format ci --ignore-scripts
+npm --prefix tools/format run check
+npm --prefix tools/format run write
+```
+
+The isolated Prettier 3.6.2 package has no effect on the root or runtime
+dependencies. It checks Git-tracked .js and .mjs files under studio, mcp,
+analysis, tools, checks, offline, integrations and benchmarks. Stage new
+files before formatting so they enter the Git inventory. The formatter skips
+dependency directories, vendored/generated sources and documentation checker
+fixtures. Python, Bend, third-party data, core, agents and worlds are not
+formatted. To compare syntax trees and formatter idempotence, run
+`npm --prefix tools/format run audit`. The Linux CI check never rewrites files.
