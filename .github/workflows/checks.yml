@@ -53,6 +53,10 @@ jobs:
         run: |
           node experiment.mjs run experiments/two-pile-nim.json "$RUNNER_TEMP/nim-study"
           node checks/nim_checks.mjs "$RUNNER_TEMP/nim-study"
+      - name: Verify both tic-tac-toe encodings and self-play updates
+        run: |
+          node experiment.mjs run experiments/self-play.json "$RUNNER_TEMP/self-play-study" --until 128
+          node checks/arena_checks.mjs "$RUNNER_TEMP/self-play-study"
       - name: Test MCP with real Bend
         working-directory: mcp
         run: |

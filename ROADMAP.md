@@ -314,5 +314,5 @@ Update this table in the same PR as each item.
 | Repository reorganization | Completed: flat runtime, grouped learners, compatible entry points, task guides and archive gates | [Implementation record and original plan](docs/history/reorganization.md) |
 | F8.1 | Implemented: contextual learn shares the source view’s ordered actions with the policy | [Rule coverage](docs/laws.md) |
 | F8.2 | Implemented: CLI and MCP validation report the selected hook for each arm | [Agent interface](docs/agents.md) |
-| F8.3 | Planned | |
+| F8.3 | Implemented: Linux CI trains a bounded self-play study and checks both board encodings | [Test guide](docs/testing.md) |
 | F8.4 | Planned | |
