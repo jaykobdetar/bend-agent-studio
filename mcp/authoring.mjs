@@ -7,7 +7,7 @@ import {readPlanSource} from '../core/experiment.mjs';
 import {validate} from '../core/experiment_config.mjs';
 import {worldDefinition, oracle, reactiveOracle, numberPreservingJson} from '../core/finite_world.mjs';
 import {beliefOracle, clockOracle, policyOracle} from '../core/public_oracle.mjs';
-import {memoryWorld} from '../memory_world.mjs';
+import {memoryWorld} from '../tools/memory_world.mjs';
 const table = {
   type: 'object',
   maxProperties: 4096,

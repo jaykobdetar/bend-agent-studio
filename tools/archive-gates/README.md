@@ -54,7 +54,7 @@ additional runtime contracts, not a claim that a static matcher proves
 arbitrary JavaScript call graphs.
 
 `report` is a **live checkout** command. Its dynamic `core/html_report.mjs` plus
-`analyze.py`, public-oracle and presentation helpers are not archived; the
+`analysis/analyze.py`, public-oracle and presentation helpers are not archived; the
 checkout report deliberately reads the sealed runner, config, and backend via
 absolute paths. The compiler path that imports the generated study ES module before sealing
 also belongs to staging only. Studio training and catalog workers and MCP

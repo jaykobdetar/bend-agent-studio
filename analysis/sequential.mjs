@@ -71,7 +71,7 @@ export function sequentialPaired(rows,{lower,upper,margin=0,alpha=.05,comparison
 
 if (process.argv[1] && pathToFileURL(path.resolve(process.argv[1])).href===import.meta.url) {
   try {
-    if (process.argv.length!==3) throw Error('usage: node sequential.mjs DESIGN_AND_PAIRED_ROWS.json');
+    if (process.argv.length!==3) throw Error('usage: node analysis/sequential.mjs DESIGN_AND_PAIRED_ROWS.json');
     const {design,rows}=JSON.parse(fs.readFileSync(process.argv[2],'utf8'));
     console.log(JSON.stringify(sequentialPaired(rows,design),null,2));
   } catch(error) {console.error(error.message);process.exitCode=1;}

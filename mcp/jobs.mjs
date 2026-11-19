@@ -100,7 +100,7 @@ async function prepare(op, a, c) {
         parts.push(d);
       }
     }
-    argv = [script('batch.mjs'), a.step, ...parts, spec, dir];
+    argv = [script('offline/batch.mjs'), a.step, ...parts, spec, dir];
   }
   if (!existing) fs.mkdirSync(dir, {mode: 0o700});
   const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'bend-mcp-job-'));

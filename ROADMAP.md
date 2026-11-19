@@ -7,7 +7,7 @@ This roadmap is for the agent continuing development. It turns the November 2026
 ## Ground rules for every item
 
 1. **Toolchain.** Bend 2.0.40 and Node 24.22.3 (the CI versions). Do not upgrade either as part of a feature.
-2. **Dependencies.** Studio, the Node runner, and `analyze.py` use only standard libraries. Put anything needing third-party packages in its own folder with its own manifest, like `mcp/`. Examples: Gymnasium, MLflow, Minari, rliable, Matplotlib.
+2. **Dependencies.** Studio, the Node runner, and `analysis/analyze.py` use only standard libraries. Put anything needing third-party packages in its own folder with its own manifest, like `mcp/`. Examples: Gymnasium, MLflow, Minari, rliable, Matplotlib.
 3. **Existing runs keep working.** Archived runs replay with the code stored in their `code/` folder, so engine changes affect only new runs. Do not change sealed file formats, the seed scheme, or the random-number generator without a schema bump. A changed generator produces different trajectories. It needs a new, separately identified design (see EXPERIMENTS.md).
 4. **Laws before refactors.** When an item replaces a data structure or adds a learner, write the protecting laws first (phase 1), then make the change.
 5. **Verification.** Each PR passes `npm test`, `bend checks/checks.bend`, `bend checks/benchmark_checks.bend`, `bend checks/study_checks.bend`, and `bend laws/PROOF.bend`, plus the full CI workflow, including the BendTT verdict and the Windows job.
@@ -24,7 +24,7 @@ Effort: **S** is under a day, **M** is a few days, **L** is a week or more.
 | --- | --- | --- | --- |
 | P0.1 | Crash recovery for Studio training | [#2](https://github.com/jaykobdetar/bend-agent-studio/pull/2) | Force-killing Studio (`kill -9`) during training leaves no runner or `bend` process. A restart cannot start a second concurrent training. |
 | P0.2 | MCP server | [#3](https://github.com/jaykobdetar/bend-agent-studio/pull/3) | See *MCP design reference* below. Tools return JSON without writing to the server's stdout. Long work runs in child processes. Paths are confined to a workspace root. |
-| P0.3 | rliable-style statistics in `analyze.py` | [#7](https://github.com/jaykobdetar/bend-agent-studio/pull/7) | Adds IQM, the stratified bootstrap over replicates, and probability of improvement. Optional performance-profile data. Stays standard-library only, or uses an optional export in rliable's input layout. Docs state when each interval is appropriate. |
+| P0.3 | rliable-style statistics in `analysis/analyze.py` | [#7](https://github.com/jaykobdetar/bend-agent-studio/pull/7) | Adds IQM, the stratified bootstrap over replicates, and probability of improvement. Optional performance-profile data. Stays standard-library only, or uses an optional export in rliable's input layout. Docs state when each interval is appropriate. |
 | P0.4 | Gymnasium wrapper for JSON finite worlds | [#4](https://github.com/jaykobdetar/bend-agent-studio/pull/4) | Exposes any `worldDefinition` as a Gymnasium environment with identical transition probabilities (same bucket arithmetic as `core/finite_world.mjs` `buckets`). An oracle-optimal policy reaches the oracle value within sampling error. Lives in its own folder with its own requirements. |
 
 See [Studio crash recovery](README.md#if-studio-stops-during-training) for supervisor and compiler limits, and the [MCP trust boundary](mcp/README.md) before using archived runs.
@@ -84,7 +84,7 @@ Phrase these on an abstract interface so the same statements hold after T2.2 swa
 - With a hypothesis, if expressible: `choose` returns `preferred` whenever `U32.and(word, 65535) >= buckets`.
 - `Logged.base` always evaluates with word 0 in `Evaluate` mode. This holds by definition, so state it to pin it down.
 
-The bucket-count formula stays host-tested, because `actionBuckets` in `dataset.mjs` duplicates it.
+The bucket-count formula stays host-tested, because `actionBuckets` in `offline/dataset.mjs` duplicates it.
 
 **L12. Laws for each new learner.** See phase 5. Write them with the learner, not afterwards.
 
@@ -125,8 +125,8 @@ Put generators in one script, where practical, that writes JSON worlds into `wor
 - Docs: a "Benchmark worlds" table in EXPERIMENTS.md and one example plan in `experiments/`.
 
 **B3.2. bsuite-style diagnostic probes (M).**
-- Deep sea (N×N, with a small cost for "right" and the action mapping fixed per generated world), umbrella length, memory length (reuse `memory_world.mjs` where it fits), discounting chain, a noisy bandit, and catch.
-- Acceptance: each world has a recorded oracle optimum and uniform baseline, plus a plan in `experiments/` sweeping the probe's size parameter. Plotting with `plot_curves.py` across sizes works.
+- Deep sea (N×N, with a small cost for "right" and the action mapping fixed per generated world), umbrella length, memory length (reuse `tools/memory_world.mjs` where it fits), discounting chain, a noisy bandit, and catch.
+- Acceptance: each world has a recorded oracle optimum and uniform baseline, plus a plan in `experiments/` sweeping the probe's size parameter. Plotting with `analysis/plot_curves.py` across sizes works.
 - Docs: same table as B3.1, with one line per probe on what it tests.
 
 ---
@@ -145,7 +145,7 @@ Put generators in one script, where practical, that writes JSON worlds into `wor
 - Acceptance: for a fully observable world, an external solver's value matches S4.1 within tolerance (a manual check is acceptable; CI does not need SARSOP). The export is deterministic.
 
 **S4.3. More off-policy estimators, scored against exact truth (M).**
-- `offPolicy` in `batch.mjs` currently computes trajectory-level importance sampling and its self-normalized form. Add:
+- `offPolicy` in `offline/batch.mjs` currently computes trajectory-level importance sampling and its self-normalized form. Add:
   - per-decision importance sampling and its weighted version;
   - fitted Q evaluation, which backs up the **target** policy's action rather than the maximum (add an `Offline.Method` variant or a host-side implementation);
   - per-decision doubly robust estimates using the fitted Q evaluation values.
@@ -193,7 +193,7 @@ Do not implement DQN-style deep networks or image observations. Use the P0.4 bri
 - Parameters come from the arm settings in the sealed plan. Metrics are logged per checkpoint, with `step` set to the budget.
 - Tags record the run hash, backend hash and Bend version.
 
-Acceptance: the MLflow UI shows learning curves that match `plot_curves.py` for the same run.
+Acceptance: the MLflow UI shows learning curves that match `analysis/plot_curves.py` for the same run.
 
 **V6.2. Run notes and tags (S).** A `notes.json` in the run root, outside the sealed files, holding free-text notes and tags. `verify` ignores it. The MCP `list_runs` tool and Studio display it.
 
@@ -202,7 +202,7 @@ Acceptance: the MLflow UI shows learning curves that match `plot_curves.py` for 
 - the analysis summary table;
 - for finite worlds, the oracle optimum and uniform baseline, plus a step-by-step explanation of the best and worst test episode from `explainDecisions`.
 
-Acceptance: opens offline, and its numbers match `analyze.py`.
+Acceptance: opens offline, and its numbers match `analysis/analyze.py`.
 
 **V6.4. Studio comparison view and training queue (M).**
 - Comparison: select several ready runs, or several arms within a run, and overlay validation curves with intervals. Add an endpoint such as `GET /api/runs/:id/summary` that reads checkpoints, not replays.
@@ -217,10 +217,10 @@ Acceptance: covered by `studio/studio_checks.mjs`, including a damaged run in th
 | ID | Item | Effort | Notes |
 | --- | --- | --- | --- |
 | O7.1 | MCP tools `env_reset` and `env_step` for playing a world interactively | S | Session state keyed per world. Same seeding as the engine, so a played episode can be compared with a replay. |
-| O7.2 | More perfect-information arena games | S each | For example 4×4 connect-three, Nim variants, small dots-and-boxes. Each needs a `gameGraph` height check and exploitability results from `arena_tournament.mjs`. |
+| O7.2 | More perfect-information arena games | S each | For example 4×4 connect-three, Nim variants, small dots-and-boxes. Each needs a `gameGraph` height check and exploitability results from `analysis/arena_tournament.mjs`. |
 | O7.3 | Hidden-information arena, Kuhn poker, and counterfactual regret minimization (CFR) | L | Needs information sets in `core/arena.bend`. OpenSpiel stays far ahead. Do this only for a specific research question. |
 | O7.4 | Exponent literals | S | `floatLiteral` in `core/finite_world.mjs` can emit `e+21`. Check that Bend 2.0.40 parses it by adding a reward of at least 1e21 to `checks/world_campaign.mjs`'s reward pool, or emit literals without `+`. |
-| O7.5 | Multiple-comparison handling across many arms | S | Apply `sequential.mjs`'s `comparisons` parameter, or a Holm correction, in `analyze.py` when several arms are compared to one reference. |
+| O7.5 | Multiple-comparison handling across many arms | S | Apply `analysis/sequential.mjs`'s `comparisons` parameter, or a Holm correction, in `analysis/analyze.py` when several arms are compared to one reference. |
 
 ## Non-goals
 

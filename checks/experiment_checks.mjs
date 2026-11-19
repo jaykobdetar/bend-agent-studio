@@ -213,7 +213,7 @@ test('portable report embeds analyze.py rows and exact finite-world replay decis
   assert.doesNotMatch(html,/<script\b|\b(?:src|href)\s*=/i);
   const csv=path.join(d,'metrics.csv');fs.writeFileSync(csv,(await invoke('export',root)).stdout);
   for(const phase of ['validation','test']){
-    const {stdout}=await execute(process.env.PYTHON??(process.platform==='win32'?'python':'python3'),[path.join(here,'analyze.py'),csv,'--phase',phase]);
+    const {stdout}=await execute(process.env.PYTHON??(process.platform==='win32'?'python':'python3'),[path.join(here,'analysis','analyze.py'),csv,'--phase',phase]);
     for(const line of stdout.trimEnd().split(/\r?\n/).slice(1))
       assert.ok(html.includes('<tr>'+line.split(',').map(v=>'<td>'+v+'</td>').join('')+'</tr>'));
   }

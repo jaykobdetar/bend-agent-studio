@@ -23,3 +23,17 @@ for name in bridge custom; do
  cmp "$scratch/$name.csv" "$scratch/$name-control.csv"
  diff -qr "$run/trials" "$scratch/$name-control/trials"
 done
+# Exercise live analysis over the legacy archive from outside either checkout.
+# This phase reuses the archived backend and deliberately has no compiler.
+(
+  cd "$scratch"
+  export BEND="$scratch/no-compiler"
+  node "$repo/experiment.mjs" report "$runs/bridge" "$scratch/report.html"
+  grep -q 'Best test episode' "$scratch/report.html"
+  python3 "$repo/analysis/analyze.py" bridge.csv --phase validation > current-analysis.csv
+  python3 "$old/analyze.py" bridge.csv --phase validation > old-analysis.csv
+  cmp current-analysis.csv old-analysis.csv
+  python3 "$repo/mcp/curves.py" bridge.csv validation return '' 100 > current-curves.json
+  python3 "$old/mcp/curves.py" bridge.csv validation return '' 100 > old-curves.json
+  cmp current-curves.json old-curves.json
+)

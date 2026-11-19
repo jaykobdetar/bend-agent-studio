@@ -9,7 +9,7 @@ import sys
 import tempfile
 import unittest
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "analysis"))
 
 from suite_stats import bootstrap, estimate, iqm, superiority
 
@@ -59,7 +59,7 @@ class CLI(unittest.TestCase):
             w.writerows(self.rows)
 
     def call(self, *args, ok=True):
-        p = subprocess.run([sys.executable, str(Path(__file__).resolve().parents[1] / "analyze.py"), str(self.file),
+        p = subprocess.run([sys.executable, str(Path(__file__).resolve().parents[1] / "analysis" / "analyze.py"), str(self.file),
                             "--draws", "100", *args], text=True, capture_output=True)
         if not ok:
             self.assertNotEqual(p.returncode, 0)

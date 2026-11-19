@@ -16,6 +16,6 @@ All paths in a tool call are relative to the configured workspace (absolute path
 | Collect | `schema:1,name,game,arm,checkpoint,epsilon,fitEpisodes,holdoutEpisodes,seeds:{fit,holdout,stride}`. | experiments/dispatch-exploring.json |
 | Fit | `schema:1,name,arms:[{id,method,iterations?,gamma?}]`, where method is behavior_cloning, fitted_q or supported_fitted_q. | experiments/dispatch-fit.json |
 | Score | `schema:1,name,episodes,seeds:{start,stride}`. Dataset, run and fitted policies must share lineage. | experiments/dispatch-score.json |
-| Sequential test | `design:{lower,upper,margin?,alpha?,comparisons?}, rows:[{replicate,candidate,reference}]`. Declare bounds externally; contiguous paired replicates start at zero. | sequential.mjs |
+| Sequential test | `design:{lower,upper,margin?,alpha?,comparisons?}, rows:[{replicate,candidate,reference}]`. Declare bounds externally; contiguous paired replicates start at zero. | analysis/sequential.mjs |
 
 Use the experiments guide for full semantics and the tool schemas for arguments. The normalized plan contains bundled code and internal derived fields: edit the source plan, not the normalized return.

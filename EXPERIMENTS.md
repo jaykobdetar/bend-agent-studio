@@ -31,7 +31,7 @@ node experiment.mjs validate experiments/bridge.json
 node experiment.mjs run experiments/bridge.json runs/bridge
 node experiment.mjs verify runs/bridge
 node experiment.mjs export runs/bridge > bridge.csv
-python3 analyze.py bridge.csv --reference random
+python3 analysis/analyze.py bridge.csv --reference random
 node runs/bridge/code/experiment.mjs replay runs/bridge bridge q 0 256 test 0
 ```
 
@@ -88,13 +88,13 @@ A manifest binds a game file using `file` for JSON or `worldFile` for Bend. Path
 
 The Tiger experiment reads three generated JSON files. Each starts from the same seven-state world and uses a different rule file to determine what the agent can observe after listening. Sound exposes the latest sound. Clock adds the number of listens. Evidence exposes a memory state encoding the listen count and the difference between the two sound counts. See the [base Tiger world](worlds/tiger.json) and [experiment manifest](experiments/tiger.json).
 
-The generator enumerates reachable combinations of underlying world state, memory state, and step number. It copies each action's outcome order, weights, and rewards. At depth eight it emits a terminal state with an empty action list. Explicitly storing these states and transitions produces 42 states for Sound, 42 for Clock, and 182 for Evidence. The generator is [memory_world.mjs](memory_world.mjs).
+The generator enumerates reachable combinations of underlying world state, memory state, and step number. It copies each action's outcome order, weights, and rewards. At depth eight it emits a terminal state with an empty action list. Explicitly storing these states and transitions produces 42 states for Sound, 42 for Clock, and 182 for Evidence. The [observation-memory generator](tools/memory_world.mjs) builds these worlds.
 
 To rebuild all three files after editing the base world or a `worlds/tiger-*-rules.json` file, run this from the repository root with Node 24:
 
 ```sh
 for variant in sound clock evidence; do
-  node memory_world.mjs worlds/tiger.json "worlds/tiger-${variant}-rules.json" \
+  node tools/memory_world.mjs worlds/tiger.json "worlds/tiger-${variant}-rules.json" \
     --task-horizon 8 > "worlds/tiger-${variant}-h8.json" || exit 1
 done
 ```
@@ -134,14 +134,14 @@ node experiment.mjs run experiments/car-screen.json runs/screen
 node experiment.mjs select runs/screen experiments/car-confirmation.json runs/decision
 node experiment.mjs run runs/decision/plan.json runs/confirmation
 node experiment.mjs export runs/confirmation > confirmation.csv
-python3 analyze.py confirmation.csv --phase test --reference q-a05-e00625
+python3 analysis/analyze.py confirmation.csv --phase test --reference q-a05-e00625
 ```
 
 The confirmation specification declares a reference arm, selection metric, budget, sample size, and new seed allocations. Selection ranks final-checkpoint validation scores and records the overall winner. Confirmation retrains the reference and the highest-ranked distinct challenger from scratch, including when the reference wins the screen. Ties follow the screen's arm order. Finish all screen trials before running `select`; it rejects an unfinished screen rather than comparing only the trials that finished first.
 
 The last command estimates the paired difference on the confirmation run's final held-out test block. In a raw export, `test_seed` is a seed allocation: only rows with a populated `test_episodes` field contain held-out results. Use `--phase validation` to analyze a validation-only screen. An offline report labels validation and held-out test results separately but does not link the two runs. Keep `runs/decision/selection.json` with your confirmation results; it records the source run, ranking, and generated plan hash.
 
-`analyze.py` reports a pointwise 95% percentile bootstrap interval. It resamples trained replicate blocks, keeping paired arms together when a reference is specified. With one replicate the interval is blank. With a few replicates or identical observed values, the interval can be narrow and its coverage can be poor. Report the replicate count and inspect the individual paired differences. Increasing bootstrap draws only refines the resampling calculation. [Hesterberg, 2015](https://doi.org/10.1080/00031305.2015.1089789)
+`analysis/analyze.py` reports a pointwise 95% percentile bootstrap interval. It resamples trained replicate blocks, keeping paired arms together when a reference is specified. With one replicate the interval is blank. With a few replicates or identical observed values, the interval can be narrow and its coverage can be poor. Report the replicate count and inspect the individual paired differences. Increasing bootstrap draws only refines the resampling calculation. [Hesterberg, 2015](https://doi.org/10.1080/00031305.2015.1089789)
 
 The engine advances a 32-bit linear congruential generator. Its mixed hooks use separate constants and a mixing function for the policy and world draws. Episode starts within a seed block are consecutive. These choices reproduce trajectories and pair comparisons across arms. Statistical independence is an assumption about the experimental design. Changing the generator changes trajectories and would require a separately identified design.
 
@@ -150,9 +150,9 @@ The engine advances a 32-bit linear congruential generator. Its mixed hooks use 
 Per-game means above remain the default. Opt into suite statistics for a balanced export (training, assessment, or offline scores). For each selected phase and budget, the suite requires the same arms and trained replicate IDs for every game. It never pools checkpoints or counts evaluation episodes as fresh trained replicates. These examples use a CSV with at least two arms, one named `random`:
 
 ```sh
-python3 analyze.py study.csv --aggregate probability-of-improvement --reference random
-python3 analyze.py study.csv --aggregate iqm --metric completion
-python3 analyze.py study.csv --aggregate profile --metric completion --threshold 0.8
+python3 analysis/analyze.py study.csv --aggregate probability-of-improvement --reference random
+python3 analysis/analyze.py study.csv --aggregate iqm --metric completion
+python3 analysis/analyze.py study.csv --aggregate profile --metric completion --threshold 0.8
 ```
 
 **IQM** sorts the balanced game-by-replicate scores and trims `floor(N/4)` values off each tail before averaging. With a reference it reports the difference of the two IQMs (not the IQM of individual differences). A **profile** reports the fraction of oriented scores *strictly* above a prespecified threshold; with a reference the output is the difference in fractions. **Probability of improvement** averages, with equal weight per game, the probability that a candidate draw beats a reference draw; ties receive half credit. It compares all cross-arm pairs within each game, so this is not the fraction of matched seeds won. It needs no common reward scale.
@@ -170,7 +170,7 @@ A fixed-checkpoint assessment can run from a paused source as soon as every requ
 ```sh
 node experiment.mjs run experiments/ledge-transfer.json runs/ledge
 node experiment.mjs assess runs/ledge experiments/ledge-assessment.json runs/ledge-assessment
-python3 analyze.py runs/ledge-assessment/assessment.csv --reference calm-planner
+python3 analysis/analyze.py runs/ledge-assessment/assessment.csv --reference calm-planner
 ```
 
 ## Fit from logs
@@ -181,7 +181,7 @@ node batch.mjs collect runs/dispatch experiments/dispatch-exploring.json runs/da
 node batch.mjs verify runs/data
 node batch.mjs fit runs/data experiments/dispatch-fit.json runs/models
 node batch.mjs score runs/dispatch runs/data runs/models experiments/dispatch-score.json runs/scores
-python3 analyze.py runs/scores/scores.csv --reference clone
+python3 analysis/analyze.py runs/scores/scores.csv --reference clone
 ```
 
 The logger freezes the selected checkpoint and evaluates its preferred move with policy word zero. A 16-bit draw mixes that decision with exploration. Each logged move records its exact number of probability buckets out of 65,536. The JSONL files contain public transitions, trajectory boundaries, and actual returns. Fit and holdout partitions use different seeds. The tabular fitter reads the fit partition independently of the simulator. Its methods are behavior cloning, synchronous fitted Q iteration, and fitted Q iteration restricted to observed actions. When a state has no supported legal move, the restricted policy falls back to its first legal action.
@@ -210,9 +210,9 @@ The <!-- count:experiment-files -->39<!-- /count --> names below refer to JSON f
 | --- | --- |
 | How well can a stationary observation-based policy perform? | `node experiment.mjs oracle worlds/remember-the-cue.json 2 --reactive` compares the optimum with the full-state result. |
 | What can a policy infer from public history or the clock? | `node public_oracle.mjs worlds/tiger.json 8 --class history` or `--class clock`. With the history solver, add `--trace REPLAY.json` to inspect the actions in a recorded episode. |
-| How does performance change during training? | `python3 plot_curves.py bridge.csv bridge.svg --reference random` plots validation curves from a run export. Install Matplotlib for plotting. |
-| How does paired evidence accumulate? | `node sequential.mjs paired.json` reads `design` with fixed bounds `lower` and `upper` on the candidate-minus-reference difference, and `rows` with `replicate`, `candidate`, and `reference`. Its confidence sequence assumes a prospectively fixed replicate order starting at zero and a common conditional mean. |
-| How do archived self-play policies perform in each seat? | `node arena_tournament.mjs runs/self-play runs/tournament` scores a completed self-play run and writes `ratings.csv` and `crossplay.csv`. |
+| How does performance change during training? | `python3 analysis/plot_curves.py bridge.csv bridge.svg --reference random` plots validation curves from a run export. Install Matplotlib for plotting. |
+| How does paired evidence accumulate? | `node analysis/sequential.mjs paired.json` reads `design` with fixed bounds `lower` and `upper` on the candidate-minus-reference difference, and `rows` with `replicate`, `candidate`, and `reference`. Its confidence sequence assumes a prospectively fixed replicate order starting at zero and a common conditional mean. |
+| How do archived self-play policies perform in each seat? | `node analysis/arena_tournament.mjs runs/self-play runs/tournament` scores a completed self-play run and writes `ratings.csv` and `crossplay.csv`. |
 | Do the board encodings, oracles and memory worlds match their independent checks? | `node checks/arena_checks.mjs runs/self-play` uses the compiled self-play snapshot. `node checks/oracle_checks.mjs` and `node checks/memory_checks.mjs` run directly and are included in `npm test`. |
 
 The fixed benchmark helpers `tabular.q_learning` and `tabular.expected_sarsa` use a learning rate of 0.25 and a discount of 0.9. Their benchmark policy explores on one quarter of training draws. For configurable built-in learners, set `alpha`, `gamma`, and `epsilon` on the manifest arm. [Benchmark helpers](core/tabular.bend) · [Study settings](core/study.bend)
@@ -253,7 +253,7 @@ the Node version recorded by the run and Python 3 (override with `PYTHON`).
 For complete runs this writes one new file with inline validation/test charts,
 per-arm return estimates and pointwise bootstrap intervals, and authored
 finite-world oracle baselines. The report labels the training budget unit and
-shows absolute returns; use `analyze.py --reference` after exporting for paired
+shows absolute returns; use `analysis/analyze.py --reference` after exporting for paired
 differences. For each authored finite world it scans every final test score
 across arms and replicates and explains the highest and lowest
 episode from its archived backend. Ties use plan order, replicate, then episode
@@ -369,7 +369,7 @@ The [tiny clipped policy-gradient plan](experiments/clipped-pg-orchard.json) dem
 
 ### Multiple arms versus one reference
 
-Use `python analyze.py results.csv --phase test --reference baseline --multiple holm-sign`
+Use `python analysis/analyze.py results.csv --phase test --reference baseline --multiple holm-sign`
 for exact paired, two-sided **sign** tests followed by Holm's step-down
 adjustment. Each family contains all non-reference arms in **one game at one
 budget**, within the requested phase/metric. Reference sharing across arms

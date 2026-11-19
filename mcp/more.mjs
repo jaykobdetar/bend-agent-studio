@@ -109,7 +109,7 @@ export const more = {
       const f = c.input(a.file);
       if (fs.statSync(f).size > 2 ** 20) throw Error('design exceeds 1 MiB');
       return JSON.parse(
-        await c.exec(process.execPath, [script(c, 'sequential.mjs'), f], {timeout: 12000}),
+        await c.exec(process.execPath, [script(c, 'analysis/sequential.mjs'), f], {timeout: 12000}),
       );
     },
   ),
@@ -122,7 +122,7 @@ export const more = {
       scratch(async (d) => {
         const r = await c.archive(a.run);
         const summary = JSON.parse(
-          await c.exec(await c.nodeFor(r), [script(c, 'arena_tournament.mjs'), r, d], {timeout: 30000}),
+          await c.exec(await c.nodeFor(r), [script(c, 'analysis/arena_tournament.mjs'), r, d], {timeout: 30000}),
         );
         function table(name) {
           const f = path.join(d, name + '.csv');

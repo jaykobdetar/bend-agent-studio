@@ -4,7 +4,7 @@ import path from 'node:path';
 import {pathToFileURL} from 'node:url';
 import {checkedSnapshot,manifestPath,unpack,unseal} from '../core/experiment.mjs';
 import {parameterList} from '../core/agent_source.mjs';
-import {gameGraph,matchup} from '../arena_tournament.mjs';
+import {gameGraph,matchup} from '../analysis/arena_tournament.mjs';
 const root=path.resolve(process.argv[2]),m=unseal(manifestPath(root));checkedSnapshot(root,m);
 const api=(await import(pathToFileURL(path.join(root,'code/backend.mjs')).href)).default;
 const game=m.body.plan.games.find(g=>g.id==='nim');

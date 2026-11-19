@@ -1,7 +1,7 @@
 """Fixed CLI adapter for the existing learning_curves implementation."""
 import json, sys
 from pathlib import Path
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "analysis"))
 from analyze import read_rows
 from plot_curves import learning_curves, main
 csv, phase, metric, ref, draws, *svg = sys.argv[1:]

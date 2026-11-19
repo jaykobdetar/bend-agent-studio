@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import {pathToFileURL} from 'node:url';
-import {worldDefinition} from './core/finite_world.mjs';
+import {worldDefinition} from '../core/finite_world.mjs';
 
 // Build the product of a finite world and a memory machine over public events.
 // Outcome order is significant because the Bend compiler partitions U32 draws by it.
@@ -67,7 +67,7 @@ export function memoryWorld(world,spec,{maxStates=100000,taskHorizon=null}={}) {
 if (process.argv[1] && pathToFileURL(path.resolve(process.argv[1])).href===import.meta.url) {
   try {
     const [file,rules,...rest]=process.argv.slice(2);
-    if(!file || !rules || (rest.length && (rest.length!==2 || rest[0]!=='--task-horizon')))throw Error('usage: node memory_world.mjs WORLD.json MEMORY.json [--task-horizon N]');
+    if(!file || !rules || (rest.length && (rest.length!==2 || rest[0]!=='--task-horizon')))throw Error('usage: node tools/memory_world.mjs WORLD.json MEMORY.json [--task-horizon N]');
     const world=worldDefinition(JSON.parse(fs.readFileSync(file,'utf8')));
     const product=memoryWorld(world,JSON.parse(fs.readFileSync(rules,'utf8')),{taskHorizon:rest.length?Number(rest[1]):null});
     console.log(JSON.stringify(product,(_k,v)=>Object.is(v,-0)?JSON.rawJSON('-0'):v,2));

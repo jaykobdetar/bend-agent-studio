@@ -22,6 +22,6 @@ From the repository root, with Node 24+, Bend 2.0.40, and Matplotlib for plottin
     node experiment.mjs run experiments/probe-memory.json runs/probe-memory
     node experiment.mjs verify runs/probe-memory
     node experiment.mjs export runs/probe-memory > runs/probe-memory.csv
-    python plot_curves.py runs/probe-memory.csv runs/probe-memory.svg --phase validation
+    python analysis/plot_curves.py runs/probe-memory.csv runs/probe-memory.svg --phase validation
 
 Substitute `deep-sea`, `umbrella`, `discount`, `bandit` or `catch` for `memory` to run the other size sweeps. Each plan runs two arms × two separately trained replicates × two sizes at three checkpoints. Plotting uses the existing game panels, one per size; the small replicate count demonstrates the workflow, not statistical significance. All six plans were compiled, completed, verified, exported and plotted locally on Linux. The default RNG and plotting code are unchanged. Regenerate deliberately via `generate.mjs --write`; tests check bytes, analytic expected values, information hiding and selected action/reward invariants.

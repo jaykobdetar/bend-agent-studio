@@ -61,7 +61,7 @@ The visual presets train one model and evaluate eight episodes per split. For co
 node experiment.mjs run experiments/bridge.json runs/bridge
 node experiment.mjs verify runs/bridge
 node experiment.mjs export runs/bridge > bridge.csv
-python3 analyze.py bridge.csv --reference random
+python3 analysis/analyze.py bridge.csv --reference random
 npm start -- --run runs/bridge
 ```
 
@@ -119,7 +119,7 @@ For an independent proof verdict, install Lean 4.34.0 (for example, `elan toolch
 
 See the [local MCP server](mcp/README.md) for typed authoring, training jobs, replay, and statistical analysis. The [field reference](mcp/FIELDS.md) covers input plans and specs. Installing the adapter does not add dependencies to the main project.
 
-For fixed-suite comparisons, [analyze.py supports IQM, probability of improvement, and performance profiles](EXPERIMENTS.md#comparing-a-fixed-suite-of-games), with replicate bootstrap intervals and no extra dependencies. Per-game analysis remains the default.
+For fixed-suite comparisons, [the analyzer supports IQM, probability of improvement, and performance profiles](EXPERIMENTS.md#comparing-a-fixed-suite-of-games), with replicate bootstrap intervals and no extra dependencies. Per-game analysis remains the default.
 
 New tabular learners index observation/action IDs with a persistent digital
 search tree. Legal-list order still breaks ties. See the

@@ -1,7 +1,7 @@
 // Read/copy/verify data only. Never imports or executes the archived backend.
 import fs from 'node:fs';
 import path from 'node:path';
-import {openDataset} from '../../dataset.mjs';
+import {openDataset} from '../../offline/dataset.mjs';
 const [source,destination]=process.argv.slice(2);
 let total=0;
 function copy(name) {

@@ -7,7 +7,7 @@ import {execute} from './process_output.mjs';
 import {checkedSnapshot,exportCsv,status,unseal,manifestPath} from './experiment.mjs';
 import {oracle} from './finite_world.mjs';
 import {explainDecisions,publicTraceFrames} from './public_oracle.mjs';
-const ANALYZE_SCRIPT=fileURLToPath(new URL('../analyze.py',import.meta.url));
+const ANALYZE_SCRIPT=fileURLToPath(new URL('../analysis/analyze.py',import.meta.url));
 const esc=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]);
 function table(head,rows){return '<table><thead><tr>'+head.map(x=>'<th>'+esc(x)+'</th>').join('')+'</tr></thead><tbody>'+rows.map(r=>'<tr>'+r.map(x=>'<td>'+esc(x)+'</td>').join('')+'</tr>').join('')+'</tbody></table>';}
 function chart(rows){

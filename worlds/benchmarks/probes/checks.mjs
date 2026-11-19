@@ -4,7 +4,7 @@ import {readFileSync} from 'node:fs';
 import test from 'node:test';
 import {fileURLToPath} from 'node:url';
 import {oracle,reactiveOracle,worldDefinition} from '../../../core/finite_world.mjs';
-import {memoryWorld} from '../../../memory_world.mjs';
+import {memoryWorld} from '../../../tools/memory_world.mjs';
 import {cueMemory,probe,rightAction,sizes} from './probes.mjs';
 
 const close=(a,b)=>assert.ok(Math.abs(a-b)<1e-7, a+' != '+b);

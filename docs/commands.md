@@ -42,16 +42,16 @@ First create `runs/dispatch` with `node experiment.mjs run experiments/dispatch-
 
 | Task | Example |
 | --- | --- |
-| Estimate an arm’s paired difference from a reference on a completed training export. | `python3 analyze.py bridge.csv --reference random` |
-| Plot a validation learning curve (Matplotlib). | `python3 plot_curves.py bridge.csv bridge.svg --phase validation --reference random` |
-| Check sequential evidence in prospectively ordered paired replicates. Supply a design with fixed difference bounds and one row per replicate. | `node sequential.mjs paired.json` |
-| Evaluate trained self-play agents in both seats; writes cross-play and ratings CSVs. First run the self-play plan. | `node arena_tournament.mjs runs/self-play runs/tournament` |
+| Estimate an arm’s paired difference from a reference on a completed training export. | `python3 analysis/analyze.py bridge.csv --reference random` |
+| Plot a validation learning curve (Matplotlib). | `python3 analysis/plot_curves.py bridge.csv bridge.svg --phase validation --reference random` |
+| Check sequential evidence in prospectively ordered paired replicates. Supply a design with fixed difference bounds and one row per replicate. | `node analysis/sequential.mjs paired.json` |
+| Evaluate trained self-play agents in both seats; writes cross-play and ratings CSVs. First run the self-play plan. | `node analysis/arena_tournament.mjs runs/self-play runs/tournament` |
 | Compare history-aware decisions in a finite world; use `--class clock` for the clock-only policy class. | `node public_oracle.mjs worlds/remember-the-cue.json 2 --class history` |
-| Generate a finite world whose state includes specified observation memory. | `node memory_world.mjs worlds/tiger.json worlds/tiger-sound-rules.json --task-horizon 8 > tiger-sound.json` |
+| Generate a finite world whose state includes specified observation memory. | `node tools/memory_world.mjs worlds/tiger.json worlds/tiger-sound-rules.json --task-horizon 8 > tiger-sound.json` |
 | Export a finite world to Cassandra format. | `node tools/export_pomdp.mjs worlds/bridge.json bridge.pomdp --discount 0.95` |
 | Independently check the exported discounted fully observable model (SciPy and NumPy). | `python3 tools/check_pomdp_lp.py bridge.pomdp` |
 
-For `sequential.mjs`, a minimal input shape is `{"design":{"lower":-1,"upper":1},"rows":[{"replicate":0,"candidate":1,"reference":0}]}`. A single example block illustrates the file format, not persuasive evidence.
+For `analysis/sequential.mjs`, a minimal input shape is `{"design":{"lower":-1,"upper":1},"rows":[{"replicate":0,"candidate":1,"reference":0}]}`. A single example block illustrates the file format, not persuasive evidence.
 
 ## Optional tools and checks
 

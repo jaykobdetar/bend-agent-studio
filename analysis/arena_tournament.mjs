@@ -2,11 +2,11 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import {fileURLToPath,pathToFileURL} from 'node:url';
-import {bundleAgent,parameterList} from './core/agent_source.mjs';
-import {canonical,digest} from './core/experiment_config.mjs';
-import {checkedSnapshot,existing,immutable,manifestPath,seal,unpack,unseal} from './core/experiment.mjs';
+import {bundleAgent,parameterList} from '../core/agent_source.mjs';
+import {canonical,digest} from '../core/experiment_config.mjs';
+import {checkedSnapshot,existing,immutable,manifestPath,seal,unpack,unseal} from '../core/experiment.mjs';
 
-const here=path.dirname(fileURLToPath(import.meta.url));
+const here=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..');
 const bendLibraryDir=path.join(here,'core');
 const words=2**32;
 
@@ -128,6 +128,6 @@ async function tournament(root,out) {
   console.log(JSON.stringify({ratings:single.length-1,crossplay:pairs.length-1,games:counts}));
 }
 if(process.argv[1] && pathToFileURL(path.resolve(process.argv[1])).href===import.meta.url) {
-  if(process.argv.length!==4) {console.error('usage: node arena_tournament.mjs RUN_DIRECTORY OUTPUT_DIRECTORY');process.exitCode=1;}
+  if(process.argv.length!==4) {console.error('usage: node analysis/arena_tournament.mjs RUN_DIRECTORY OUTPUT_DIRECTORY');process.exitCode=1;}
   else tournament(path.resolve(process.argv[2]),path.resolve(process.argv[3])).catch(e=>{console.error(e.message);process.exitCode=1;});
 }

@@ -9,7 +9,7 @@ import {execute} from '../core/process_output.mjs';
 import {offPolicy} from '../batch.mjs';
 import {seal} from '../core/experiment.mjs';
 import {digest} from '../core/experiment_config.mjs';
-import {actionBuckets,checkEpisode,openDataset} from '../dataset.mjs';
+import {actionBuckets,checkEpisode,openDataset} from '../offline/dataset.mjs';
 
 const here=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..');
 const bend=process.env.BEND??'bend';

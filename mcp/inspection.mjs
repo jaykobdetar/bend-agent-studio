@@ -85,7 +85,7 @@ export const inspection = {
     },
   ),
   summarize_results: tool(
-    'Analyze complete replicate blocks by game, budget and arm using analyze.py. Optional reference gives paired differences. A single replicate has no confidence interval or standard deviation.',
+    'Analyze complete replicate blocks by game, budget and arm using analysis/analyze.py. Optional reference gives paired differences. A single replicate has no confidence interval or standard deviation.',
     object(
       {
         run: str,
@@ -113,7 +113,7 @@ export const inspection = {
         await fs.writeFile(file, csv, {mode: 0o600});
         const args = [
           '-I',
-          path.join(ctx.repo, 'analyze.py'),
+          path.join(ctx.repo, 'analysis/analyze.py'),
           file,
           '--phase',
           phase,
