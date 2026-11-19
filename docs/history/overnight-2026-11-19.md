@@ -10,7 +10,7 @@ Starting revision: [fc3c2d3](https://github.com/jaykobdetar/bend-agent-studio/co
 | N9.3 | Queued | Validate and queue training plans from experiments/; render layout metadata with text fallback and mobile coverage. |
 | N9.4 | Queued | Weekly non-blocking latest-Bend-2.x check and single failure issue; document the pin upgrade procedure. |
 | N9.5 | Queued | Add safe agent/world/plan initialization and seeded sweeps with matching MCP tools. |
-| N9.6 | Queued | Estimate paired bootstrap precision and sign-test power from pilot exports, for planning only. |
+| N9.6 | Left on planning branch | Standard-library CLI projects a paired bootstrap half-width and exact sign-test power using a single export contrast. Validation is the default; estimates are planning only. Deferred optional MCP exposure to keep the file-based CLI as the sole entry point. Next: review pinned CI and try an independent confirmation planning exercise. No core, gate or proof changes. |
 | N9.7 | Queued | Check finite lookups, logging mass and hook pause/resume; exercise validation, export and MCP boundaries. |
 | N9.8 | Queued | Pin an isolated formatter outside archive inputs; separate formatting-only commit from CI enforcement. |
 | N9.9 | Queued | Add tested Acrobot dynamics and simultaneous zero-sum games with exact values and exploitability. |

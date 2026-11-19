@@ -42,6 +42,7 @@ First create `runs/dispatch` with `node experiment.mjs run experiments/dispatch-
 
 | Task | Example |
 | --- | --- |
+| Estimate paired replicate count and sign-test power for planning only. | `python3 analysis/replicates.py bridge.csv --game bridge --budget 256 --reference random --challenger q --target-half-width 0.25` |
 | Estimate an arm’s paired difference from a reference on a completed training export. | `python3 analysis/analyze.py bridge.csv --reference random` |
 | Plot a validation learning curve (Matplotlib). | `python3 analysis/plot_curves.py bridge.csv bridge.svg --phase validation --reference random` |
 | Check sequential evidence in prospectively ordered paired replicates. Supply a design with fixed difference bounds and one row per replicate. | `node analysis/sequential.mjs paired.json` |
