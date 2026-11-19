@@ -204,6 +204,12 @@ test('portable report embeds analyze.py rows and exact finite-world replay decis
   assert.match(html,/<h2>Held-out test return<\/h2>\s*<p>[^<]+only at the final checkpoint/);
   assert.match(html,/<svg /);assert.doesNotMatch(html,/<line x1=/);assert.match(html,/Full-state optimum: 2; uniform baseline: 1.5/);
   assert.match(html,/Best test episode/);assert.match(html,/Worst test episode/);assert.match(html,/Decision gap/);
+  const coordinates=[...html.matchAll(/(?:Best|Worst) test episode<\/h3><p>([^< ]+) · Studio replicate (\d+) · episode (\d+) · seed (\d+)/g)];
+  assert.equal(coordinates.length,2);
+  for(const [,arm,rep,episode,seed] of coordinates){
+    const trace=JSON.parse((await invoke('replay',root,'bridge',arm,String(Number(rep)-1),'2','test',String(Number(episode)-1))).stdout);
+    assert.equal(trace.seed,Number(seed));
+  }
   assert.doesNotMatch(html,/<script\b|\b(?:src|href)\s*=/i);
   const csv=path.join(d,'metrics.csv');fs.writeFileSync(csv,(await invoke('export',root)).stdout);
   for(const phase of ['validation','test']){

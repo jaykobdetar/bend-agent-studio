@@ -68,7 +68,7 @@ export async function writeReport(root,out){
         const traced=runner.trace({$:'Evaluate'},model,r.seed,game.limit);
         if(traced.report.score!==r.score)throw Error('archived episode and trace scores differ');
         r.frames=internals.unpack(traced.record).map(internals.frameData);
-        body.push('<h3>'+label+' test episode</h3><p>'+esc(arm.id)+' · replicate '+esc(r.replicate)+' · episode '+esc(r.index)+' · seed '+esc(r.seed)+' · return '+esc(r.score)+'</p>');
+        body.push('<h3>'+label+' test episode</h3><p>'+esc(arm.id)+' · Studio replicate '+esc(r.replicate+1)+' · episode '+esc(r.index+1)+' · seed '+esc(r.seed)+' · return '+esc(r.score)+'</p>');
         const frames=publicTraceFrames(game.definition,r.frames,arm.observation);
         const explain=explainDecisions(game.definition,game.limit,frames,{maxBeliefs:20000});
         body.push(table(['Step','Observation','Action','Reward','Optimal public action','Decision gap'],explain.decisions.map((d,i)=>[d.step,d.observation,d.action,frames[i].reward,d.bestAction,d.gap])));
