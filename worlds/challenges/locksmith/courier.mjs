@@ -46,5 +46,7 @@ export function courier(detours, bypasses) {
     if (position === 0 && key) edge(2, [station + 1, 0, 0, charges]);
     if (position === 0 && charges) edge(3, [station + 1, 0, 0, charges - 1]);
   }
-  return {limit, delivery, definition: {schema: 1, initial, states}};
+  // Indexed by the public observation ID; the terminal row carries no inventory.
+  const locations = pending.map((s) => (s[0] === detours.length ? [s[0]] : s));
+  return {limit, delivery, definition: {schema: 1, initial, states}, locations};
 }

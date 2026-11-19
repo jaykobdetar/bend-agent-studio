@@ -38,7 +38,8 @@ Use `experiments/locksmith-courier.json` or `experiments/switchboard.json`
 for the other games. All three base plans were trained and opened in Studio;
 for one real episode of each, MCP's seeded public frames matched archived
 Bend replay frame-for-frame (155, 5 and 12 frames for Courier, Switchboard,
-and Reserve). The generic observation canvas does not infer a board layout.
+and Reserve). The two shipped Courier worlds have a route view for current-observation
+replays. Other worlds in this study use Studio's generic public-observation canvas.
 
 ## What was measured
 

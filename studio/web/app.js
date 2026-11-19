@@ -4,6 +4,7 @@ import {
   boardStates,
   channels,
   cumulativeReturns,
+  courierCaption,
   draw,
   gameName,
   observation,
@@ -136,11 +137,13 @@ function showTrace(trace, source) {
   state.boards = ['tic-tac-toe', 'raw-board'].includes(trace.game) ? boardStates(trace) : [];
   const totals = cumulativeReturns(trace.frames);
   state.totals = totals;
-  $('game-name').textContent = gameName(trace.game);
+  const courier = trace.gridLayout?.renderer === 'courier';
+  $('game-name').textContent = courier ? 'Locksmith Courier' : gameName(trace.game);
   $('source').textContent = source;
-  $('world-description').textContent =
-    state.worlds.find((w) => w.id === trace.game)?.description ??
-    'Inspect the public observations from this environment.';
+  $('world-description').textContent = courier
+    ? 'Fetch each door’s key or spend a bypass charge.'
+    : (state.worlds.find((w) => w.id === trace.game)?.description ??
+      'Inspect the public observations from this environment.');
   $('stage-label').textContent =
     friendlyPhase(trace.phase).toUpperCase() +
     ' EPISODE ' +
@@ -223,7 +226,11 @@ function render() {
   const i = state.frame,
     n = t.frames.length,
     f = t.frames[i - 1];
-  draw($('scene'), t.game, observation(t, i), state.boards[i], t.gridLayout);
+  const obs = observation(t, i);
+  draw($('scene'), t.game, obs, state.boards[i], t.gridLayout);
+  const caption = courierCaption(t.gridLayout, obs);
+  if (t.gridLayout?.renderer === 'courier')
+    $('scene').setAttribute('aria-label', caption ?? gameName(t.game) + ' agent replay');
   $('scrub').value = i;
   $('scrub').style.setProperty('--progress', (n ? (i / n) * 100 : 0) + '%');
   $('counter').textContent = i + ' / ' + n;
@@ -232,7 +239,7 @@ function render() {
   $('next').disabled = i === n;
   $('play').disabled = !n;
   state.metrics[0].value.textContent = number(state.totals[i]);
-  state.metrics[1].value.textContent = actionName(t.game, f?.action);
+  state.metrics[1].value.textContent = actionName(t.game, f?.action, t.gridLayout);
   state.metrics[2].value.textContent = number(f?.reward);
   for (const s of state.signals) graph(s, i);
 }

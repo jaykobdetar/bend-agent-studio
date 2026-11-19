@@ -2,6 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import {createHash} from 'node:crypto';
 import {symbol} from '../core/finite_world.mjs';
+import {courier, designs} from '../worlds/challenges/locksmith/courier.mjs';
 
 // Bind display-only data to generated inputs, ignoring only Git checkout EOLs.
 // The normalized world identifier also recognizes verified replays without their source path.
@@ -23,6 +24,17 @@ export function knownGridLayouts(root) {
       }
     } catch {
       /* Layout sidecars are optional. */
+    }
+  }
+  for (const [name, {detours, bypasses}] of Object.entries(designs)) {
+    const {definition, locations} = courier(detours, bypasses);
+    try {
+      const file = path.join(root, 'worlds', 'challenges', 'locksmith', name + '.json');
+      const key = symbol(definition);
+      if (symbol(JSON.parse(fs.readFileSync(file, 'utf8'))) === key)
+        layouts.set(key, {renderer: 'courier', detours, bypasses, locations});
+    } catch {
+      /* Optional display metadata must not block replay. */
     }
   }
   return layouts;

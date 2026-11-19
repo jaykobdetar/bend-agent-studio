@@ -39,8 +39,10 @@ export function replaySelection(run, checkpoint, phase, episode) {
     episode: max ? Math.min(max, Math.max(1, Number.isSafeInteger(n) ? n : 1)) : '',
   };
 }
-export function actionName(game, id) {
+const courierActions = ['Toward key', 'Back toward door', 'Use key', 'Spend bypass'];
+export function actionName(game, id, layout) {
   if (id === undefined) return '—';
+  if (layout?.renderer === 'courier') return courierActions[id] ?? String(id);
   return labels[game]?.[id] ?? (isBoard(game) ? 'Place mark' : String(id));
 }
 const isBoard = (g) => g === 'tic-tac-toe' || g === 'raw-board';
@@ -381,6 +383,76 @@ function unknown(c, s) {
   for (let i = 0; i < Math.min(5, Math.ceil(txt.length / 60)); i++)
     c.fillText(txt.slice(i * 60, i * 60 + 60), 256, 108 + i * 13);
 }
+export function courierCaption(layout, obs) {
+  const location = layout?.renderer === 'courier' ? layout.locations?.[obs] : undefined;
+  if (!location) return undefined;
+  const [station, position, key, charges] = location;
+  if (station === layout.detours.length) return 'Delivered. All doors passed.';
+  return (
+    'Door ' +
+    (station + 1) +
+    ' of ' +
+    layout.detours.length +
+    '. ' +
+    (position === 0
+      ? 'At the door.'
+      : 'Corridor position ' + position + ' of ' + layout.detours[station] + '.') +
+    ' ' +
+    (key ? 'Key in hand.' : 'Key at corridor end.') +
+    ' ' +
+    charges +
+    (charges === 1 ? ' bypass charge left.' : ' bypass charges left.')
+  );
+}
+function drawCourier(c, layout, location) {
+  grid(c);
+  const [station, position, key, charges] = location;
+  const n = layout.detours.length,
+    delivered = station === n;
+  function text(value, x, y, color = colors.light, size = 17) {
+    c.textAlign = 'center';
+    c.fillStyle = color;
+    c.font = 'bold ' + size + 'px sans-serif';
+    c.fillText(value, x, y);
+  }
+  const span = Math.min(54, 448 / n);
+  for (let i = 0; i < n; i++) {
+    const x = 256 + (i - (n - 1) / 2) * span;
+    const shade = i < station ? colors.mint : i === station ? colors.coral : colors.muted;
+    line(c, shade, x - span / 2 + 3, 67, x + span / 2 - 3, 67, 5);
+    text(i + 1, x, 61, shade, 16);
+  }
+  if (delivered) {
+    text('DELIVERED', 256, 131, colors.mint, 30);
+    text('All ' + n + ' doors passed', 256, 163);
+    return;
+  }
+  text('DOOR ' + (station + 1) + ' OF ' + n, 256, 100, colors.light, 20);
+  const left = 60,
+    right = 452,
+    depth = layout.detours[station],
+    y = 142;
+  const x = (p) => left + (p * (right - left)) / depth;
+  line(c, colors.muted, left, y, right, y, 3);
+  for (let p = 0; p <= depth; p++) fill(c, colors.light, x(p) - 1, y - 5, 3, 10);
+  fill(c, key ? colors.mint : colors.coral, left - 21, y - 18, 8, 36);
+  c.beginPath();
+  c.arc(x(position), y, 9, 0, TAU);
+  c.fillStyle = colors.mint;
+  c.fill();
+  text('Door', left, 173, colors.light, 16);
+  text(key ? 'Key taken' : 'Key', right, 173, colors.light, 16);
+  text(
+    (key ? 'Key in hand' : 'Key not collected') +
+      '  ·  ' +
+      charges +
+      '/' +
+      layout.bypasses +
+      ' bypass charges',
+    256,
+    203,
+  );
+}
 export function gridMarkers(layout, obs) {
   if (!Number.isInteger(obs) || obs < 0) return [];
   if (layout.decoder === 'taxi') {
@@ -476,7 +548,9 @@ export function draw(canvas, game, obs, boardState, layout) {
   c.save();
   c.setTransform(canvas.width / 512, 0, 0, canvas.height / 220, 0, 0);
   c.imageSmoothingEnabled = false;
-  if (layout?.rows?.[0]?.length) drawFiniteGrid(c, layout, obs);
+  if (layout?.renderer === 'courier' && layout.locations?.[obs])
+    drawCourier(c, layout, layout.locations[obs]);
+  else if (layout?.rows?.[0]?.length) drawFiniteGrid(c, layout, obs);
   else if (game === 'mountain_car') mountain(c, obs);
   else if (game === 'cartpole') pole(c, obs);
   else if (game === 'acrobot') acrobot(c, obs);

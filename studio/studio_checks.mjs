@@ -14,7 +14,9 @@ import {knownGridLayouts} from './grid-layouts.mjs';
 import {symbol} from '../core/finite_world.mjs';
 import {
   acrobotPose,
+  actionName,
   boardStates,
+  courierCaption,
   cumulativeReturns,
   gridMarkers,
   observation,
@@ -1138,6 +1140,37 @@ test('generated layout fingerprints tolerate checkout EOLs but reject altered wo
   }
   await writeFile(target, crlf(lf.replace('"reward":0', '"reward":1')));
   assert.equal(knownGridLayouts(root).size, 0);
+});
+
+test('courier layout decodes only the fingerprinted public states, not similarly named games', async () => {
+  const root = fileURLToPath(new URL('../', import.meta.url));
+  const layouts = knownGridLayouts(root);
+  for (const [size, bypasses] of [
+    [3, 1],
+    [8, 2],
+  ]) {
+    const world = JSON.parse(
+      await readFile(
+        path.join(root, 'worlds/challenges/locksmith/locksmith-' + size + '.json'),
+        'utf8',
+      ),
+    );
+    const layout = layouts.get(symbol(world));
+    const opening = world.states[world.initial[0].to];
+    assert.equal(layout.locations.length, world.states.length);
+    assert.deepEqual(layout.locations[opening.id], [0, 0, 0, bypasses]);
+    assert.match(courierCaption(layout, opening.id), new RegExp('Door 1 of ' + size));
+    const blocked = opening.actions.find((a) => a.id === 3).outcomes[0].to;
+    assert.deepEqual(layout.locations[blocked], [1, 0, 0, bypasses - 1]);
+    const terminal = world.states.find((s) => !s.actions.length);
+    assert.deepEqual(layout.locations[terminal.id], [size]);
+    assert.equal(courierCaption(layout, terminal.id), 'Delivered. All doors passed.');
+    assert.equal(actionName('a-renamed-study-game', 3, layout), 'Spend bypass');
+    opening.actions[0].outcomes[0].reward--;
+    const lookalike = layouts.get(symbol(world));
+    assert.equal(lookalike, undefined);
+    assert.equal(actionName('locksmith-' + size, 3, lookalike), '3');
+  }
 });
 
 test(

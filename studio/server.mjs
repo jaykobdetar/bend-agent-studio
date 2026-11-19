@@ -422,9 +422,8 @@ async function replay(id, input, res) {
     res.off('close', stop);
     activeReplays.delete(child);
   }
-  const definition = unseal(path.join(dir, 'run.json')).body.plan.games.find(
-    (g) => g.id === game,
-  )?.definition;
+  const plan = unseal(path.join(dir, 'run.json')).body.plan;
+  const definition = plan.games.find((g) => g.id === game)?.definition;
   const key = definition && symbol(definition),
     job = jobs.get(id);
   let gridLayout = key && layouts.get(key);
@@ -435,6 +434,12 @@ async function replay(id, input, res) {
       /* Optional display metadata must not block verified replay. */
     }
   }
+  // Courier coordinates index the base observation IDs, not a history encoding.
+  if (
+    gridLayout?.renderer === 'courier' &&
+    plan.arms.find((a) => a.id === arm)?.observation === 'previous'
+  )
+    gridLayout = undefined;
   return {
     ...trace,
     gridLayout,
