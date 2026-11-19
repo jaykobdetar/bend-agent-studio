@@ -10,9 +10,14 @@ This roadmap is for the agent continuing development. It turns the November 2026
 2. **Dependencies.** Studio, the Node runner, and `analysis/analyze.py` use only standard libraries. Put anything needing third-party packages in its own folder with its own manifest, like `mcp/`. Examples: Gymnasium, MLflow, Minari, rliable, Matplotlib.
 3. **Existing runs keep working.** Archived runs replay with the code stored in their `code/` folder, so engine changes affect only new runs. Do not change sealed file formats, the seed scheme, or the random-number generator without a schema bump. A changed generator produces different trajectories. It needs a new, separately identified design (see EXPERIMENTS.md).
 4. **Laws before refactors.** When an item replaces a data structure or adds a learner, write the protecting laws first (phase 1), then make the change.
-5. **Verification.** Each PR passes `npm test`, `bend checks/checks.bend`, `bend checks/benchmark_checks.bend`, `bend checks/study_checks.bend`, and `bend laws/PROOF.bend`, plus the full CI workflow, including the BendTT verdict and the Windows job.
-6. **Docs in the same PR.** Update README.md and EXPERIMENTS.md with every user-visible change. That includes command and analysis-tool tables, the current law count, and the README "Formal Properties" list. Then update the status table at the end of this file.
-7. **One item per PR,** small enough to review. Items in the same phase can run in parallel unless a dependency is listed.
+5. **Verification.** Each change passes `npm test`, `bend checks/checks.bend`, `bend checks/benchmark_checks.bend`, `bend checks/study_checks.bend`, and `bend laws/PROOF.bend`, plus the full CI workflow, including the BendTT verdict and the Windows job.
+6. **Document the change alongside the code.** Use the documentation checklist below and update the status table when a roadmap item changes state.
+7. **One item per change,** small enough to review. Items in the same phase can run in parallel unless a dependency is listed.
+
+### Documentation checklist
+
+- Update the matching [guide](README.md#guides) when user-visible behavior changes; keep worked examples and the [command reference](docs/commands.md) accurate.
+- Run `node checks/docs_check.mjs` and the full tests. For direct-main changes, verify the exact hosted result. Explain any new documentation-check exception.
 
 Effort: **S** is under a day, **M** is a few days, **L** is a week or more.
 
@@ -297,3 +302,4 @@ Update this table in the same PR as each item.
 | O7.3 | Deferred: requires a concrete research question | |
 | O7.4 | Verified: compiler campaign includes positive-exponent F32 rewards | [Campaign](checks/world_campaign.mjs) |
 | O7.5 | Implemented: optional Holm-adjusted paired sign tests across arms | [Method](EXPERIMENTS.md#multiple-arms-versus-one-reference) |
+| Repository reorganization | Completed: flat runtime, grouped learners, compatible entry points, task guides and archive gates | [Implementation record and original plan](docs/history/reorganization.md) |

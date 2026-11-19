@@ -1,0 +1,265 @@
+# Documentation and repository reorganization plan
+
+This plan is for the agent doing the reorganization. It is separate from [ROADMAP.md](ROADMAP.md) and adds no features. It has two goals:
+
+1. **The docs can be trusted and navigated.** Every statement matches the code, a check enforces that in CI, and every feature has an obvious home.
+2. **The repository can be navigated.** The root currently holds 98 entries, including 51 `.bend` files. After the work, the root holds only entry points and top-level docs, and every folder has one purpose.
+
+Two things must not change: the behavior of new runs, and the ability to verify, replay and resume existing archived runs.
+
+---
+
+## Ground rules
+
+1. **No behavior changes.** Move files and fix paths; never change logic in the same PR as a move. If a move needs a code change beyond an import path or a path constant, make that change in its own earlier PR.
+2. **Use `git mv`** so history and blame follow the files. Keep each move PR to moves plus the path edits they force.
+3. **Toolchain is fixed:** Bend 2.0.40 and Node 24.22.3, as in CI.
+4. **Every PR passes the gates in [Verification gates](#verification-gates),** including full CI with Bend and the BendTT verdicts and the Windows job.
+5. **Docs move with code.** Each PR updates every doc path it breaks. After phase 1, the docs check (D1) catches the ones you miss.
+6. **Ask the owner** about anything listed under [Decisions for the owner](#decisions-for-the-owner) before starting the phase that depends on it.
+
+---
+
+## Constraints the move must respect
+
+Read these before planning any move. Each one has broken, or would break, real workflows.
+
+### C1. Archived code is flat, and the MCP server enforces it
+
+A run stores its runner and Bend sources in `<run>/code/`, keyed by bare file name. `sourceFiles()` in `experiment.mjs` reads them relative to the runner's own folder (`here`). The archived runner later runs from `<run>/code/`, so everything it reads must sit beside it.
+
+`mcp/context.mjs` (`archiveInfo`) rejects any snapshot name that doesn't match `^[\w.-]+\.(mjs|bend)$`, so a name containing `/` makes the archive unusable through MCP.
+
+**Consequence:** every file that `sourceFiles()` adds, plus every Bend module those import, must live together in **one flat folder**. Moving that set as a unit, with no byte changes, keeps the archived source set identical. That folder is called `core/` below (see decision R1). The set today:
+
+- **Runner (Node):** `experiment.mjs`, `experiment_config.mjs`, `assessment.mjs`, `finite_world.mjs`, `packed_world.mjs`, `agent_source.mjs`, `process_output.mjs`, `parallel_trials.mjs`.
+- **Bend library:** the import closure of `study.bend` plus the modules `sourceFiles()` and bundled agents and worlds pull in. That is `actor_critic`, `arena`, `arena_table`, `cartpole`, `cliff`, `cursor`, `doors`, `double_q`, `dyna`, `engine`, `ferry`, `finite`, `history`, `key_maze`, `logged`, `mountain_car`, `noisy_fork`, `offline`, `orchard`, `packed_world`, `parameters`, `study`, `tabular`, `tile_control` and `weights` (all `.bend`).
+
+Regenerate this list with a script before moving, rather than trusting it. Plans can pull in more modules through bundled agents and worlds.
+
+### C2. Modules that `experiment.mjs` imports must stay beside it
+
+`experiment.mjs` imports `./assessment.mjs` and `./html_report.mjs` dynamically, and `html_report.mjs` imports `./public_oracle.mjs` and locates `./analyze.py` by URL. Either keep these in `core/` or change the import paths in a separate, earlier PR. Recommended: also put `html_report.mjs`, `public_oracle.mjs`, `ope.mjs` and `run_notes.mjs` in `core/` as shared host libraries. Change `html_report.mjs`'s `analyze.py` lookup to the analysis folder in its own PR.
+
+### C3. How agent and world imports get normalized
+
+`bundleAgent(file, library)` in `agent_source.mjs` rewrites an import of a library module to `./<basename>`, but only when the import resolves to that same file inside `library` (the runner's folder). Agents and Bend worlds currently write `import ../engine.bend`.
+
+After the move, those imports must point at `core/`, for example `../core/engine.bend`, or `../../core/engine.bend` from a per-learner folder. Because the bundler rewrites them back to `./engine.bend`, **bundled bytes and agent identities stay unchanged.** If the imports aren't updated, bundling fails with "missing agent dependency".
+
+The import-rewriting regular expression only matches imports that start with `./` or `../` followed by word characters, dots, slashes or hyphens. Keep paths within that pattern.
+
+### C4. Code that locates repository files from its own folder (`here` or `repo`)
+
+All of these need path updates:
+
+| File | What it locates |
+| --- | --- |
+| `batch.mjs` | `compiler()` copies `offline.bend`, `engine.bend`, `tabular.bend` and `dyna.bend` from `here` |
+| `world_campaign.mjs` | Copies `engine.bend`, `cursor.bend`, `tabular.bend`, `finite.bend`, `history.bend` and `finite_world.mjs` from `here` |
+| `arena_tournament.mjs` | `agents/self_play.bend` and `worlds/*.bend`, with `here` passed as the bundler library |
+| `studio/server.mjs` | Repo root `../` for `agents/` and `worlds/` |
+| `studio/training-host.mjs` | Imports `../experiment.mjs` |
+| `mcp/*.mjs` | Imports `../experiment.mjs`, `../experiment_config.mjs`, `../finite_world.mjs`, `../public_oracle.mjs`, `../memory_world.mjs`, `../run_notes.mjs`, `../agent_source.mjs` and `../bend_test_support.mjs`. `ctx.repo` joins `analyze.py` and `experiment.mjs` |
+| `mcp/curves.py` | Adds the repo root to `sys.path` for `analyze` and `plot_curves` |
+| `integrations/gymnasium/compile_world.mjs`, `toy_text/oracles.mjs`, `integrations/minari/snapshot.mjs`, `benchmarks/tabular-timing.mjs` | Relative `../` imports of root modules |
+| `experiment_checks.mjs` and other root checks | `here`-relative paths to `analyze.py` and other files |
+| `.github/workflows/checks.yml` | Every `bend X.bend`, `node X.mjs` and `python3 -m unittest X` invocation |
+
+Find the complete set with `git grep` before each move. This table is a starting point, not the whole list.
+
+### C5. Manifests reference agents and worlds by relative path
+
+The files in `experiments/` use `agentFile`, `worldFile` and `file`, relative to the manifest, such as `../agents/sarsa.bend`. Moving an agent or world means editing those manifests. Identities are unaffected because bundles are named by content hash (C3).
+
+### C6. Command names appear everywhere
+
+`node experiment.mjs …` and `node batch.mjs …` appear in every doc, in MCP tests and in error messages. Decision R2 keeps these commands working.
+
+---
+
+## Target layout
+
+Each folder has one purpose. The root keeps only entry points and the main docs.
+
+```
+README.md  ROADMAP.md  LICENSE  package.json
+experiment.mjs  batch.mjs        thin CLI shims (decision R2)
+
+core/            flat: archived runner + Bend library + shared host libraries (C1, C2)
+laws/            LAWS.bend, PROOF.bend (core laws)
+agents/          one folder per learner, plus lib/ for shared helpers (decision R3)
+  sarsa/         sarsa.bend, laws.bend, proof.bend, checks.bend, README.md
+  n_step/  td_lambda/  reinforce/  linear/  clipped_pg/  self_play/  ucb/  lib/
+worlds/          unchanged layout; .bend worlds import ../core/…
+experiments/     unchanged
+offline/         batch.mjs (real), dataset.mjs
+analysis/        analyze.py, suite_stats.py, plot_curves.py, sequential.mjs, arena_tournament.mjs
+tools/           memory_world.mjs, export_pomdp.mjs, check_pomdp_lp.py, finite-layout/, native-spike/
+checks/          checks.bend, study_checks.bend, benchmark_checks.bend, benchmark.bend, bandit.bend,
+                 *_checks.mjs, world_campaign.mjs, test_*.py, support.mjs (was bend_test_support.mjs),
+                 docs_check.mjs (new, D1)
+examples/        main.bend (confirm purpose first, see R5)
+studio/  mcp/  integrations/  benchmarks/
+docs/            user guide (phase 3), images
+```
+
+Notes:
+- **`ope.mjs` and `public_oracle.mjs` go in `core/`,** because `batch.mjs`, `html_report.mjs` and MCP all import them.
+- **`bandit.bend` goes in `checks/`,** because only `checks.bend` and `main.bend` import it.
+- **`benchmark.bend`, `bandit.bend` and `main.bend` are entry programs that no doc mentions.** Confirm their purpose before moving them (R5).
+- **The `__pycache__/` folders are untracked,** and `.gitignore` already covers them.
+
+---
+
+## Phase 1: make the docs checkable, then fix current errors
+
+Do this first, so the checker catches path breakage during the moves.
+
+### D1. Add a docs check (M)
+
+Write `checks/docs_check.mjs` (Node standard library only, at the root until M2) and run it from `npm test` and CI. It fails on any of these:
+
+1. **Broken links:** relative Markdown links that point to a missing file, or to a missing heading anchor. Use GitHub's anchor rules: lowercase, punctuation removed, spaces to hyphens, `-1` suffixes for duplicate headings.
+2. **Missing paths:** paths in backticks or links that look like repository paths (contain `/` or end in `.mjs`, `.bend`, `.py`, `.json` or `.md`) but don't exist. Example paths such as `runs/…`, `/path/to/…` and `REPLAY.json` go in a short, commented allowlist inside the script.
+3. **Missing command targets:** in fenced shell blocks, the file argument of `node`, `python3`, `python` and `bend` commands must exist. Paths resolve from the repository root unless the block is preceded by a `<!-- docs-check: cwd=<folder> -->` comment.
+4. **Wrong counts:** a stated count must sit between markers, for example `<!-- count:core-laws -->46<!-- /count -->`, and must match the counted value. Define counters for core laws (`^law ` in `LAWS.bend`), learner laws, experiment files and benchmark worlds. Replace every hand-written count in the docs with a marked one.
+5. **Coverage gaps:**
+   - every file in `experiments/` appears in the manifest table;
+   - every Markdown file under `docs/` is linked from somewhere;
+   - every subcommand in `experiment.mjs`'s usage string appears in the command reference (D6).
+
+Acceptance: the check runs in under five seconds and passes on `main` after D2. Its own tests cover each rule with a failing fixture.
+
+### D2. Fix the errors already known (S)
+
+- `README.md`, "Formal Properties": it says all statements and proofs are in `LAWS.bend` and `PROOF.bend`, but the learner laws live in six `*_laws.bend`/`*_proof.bend` pairs. Name them, or link to the laws page (D6).
+- `ROADMAP.md`, phase 1 context: it says "41 laws", while the core now declares 46. Use a count marker.
+- Fix everything else D1 reports.
+
+---
+
+## Phase 2: repository moves
+
+Do one PR per step, in this order. Each passes all gates.
+
+| Step | Move | Path edits it forces | Effort |
+| --- | --- | --- | --- |
+| **M0** | Prep, no moves. Export `main` from `experiment.mjs` and `batch.mjs` for the shims (R2). Move the `analyze.py` lookup in `html_report.mjs` and the `here`-based copies in `batch.mjs` and `world_campaign.mjs` behind one named path constant per file. | Code only, no moves. This changes the runner's bytes once, which is expected: runs made before it resume with their archived runner, as already documented. | S |
+| **M1** | Move the C1 set, plus `html_report.mjs`, `public_oracle.mjs`, `ope.mjs` and `run_notes.mjs`, into `core/`. Add the root `experiment.mjs` shim. | C3 imports in `agents/` and `worlds/*.bend`; C4 importers; CI | M |
+| **M2** | Move `LAWS.bend` and `PROOF.bend` to `laws/`. Move the core Bend and Node checks, `world_campaign.mjs`, the Python tests and `bend_test_support.mjs` to `checks/`. | Imports inside the moved checks and laws (`../core/…`); `mcp/*.test.mjs` support import; `package.json` test script; CI | M |
+| **M3** | `batch.mjs` and `dataset.mjs` to `offline/` (with a root `batch.mjs` shim); the analysis files to `analysis/`; `memory_world.mjs` and `export_pomdp.mjs` to `tools/`. | `mcp/curves.py` `sys.path`; MCP `ctx.repo` joins; `integrations/minari/snapshot.mjs`; `html_report.mjs` lookup (via M0's constant); CI | M |
+| **M4** | Per-learner folders (R3): move each learner's agent, laws, proof, checks and `docs/<learner>.md` into `agents/<name>/`, the doc becoming `README.md`. | Manifest `agentFile` paths (C5); learner imports (`../../core/…`, `../lib/…`); law and proof imports; `studio/server.mjs` and `arena_tournament.mjs` agent paths; CI | M |
+| **M5** | Cleanup: `examples/` (after R5), remove empty files and folders, and add a "Project layout" section to README covering every top-level folder (checked by D1). | Docs | S |
+
+Each step's PR description lists the files moved and the path edits made. It also reports the results of gates G2–G4.
+
+---
+
+## Phase 3: documentation restructure
+
+Do this after phase 2, so paths are written once. The goal is one home per topic. README stays the front door; `EXPERIMENTS.md` (387 lines) is split by topic. Its last ten sections are currently filed under "Test the implementation" even though most are not about testing.
+
+### D3. Target doc set
+
+| File | Contents |
+| --- | --- |
+| `README.md` | What it is (5 lines), Studio quick start, CLI quick start (the Bridge walkthrough in 5 commands), map of the docs, project layout, licence. Keep it under 150 lines. |
+| `docs/studio.md` | Studio use, training queue, crash recovery and `training-active.json`, replay limits, `--replay-node`, `--run`, comparison view, recordings |
+| `docs/experiments.md` | Rules for experiments; manifests; first run; declaring comparisons; resume, rerun, parallel trials and shards; tune and confirm; transfer and checkpoint selection; notes and tags; archives and compatibility (including keyed tables against list-backed archives); manifest reference table |
+| `docs/worlds.md` | Finite and grid JSON worlds, Bend worlds, memory worlds, Tiger regeneration, benchmark worlds (toy-text and probes), Gymnasium adapter, `.pomdp` export |
+| `docs/agents.md` | The agent interface; episode completion (`finish`) and `learn_context`; an index of the learners linking to `agents/<name>/README.md` |
+| `docs/analysis.md` | `analyze.py`; fixed-suite statistics; multiple arms against one reference; sequential tests; learning curves; oracles (full-state, reactive, history, clock, discounted); HTML reports; arena tournaments |
+| `docs/offline.md` | Collect, fit and score; off-policy score columns and their exact-value checks; Minari export (linking to `integrations/minari/README.md`) |
+| `docs/laws.md` | All law files with counts (markers), plus a table mapping each rule in "Rules for experiments" to the laws and tests that enforce it (D5) |
+| `docs/testing.md` | Every check, what it covers, how to run it locally, and which CI step runs it |
+| `docs/commands.md` | Every CLI subcommand with arguments and options, mirroring the usage strings (D1 rule 5) |
+| `mcp/README.md`, `mcp/FIELDS.md` | Unchanged except for links |
+| `EXPERIMENTS.md` | Decision R4: replace it with a short page linking to the new locations, or delete it |
+
+### D4. Where each `EXPERIMENTS.md` section goes
+
+| Current section | New home |
+| --- | --- |
+| Rules for experiments | `docs/experiments.md`, cross-linked from `docs/laws.md` |
+| First run; Run the same loop from an MCP client | `docs/experiments.md` (the MCP part links to `mcp/README.md`) |
+| Play a finite world in Gymnasium; Benchmark worlds; Regenerate the Tiger worlds; Export a finite world for another solver | `docs/worlds.md` |
+| Change the world, policy, or learner | Split: worlds → `docs/worlds.md`, agents → `docs/agents.md` |
+| Declare the comparison; Resume, reproduce, and inspect; Parallel trials on one machine; Transfer and checkpoint selection; Choose a manifest or specification; Notes and tags; Compare keyed tabular training against list-backed archives | `docs/experiments.md` |
+| Tune and confirm on fresh training runs | `docs/experiments.md`; its statistics paragraph goes to `docs/analysis.md` |
+| Comparing a fixed suite of games; Multiple arms versus one reference; Analysis tools and checks; Share an offline report; Discounted full-state planning | `docs/analysis.md` |
+| Fit from logs; Off-policy score columns | `docs/offline.md` |
+| Learner episode completion | `docs/agents.md` |
+| Test the implementation | `docs/testing.md` |
+
+Move text verbatim first, in one PR, then edit for flow in a second PR, so reviewers can check that nothing was lost. Check that every paragraph of the old file appears in exactly one new place.
+
+### D5. Map each experiment rule to what enforces it (M)
+
+For each of the nine "Rules for experiments", list the laws (by file and name) and the host-side tests that enforce it, and say plainly which parts are only tested, not proven. Example: the seed-block disjointness in rule 5 is enforced by `checkSeedBlocks` and its tests, not by a law. This becomes the main entry point to the proofs.
+
+### D6. Command reference (S)
+
+Generate `docs/commands.md` from the usage strings in `experiment.mjs`, `batch.mjs` and the other CLIs, or write it by hand and let D1 rule 5 keep it in sync. Each command gets one line of purpose and one example.
+
+### D7. Learner READMEs (S)
+
+Each `agents/<name>/README.md` uses the same headings: what it learns, its parameters, how it handles episode ends, its laws, its checks, and an example plan.
+
+---
+
+## Phase 4: keep it accurate
+
+- Add a short "Docs" section to ROADMAP's ground rules: new features update the matching page from D3, and D1 must pass.
+- Add a PR template checklist item: "Docs updated (D3 page), `docs_check` passes."
+- When this plan is complete, add a one-line entry to the ROADMAP status table and archive this file under `docs/history/`.
+
+---
+
+## Verification gates
+
+Every PR in phases 2 and 3 must pass these.
+
+| Gate | Check |
+| --- | --- |
+| **G1. Tests** | `npm test`; `cd mcp && npm test`; the Python suites; full CI including Bend checks, all `--verdict` proofs and Windows |
+| **G2. Archived source set unchanged** | Write a script that computes, for every training manifest in `experiments/`, the map of archived file names to SHA-256 digests that `sourceFiles()` would produce. Run it before and after each move, without Bend. The maps must be identical except for runner files deliberately changed in M0, listed in the PR. For one small plan per world type, CI also compiles and compares `toolchain.backend`. |
+| **G3. Bundle identities unchanged** | For every `agentFile` and `worldFile` in `experiments/`, `bundleAgent(...).entry` and the bundle's file digests are identical before and after |
+| **G4. Old archives still work** | Before M1, produce a small archive with the pre-move code, for example `experiments/bridge.json` with `--until` at an early checkpoint, plus one custom-agent plan. Keep it as a CI fixture. After every move: `verify` and `export` with the repo CLI; `replay` and `resume` with the archived runner; attach it in Studio (`--run`) and replay; inspect it through MCP (`list_runs`, `replay_episode`) |
+| **G5. Docs check** | D1 passes. The allowlist grows only with a justification in the PR |
+
+---
+
+## Decisions for the owner
+
+Ask before the phase that depends on each one.
+
+| ID | Question | Recommendation |
+| --- | --- | --- |
+| R1 | Name of the flat runner and library folder | `core/` |
+| R2 | Keep `node experiment.mjs …` and `node batch.mjs …` working through root shims? | Yes. Two tiny files avoid rewriting every doc, test and habit. |
+| R3 | One folder per learner (agent, laws, proof, checks, README together), or a flat `agents/` with a separate `laws/learners/`? | Per-learner folders: each learner becomes self-contained and easy to find. |
+| R4 | After the split, replace `EXPERIMENTS.md` with a redirect page, or delete it? | Redirect page for now. Remove it once nothing links to it. |
+| R5 | What are `main.bend`, `benchmark.bend` and `bandit.bend` for? No doc mentions them. | Document them in `examples/` and `checks/`, or delete them if unused. |
+
+---
+
+## Out of scope
+
+These are tracked in ROADMAP, not here. Don't change them while reorganizing:
+
+- The `E.Contextual` `legal_at` field, which can expose hidden state.
+- The regular-expression opt-in for `finish` and `learn_context`.
+- Adding `arena_checks.mjs` to CI.
+- The MLflow exporter.
+
+## Status
+
+Update this table in the same PR as each item.
+
+| ID | Status | PR |
+| --- | --- | --- |
+| D1–D2 | Not started | |
+| M0–M5 | Not started | |
+| D3–D7 | Not started | |
+| Phase 4 | Not started | |
