@@ -324,9 +324,9 @@ Work in ID order, on one branch per item. Merge only after the full Linux and Wi
 
 | ID | Work | Acceptance target | Status |
 | --- | --- | --- | --- |
-| N9.0 | Housekeeping | Remove the named pre-rewrite remote branch and record Phase 9. | Merged; see [PR #30](https://github.com/jaykobdetar/bend-agent-studio/pull/30) |
-| N9.1 | One-command setup | Idempotent pinned Linux/macOS setup, devcontainer and clean-runner verification. | Merged; see [PR #31](https://github.com/jaykobdetar/bend-agent-studio/pull/31) |
-| N9.2 | Flagship study | Run and verify the eight-learner toy-text/probe study; publish outputs, uncertainty and a deterministic CI slice. | Merged; see [PR #32](https://github.com/jaykobdetar/bend-agent-studio/pull/32), the [worked example](studies/flagship-toy-text/README.md) and [handoff](docs/history/overnight-2026-11-19.md) |
+| N9.0 | Housekeeping | Remove the named pre-rewrite remote branch and record Phase 9. | Merged; [PR #30](https://github.com/jaykobdetar/bend-agent-studio/pull/30) |
+| N9.1 | One-command setup | Idempotent pinned Linux/macOS setup, devcontainer and clean-runner verification. | Merged; [PR #31](https://github.com/jaykobdetar/bend-agent-studio/pull/31) |
+| N9.2 | Flagship study | Run and verify the eight-learner toy-text/probe study; publish outputs, uncertainty and a deterministic CI slice. | Merged; [PR #32](https://github.com/jaykobdetar/bend-agent-studio/pull/32) |
 | N9.3 | Studio manifests and grid rendering | Validate and queue training plans from experiments/; render layout metadata with text fallback and mobile coverage. | Merged; [PR #33](https://github.com/jaykobdetar/bend-agent-studio/pull/33) |
 | N9.4 | Upgrade warning | Weekly non-blocking latest-Bend-2.x check and single failure issue; document the pin upgrade procedure. | Merged; [PR #34](https://github.com/jaykobdetar/bend-agent-studio/pull/34) |
 | N9.5 | Scaffolding and sweeps | Add safe agent/world/plan initialization and seeded sweeps with matching MCP tools. | Merged; [PR #35](https://github.com/jaykobdetar/bend-agent-studio/pull/35) |
@@ -335,7 +335,7 @@ Work in ID order, on one branch per item. Merge only after the full Linux and Wi
 | N9.8 | Formatter | Pin an isolated formatter outside archive inputs; separate formatting-only commit from CI enforcement. | Merged; [PR #38](https://github.com/jaykobdetar/bend-agent-studio/pull/38) |
 | N9.9 | More environments | Add tested Acrobot dynamics and simultaneous zero-sum games with exact values and exploitability. | Merged; [PR #39](https://github.com/jaykobdetar/bend-agent-studio/pull/39) |
 | N9.10 | MLflow export | Isolated optional tracking exporter with checkpoint curves checked against the plotting data. | Merged; [PR #40](https://github.com/jaykobdetar/bend-agent-studio/pull/40) |
-| N9.11 | MCP environment tools | Expose bounded seeded finite-world sessions and check public frames against replay. | Implemented; [MCP guide](mcp/README.md#play-a-finite-world) |
+| N9.11 | MCP environment tools | Expose bounded seeded finite-world sessions and check public frames against replay. | Merged; [PR #41](https://github.com/jaykobdetar/bend-agent-studio/pull/41) |
 
 Core files stay out of the formatter. Format any core file only when a future
 change already needs a reviewed core transition, with the exact old-to-new
