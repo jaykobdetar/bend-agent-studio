@@ -28,7 +28,9 @@ Single compiler invocations: stock Study ES module **1.71 s**; instrumented prob
 
 Runs were on a shared machine, ES received one warm-up, and native thread-count order alternated by replicate. These are end-to-end timings for this prototype; startup/serialization and load are not isolated. They do **not** support a native or parallel speedup claim. We did not check every shipped arm, all checkpoints, validation/test episodes, resumed partial cursors, authored/custom adapters, cross-platform math, or any GPU implementation. No checkpoint or backend changes were made. A production candidate needs a persistent or batched request/response boundary for the actual generated adapters and a full shipped-plan, replay and resume parity matrix before adoption.
 
-## Reproduce
+## Historical reproduction procedure
+
+These commands document the original flat-table experiment. They do **not** reproduce the tabular comparison on current main: the shipped Q arm now produces indexed tables, while the Bend probe and its JavaScript reference reader only encode flat entries. The results above are historical, not a parity check of the current model format. Production training and replay do not use this probe.
 
 From the repository root, use Bend 2.0.40, Node 24.22.3 and a working Clang native toolchain; the release's `bend guide` documents its native and ES targets. On the test host the Clang bundled with Lean required adding its own `include/clang` directory to `CPATH`; a normal complete Clang installation need not do this.
 
