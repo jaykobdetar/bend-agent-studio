@@ -92,6 +92,12 @@ jobs:
           python3 -m venv "$RUNNER_TEMP/bend-minari-env"
           "$RUNNER_TEMP/bend-minari-env/bin/pip" install -r integrations/minari/requirements-lock.txt
           "$RUNNER_TEMP/bend-minari-env/bin/python" -m unittest discover -s integrations/minari -v
+      - name: Verify optional MLflow file-store export
+        run: |
+          python3.12 -m venv "$RUNNER_TEMP/bend-mlflow-env"
+          "$RUNNER_TEMP/bend-mlflow-env/bin/pip" install --require-hashes -r integrations/mlflow/requirements-lock.txt
+          "$RUNNER_TEMP/bend-mlflow-env/bin/python" -m unittest discover -s integrations/mlflow -v
+
       - name: Run Bend checks
         run: |
           bend checks/checks.bend

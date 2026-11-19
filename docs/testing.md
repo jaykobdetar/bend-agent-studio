@@ -65,6 +65,7 @@ The Linux workflow also runs `node checks/flagship_slice.mjs` to reproduce two o
 | `node tools/archive-gates.mjs check tools/archive-gates/m0-exceptions.json`; `node tools/archive-gates.mjs check-backends` | Exact permitted source/bundle hashes and representative compiled backend hashes. For the Linux historical-archive step, use the [hosted harness](../tools/archive-gates/g4-hosted.sh) with full Git history, pinned Node/Bend and MCP dependencies, not just a copied source tree. |
 | In the [MCP package](../mcp/README.md), run `npm ci --ignore-scripts`, then `npm test`. | Protocol, workspace boundaries, workflow, compiler, inspection, lifecycle and optional-tool fixtures. Both MCP jobs. |
 | Follow the [Gymnasium](../integrations/gymnasium/README.md) or [Minari](../integrations/minari/README.md) environment instructions and run that adapter’s unittest command. | The corresponding optional Python integration step on Linux. Neither dependency belongs to the root install. |
+| Follow the [MLflow guide](../integrations/mlflow/README.md). | Optional isolated tracking-client test on Linux; a real local file-store round trip compares metric histories with the learning-curve plotter. |
 
 ## Test the implementation
 
