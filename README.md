@@ -51,6 +51,8 @@ Use a local filesystem with working SQLite file locks, and point `BEND` directly
 
 ## Design an experiment
 
+See the [command reference](docs/commands.md) for CLI purposes and examples.
+
 The commands below use Node 24 or newer and Bend 2.0.40; the analysis step also requires Python 3 (standard library only). Run them from the repository root.
 
 The visual presets train one model and evaluate eight episodes per split. For comparisons across independently trained models, use an experiment manifest. Bend owns the world, model, policy and update rule. The Node runner schedules replicates, keeps seed blocks disjoint, freezes models during evaluation, and stores immutable checkpoints.
@@ -77,7 +79,16 @@ Start with [worlds/bridge.json](worlds/bridge.json) for a finite game, [worlds/i
 
 ## Formal Properties
 
-The core declares 46 laws. The [SARSA](sarsa_laws.bend) and [n-step](n_step_laws.bend) modules add three learner laws each. [TD(λ)](td_lambda_laws.bend) adds three trace and weight-update laws; [REINFORCE](reinforce_laws.bend) proves the episode buffer is cleared. [Sparse linear Q-learning](linear_laws.bend) adds four feature and update laws. The [clipped policy-gradient law](clipped_pg_laws.bend) pins evaluation freezing. Their statements and proofs are in [LAWS.bend](LAWS.bend) and [PROOF.bend](PROOF.bend).
+The <!-- count:core-laws -->46<!-- /count --> core laws are stated in [LAWS.bend](LAWS.bend) and proved in [PROOF.bend](PROOF.bend). The learners declare <!-- count:learner-laws -->15<!-- /count --> additional laws in their own modules:
+
+| Learner | Statements | Proofs |
+| --- | --- | --- |
+| SARSA | [Laws](sarsa_laws.bend) | [Proofs](sarsa_proof.bend) |
+| n-step TD | [Laws](n_step_laws.bend) | [Proofs](n_step_proof.bend) |
+| TD(λ) | [Laws](td_lambda_laws.bend) | [Proofs](td_lambda_proof.bend) |
+| REINFORCE | [Laws](reinforce_laws.bend) | [Proofs](reinforce_proof.bend) |
+| Sparse linear Q-learning | [Laws](linear_laws.bend) | [Proofs](linear_proof.bend) |
+| Clipped policy gradient | [Laws](clipped_pg_laws.bend) | [Proofs](clipped_pg_proof.bend) |
 
 - **Learning.** The engine applies the learner once per training transition and preserves the model during evaluation. The whole-rollout counting-learner laws prove evaluation freezes the counter and training changes it by exactly the accepted-step delta; the proof preserves the signed difference from an arbitrary starting counter. Updating one Double Q table preserves the other. With a nonempty legal-action list, Double Q selects the bootstrap action with the table being updated and values it with the other table. Dyna planning preserves recorded experience. Completing a Monte Carlo self-play episode clears its buffered decisions, not the learned table.
 - **Episode completion.** A training report applies the optional finish callback once, without changing its score, step count or reason. Evaluation skips it; reading a completed segment again cannot apply it twice.
@@ -100,7 +111,7 @@ bend study_checks.bend
 bend PROOF.bend
 ```
 
-`npm test` runs the Node checks, including public-policy oracles and generated memory worlds. If the Bend executable is absent, the six compiler integration tests are marked skipped. With Bend installed, they exercise training, replay, checkpoint persistence, and offline evaluation.
+`npm test` runs the Node checks, including public-policy oracles and generated memory worlds. If the Bend executable is absent, compiler-backed tests are marked skipped. With Bend installed, they exercise training, replay, checkpoint persistence, and offline evaluation.
 
 For an independent proof verdict, install Lean 4.34.0 (for example, `elan toolchain install leanprover/lean4:v4.34.0`) and run `bend PROOF.bend --verdict`. Bend 2.0.40 builds and caches its bundled BendTT kernel on first use. You can also set `BENDTT` to a kernel built from the same release.
 

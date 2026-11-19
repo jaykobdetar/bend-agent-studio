@@ -51,6 +51,8 @@ The optional [Gymnasium adapter](integrations/gymnasium/README.md) uses the same
 
 ## Benchmark worlds
 
+The benchmark suites contain <!-- count:benchmark-worlds -->19<!-- /count --> world definitions.
+
 The first seven benchmarks are [Gymnasium 1.4.0 ports](integrations/gymnasium/toy_text/README.md); all benchmarks use the general state-machine schema. Values below are expected **undiscounted episode scores**, computed on the Bend integer sampling buckets. “Optimal” is a finite-horizon optimal policy; “uniform” chooses uniformly among all available action IDs. They are not fitted scores.
 
 | World | Horizon | Optimal | Uniform | What it tests |
@@ -188,13 +190,15 @@ Scoring reports independent simulator returns, ordinary and self-normalized traj
 
 ## Choose a manifest or specification
 
-All names below refer to JSON files in [experiments](experiments/). A training manifest contains `games` and `arms`. The other commands take specifications that refer to an existing run or dataset.
+The <!-- count:experiment-files -->39<!-- /count --> names below refer to JSON files in [experiments](experiments/). A training manifest contains `games` and `arms`. The other commands take specifications that refer to an existing run or dataset.
 
 | Command | Files |
 | --- | --- |
 | `experiment.mjs run` — finite games and learners | `bridge`, `cliff-exploration`, `cue-memory`, `custom-bandit`, `inventory`, `maximization-bias`, `planning-budget`, `reward-memory`, `tiger` |
 | `experiment.mjs run` — control and screening | `cartpole`, `mountain-car`, `car-screen`, `pole-screen` |
 | `experiment.mjs run` — source runs, transfer and arenas | `dispatch-source`, `ledge-transfer`, `self-play`, `self-play-long` |
+| `experiment.mjs run` — additional learners | `cliff-linear`, `cliff-n-step`, `cliff-sarsa`, `cliff-td-lambda`, `clipped-pg-orchard`, `reinforce-orchard` |
+| `experiment.mjs run` — benchmark worlds and games | `probe-bandit`, `probe-catch`, `probe-deep-sea`, `probe-discount`, `probe-memory`, `probe-umbrella`, `toy-text`, `two-pile-nim` |
 | `experiment.mjs select` | `car-confirmation`, `pole-confirmation` |
 | `experiment.mjs assess` | `ledge-assessment`, `pole-checkpoint-assessment` |
 | `batch.mjs collect` | `dispatch-exploring`, `dispatch-narrow` |

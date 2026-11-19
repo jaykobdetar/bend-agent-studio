@@ -33,7 +33,7 @@ See [Studio crash recovery](README.md#if-studio-stops-during-training) for super
 
 ## Phase 1: laws (do these first)
 
-Context: `LAWS.bend` declares 41 laws and `PROOF.bend` proves each one. Laws should cover structure, accounting, and information flow. Do not attempt floating-point results (convergence, exact values, unbiasedness). Do not restate determinism, which purity gives, or hidden-state isolation, which the `Transition<O>` type already enforces. Host-side properties (seed blocks, storage, statistics) stay as Node tests.
+Context: `LAWS.bend` declares <!-- count:core-laws -->46<!-- /count --> laws and `PROOF.bend` proves each one. Laws should cover structure, accounting, and information flow. Do not attempt floating-point results (convergence, exact values, unbiasedness). Do not restate determinism, which purity gives, or hidden-state isolation, which the `Transition<O>` type already enforces. Host-side properties (seed blocks, storage, statistics) stay as Node tests.
 
 If Bend's `law` syntax cannot express a hypothesis (for example "for a key different from…"), use an unconditional special case or a guard expression, and record the limitation in a comment.
 
@@ -115,7 +115,7 @@ The bucket-count formula stays host-tested, because `actionBuckets` in `dataset.
 
 ## Phase 3: benchmark worlds
 
-Put generators in one script, for example `tools/benchmarks.mjs`, that writes JSON worlds into `worlds/benchmarks/`. Commit the generated files, and add a check that regenerates and compares them, as `memory_checks.mjs` does for the Tiger worlds. Record each world's oracle values in that check.
+Put generators in one script, where practical, that writes JSON worlds into `worlds/benchmarks/`. Commit the generated files, and add a check that regenerates and compares them, as `memory_checks.mjs` does for the Tiger worlds. Record each world's oracle values in that check.
 
 **B3.1. Gymnasium toy-text ports (M). Depends on P0.4 for acceptance.**
 - FrozenLake 4×4 and 8×8, slippery and not. Taxi. CliffWalking 4×12 (the current `cliff.bend` is a smaller 5×3 variant, so its numbers are not comparable to published ones). Blackjack, with the dealer drawing to 17 and Gymnasium's default flags.
