@@ -146,7 +146,7 @@ const post = (url, input) =>
 
 // A small, trusted archive lets the HTTP tests control exactly when a runner
 // starts and finishes without involving compiler speed or model size.
-async function mountedReplay(t, timeout, nodeVersion = process.versions.node) {
+async function mountedReplay(t, timeout, nodeVersion = process.versions.node, title = 'Study Name') {
   const home = await mkdtemp(path.join(os.tmpdir(), 'studio-replay-'));
   const dir = path.join(home, 'fixture');
   t.after(() => rm(home, { recursive: true, force: true }));
@@ -165,15 +165,16 @@ async function mountedReplay(t, timeout, nodeVersion = process.versions.node) {
   await writeFile(path.join(dir, 'code/experiment.mjs'), runner);
   await writeFile(path.join(dir, 'code/backend.mjs'), '');
   const manifest = seal({
-    plan: { name: 'fixture', games: [{ id: 'cliff' }], arms: [{ id: 'q' }], checkpoints: [0],
+    plan: { name: title, games: [{ id: 'cliff' }], arms: [{ id: 'q' }], checkpoints: [0],
       replicates: 1, validationEpisodes: 0, testEpisodes: 5 },
     toolchain: { node: nodeVersion, sources: { 'experiment.mjs': digest(runner) }, backend: digest('') }
   });
   await writeFile(path.join(dir, 'run.json'), manifest);
   const server = await start(home, ['--run', dir], { BEND_STUDIO_REPLAY_TIMEOUT_MS: String(timeout) });
-  const url = server.url + '/api/runs/import-' + JSON.parse(manifest).hash +
+  const id = 'import-' + JSON.parse(manifest).hash;
+  const url = server.url + '/api/runs/' + id +
     '/replay?game=cliff&arm=q&rep=0&point=0&phase=test&episode=';
-  return { server, dir, replay: (episode, options) => fetch(url + episode, options) };
+  return { server, dir, id, replay: (episode, options) => fetch(url + episode, options) };
 }
 async function waitForRunner(dir, episode) {
   for (let i = 0; i < 200; i++) {
@@ -196,9 +197,14 @@ function hasExited(pid) {
     return true;
   }
 }
-test('mismatched archived Node version gives an actionable conflict', async (t) => {
-  const { server, replay } = await mountedReplay(t, 30000, '24.0.0-test');
+test('attached archive is listed without complete checkpoints; a missing Node version gives an actionable conflict', async (t) => {
+  const { server, id, replay } = await mountedReplay(t, 30000, '24.0.0-test', 'abcd');
   try {
+    const listing = await (await fetch(server.url + '/api/runs')).json();
+    const item=listing.find(run => run.id === id);
+    assert.equal(item?.attached,true);
+    assert.equal(item.name,'abcd');
+    assert.match(item.id,/^import-[0-9a-f]{64}$/);
     const response = await replay(2);
     assert.equal(response.status, 409);
     assert.match((await response.json()).error, /24\.0\.0-test.*--replay-node/);

@@ -130,7 +130,7 @@ function describe(id) {
     manifest = unseal(path.join(dir, 'run.json')),
     p = manifest.body.plan;
   return {
-    ...(j ?? { id, status: 'ready', name: p.name, created: null }),
+    ...(j ?? { id, status: 'ready', attached: true, name: p.name, created: null }),
     ...readRunNotes(dir),
     nodeVersion: manifest.body.toolchain.node,
     games: p.games.map((g) => ({ id: g.id, symmetry: g.parameters?.symmetry })),

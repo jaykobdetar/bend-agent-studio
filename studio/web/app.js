@@ -334,7 +334,7 @@ function showRuns() {
       info = element('div');
     row.dataset.runId = run.id;
     info.append(element('strong', run.name));
-    const description = [
+    const description = run.attached ? ['Attached run', 'Checkpoint completeness not checked'] : [
       run.status === 'ready' ? 'Ready' : run.status === 'queued' ? 'Queued · position '+run.position : run.status,
       run.created ? new Date(run.created).toLocaleString() : 'Attached run'
     ];
