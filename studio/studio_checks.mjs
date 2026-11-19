@@ -658,7 +658,12 @@ test('comparison UI builds a line and interval per selected series, preserves he
   class Element {
     constructor(tag){this.tag=tag;this.children=[];this.attrs={};this.style={};}
     append(...nodes){this.children.push(...nodes);}
-    replaceChildren(...nodes){this.children=nodes;}
+    replaceChildren(...nodes){
+      if(this.children.some(n=>n.contains(document.activeElement)))document.activeElement=null;
+      this.children=nodes;
+    }
+    contains(node){return this===node||this.children.some(n=>n.contains(node));}
+    focus(options){document.activeElement=this;this.focusOptions=options;}
     setAttribute(k,v){this.attrs[k]=v;}
     all(tag){return [...(this.tag===tag?[this]:[]),...this.children.flatMap(c=>c.all(tag))];}
     text(){return (this.textContent??'')+this.children.map(c=>c.text()).join('');}
@@ -695,17 +700,25 @@ test('comparison UI builds a line and interval per selected series, preserves he
   assert.deepEqual(panel.all('li').map(el=>el.text()),labels.map(label=>label+' · 2 replicate(s)'));
 
   const go=panel.all('button')[0], chart=panel.all('svg')[0], extra={...native[0],id:'extra'};
-  refresh([...native,extra]); // An unrelated completion must not discard the current chart.
+  panel.all('input')[1].focus();
+  refresh([extra,...native]); // A new Ready run moves the focused checkbox to a new index.
   assert.equal(panel.all('svg')[0],chart);
+  assert.equal(document.activeElement,panel.all('input')[2]);
+  assert.equal(document.activeElement.checked,true);
+  assert.deepEqual(document.activeElement.focusOptions,{preventScroll:true});
+  go.focus();
   refresh([{...native[0],status:'unavailable'},native[1],extra]);
   assert.equal(panel.all('svg').length,0);
+  assert.equal(document.activeElement,go); // Refresh must not steal focus from outside the chooser.
   assert.deepEqual(panel.all('input').map(el=>el.checked),[true,false]);
   assert.equal(go.disabled,false); // Remaining selection can be compared immediately.
 
   pending=Promise.withResolvers();
   const reading=go.onclick();
+  panel.all('input')[1].focus(); // Removing that run must not focus a different checkbox.
   refresh([native[1]]); // Unrelated removal must not re-enable an in-flight comparison.
   assert.equal(go.disabled,true);
+  assert.notEqual(document.activeElement,panel.all('input')[0]);
   refresh([{...native[1],status:'unavailable'}]);
   assert.doesNotMatch(panel.text(),/Reading validation/);
   pending.reject(Error('old response'));await reading;

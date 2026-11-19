@@ -259,7 +259,7 @@ def main():
         parser.error("empty CSV")
     if "source_checkpoint" in rows[0] or "holdout_episodes" in rows[0]:
         if args.phase:
-            parser.error("deployment scores have a single evaluation phase")
+            parser.error("deployment scores have a single evaluation phase; omit --phase for this CSV")
         phase = "deployment"
         groups = deployment_groups(rows, args.metric)
         games = {r.get("target", r.get("game")) for r in rows}

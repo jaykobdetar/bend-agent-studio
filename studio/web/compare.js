@@ -78,12 +78,15 @@ export function comparisonUI(container,api) {
       // A result (or pending read) for a removed selection no longer represents the chooser.
       generation++;output.replaceChildren();go.disabled=!selected.size;
     }
-    const entries=[];
+    const focused=form.contains(document.activeElement)?document.activeElement.value:null;
+    const entries=[];let nextFocus;
     for(const r of runs)for(const a of r.arms){
-      const k=JSON.stringify([r.id,a]),label=E('label'),input=E('input');input.type='checkbox';input.checked=selected.has(k);
+      const k=JSON.stringify([r.id,a]),label=E('label'),input=E('input');input.type='checkbox';input.value=k;input.checked=selected.has(k);
+      if(k===focused)nextFocus=input;
       input.onchange=()=>{generation++;if(input.checked && selected.size>=limit){input.checked=false;output.replaceChildren(E('p','Compare at most eight series selections.'));}else{if(input.checked)selected.add(k);else selected.delete(k);output.replaceChildren();}go.disabled=!selected.size;};
       label.append(input,document.createTextNode(' '+seriesLabel(r,a)));entries.push(label);
     }
     form.replaceChildren(legend,...(entries.length?entries:[E('p','No ready runs to compare.')]));
+    nextFocus?.focus({preventScroll:true});
   };
 }
