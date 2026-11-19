@@ -324,7 +324,7 @@ export function clockOracle(world,horizon,{maxOccupancies=50000,maxPrescriptions
   return {horizon,discount,optimalClockReactiveReturn:result.value,occupanciesExamined:examined,prescriptionsExamined:prescriptions,policy};
 }
 
-function main(args) {
+export function main(args) {
   const [file,horizon,...options]=args;
   if (!file || horizon===undefined || options.length%2) throw Error('usage: node public_oracle.mjs WORLD HORIZON [--class history|clock] [--trace REPLAY.json] [--discount G] [--max-beliefs N] [--max-occupancies N] [--max-prescriptions N]');
   const settings={};

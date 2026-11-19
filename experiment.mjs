@@ -9,7 +9,10 @@ import {canonical,checkSeedBlocks,digest,games,seedOf,settings,trials,validate} 
 import {bundleAgent} from './agent_source.mjs';
 import {discountedOracle,bendSource,floatLiteral,numberPreservingJson,oracle,reactiveOracle,symbol,usesPackedWorld,worldDefinition} from './finite_world.mjs';
 
-const here = path.dirname(fileURLToPath(import.meta.url));
+// Both the live runtime and each sealed archive keep runner modules and the Bend
+// library adjacent. Archive keys remain flat names, never repository paths.
+const runnerDir = path.dirname(fileURLToPath(import.meta.url));
+const bendLibraryDir = runnerDir;
 const json = filename => JSON.parse(fs.readFileSync(filename,'utf8'));
 const manifestPath = root => path.join(root,'run.json');
 const train = {$:'Train'}, evaluate = {$:'Evaluate'};
@@ -118,7 +121,7 @@ function sourceFiles(plan) {
   const files=new Map();
   function add(name) {
     if (files.has(name)) return;
-    const bytes=fs.readFileSync(path.join(here,name));
+    const bytes=fs.readFileSync(path.join(name.endsWith('.bend') ? bendLibraryDir : runnerDir,name));
     files.set(name,bytes);
     for (const m of bytes.toString().matchAll(/^import (\.\/[\w./-]+\.bend) as /gm)) {
       add(path.join(path.dirname(name),m[1]));
@@ -315,7 +318,7 @@ function readPlanSource(config, guard = name => name) {
     if (g && Object.hasOwn(g,'worldFile')) {
       if (g.world!==undefined || g.file!==undefined || typeof g.worldFile!=='string') throw Error('game must select one world source');
       const {worldFile,...rest}=g;
-      return {...rest,world:bundleAgent(guard(path.resolve(path.dirname(config),worldFile)),here,guard)};
+      return {...rest,world:bundleAgent(guard(path.resolve(path.dirname(config),worldFile)),bendLibraryDir,guard)};
     }
     if (!g || !Object.hasOwn(g,'file')) return g;
     if (g.definition!==undefined || typeof g.file!=='string') throw Error('game must supply one definition or file');
@@ -327,7 +330,7 @@ function readPlanSource(config, guard = name => name) {
     if (!a || !Object.hasOwn(a,'agentFile')) return a;
     if (a.agent!==undefined || typeof a.agentFile!=='string') throw Error('arm must select one agent source');
     const {agentFile,...rest}=a;
-    return {...rest,agent:bundleAgent(guard(path.resolve(path.dirname(config),agentFile)),here,guard)};
+    return {...rest,agent:bundleAgent(guard(path.resolve(path.dirname(config),agentFile)),bendLibraryDir,guard)};
   });
   return input;
 }
@@ -379,7 +382,7 @@ async function frozen(root) {
   const tc=manifest.body.toolchain;
   if (tc.node!==process.versions.node) throw Error('this experiment used Node '+tc.node);
   for (const name of ['experiment.mjs','experiment_config.mjs','finite_world.mjs','packed_world.mjs','agent_source.mjs','process_output.mjs']) {
-    if (digest(fs.readFileSync(path.join(here,name)))!==tc.sources[name]) {
+    if (digest(fs.readFileSync(path.join(runnerDir,name)))!==tc.sources[name]) {
       throw Error('use the archived runner: node '+path.join(root,'code','experiment.mjs')+' resume '+root);
     }
   }
@@ -594,7 +597,7 @@ function status(root,verify=false) {
 
 function report({name,finished,created}) { console.log(name+': '+finished+' trials visited, '+created+' checkpoints written.'); }
 
-async function main(argv) {
+export async function main(argv) {
   const [cmd,arg,...rest]=argv;
   if (cmd==='validate'&&arg&&rest.length===0) {
     const p=readPlan(arg); console.log('Valid plan: '+p.name+', '+p.games.length*p.arms.length*p.replicates+' trials.'); return;

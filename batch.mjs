@@ -11,7 +11,7 @@ import {stepEstimates,fitQEvaluation} from './ope.mjs';
 import {existing,adapterName,immutable,json,record,seal,stats,unseal} from './experiment.mjs';
 import {actionBuckets,archive,collect,fields,id,openDataset,seedAllocation,uint} from './dataset.mjs';
 
-const here=path.dirname(fileURLToPath(import.meta.url));
+const bendLibraryDir=path.dirname(fileURLToPath(import.meta.url));
 const methods={behavior_cloning:'Clone',fitted_q:'Fitted',supported_fitted_q:'Supported'};
 const evaluation={$:'Evaluate'};
 function list(xs) {
@@ -47,7 +47,7 @@ async function compiler(bend, output) {
   try {
     const hashes={};
     for (const name of ['offline.bend','engine.bend','tabular.bend','dyna.bend']) {
-      const bytes=fs.readFileSync(path.join(here,name));
+      const bytes=fs.readFileSync(path.join(bendLibraryDir,name));
       fs.writeFileSync(path.join(temp,name),bytes);
       hashes[name]=digest(bytes);
     }
@@ -178,7 +178,7 @@ async function score(root, data, fitted, config, output) {
   console.log(spec.name+': '+(lines.length-1)+' paired policy scores.');
 }
 
-async function main(args) {
+export async function main(args) {
   const [cmd,...paths]=args;
   if (cmd==='collect' && paths.length===3) return collect(...paths.map(p=>path.resolve(p)));
   if (cmd==='fit' && (paths.length===3 || paths.length===5 && paths[3]==='--bend')) {

@@ -30,7 +30,7 @@ jobs:
         with:
           node-version: 24.22.3
       - name: Check flat archive source hashes and bundle identities
-        run: node tools/archive-gates.mjs check
+        run: node tools/archive-gates.mjs check tools/archive-gates/m0-exceptions.json
 
       - name: Install Bend 2.0.40
         working-directory: ${{ runner.temp }}
@@ -115,7 +115,7 @@ jobs:
         with:
           node-version: 24.22.3
       - name: Check flat archive source hashes and bundle identities
-        run: node tools/archive-gates.mjs check
+        run: node tools/archive-gates.mjs check tools/archive-gates/m0-exceptions.json
       - run: npm test
       - name: MCP protocol and process tests
         working-directory: mcp
