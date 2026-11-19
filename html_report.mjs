@@ -26,7 +26,9 @@ export async function writeReport(root,out){
   const tmp=fs.mkdtempSync(path.join(os.tmpdir(),'bend-report-'));
   try{
     const csv=path.join(tmp,'metrics.csv');fs.writeFileSync(csv,exportCsv(root));
-    const body=['<h1>'+esc(p.name)+'</h1><p>Run <code>'+esc(m.hash)+'</code></p>'];
+    const unit=p.budgetUnit==='steps'?'accepted steps':'episodes';
+    const body=['<h1>'+esc(p.name)+'</h1><p>Run <code>'+esc(m.hash)+'</code></p>',
+      '<p>Training budget: '+unit+'. Charts and tables show mean return for each arm, not paired differences. Intervals, when present, are pointwise 95% bootstrap intervals across trained replicates.</p>'];
     for(const phase of ['validation','test']){
       body.push('<h2>'+phase+' return</h2>');
       if(!p[phase+'Episodes']){body.push('<p>No episodes in this phase.</p>');continue;}

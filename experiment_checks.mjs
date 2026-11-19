@@ -129,6 +129,9 @@ test('mid-episode pause preserves every update, horizon and replayed prefix',com
   await invoke('run',cfg,two,'--bend',bend);
   const direct=readFinal(two);
   for (const k of ['partial','model','train','validation','test']) assert.deepEqual(result[k],direct[k]);
+  const html=path.join(d,'steps-report.html');
+  await invoke('report',one,html);
+  assert.match(fs.readFileSync(html,'utf8'),/Training budget: accepted steps\./);
 });
 
 test('screening uses validation only and confirmation seed reuse is rejected',compilerTest,async t=>{
@@ -192,6 +195,8 @@ test('portable report embeds analyze.py rows and exact finite-world replay decis
   const p=plan({games:[{id:'bridge',definition:read(path.join(here,'worlds','bridge.json')),limit:2}],replicates:1,checkpoints:[0,2]});
   write(file,p);await invoke('run',file,root,'--bend',bend);await invoke('report',root,out);
   const html=fs.readFileSync(out,'utf8');
+  assert.match(html,/Training budget: episodes\./);
+  assert.match(html,/not paired differences.*pointwise 95% bootstrap intervals across trained replicates/);
   assert.match(html,/<svg /);assert.doesNotMatch(html,/<line x1=/);assert.match(html,/Full-state optimum: 2; uniform baseline: 1.5/);
   assert.match(html,/Best test episode/);assert.match(html,/Worst test episode/);assert.match(html,/Decision gap/);
   assert.doesNotMatch(html,/<script\b|\b(?:src|href)\s*=/i);

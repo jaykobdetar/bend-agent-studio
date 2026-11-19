@@ -35,9 +35,9 @@ python3 analyze.py bridge.csv --reference random
 node runs/bridge/code/experiment.mjs replay runs/bridge bridge q 0 256 test 0
 ```
 
-A complete run has 24 trials (three arms × eight replicates) and 72 checkpoints. `verify` reports these counts; `export` writes one row per checkpoint, plus the CSV header. With `--reference random`, the analysis estimates paired differences from the random arm, not absolute returns.
+A complete run has 24 trials (three arms × eight replicates) and 72 checkpoints. `verify` reports these counts; `export` writes one row per checkpoint, plus the CSV header. With `--reference random`, the analysis estimates paired differences from the random arm, not absolute returns. It defaults to the final held-out test checkpoint; add `--phase validation` to compare at every checkpoint.
 
-To save a standalone HTML report of the validation and test returns, run `node experiment.mjs report runs/bridge bridge-report.html` and open the resulting file in a browser.
+To save a standalone HTML report of absolute validation and test returns by arm, run `node experiment.mjs report runs/bridge bridge-report.html` and open the resulting file in a browser.
 
 The bridge has two choices. The safe choice ends the game with one point. The risky choice leads to a second move and has expected return two. Run `node experiment.mjs oracle worlds/bridge.json 2` to compute the optimal full-state return and the uniform baseline from the transition probabilities.
 
@@ -245,9 +245,11 @@ Local readers with access to the run can see them; do not store secrets here.
 From the current checkout run `node experiment.mjs report RUN OUT.html` using
 the Node version recorded by the run and Python 3 (override with `PYTHON`).
 For complete runs this writes one new file with inline validation/test charts,
-the corresponding `analyze.py` return estimates and bootstrap intervals, and
-authored finite-world oracle baselines. For each such game it scans every final
-test score across arms and replicates and explains the highest and lowest
+per-arm return estimates and pointwise bootstrap intervals, and authored
+finite-world oracle baselines. The report labels the training budget unit and
+shows absolute returns; use `analyze.py --reference` after exporting for paired
+differences. For each authored finite world it scans every final test score
+across arms and replicates and explains the highest and lowest
 episode from its archived backend. Ties use plan order, replicate, then episode
 index. The public-history explanation is distinct from the full-state optimum.
 Unrecorded phases are marked. Large test sets take longer; an oracle budget
