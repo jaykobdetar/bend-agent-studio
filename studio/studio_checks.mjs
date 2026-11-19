@@ -9,7 +9,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { setTimeout as delay } from 'node:timers/promises';
 import { worlds } from './catalog.mjs';
-import { boardStates, cumulativeReturns, observation, replaySelection } from './web/scene.js';
+import { boardStates, cumulativeReturns, observation, replayChoice, replaySelection } from './web/scene.js';
 import { replayFilename, timeline } from './web/exporter.js';
 import { Gif } from './web/gif.js';
 import { seal } from '../experiment.mjs';
@@ -36,6 +36,15 @@ test('every visual example is a frozen, continuous Bend evaluation episode', asy
     assert.deepEqual(observation(t, t.steps), t.frames.at(-1).nextObservation);
   }
 });
+test('replay chooser retains available arm identities and falls back to the first available', () => {
+  // A saved discount study uses these same two arm IDs in both environments.
+  const arms = ['myopic', 'patient'];
+  assert.equal(replayChoice(arms, ''), 'myopic');
+  assert.equal(replayChoice(arms, 'patient'), 'patient');
+  assert.equal(replayChoice(['myopic'], 'patient'), 'myopic');
+  assert.equal(replayChoice([], 'patient'), '');
+});
+
 test('replay picker preserves matched evaluation coordinates and only falls back when necessary', () => {
   const run = { checkpoints: [0, 32, 256], validation: 32, test: 128 };
   const at = (point, phase, episode) => replaySelection(run, String(point), phase, String(episode));

@@ -1,5 +1,5 @@
 import { comparisonUI } from './compare.js';
-import { actionName, boardStates, channels, cumulativeReturns, draw, gameName, observation, replaySelection, tickRate } from './scene.js';
+import { actionName, boardStates, channels, cumulativeReturns, draw, gameName, observation, replayChoice, replaySelection, tickRate } from './scene.js';
 import { renderGif, replayFilename } from './exporter.js';
 import { deleteClip, listClips, saveClip } from './vault.js';
 
@@ -507,11 +507,11 @@ function openDialog(run) {
   box.append(group);
   const note = element('p', '', 'dialog-note');
   box.append(note);
-  const agents = () =>
-    choices(
-      arm,
-      run.arms.map((a) => [a, algoName(game.value, a)])
-    );
+  const agents = () => {
+    const selected = replayChoice(run.arms, arm.value);
+    choices(arm, run.arms.map((a) => [a, algoName(game.value, a)]));
+    arm.value = selected;
+  };
   const syncEvaluation = () => {
     const next = replaySelection(run, point.value, phase.value, ep.value);
     choices(phase, next.phases.map((p) => [p, friendlyPhase(p)]));
