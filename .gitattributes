@@ -2,3 +2,15 @@
 # Generated benchmark fixtures are byte-checked, including on Windows.
 worlds/benchmarks/probes/*.json text eol=lf
 experiments/probe-*.json text eol=lf
+
+# Exact source bytes are included in sealed run archives and bundle IDs.
+# Other checkout files keep their existing end-of-line settings.
+*.bend text eol=lf
+agent_source.mjs text eol=lf
+assessment.mjs text eol=lf
+experiment.mjs text eol=lf
+experiment_config.mjs text eol=lf
+finite_world.mjs text eol=lf
+packed_world.mjs text eol=lf
+parallel_trials.mjs text eol=lf
+process_output.mjs text eol=lf

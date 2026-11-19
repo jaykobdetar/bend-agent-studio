@@ -1,0 +1,479 @@
+{
+  "schema": 1,
+  "commonSources": {
+    "actor_critic.bend": "186db86cb6cc2643f2bab862241bd7361521f6623c7e8f7d730f5bb54b2b7b8c",
+    "agent_source.mjs": "8c22a32b67b127481ed3e5684ccee502676e34484911dc102e250969dd05f605",
+    "assessment.mjs": "3cdc8eb0228395a05557e6e492c69ecaf1b82c89d2c16a124f1530b9f963b990",
+    "cartpole.bend": "fe66ef1aec328176db348f5e44593d0a44bcd2ee42e06ef4562cb5c999d05d4f",
+    "cliff.bend": "68db94ba29764f3daad7e9534589f52fba5a046291564f433705d90cd8c9fc2a",
+    "cursor.bend": "862dd46de47e361b5cb73fa98a1b9ae6ddfae6d84dceca1ae86490648bc2ba64",
+    "doors.bend": "46ccc0523160c084afa69970527447dff7ac13406146ab6d8ba0cd1edc11daf0",
+    "double_q.bend": "5be9f14442d6a6c9555554289f501085067c43f55509be648c6623baa2c28421",
+    "dyna.bend": "db201278b4b5548f01b31faf9ac669955baae34e769118bfce1f0f331bc8629e",
+    "engine.bend": "3161c13e65327a74b3d41b6de38128066465421bee84dc2cd3c3cbbe9b90c6b7",
+    "experiment.mjs": "113878065ce039b386daf57afd41671579866ab232ad22ed36c8e7febf46e492",
+    "experiment_config.mjs": "be680f550044e976f5af046f01f2f28600c8b111b6c60b0bc946b0d4bec797b0",
+    "ferry.bend": "190b45312c5604336f4c345d0ef3f67ef0fd943dac0dc967a7ec8c7b9eebcf9c",
+    "finite.bend": "bee3d645069c57c707180e567408b52eb7289283528dd6d044a8a8636d2af2ae",
+    "finite_world.mjs": "5f52ee64613a5741026f60747ef355bbe1b299510305285d8790479c0c489cee",
+    "history.bend": "2e09f93f19aa5d19fa667cdd36c174f26547f18243d88ce265603c90fd2850a9",
+    "key_maze.bend": "1686ac7e99481b8f3b8c8db46866ee536e13a8f14d3336e5875fbc94507424f9",
+    "logged.bend": "001261703d1c15f0e9f6d089fb2493385f805c88a0097e774a01ce6ef99e9c85",
+    "mountain_car.bend": "922d459b43b6158436b35af0d8ea58657d6f96ae0978c7f4d7cad252e163580e",
+    "noisy_fork.bend": "928064f593be348cb44441fc24fcdaa0b5ff5d04741690000192d26d1f4c1231",
+    "offline.bend": "d1df014881ade9c7766b79e9ab73d7d65643ee0472f5d7709c736ee60cc14c34",
+    "orchard.bend": "f10c95ea4376f36b40ce1fae560164491b957957ba2af6f57235689e9b038d98",
+    "packed_world.mjs": "5c090fa3961aa4e94fb5630fdbb80019495171cb8baf2c8140b07408e1f35d70",
+    "parallel_trials.mjs": "352660cfda55b6ae96df4fc8d36481756362c1e08f10be824f857f529669ed29",
+    "parameters.bend": "0bb54598c0c556e201e8415ce02f501a21098d4dce4f6c5f570280329027754b",
+    "process_output.mjs": "f9cd711e2e2cdf338c5b5f5bd8eb10b05cb02256fb42dee5273c26d9cd7ac6cd",
+    "tabular.bend": "9d213f6f52608332d199de43c864d45e2a9b460cc4b01da8eaaa034cc5a3ffa7",
+    "tile_control.bend": "a7fd8fdc5635095f994ed2c56c07a78837fc8d3e953ba5248161235d13da32d3",
+    "weights.bend": "4ddc2b0d2e88dc490a3524f83417632c62bf294ad3973fea0838dbe83fcfbce8"
+  },
+  "plans": {
+    "experiments/bridge.json": {
+      "plan": "8058a1f5e3f186da353a3c417c91075c23df6c637bb9ae909cfb1918fa75bc48",
+      "sources": {
+        "scene_6706f8b394046732a228.bend": "788c9498eff87b09da3e274eb34b221765acb446ebd915a0b914800e8b4615a9",
+        "study.bend": "ef4ef9985817b248042717b7d8ed68266b1a2171b4178b96fe504329cfaf4d74"
+      },
+      "bundles": {}
+    },
+    "experiments/car-screen.json": {
+      "plan": "7d1bb8a7191479676c31d3bbdfe1b7aea747f9808cf4b769e1ed613495d61fde",
+      "sources": {
+        "study.bend": "4b0259addae4fd80626248f723c924765b7472cd8a8db67c7d2bc1d7b17fb366"
+      },
+      "bundles": {}
+    },
+    "experiments/cartpole.json": {
+      "plan": "661a0a92f867506c13f276e81219d770e93dd63804f3f66120ead4cd1b6d3d9f",
+      "sources": {
+        "study.bend": "fd3411a78349d65977d8709c56ff13cc141d562774329d7cd5ea456c2e4e0fd1"
+      },
+      "bundles": {}
+    },
+    "experiments/cliff-exploration.json": {
+      "plan": "5cfdc8e07883a641da80dca602d7aec4598c30d1694b08df0b5089e987c6306a",
+      "sources": {
+        "study.bend": "1004f3cd3675c94ea4573d994a96ff51dfacaf1f6f8838ef0527e989e1b177ae"
+      },
+      "bundles": {}
+    },
+    "experiments/cliff-linear.json": {
+      "plan": "93688da81ee1e2a1a02d0e4b681736f6797772e1d2e8ccc61622dedf38937d97",
+      "sources": {
+        "agent_3e7d342b99e01a8ce76c271c543a0cd1.bend": "3e7d342b99e01a8ce76c271c543a0cd12e88c8f9b15cf6846e0d7d416ecdd7da",
+        "agent_7b989722d055f0280ce7bc4d9144a093.bend": "7b989722d055f0280ce7bc4d9144a0934f4f250d1c1ee378dcae0880ec1b65dc",
+        "study.bend": "3ad1d6c3ebb3756baad1e9b5fcec3022f962859dddedce31d06547dcf9bf8d73"
+      },
+      "bundles": {
+        "arms/linear": {
+          "entry": "agent_7b989722d055f0280ce7bc4d9144a093",
+          "files": {
+            "agent_3e7d342b99e01a8ce76c271c543a0cd1.bend": "3e7d342b99e01a8ce76c271c543a0cd12e88c8f9b15cf6846e0d7d416ecdd7da",
+            "agent_7b989722d055f0280ce7bc4d9144a093.bend": "7b989722d055f0280ce7bc4d9144a0934f4f250d1c1ee378dcae0880ec1b65dc"
+          }
+        }
+      }
+    },
+    "experiments/cliff-n-step.json": {
+      "plan": "54ec07b72a2eaae92e2d1eb6f454adff87bc55553033d13cd687e0ad9eef2c03",
+      "sources": {
+        "agent_0301f537a09239c0db386cab66fc9f80.bend": "0301f537a09239c0db386cab66fc9f8076779f0d5f82bb0458dac196b4e7251c",
+        "agent_a1e81b7f9a0a0e796bde2780170ca983.bend": "a1e81b7f9a0a0e796bde2780170ca983db718ab3802427a79cbe4d212d3dd6f2",
+        "study.bend": "575b5ee595e9fe168078a1fec3c980b4c4eb362f467bdd8ea0d44ce821928210"
+      },
+      "bundles": {
+        "arms/n-step": {
+          "entry": "agent_a1e81b7f9a0a0e796bde2780170ca983",
+          "files": {
+            "agent_0301f537a09239c0db386cab66fc9f80.bend": "0301f537a09239c0db386cab66fc9f8076779f0d5f82bb0458dac196b4e7251c",
+            "agent_a1e81b7f9a0a0e796bde2780170ca983.bend": "a1e81b7f9a0a0e796bde2780170ca983db718ab3802427a79cbe4d212d3dd6f2"
+          }
+        }
+      }
+    },
+    "experiments/cliff-sarsa.json": {
+      "plan": "ce6dc68f04540a8343eafe3a6953d788d9b23d08875f1f2792de649642602d4c",
+      "sources": {
+        "agent_5d65f3da0d3c2628a6e6f8b5eadbc716.bend": "5d65f3da0d3c2628a6e6f8b5eadbc71665ea482b27f5db6e92a6016460953e76",
+        "study.bend": "a47efd2819da8acaaddf59aec0ce7090a1eb5111ba51b92a93ec3fbe3248a0fc"
+      },
+      "bundles": {
+        "arms/sarsa": {
+          "entry": "agent_5d65f3da0d3c2628a6e6f8b5eadbc716",
+          "files": {
+            "agent_5d65f3da0d3c2628a6e6f8b5eadbc716.bend": "5d65f3da0d3c2628a6e6f8b5eadbc71665ea482b27f5db6e92a6016460953e76"
+          }
+        }
+      }
+    },
+    "experiments/cliff-td-lambda.json": {
+      "plan": "90877a3c1494d08a81d454e8e72729efd345158131b61b5303ad5730d1a403b9",
+      "sources": {
+        "agent_0301f537a09239c0db386cab66fc9f80.bend": "0301f537a09239c0db386cab66fc9f8076779f0d5f82bb0458dac196b4e7251c",
+        "agent_5cfca71b8557ced796203e9b22e8611a.bend": "5cfca71b8557ced796203e9b22e8611a646bd31692bb5346fc366e2315238b13",
+        "study.bend": "7a4c1422481d0bbfd87f912aad9c959d779e85827170eec25b7f7c901bd6238a"
+      },
+      "bundles": {
+        "arms/linear-trace": {
+          "entry": "agent_5cfca71b8557ced796203e9b22e8611a",
+          "files": {
+            "agent_0301f537a09239c0db386cab66fc9f80.bend": "0301f537a09239c0db386cab66fc9f8076779f0d5f82bb0458dac196b4e7251c",
+            "agent_5cfca71b8557ced796203e9b22e8611a.bend": "5cfca71b8557ced796203e9b22e8611a646bd31692bb5346fc366e2315238b13"
+          }
+        },
+        "arms/tabular-trace": {
+          "entry": "agent_5cfca71b8557ced796203e9b22e8611a",
+          "files": {
+            "agent_0301f537a09239c0db386cab66fc9f80.bend": "0301f537a09239c0db386cab66fc9f8076779f0d5f82bb0458dac196b4e7251c",
+            "agent_5cfca71b8557ced796203e9b22e8611a.bend": "5cfca71b8557ced796203e9b22e8611a646bd31692bb5346fc366e2315238b13"
+          }
+        }
+      }
+    },
+    "experiments/clipped-pg-orchard.json": {
+      "plan": "7308919078c89ddfc419c65b7e19e2f48d4112d562e50d992fc25b06a471bbef",
+      "sources": {
+        "agent_26826c881b4f26d6fc1c429b77db5931.bend": "26826c881b4f26d6fc1c429b77db5931f2c4f62bd961d8971a824083b7bbb469",
+        "agent_b46df80ff230fda97a364011f40c7fa9.bend": "b46df80ff230fda97a364011f40c7fa96daba6a73720ed070c88711d9b0a8925",
+        "study.bend": "653cab02c1e54b3fa5ef8247484a2c953a695eff1fa591cc030961088af59c1c"
+      },
+      "bundles": {
+        "arms/clipped-pg": {
+          "entry": "agent_26826c881b4f26d6fc1c429b77db5931",
+          "files": {
+            "agent_26826c881b4f26d6fc1c429b77db5931.bend": "26826c881b4f26d6fc1c429b77db5931f2c4f62bd961d8971a824083b7bbb469",
+            "agent_b46df80ff230fda97a364011f40c7fa9.bend": "b46df80ff230fda97a364011f40c7fa96daba6a73720ed070c88711d9b0a8925"
+          }
+        }
+      }
+    },
+    "experiments/cue-memory.json": {
+      "plan": "11b6aa997ab7084baef6e20c940b2501fdcfcdb3aef54510b0f3db0222915c27",
+      "sources": {
+        "scene_1e95388a11fe1433f0d7.bend": "924f74d089ac68e7f2dbe0a92bfedab57bf422ff7f366af346c8a1a6ed889c7c",
+        "study.bend": "9031f9a1ec1af73b4977cfa84a71a0e13bd415c15e6521e0e801f5fdd7a31acb"
+      },
+      "bundles": {}
+    },
+    "experiments/custom-bandit.json": {
+      "plan": "db6dfaba143c601c7b2fbb763af97bbe5e4ed551a6a3904c3098a80639a5a9e0",
+      "sources": {
+        "agent_a2ff0c6469de40a9a79864582b707e32.bend": "a2ff0c6469de40a9a79864582b707e3236f1be684b4f68de4dae7a5e248e9c33",
+        "study.bend": "cc6200f852b3a421eb34d1fe3b3952d338c4b20a6209ba119cafb645a92d2c99"
+      },
+      "bundles": {
+        "arms/ucb": {
+          "entry": "agent_a2ff0c6469de40a9a79864582b707e32",
+          "files": {
+            "agent_a2ff0c6469de40a9a79864582b707e32.bend": "a2ff0c6469de40a9a79864582b707e3236f1be684b4f68de4dae7a5e248e9c33"
+          }
+        }
+      }
+    },
+    "experiments/dispatch-source.json": {
+      "plan": "d75825fa0fd47851cd78b7ac9cf745f5ce20ef0bbab05793915523984e2363af",
+      "sources": {
+        "scene_43c047f135074cf692ba.bend": "92cc2682693057276d73c14ddd25782cc6df682710994930897707146fe169a7",
+        "study.bend": "3c34a08d6a0946a2369edc428faad0c10762d19b145011103be7cad030fcbfa6"
+      },
+      "bundles": {}
+    },
+    "experiments/inventory.json": {
+      "plan": "e7134c8cbf63ff0b1f416a8acf3e62384c8e99642486c56f501fc3ceb3f582af",
+      "sources": {
+        "agent_8fad9f3430a0efaeffc7088301400098.bend": "8fad9f3430a0efaeffc70883014000985c226aa027ac3daa381fc97ecd738760",
+        "study.bend": "6a5b1811d277c815af7840312196ae27272e0f446e6ee1638ca36355df5b6da1"
+      },
+      "bundles": {
+        "games/weekly-stock": {
+          "entry": "agent_8fad9f3430a0efaeffc7088301400098",
+          "files": {
+            "agent_8fad9f3430a0efaeffc7088301400098.bend": "8fad9f3430a0efaeffc70883014000985c226aa027ac3daa381fc97ecd738760"
+          }
+        }
+      }
+    },
+    "experiments/ledge-transfer.json": {
+      "plan": "e097589fedbd69ffacef16c1f3836d371b894bc556572a87f13ee065b629fea5",
+      "sources": {
+        "scene_4db2d6af705e7a3832a9.bend": "aa621a6c78af57560177603d2b3204a8d3116f4454d0b93bbc3f28f1d664b4ab",
+        "scene_662629be1a1e9fc6e685.bend": "f572df776e9dc24dc121948ce54fb0971699dcf844557137d98e0dce9e422b5d",
+        "scene_8f93297821872294e0f9.bend": "d0e66656ec581bf389ee1b21343203b1f9ac2f586e51db00f15b38e413cdf592",
+        "scene_fbe8745c01e79dc786d2.bend": "17456764d5082c4f20793fb50b2b89b1867086ae6cce0c31dcb0670d50b24aba",
+        "study.bend": "9a7efe4d3ddb16cf18bbf168c8bb7b07ed37a8755be752d53e8e46fc9f0ddad2"
+      },
+      "bundles": {}
+    },
+    "experiments/maximization-bias.json": {
+      "plan": "1911cdca66cbfde31e0c4b5181fcdbf67e7af2abc87bdb251fbc343b0083c7ec",
+      "sources": {
+        "study.bend": "db04abaae610b174697e49ed5382492043f8ac7fc10b1aac196c24c2d3092049"
+      },
+      "bundles": {}
+    },
+    "experiments/mountain-car.json": {
+      "plan": "3348133ba984c9d69e28d215767985e80d2bd92f772fdcf6398382bbf3c0859f",
+      "sources": {
+        "study.bend": "4b0259addae4fd80626248f723c924765b7472cd8a8db67c7d2bc1d7b17fb366"
+      },
+      "bundles": {}
+    },
+    "experiments/planning-budget.json": {
+      "plan": "5931b4965241f2ec12cce46c226c09c7946b4769a08edd30865ef11a97081d7a",
+      "sources": {
+        "scene_7eb81ac0b2dd5694af08.bend": "10cedaebd776709460255e8ff044087b29836f45ede0df1f954d615ca6be4072",
+        "scene_f1d94dc86febba6c166a.bend": "50cc8906cfc549fff5049055e9ff90b9cbf8adc9b0c65bea2a804c766c47bef7",
+        "study.bend": "b6938985f5ba6066e9ff425e0c3124f3f7e37fa3229a7e9d430ec6c818aabd12"
+      },
+      "bundles": {}
+    },
+    "experiments/pole-screen.json": {
+      "plan": "2251ac32dd9888082ac40ce4dea707405453c639c753972ba705aec5c3f0f916",
+      "sources": {
+        "study.bend": "fd3411a78349d65977d8709c56ff13cc141d562774329d7cd5ea456c2e4e0fd1"
+      },
+      "bundles": {}
+    },
+    "experiments/probe-bandit.json": {
+      "plan": "f00210d1e63a0dc4f887dc64d83b090354c74442a9a3960f7878472ae8f772a8",
+      "sources": {
+        "scene_c6b2d71fe13419da334b.bend": "0fd5259adfea8b787af568e2251ee581cee81fb039902289dcb8ba3c885490f3",
+        "scene_ec21756febcafbae7005.bend": "063cfeb9ee3dfbcced034874166bcbb93555f573bf65f779a3dda83fc435bb7e",
+        "study.bend": "fbe5b78781a1647a924170910b0ace8a69102719fbc3fecefbed16160a46d12b"
+      },
+      "bundles": {}
+    },
+    "experiments/probe-catch.json": {
+      "plan": "6a73da4fa453c1f8f8613ecd8126d67a19dbf2ae10d058c40ab885c8cae57a57",
+      "sources": {
+        "scene_39c865f7a4ca167b539c.bend": "9b9f623085b788f04230e92dbcb8385761255ccc9f7114a5a57618f7dc49e007",
+        "scene_ff5bf6c13400489617fb.bend": "7c54f82ae7d1d2197900c8e29ea34a24b37e0938b936075bf3f11ced50c5e566",
+        "study.bend": "4ed43f89051e7c5e660c79a93dbf3afb6981e8b090a15eef36d3a43a0c46605f"
+      },
+      "bundles": {}
+    },
+    "experiments/probe-deep-sea.json": {
+      "plan": "8dcac2e921a00f8c0700ecd2c00e4dd8bd54509d193477e7e8f4976ea21cebf1",
+      "sources": {
+        "scene_c8dca6de6642bf513096.bend": "c6770394c9dd6553fdccfb8b9bc3b68b88f2470940f1e8b8773dd4508400042c",
+        "scene_e2c4041cd362c7aff59d.bend": "ee5985574127fa92b3d30a9cd4e7a2787549d9df7b7c6881d2b7726e11a528b5",
+        "study.bend": "7ac388e8885e394c66cc7cbd9ef2f7a788aebfa0714a214eb3f6796648f7b498"
+      },
+      "bundles": {}
+    },
+    "experiments/probe-discount.json": {
+      "plan": "06aad8a12c149f4018ff9e85df06e59adb62d093f6bca19f2c3b7393aa21b409",
+      "sources": {
+        "scene_033468c4b63781a1eb1d.bend": "83cd922f27245b6d4dff5ee9223ef019a64f471729a226de75dfae5ef5e4f400",
+        "scene_e5f1f11dcb8a364d8e47.bend": "6dd4b15203acc2a116300e0c9c6168499ec8c6cf02fe45dac6fc9f5c8182bf6b",
+        "study.bend": "be11c5226fc921374d0e39d9f4f8e2ec88f21b2f19c80b3a9da959ba63bcab9e"
+      },
+      "bundles": {}
+    },
+    "experiments/probe-memory.json": {
+      "plan": "bd0d23d63f63abe272ba86797a76e9559562d81d8d923f46e1cdfa14926060d5",
+      "sources": {
+        "scene_037d6d3eeb78dc76a83b.bend": "f702cf1d5c4cdf6e732d7f13b58bf5cc3f352b3cce1a74582910de32fca81d21",
+        "scene_3d0a12801f2aae3da84c.bend": "f358dadc38e5d9ba55287767b052e64abdb5d45115575d3322d107d3be888d96",
+        "study.bend": "58fdc921e2c7096629643eee06c16cd43061410d272db9b32b4cf5e7f9290533"
+      },
+      "bundles": {}
+    },
+    "experiments/probe-umbrella.json": {
+      "plan": "c922fa45f289df60c1484aa4a7325e10efac1bec712611733d07d19fcad1a463",
+      "sources": {
+        "scene_026842f83831ca96ac98.bend": "e55192b60ed6bdc61807a7a93b42448ff1e6ec811515fa0533077100c8dc5a67",
+        "scene_5095f2dbe76bff885941.bend": "a2f24d019b98cd48339a5eaa537789a1aea29c95e26516e28c73c96f42a10055",
+        "study.bend": "7ab41dd6ac3dcf2cbc617160faa09c163d886bd3af933ccac07b2ad4f0f4751c"
+      },
+      "bundles": {}
+    },
+    "experiments/reinforce-orchard.json": {
+      "plan": "0911dd63019c515fa9bf6a85352ac69b884492cb18b2ee4688dcb55860c61d10",
+      "sources": {
+        "agent_b46df80ff230fda97a364011f40c7fa9.bend": "b46df80ff230fda97a364011f40c7fa96daba6a73720ed070c88711d9b0a8925",
+        "study.bend": "6b60f8aaf92bcc93724d0a5c801880b63471616cbb97d7bbd20e017acc226bc2"
+      },
+      "bundles": {
+        "arms/reinforce": {
+          "entry": "agent_b46df80ff230fda97a364011f40c7fa9",
+          "files": {
+            "agent_b46df80ff230fda97a364011f40c7fa9.bend": "b46df80ff230fda97a364011f40c7fa96daba6a73720ed070c88711d9b0a8925"
+          }
+        }
+      }
+    },
+    "experiments/reward-memory.json": {
+      "plan": "e3d99268fc2040e9379c1d7f0087be74af85f54bef22f27ec4fb93b75ee98759",
+      "sources": {
+        "agent_8fdb35d498d1974952b6706b5ce28ed7.bend": "8fdb35d498d1974952b6706b5ce28ed7b6e8a626f5d9da142d50f5f344203dac",
+        "study.bend": "2c206388c5dd4a883cb313be50cc3108672d46693ff5f979bf101eafab999074"
+      },
+      "bundles": {
+        "games/remember-reward": {
+          "entry": "agent_8fdb35d498d1974952b6706b5ce28ed7",
+          "files": {
+            "agent_8fdb35d498d1974952b6706b5ce28ed7.bend": "8fdb35d498d1974952b6706b5ce28ed7b6e8a626f5d9da142d50f5f344203dac"
+          }
+        },
+        "games/visible-only": {
+          "entry": "agent_8fdb35d498d1974952b6706b5ce28ed7",
+          "files": {
+            "agent_8fdb35d498d1974952b6706b5ce28ed7.bend": "8fdb35d498d1974952b6706b5ce28ed7b6e8a626f5d9da142d50f5f344203dac"
+          }
+        }
+      }
+    },
+    "experiments/self-play-long.json": {
+      "plan": "7492dd0d63a8fb385b35c29fffd4937fdba2bdd39908fa874339291215e36573",
+      "sources": {
+        "agent_22f2ec9577d781dc2b6a052dae210c1a.bend": "22f2ec9577d781dc2b6a052dae210c1a9d8c5a355a8772f1dac2e4ebe31cd209",
+        "agent_96112693f3ee24bd20e2f49b14b3c0ab.bend": "96112693f3ee24bd20e2f49b14b3c0ab9a5140fd51ee9fc2d22782d7377ea213",
+        "arena.bend": "2c8b8df0f9ac364885fb1baf95fdba66184e3208b603c8246f84c241f643912a",
+        "arena_table.bend": "e54f265ad78876a48cbe9054e0f8b04c32a659d749801f02f4806ca152cef185",
+        "study.bend": "7d43a457c99006b3870accb2ca8e2dadca65d2b63d424afb7704324b7ea134e9"
+      },
+      "bundles": {
+        "arms/expected": {
+          "entry": "agent_96112693f3ee24bd20e2f49b14b3c0ab",
+          "files": {
+            "agent_96112693f3ee24bd20e2f49b14b3c0ab.bend": "96112693f3ee24bd20e2f49b14b3c0ab9a5140fd51ee9fc2d22782d7377ea213"
+          }
+        },
+        "arms/monte-carlo": {
+          "entry": "agent_96112693f3ee24bd20e2f49b14b3c0ab",
+          "files": {
+            "agent_96112693f3ee24bd20e2f49b14b3c0ab.bend": "96112693f3ee24bd20e2f49b14b3c0ab9a5140fd51ee9fc2d22782d7377ea213"
+          }
+        },
+        "arms/negamax-q": {
+          "entry": "agent_96112693f3ee24bd20e2f49b14b3c0ab",
+          "files": {
+            "agent_96112693f3ee24bd20e2f49b14b3c0ab.bend": "96112693f3ee24bd20e2f49b14b3c0ab9a5140fd51ee9fc2d22782d7377ea213"
+          }
+        },
+        "games/raw-board": {
+          "entry": "agent_22f2ec9577d781dc2b6a052dae210c1a",
+          "files": {
+            "agent_22f2ec9577d781dc2b6a052dae210c1a.bend": "22f2ec9577d781dc2b6a052dae210c1a9d8c5a355a8772f1dac2e4ebe31cd209"
+          }
+        },
+        "games/tic-tac-toe": {
+          "entry": "agent_22f2ec9577d781dc2b6a052dae210c1a",
+          "files": {
+            "agent_22f2ec9577d781dc2b6a052dae210c1a.bend": "22f2ec9577d781dc2b6a052dae210c1a9d8c5a355a8772f1dac2e4ebe31cd209"
+          }
+        }
+      }
+    },
+    "experiments/self-play.json": {
+      "plan": "00e0f100b526d2bc819ff01c2a6aa812a73a487ef6c45dd6f350a570e6452bcc",
+      "sources": {
+        "agent_22f2ec9577d781dc2b6a052dae210c1a.bend": "22f2ec9577d781dc2b6a052dae210c1a9d8c5a355a8772f1dac2e4ebe31cd209",
+        "agent_96112693f3ee24bd20e2f49b14b3c0ab.bend": "96112693f3ee24bd20e2f49b14b3c0ab9a5140fd51ee9fc2d22782d7377ea213",
+        "agent_bba3829244c31fede5255518555ada5c.bend": "bba3829244c31fede5255518555ada5c91b26b79f5b7230ecff248de84f00b62",
+        "arena.bend": "2c8b8df0f9ac364885fb1baf95fdba66184e3208b603c8246f84c241f643912a",
+        "arena_table.bend": "e54f265ad78876a48cbe9054e0f8b04c32a659d749801f02f4806ca152cef185",
+        "study.bend": "1bfd3318c0d7505908537f9725c4f8316e2c4bc3bd61d77ef9726b6eef480a06"
+      },
+      "bundles": {
+        "arms/expected": {
+          "entry": "agent_96112693f3ee24bd20e2f49b14b3c0ab",
+          "files": {
+            "agent_96112693f3ee24bd20e2f49b14b3c0ab.bend": "96112693f3ee24bd20e2f49b14b3c0ab9a5140fd51ee9fc2d22782d7377ea213"
+          }
+        },
+        "arms/monte-carlo": {
+          "entry": "agent_96112693f3ee24bd20e2f49b14b3c0ab",
+          "files": {
+            "agent_96112693f3ee24bd20e2f49b14b3c0ab.bend": "96112693f3ee24bd20e2f49b14b3c0ab9a5140fd51ee9fc2d22782d7377ea213"
+          }
+        },
+        "arms/negamax-q": {
+          "entry": "agent_96112693f3ee24bd20e2f49b14b3c0ab",
+          "files": {
+            "agent_96112693f3ee24bd20e2f49b14b3c0ab.bend": "96112693f3ee24bd20e2f49b14b3c0ab9a5140fd51ee9fc2d22782d7377ea213"
+          }
+        },
+        "arms/uniform": {
+          "entry": "agent_96112693f3ee24bd20e2f49b14b3c0ab",
+          "files": {
+            "agent_96112693f3ee24bd20e2f49b14b3c0ab.bend": "96112693f3ee24bd20e2f49b14b3c0ab9a5140fd51ee9fc2d22782d7377ea213"
+          }
+        },
+        "games/raw-board": {
+          "entry": "agent_22f2ec9577d781dc2b6a052dae210c1a",
+          "files": {
+            "agent_22f2ec9577d781dc2b6a052dae210c1a.bend": "22f2ec9577d781dc2b6a052dae210c1a9d8c5a355a8772f1dac2e4ebe31cd209"
+          }
+        },
+        "games/takeaway": {
+          "entry": "agent_bba3829244c31fede5255518555ada5c",
+          "files": {
+            "agent_bba3829244c31fede5255518555ada5c.bend": "bba3829244c31fede5255518555ada5c91b26b79f5b7230ecff248de84f00b62"
+          }
+        },
+        "games/tic-tac-toe": {
+          "entry": "agent_22f2ec9577d781dc2b6a052dae210c1a",
+          "files": {
+            "agent_22f2ec9577d781dc2b6a052dae210c1a.bend": "22f2ec9577d781dc2b6a052dae210c1a9d8c5a355a8772f1dac2e4ebe31cd209"
+          }
+        }
+      }
+    },
+    "experiments/tiger.json": {
+      "plan": "bc6af8558142ae1ce42bc4b82aaa5dbf0fba17a3ccc407db127c1091f2311ca1",
+      "sources": {
+        "packed_world.bend": "ad0c18dfc6289d26ec7eeed130fd2dc9448dc693e23f6bf0ebf23c0d52448426",
+        "scene_0ae891eea0f6353337d1.bend": "6da7b5c92eafdff5cb68fbcd9b69d396a3a4369b9344e626f039e5cf556d3639",
+        "scene_6605f944e8dc8ba1c1e5.bend": "948410753dc54dbeb24f0e9d3db37b7c70327fb3685212a5eaa775bca7a0f0f6",
+        "scene_a1d554641de0db920ef8.bend": "834eb1e77aa5f8881b673b10947b4e6551ef7f76c133fe5043600425b05d0d79",
+        "study.bend": "927e36d89753ac9e1848007a413c47d22dc1d56699afb647cdf7301d03f177ad"
+      },
+      "bundles": {}
+    },
+    "experiments/toy-text.json": {
+      "plan": "6f1a01c09e42b390b7a5a99d2da467df1c8c81e7960e12e26c32820c3cf7ce9d",
+      "sources": {
+        "scene_3e05ac0283c224a8b106.bend": "060432fef8f5bdac9b6108ee483452e40b0f6d97eb801d5cab91bbe9c5f7f68c",
+        "scene_95d3e437f0ac10c9e259.bend": "bc5c09e084586e57d821119562a8e4b7a35005731f1d12ea3abba4e8df638281",
+        "study.bend": "fe759265c36d6b8354d4c2faeddef28a74360ed4e0d95e1411c89c7bc2def3a8"
+      },
+      "bundles": {}
+    },
+    "experiments/two-pile-nim.json": {
+      "plan": "ce262819cd622346613ace0065e26e4ed8f3ae23a69e72fee8f820f723b35b44",
+      "sources": {
+        "agent_28d0752dde5830505c82aa78e0317ac2.bend": "28d0752dde5830505c82aa78e0317ac2bb10a777543a72862f90915d3b990531",
+        "agent_96112693f3ee24bd20e2f49b14b3c0ab.bend": "96112693f3ee24bd20e2f49b14b3c0ab9a5140fd51ee9fc2d22782d7377ea213",
+        "arena.bend": "2c8b8df0f9ac364885fb1baf95fdba66184e3208b603c8246f84c241f643912a",
+        "arena_table.bend": "e54f265ad78876a48cbe9054e0f8b04c32a659d749801f02f4806ca152cef185",
+        "study.bend": "2d140c5989b91a7f0c64c67edc966e72c283a74484b79c531fbf5d81ecbd452a"
+      },
+      "bundles": {
+        "arms/negamax-q": {
+          "entry": "agent_96112693f3ee24bd20e2f49b14b3c0ab",
+          "files": {
+            "agent_96112693f3ee24bd20e2f49b14b3c0ab.bend": "96112693f3ee24bd20e2f49b14b3c0ab9a5140fd51ee9fc2d22782d7377ea213"
+          }
+        },
+        "arms/uniform": {
+          "entry": "agent_96112693f3ee24bd20e2f49b14b3c0ab",
+          "files": {
+            "agent_96112693f3ee24bd20e2f49b14b3c0ab.bend": "96112693f3ee24bd20e2f49b14b3c0ab9a5140fd51ee9fc2d22782d7377ea213"
+          }
+        },
+        "games/nim": {
+          "entry": "agent_28d0752dde5830505c82aa78e0317ac2",
+          "files": {
+            "agent_28d0752dde5830505c82aa78e0317ac2.bend": "28d0752dde5830505c82aa78e0317ac2bb10a777543a72862f90915d3b990531"
+          }
+        }
+      }
+    }
+  }
+}

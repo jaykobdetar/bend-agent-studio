@@ -19,6 +19,7 @@ jobs:
       - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
         with:
           persist-credentials: false
+          fetch-depth: 0
       - name: Set up alternate archived Node runtime
         uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
         with:
@@ -28,6 +29,8 @@ jobs:
       - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
         with:
           node-version: 24.22.3
+      - name: Check flat archive source hashes and bundle identities
+        run: node tools/archive-gates.mjs check
 
       - name: Install Bend 2.0.40
         working-directory: ${{ runner.temp }}
@@ -38,6 +41,8 @@ jobs:
           test "$(./bend/bin/bend version)" = 'bend 2.0.40'
           echo "$RUNNER_TEMP/bend/bin" >> "$GITHUB_PATH"
 
+      - name: Check representative compiled archive backend hashes
+        run: node tools/archive-gates.mjs check-backends
       - name: Run Node tests
         run: npm test
       - name: Check statistical comparisons and positive-exponent Bend literals
@@ -53,6 +58,9 @@ jobs:
         run: |
           npm ci --ignore-scripts
           npm test
+
+      - name: Verify pre-reorganization archives against current Studio and MCP
+        run: bash tools/archive-gates/g4-hosted.sh "$PWD/tools/archive-gates/g4-hosted.mjs"
 
       - name: Verify optional Gymnasium adapter (checker, buckets, oracle, and compiled replay)
         working-directory: integrations/gymnasium
@@ -106,6 +114,8 @@ jobs:
       - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
         with:
           node-version: 24.22.3
+      - name: Check flat archive source hashes and bundle identities
+        run: node tools/archive-gates.mjs check
       - run: npm test
       - name: MCP protocol and process tests
         working-directory: mcp

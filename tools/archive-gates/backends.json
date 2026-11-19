@@ -1,0 +1,14 @@
+{
+  "schema": 1,
+  "bend": "bend 2.0.40",
+  "backends": {
+    "authored-bend-arena": "c80c2ab9951d1172301c8c54d95d6c6dfeb97e8e9e36fc38824e6590442f13be",
+    "authored-bend-discrete": "0071188ebb201f73236b7908bb114de5e65903a5020492993f93db1b111f460b",
+    "authored-expanded-finite": "1786cf9f8344b1207118e5e26274e441c8af416f44aef870d8c2d0146885cf00",
+    "authored-expanded-grid": "cdbe7b52f57cfd53dbbb3a7fbb12530d7fa2dd2ed70b48f5bc9c523d2e9146f3",
+    "authored-packed-finite": "8d8036f809632b4811a87357ba60dd6193fbf6101ae00ba8e2b2e2b59b844bad",
+    "built-in-cartpole": "8b9b2b8bb2563551a93d75d1b77a52baeedeeb423c1f12816489ab52a06a9893",
+    "built-in-discrete-custom-agent": "a21e1502212af25e794a67b14b6171cd9f6f1837f85fdcfd8ab1b6de83081d65",
+    "built-in-mountain-car": "0410a60e2f1e022f7e4e973b051b896424dbb0b86f16a62e5f8f6403e0851796"
+  }
+}
