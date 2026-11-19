@@ -2,6 +2,10 @@
 
 Run shell commands from the repository root.
 
+## Paired intervals and their limits
+
+`analysis/analyze.py` reports a pointwise 95% percentile bootstrap interval. It resamples trained replicate blocks, keeping paired arms together when a reference is specified. With one replicate the interval is blank. With a few replicates or identical observed values, the interval can be narrow and its coverage can be poor. Report the replicate count and inspect the individual paired differences. Increasing bootstrap draws only refines the resampling calculation. [Hesterberg, 2015](https://doi.org/10.1080/00031305.2015.1089789)
+
 ### Comparing a fixed suite of games
 
 Per-game means above remain the default. Opt into suite statistics for a balanced export (training, assessment, or offline scores). For each selected phase and budget, the suite requires the same arms and trained replicate IDs for every game. It never pools checkpoints or counts evaluation episodes as fresh trained replicates. These examples use a CSV with at least two arms, one named `random`:
@@ -53,3 +57,39 @@ For a small two-player perfect-information game, run the [two-pile Nim study](..
 Larger finite worlds can use a packed compiled representation. [Taxi and Blackjack measurement details](../tools/finite-layout/README.md) cover compiler memory, exhaustive transition probes, bounded learning studies and archived reruns; the old full-size baseline did not complete under the same memory cap.
 
 [Export a collected dataset to local Minari/HDF5](../integrations/minari/README.md). Select fit or holdout explicitly for separate artifacts, or all for a complete copy. The exporter preserves observations, actions, stop flags and rewards, verifies the result by loading it, and refuses unsupported lossless conversions.
+
+### Share an offline report
+
+From the current checkout run `node experiment.mjs report RUN OUT.html` using
+the Node version recorded by the run and Python 3 (override with `PYTHON`).
+For complete runs this writes one new file with inline validation/test charts,
+per-arm return estimates and pointwise bootstrap intervals, and authored
+finite-world oracle baselines. The report labels the training budget unit and
+shows absolute returns; use `analysis/analyze.py --reference` after exporting for paired
+differences. For each authored finite world it scans every final test score
+across arms and replicates and explains the highest and lowest
+episode from its archived backend. Ties use plan order, replicate, then episode
+index. The public-history explanation is distinct from the full-state optimum.
+Unrecorded phases are marked. Large test sets take longer; an oracle budget
+failure aborts generation rather than silently omitting an explanation.
+
+Only generate a report from a **trusted local run**: generation verifies its
+archive but executes that archive's backend. Open or share the resulting HTML
+offline: it contains plain escaped text and static SVG, no scripts or external
+assets. It includes run identity, test seeds and results; review before sharing.
+
+### Discounted full-state planning
+
+Run `node experiment.mjs oracle worlds/detour.json --discount 0.95 --tolerance 1e-9`.
+This returns two independent planning results: value iteration, and policy iteration
+with iterative policy evaluation. Both see the underlying state, even when the
+agent's observations do not distinguish states. Rewards on entering a terminal
+state count; its continuation value is zero. With discount below 1 the stopping
+residual is at most tolerance × (1 − discount), before floating-point roundoff.
+An iteration limit raises an error rather than returning an unconverged estimate.
+
+Discount 1 is supported only for acyclic positive-probability transition graphs,
+where exact backward propagation terminates. Merely having a goal is insufficient:
+Detour permits circling, and even an almost-surely terminating stochastic loop is
+outside this conservative undiscounted solver. Choose a discount below 1 or use
+the original finite-horizon oracle for such worlds.

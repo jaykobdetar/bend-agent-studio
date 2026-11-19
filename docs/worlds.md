@@ -2,6 +2,11 @@
 
 Run shell commands from the repository root.
 
+## Author a world
+
+* **A finite state machine** can be written as JSON. Each state has a unique numeric ID, an optional public observation ID, and a list of legal actions. Each action lists possible destination IDs, positive integer weights, and finite rewards. An empty action list marks a terminal state. Start from `worlds/bridge.json`.
+* **A grid game** uses `S` for start, `G` for goal, `P` for pit, `#` for wall, and `.` for traversable space. A slip replaces the intended direction with a uniform legal direction. Multiple starts are sampled uniformly. See `worlds/detour.json`.
+* **A Bend world** exports `State`, `Observation`, and `world(parameters)`. Its world provides reset, a public view, and a transition. The inventory example keeps opening stock, days left, and costs in the world. Its agent sees just the observation and legal order sizes. See `worlds/inventory.bend` and `experiments/inventory.json`.
 ## Play a finite world in Gymnasium
 
 The optional [Gymnasium adapter](../integrations/gymnasium/README.md) uses the same JSON validator, grid expansion and exact integer sampling buckets as the runner. Supply a positive horizon and an explicit U32 seed to reproduce a Bend episode with the same actions. Gym action indices map to potentially sparse Bend IDs; consult the legal-action IDs in the public info. Natural terminal states win over time-limit truncation. For the exact undiscounted report score, use `info["bend_episode_score"]`, which rounds after each accepted move just as Bend does. Run the adapter's Python unittest suite for the Gym checker, sampling comparison, and optional compiled Bend replay comparison.
@@ -51,19 +56,7 @@ Run `node checks/memory_checks.mjs` to rebuild the worlds in memory, compare the
 
 ### Discounted full-state planning
 
-Run `node experiment.mjs oracle worlds/detour.json --discount 0.95 --tolerance 1e-9`.
-This returns two independent planning results: value iteration, and policy iteration
-with iterative policy evaluation. Both see the underlying state, even when the
-agent's observations do not distinguish states. Rewards on entering a terminal
-state count; its continuation value is zero. With discount below 1 the stopping
-residual is at most tolerance × (1 − discount), before floating-point roundoff.
-An iteration limit raises an error rather than returning an unconverged estimate.
-
-Discount 1 is supported only for acyclic positive-probability transition graphs,
-where exact backward propagation terminates. Merely having a goal is insufficient:
-Detour permits circling, and even an almost-surely terminating stochastic loop is
-outside this conservative undiscounted solver. Choose a discount below 1 or use
-the original finite-horizon oracle for such worlds.
+See [Discounted full-state planning](analysis.md#discounted-full-state-planning).
 
 ### Export a finite world for another solver
 

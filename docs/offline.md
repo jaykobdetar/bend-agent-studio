@@ -36,3 +36,7 @@ Each `*_error` is estimate minus exact value. Missing coverage blanks IS
 and doubly robust estimates, not FQE; a zero normalization denominator also
 gives a blank. Unknown global support on other worlds is not evidence of
 coverage. Compare errors across independent dataset replicates, not frames.
+
+## Minari export
+
+An optional [local Minari exporter](../integrations/minari/README.md) converts collected trajectories to a reload-verified HDF5 dataset. It does not register or upload data.

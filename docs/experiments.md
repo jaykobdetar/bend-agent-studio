@@ -7,7 +7,7 @@ The simulation, policy, learning updates, and action-by-action replay run in Ben
 ## Rules for experiments
 
 1. The world owns private simulation state. Its public view contains an observation and legal action IDs, or a terminal observation.
-2. The engine checks legality before calling the world transition or the learner. The rejection law on the engine’s decision path proves that an invalid action preserves the model, score, and accepted-step count, produces no transition, and ends the episode.
+2. The engine checks legality before calling the world transition or the learner. Rejecting an invalid action preserves the model, score, and accepted-step count on the engine’s decision path, produces no transition, and ends the episode. A subsequent optional training `finish` callback may still update the model for that illegal stop.
 3. Every accepted training move generates exactly one public transition. A learner may use that transition for a TD update, planning, or a deferred episode-return update. Evaluation freezes the model.
 4. An episode has a declared horizon. Natural termination takes precedence at the horizon. An open next state at the limit carries a truncation flag. A scheduler pause retains the live cursor and the original horizon.
 5. All randomness is seeded. Policy and world draws are domain-separated, and paired arms receive matching episode seed blocks. Training, validation, test, and declared follow-up assessment blocks must be disjoint within their design.
@@ -16,17 +16,11 @@ The simulation, policy, learning updates, and action-by-action replay run in Ben
 8. A comparison declares its budget unit, metrics, replicate blocks, and evaluation conditions. Frozen evaluation decisions, saved weights, code fingerprints, and seed blocks remain traceable to their checkpoint. Hyperparameter selection uses validation. A confirmatory comparison retrains on fresh seeds.
 9. Offline fitting reads only the fit partition. Logging records the behavior probability of every taken action. The held-out log and fresh-simulator score have distinct seeds. Unsupported actions are explicitly reported.
 
-The project defines 46 propositions in `laws/LAWS.bend` and `laws/PROOF.bend`. They also cover feature-tree readback, logged-support restrictions, terminal critic and bootstrap targets, and two-seat payoff rules. The engine applies the learner once per training transition and preserves the model during evaluation. The whole-rollout counting-learner laws prove evaluation freezes the counter and training changes it by exactly the accepted-step delta; the proof preserves the signed difference from an arbitrary starting counter. Updating one Double Q table preserves the other. With a nonempty legal-action list, Double Q selects the bootstrap action with the table being updated and values it with the other table. Dyna planning preserves recorded experience. Completing a Monte Carlo self-play episode clears its buffered decisions, not the learned table. On the engine’s actual decision path, rejecting an illegal action preserves model, score and accepted steps, produces no transition and ends the episode. Only an open view at zero remaining fuel is truncated; positive fuel never causes truncation. Each report increases the episode count by one, including illegal exits. From any starting run, the final step count is at most the initial count plus available fuel. The history wrapper preserves legal actions and rewards. At each reset it restores the configured memory and seeds the underlying world anew. For any typed world and agent hooks, observing decisions preserves the final report, and splitting an interaction budget gives the same cursor as advancing once, including model, seed and remaining horizon. These laws cover both training and evaluation. Completing a fresh cursor yields exactly the ordinary episode report for all worlds and policies, including the model, score, steps and stop reason.
-
-The addressed observation/action key reads back the revised F32 value and its incremented U32 visit count. All other keys preserve both reads, even when a key was absent or input entries are not unique.
-
-Zero exploration buckets always select the preferred action, as does every masked 16-bit draw at or above the threshold. The base action is computed in evaluation mode with word zero. The propensity formula is separately tested across all 65,536 draws.
-
-Seed allocation, checkpoint storage, data partition separation and statistical procedures are enforced and tested by the host software.
+See [formal properties and their scope](laws.md#formal-properties) for the core and learner laws, their proofs, and the distinction between proven guarantees and host-side tests. Seed allocation, checkpoint storage, data partition separation and statistical procedures are enforced and tested by the host software.
 
 ## First run
 
-Use Bend 2.0.40, Node 24 or newer, and Python 3 for analysis (standard library only). Run the following commands from the directory containing this file. Set `BEND` to the Bend executable when it is outside your PATH.
+Use Bend 2.0.40, Node 24 or newer, and Python 3 for analysis (standard library only). Run the following commands from the repository root. Set `BEND` to the Bend executable when it is outside your PATH.
 
 ```sh
 node experiment.mjs validate experiments/bridge.json
@@ -87,7 +81,7 @@ The confirmation specification declares a reference arm, selection metric, budge
 
 The last command estimates the paired difference on the confirmation run's final held-out test block. In a raw export, `test_seed` is a seed allocation: only rows with a populated `test_episodes` field contain held-out results. Use `--phase validation` to analyze a validation-only screen. An offline report labels validation and held-out test results separately but does not link the two runs. Keep `runs/decision/selection.json` with your confirmation results; it records the source run, ranking, and generated plan hash.
 
-`analysis/analyze.py` reports a pointwise 95% percentile bootstrap interval. It resamples trained replicate blocks, keeping paired arms together when a reference is specified. With one replicate the interval is blank. With a few replicates or identical observed values, the interval can be narrow and its coverage can be poor. Report the replicate count and inspect the individual paired differences. Increasing bootstrap draws only refines the resampling calculation. [Hesterberg, 2015](https://doi.org/10.1080/00031305.2015.1089789)
+See [paired intervals and their limits](analysis.md#paired-intervals-and-their-limits) before interpreting the confirmation estimate.
 
 The engine advances a 32-bit linear congruential generator. Its mixed hooks use separate constants and a mixing function for the policy and world draws. Episode starts within a seed block are consecutive. These choices reproduce trajectories and pair comparisons across arms. Statistical independence is an assumption about the experimental design. Changing the generator changes trajectories and would require a separately identified design.
 
@@ -136,23 +130,7 @@ Local readers with access to the run can see them; do not store secrets here.
 
 ### Share an offline report
 
-From the current checkout run `node experiment.mjs report RUN OUT.html` using
-the Node version recorded by the run and Python 3 (override with `PYTHON`).
-For complete runs this writes one new file with inline validation/test charts,
-per-arm return estimates and pointwise bootstrap intervals, and authored
-finite-world oracle baselines. The report labels the training budget unit and
-shows absolute returns; use `analysis/analyze.py --reference` after exporting for paired
-differences. For each authored finite world it scans every final test score
-across arms and replicates and explains the highest and lowest
-episode from its archived backend. Ties use plan order, replicate, then episode
-index. The public-history explanation is distinct from the full-state optimum.
-Unrecorded phases are marked. Large test sets take longer; an oracle budget
-failure aborts generation rather than silently omitting an explanation.
-
-Only generate a report from a **trusted local run**: generation verifies its
-archive but executes that archive's backend. Open or share the resulting HTML
-offline: it contains plain escaped text and static SVG, no scripts or external
-assets. It includes run identity, test seeds and results; review before sharing.
+See [Share an offline report](analysis.md#share-an-offline-report).
 
 ### Parallel trials on one machine
 
@@ -182,14 +160,25 @@ python3 analysis/analyze.py bridge.csv --reference random
 npm start -- --run runs/bridge
 ```
 
-Use `--run` to open a trusted, locally generated study in Studio. Replays execute the runner stored with that study and require its recorded Node version. Custom environments display their public observations and action telemetry. The four featured environments have dedicated renderers.
-
-An **Attached run** may be unfinished. Studio shows the planned checkpoints but checks replay availability when you request one. If the final checkpoint is missing, select an earlier saved checkpoint and **Validation**. Use `node experiment.mjs status RUN` to see progress and `node experiment.mjs verify RUN` after completion. Validation comparisons require complete checkpoint series.
-
-After upgrading Node, you can keep Studio on the newer version and point it to an installed copy of the archived version. For example, run `npm start -- --replay-node /path/to/older/node`. Studio checks the executable’s version and uses it for matching runs. Repeat the option for additional versions. If a runtime is missing, the replay error identifies the version you need.
-
-If the path passed to `--replay-node` is missing or cannot run, correct it before restarting Studio. You can also omit the option to inspect or compare the saved checkpoints without replaying them.
-
-Studio runs up to two replay processes at once. A third request receives HTTP 429 and can be retried when a slot opens. Closing the replay dialog or disconnecting the client cancels its pending replay. Each runner has 30 seconds to return a trace before Studio stops it and responds with HTTP 504. Set `BEND_STUDIO_REPLAY_TIMEOUT_MS` to a positive number of milliseconds at startup for longer studies.
+See [attached studies and replay runtimes](studio.md#open-an-attached-study) for incomplete runs, version selection, concurrency and timeouts.
 
 Start with [worlds/bridge.json](../worlds/bridge.json) for a finite game, [worlds/inventory.bend](../worlds/inventory.bend) for a custom Bend world, or [agents/ucb/agent.bend](../agents/ucb/agent.bend) for a learning algorithm. The [experiment guide](experiments.md) covers authoring, offline learning, evaluation, and resuming studies. It also explains how to [regenerate the three Tiger worlds](worlds.md#regenerate-the-tiger-worlds).
+
+### Compare keyed tabular training against list-backed archives
+
+Use the same `benchmarks/tabular-parity.json` plan in a list-backed checkout
+and an indexed checkout (copy the plan into a `benchmarks/` folder in the
+older checkout). Run `node experiment.mjs run benchmarks/tabular-parity.json RUN`
+in each with a separate, new output directory. This is a bounded planning-budget
+study: two games, four arms, two replicates and three checkpoints. Compare
+train, validation and test metrics, not checkpoint hashes: the representation
+of learned tables intentionally changes. Existing runs continue replaying with
+their archived code; no old models are converted.
+
+To time the **training kernel** rather than compilation or checkpoint I/O, run
+`node benchmarks/tabular-timing.mjs LIST_RUN TREE_RUN` with trusted local
+archives. It checks each of 700 Detour Q-learning episode scores across two
+warmups and eight alternating-order measurements. As one local example with
+Node 24.22.3/Bend 2.0.40, median times were 72.3 ms and 67.9 ms respectively
+(1.07×). The result is workload-specific: very small tables may not benefit;
+UCB still scans the table once for total visits at an observation.

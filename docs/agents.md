@@ -4,9 +4,8 @@ Run shell commands from the repository root.
 
 ## Change the world, policy, or learner
 
-* **A finite state machine** can be written as JSON. Each state has a unique numeric ID, an optional public observation ID, and a list of legal actions. Each action lists possible destination IDs, positive integer weights, and finite rewards. An empty action list marks a terminal state. Start from `worlds/bridge.json`.
-* **A grid game** uses `S` for start, `G` for goal, `P` for pit, `#` for wall, and `.` for traversable space. A slip replaces the intended direction with a uniform legal direction. Multiple starts are sampled uniformly. See `worlds/detour.json`.
-* **A Bend world** exports `State`, `Observation`, and `world(parameters)`. Its world provides reset, a public view, and a transition. The inventory example keeps opening stock, days left, and costs in the world. Its agent sees just the observation and legal order sizes. See `worlds/inventory.bend` and `experiments/inventory.json`.
+For finite JSON, grid and custom Bend environments, see [world authoring](worlds.md#author-a-world).
+
 * **A Bend agent** exports `Model`, `initial(seed, parameters)`, `act(model, observation, legal, mode, word)`, and `learn(model, transition)`. An experiment arm selects it with `"method": "custom"` and `agentFile`. The UCB1 example implements exploration in its policy and updates reward estimates in its learner. See `agents/ucb/agent.bend` and `experiments/custom-bandit.json`.
 
 A manifest binds a game file using `file` for JSON or `worldFile` for Bend. Paths are relative to the manifest. Set the same observation domain on a custom game and agent when using a custom observation type. Local Bend dependencies and parameter values are included in the saved source identity. A game can also be assembled directly with `E.Hooks{world, act, learn}`.
@@ -35,7 +34,7 @@ For fixed-suite comparisons, [the analyzer supports IQM, probability of improvem
 
 New tabular learners index observation/action IDs with a persistent digital
 search tree. Legal-list order still breaks ties. See the
-[archive parity and timing procedure](testing.md#compare-keyed-tabular-training-against-list-backed-archives)
+[archive parity and timing procedure](experiments.md#compare-keyed-tabular-training-against-list-backed-archives)
 for the benchmark and its limits.
 
 Custom learners may export `finish(model: Model, reason: E.Stop) -> Model` to flush episode-local state. It runs once per training episode, never on a partial checkpoint or during evaluation. Omitting it keeps the original behavior. See [the learner lifecycle](agents.md#learner-episode-completion).
@@ -44,4 +43,4 @@ For many-arm comparisons against one reference, [Holm-adjusted paired sign tests
 
 [Two-pile Nim](two-pile-nim.md) is a small CLI self-play arena with an independently checked optimal policy and exact exploitability comparisons.
 
-An optional [local Minari exporter](../integrations/minari/README.md) converts collected trajectories to a reload-verified HDF5 dataset. It does not register or upload data.
+See [offline datasets and Minari export](offline.md#minari-export) for logged-trajectory workflows.

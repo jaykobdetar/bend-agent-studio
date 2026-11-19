@@ -72,7 +72,7 @@ Continue in [Notes and tags](docs/experiments.md#notes-and-tags).
 
 ### Share an offline report
 
-Continue in [Share an offline report](docs/experiments.md#share-an-offline-report).
+Continue in [Share an offline report](docs/analysis.md#share-an-offline-report).
 
 ### Parallel trials on one machine
 
@@ -80,7 +80,7 @@ Continue in [Parallel trials on one machine](docs/experiments.md#parallel-trials
 
 ### Discounted full-state planning
 
-Continue in [Discounted full-state planning](docs/worlds.md#discounted-full-state-planning).
+Continue in [Discounted full-state planning](docs/analysis.md#discounted-full-state-planning).
 
 ### Export a finite world for another solver
 
@@ -92,7 +92,7 @@ Continue in [Off-policy score columns](docs/offline.md#off-policy-score-columns)
 
 ### Compare keyed tabular training against list-backed archives
 
-Continue in [Compare keyed tabular training against list-backed archives](docs/testing.md#compare-keyed-tabular-training-against-list-backed-archives).
+Continue in [Compare keyed tabular training against list-backed archives](docs/experiments.md#compare-keyed-tabular-training-against-list-backed-archives).
 
 ### Learner episode completion
 
