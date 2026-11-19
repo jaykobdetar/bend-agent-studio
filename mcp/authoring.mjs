@@ -184,6 +184,7 @@ export const authoring = {
       for (const dir of ['experiments', 'worlds', 'agents'])
         for (const file of fs.readdirSync(path.join(repo, dir)).sort()) {
           const rel = dir + '/' + file;
+          if (!fs.lstatSync(path.join(repo, rel)).isFile()) continue;
           let kind = dir === 'agents' ? 'agent' : 'world';
           if (file.endsWith('.json')) {
             const x = JSON.parse(fs.readFileSync(path.join(repo, rel)));

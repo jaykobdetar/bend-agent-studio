@@ -48,11 +48,9 @@ test('memory composition, exact policy, examples, and sequential inference', asy
     behavior: {0: [0.5, 0.5], 1: 9, 2: 9},
   });
   assert.equal(res.expectedReturn, 1);
-  assert.ok(
-    (await call('list_examples', {})).examples.find(
-      (x) => x.path === 'experiments/bridge.json' && x.kind === 'training plan',
-    ),
-  );
+  const {examples} = await call('list_examples', {});
+  assert.ok(examples.some((x) => x.path === 'experiments/bridge.json' && x.kind === 'training plan'));
+  for (const x of examples) assert.ok(fs.lstatSync(path.join(repo, x.path)).isFile(), x.path);
   write('design.json', {
     design: {lower: -1, upper: 1},
     rows: [{replicate: 0, candidate: 1, reference: 0}],
