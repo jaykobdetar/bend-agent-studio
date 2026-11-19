@@ -137,6 +137,6 @@ export class Gif {
     this.prev = now;
   }
   finish() {
-    return new Blob([Uint8Array.from([...this.bytes, 59])], { type: 'image/gif' });
+    return new Blob([Uint8Array.from([...this.bytes, 59])], {type: 'image/gif'});
   }
 }

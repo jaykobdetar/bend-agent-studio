@@ -74,7 +74,9 @@ test(
     };
     const checked = await call('validate_plan', {plan});
     assert.equal(checked.trialCount, 4);
-    await fail('validate_plan', {plan: {...plan, games: [{id: 'bad', limit: 1, file: 'world.json'}]}});
+    await fail('validate_plan', {
+      plan: {...plan, games: [{id: 'bad', limit: 1, file: 'world.json'}]},
+    });
     assert.deepEqual(await fs.readdir(dir), [], 'validation and oracle must be side-effect-free');
     const start = await call('start_run', {plan, out: 'study'});
     let state;

@@ -51,7 +51,11 @@ async function replay(a, ctx, dir) {
     String(integer(a.episode, 0, 4294967295, 'episode')),
   ];
   return JSON.parse(
-    await ctx.exec(await ctx.nodeFor(dir), args, {cwd: dir, timeout: 30000, maxBytes: 16 * 1024 * 1024}),
+    await ctx.exec(await ctx.nodeFor(dir), args, {
+      cwd: dir,
+      timeout: 30000,
+      maxBytes: 16 * 1024 * 1024,
+    }),
   );
 }
 function paginate(items, a) {
@@ -168,16 +172,17 @@ export const inspection = {
       const game = manifest.body.plan.games.find((g) => g.id === a.game);
       if (!game?.definition) throw Error('Decision explanation requires an authored finite world');
       const discount = a.discount ?? 1;
-      if (!Number.isFinite(discount) || discount < 0 || discount > 1) throw Error('Invalid discount');
+      if (!Number.isFinite(discount) || discount < 0 || discount > 1)
+        throw Error('Invalid discount');
       const {frames} = await replay(a, ctx, dir);
       const tmp = await fs.mkdtemp(path.join(os.tmpdir(), 'bend-mcp-explain-'));
       try {
         const world = path.join(tmp, 'world.json'),
           trace = path.join(tmp, 'trace.json');
-        const arm=manifest.body.plan.arms?.find(x=>x.id===a.arm);
-        const source=publicTraceFrames(game.definition,frames,arm?.observation);
+        const arm = manifest.body.plan.arms?.find((x) => x.id === a.arm);
+        const source = publicTraceFrames(game.definition, frames, arm?.observation);
         await fs.writeFile(world, numberPreservingJson(game.definition), {mode: 0o600});
-        await fs.writeFile(trace, numberPreservingJson({frames:source}), {mode: 0o600});
+        await fs.writeFile(trace, numberPreservingJson({frames: source}), {mode: 0o600});
         const out = await ctx.exec(
           process.execPath,
           [
@@ -195,7 +200,11 @@ export const inspection = {
         );
         const {decisions, ...summary} = JSON.parse(out),
           {slice, ...pagination} = paginate(decisions, a);
-        return {...summary, decisions: slice.map(d=>({...d,observation:frames[d.step].observation})), ...pagination};
+        return {
+          ...summary,
+          decisions: slice.map((d) => ({...d, observation: frames[d.step].observation})),
+          ...pagination,
+        };
       } finally {
         await fs.rm(tmp, {recursive: true, force: true});
       }

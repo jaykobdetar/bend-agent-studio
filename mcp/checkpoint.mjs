@@ -5,7 +5,11 @@ try {
   const [run, g, a, r, n, full] = process.argv.slice(2),
     m = unseal(path.join(run, 'run.json')),
     p = m.body.plan;
-  const t = {game: p.games.find((x) => x.id === g), arm: p.arms.find((x) => x.id === a), rep: Number(r)};
+  const t = {
+    game: p.games.find((x) => x.id === g),
+    arm: p.arms.find((x) => x.id === a),
+    rep: Number(r),
+  };
   if (!t.game || !t.arm || t.rep >= p.replicates || !p.checkpoints.includes(Number(n)))
     throw Error('checkpoint not in plan');
   let prev = null,
@@ -31,7 +35,8 @@ try {
       experiment,
     } = item.body,
     encoded = canonical(model);
-  if (full === 'yes' && Buffer.byteLength(encoded) > 128 * 1024) throw Error('model exceeds 128 KiB');
+  if (full === 'yes' && Buffer.byteLength(encoded) > 128 * 1024)
+    throw Error('model exceeds 128 KiB');
   // MCP clients may normalize -0; deep Bend lists can also overflow their
   // recursive JSON encoders. Always provide exact hashable bytes on opt-in.
   let preview = full === 'yes';

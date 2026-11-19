@@ -64,7 +64,10 @@ test('nested plan/world/agent inputs must stay in the workspace; output parent m
   }
   plan.games[0].file = '../world.json';
   await fs.writeFile(path.join(tmp, 'outside-helper.bend'), 'import Base\n');
-  await fs.writeFile(path.join(root, 'plans/helper.bend'), 'import ../../outside-helper.bend as H\n');
+  await fs.writeFile(
+    path.join(root, 'plans/helper.bend'),
+    'import ../../outside-helper.bend as H\n',
+  );
   await fs.writeFile(path.join(root, 'plans/agent.bend'), 'import ./helper.bend as H\n');
   plan.arms = [{id: 'custom', method: 'custom', agentFile: 'agent.bend'}];
   await fs.writeFile(planFile, JSON.stringify(plan));
@@ -81,16 +84,24 @@ test('MCP plan validation reports built-in, finishing and contextual hook choice
   await write('finishing.bend', finish);
   await write('contextual.bend', finish + context);
   plan.games[0].file = 'world.json';
-  plan.arms = [{id:'q',method:'q_learning'}, {id:'f',method:'custom',agentFile:'finishing.bend'},
-    {id:'c',method:'custom',agentFile:'contextual.bend'}];
+  plan.arms = [
+    {id: 'q', method: 'q_learning'},
+    {id: 'f', method: 'custom', agentFile: 'finishing.bend'},
+    {id: 'c', method: 'custom', agentFile: 'contextual.bend'},
+  ];
   await write('plan.json', JSON.stringify(plan));
-  const checked = await call('validate_plan', {plan:'plan.json'});
+  const checked = await call('validate_plan', {plan: 'plan.json'});
   assert.deepEqual(checked.armHooks, [
-    {arm:'q',hook:'Hooks'}, {arm:'f',hook:'Finishing'}, {arm:'c',hook:'Contextual'},
+    {arm: 'q', hook: 'Hooks'},
+    {arm: 'f', hook: 'Finishing'},
+    {arm: 'c', hook: 'Contextual'},
   ]);
-  assert.ok(checked.plan.arms.every(arm => !Object.hasOwn(arm, 'hook')));
+  assert.ok(checked.plan.arms.every((arm) => !Object.hasOwn(arm, 'hook')));
   await write('contextual.bend', context);
-  assert.equal(await error('validate_plan', {plan:'plan.json'}), 'arm c: learn_context requires finish');
+  assert.equal(
+    await error('validate_plan', {plan: 'plan.json'}),
+    'arm c: learn_context requires finish',
+  );
 });
 
 test('step-checkpoint inspection hides cursor state and rejects oversized opt-in models without breaking other calls', async (t) => {
@@ -98,7 +109,8 @@ test('step-checkpoint inspection hides cursor state and rejects oversized opt-in
     dir = path.join(root, 'run');
   await fs.mkdir(path.join(dir, 'code'), {recursive: true});
   const body = '// inert checkpoint fixture\n';
-  for (const f of ['experiment.mjs', 'backend.mjs']) await fs.writeFile(path.join(dir, 'code', f), body);
+  for (const f of ['experiment.mjs', 'backend.mjs'])
+    await fs.writeFile(path.join(dir, 'code', f), body);
   const p = {
     name: 'smoke',
     games: [{id: 'bridge'}],
@@ -167,7 +179,12 @@ test(
   async (t) => {
     const {root, client, call} = await fixture(t);
     const p = JSON.parse(await fs.readFile(path.join(repo, 'experiments/bridge.json')));
-    Object.assign(p, {replicates: 1, checkpoints: [0, 1000000], validationEpisodes: 1, testEpisodes: 1});
+    Object.assign(p, {
+      replicates: 1,
+      checkpoints: [0, 1000000],
+      validationEpisodes: 1,
+      testEpisodes: 1,
+    });
     p.games[0].file = 'world.json';
     await fs.copyFile(path.join(repo, 'worlds/bridge.json'), path.join(root, 'world.json'));
     await fs.writeFile(path.join(root, 'plan.json'), JSON.stringify(p));

@@ -4,49 +4,86 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import {fileURLToPath} from 'node:url';
-import {checkMarkdown,anchors,slug,shellTokens} from './docs_markdown.mjs';
-const base=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'../tools/docs-check/fixtures');
-test('green fixture checks links, anchors, inline and shell paths',()=>{
-  const result=checkMarkdown(path.join(base,'good'));
-  assert.deepEqual(result.issues,[]);
-  assert.ok(result.linkTargets.some(t=>t.target==='docs/guide.md'&&t.fragment==='repeat-1'));
+import {checkMarkdown, anchors, slug, shellTokens} from './docs_markdown.mjs';
+const base = path.resolve(
+  path.dirname(fileURLToPath(import.meta.url)),
+  '../tools/docs-check/fixtures',
+);
+test('green fixture checks links, anchors, inline and shell paths', () => {
+  const result = checkMarkdown(path.join(base, 'good'));
+  assert.deepEqual(result.issues, []);
+  assert.ok(
+    result.linkTargets.some((t) => t.target === 'docs/guide.md' && t.fragment === 'repeat-1'),
+  );
 });
-test('red fixture reports every requested path class with line numbers',()=>{
-  const {issues}=checkMarkdown(path.join(base,'bad'));
-  for(const code of ['link-missing','anchor-missing','reference-missing','inline-missing','command-missing','path-outside'])
-    assert.ok(issues.some(i=>i.code===code),code);
-  assert.equal(issues.filter(i=>i.code==='command-missing').length,3);
-  assert.ok(issues.every(i=>i.line>0&&i.file==='README.md'));
+test('red fixture reports every requested path class with line numbers', () => {
+  const {issues} = checkMarkdown(path.join(base, 'bad'));
+  for (const code of [
+    'link-missing',
+    'anchor-missing',
+    'reference-missing',
+    'inline-missing',
+    'command-missing',
+    'path-outside',
+  ])
+    assert.ok(
+      issues.some((i) => i.code === code),
+      code,
+    );
+  assert.equal(issues.filter((i) => i.code === 'command-missing').length, 3);
+  assert.ok(issues.every((i) => i.line > 0 && i.file === 'README.md'));
 });
-test('anchors support duplicate Unicode headings, setext and explicit IDs; ignore fences',()=>{
-  assert.deepEqual([...anchors('# Café & tea\n## Twice\n## Twice\nSetext\n---\n<a id="custom"></a>\n```md\n# Hidden\n```')],['café--tea','twice','twice-1','setext','custom']);
-  assert.equal(slug('A [label](here) and `code`'),'a-label-and-code');
+test('anchors support duplicate Unicode headings, setext and explicit IDs; ignore fences', () => {
+  assert.deepEqual(
+    [
+      ...anchors(
+        '# Café & tea\n## Twice\n## Twice\nSetext\n---\n<a id="custom"></a>\n```md\n# Hidden\n```',
+      ),
+    ],
+    ['café--tea', 'twice', 'twice-1', 'setext', 'custom'],
+  );
+  assert.equal(slug('A [label](here) and `code`'), 'a-label-and-code');
 });
-test('shell tokenization preserves quoted paths and comments without evaluation',()=>{
-  assert.deepEqual(shellTokens('node "file name.mjs" && python3 a.py # ignored.mjs'),['node','file name.mjs','&&','python3','a.py']);
+test('shell tokenization preserves quoted paths and comments without evaluation', () => {
+  assert.deepEqual(shellTokens('node "file name.mjs" && python3 a.py # ignored.mjs'), [
+    'node',
+    'file name.mjs',
+    '&&',
+    'python3',
+    'a.py',
+  ]);
 });
-test('linked paths cannot escape through symlinks and generated state stays per-document',t=>{
-  const dir=fs.mkdtempSync(path.join(os.tmpdir(),'docs-check-'));t.after(()=>fs.rmSync(dir,{recursive:true,force:true}));
-  fs.writeFileSync(path.join(dir,'a.md'),'```sh\nnode tool.mjs > generated.json\n```');
-  fs.writeFileSync(path.join(dir,'b.md'),'`generated.json`\n[bad](escape.md)');
-  fs.writeFileSync(path.join(dir,'tool.mjs'),'');
-  fs.symlinkSync(path.join(base,'good/README.md'),path.join(dir,'escape.md'));
-  const result=checkMarkdown(dir,{files:['a.md','b.md']});
-  assert.ok(result.issues.some(i=>i.file==='b.md'&&i.code==='inline-missing'));
-  assert.ok(result.issues.some(i=>i.code==='path-outside'));
+test('linked paths cannot escape through symlinks and generated state stays per-document', (t) => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'docs-check-'));
+  t.after(() => fs.rmSync(dir, {recursive: true, force: true}));
+  fs.writeFileSync(path.join(dir, 'a.md'), '```sh\nnode tool.mjs > generated.json\n```');
+  fs.writeFileSync(path.join(dir, 'b.md'), '`generated.json`\n[bad](escape.md)');
+  fs.writeFileSync(path.join(dir, 'tool.mjs'), '');
+  fs.symlinkSync(path.join(base, 'good/README.md'), path.join(dir, 'escape.md'));
+  const result = checkMarkdown(dir, {files: ['a.md', 'b.md']});
+  assert.ok(result.issues.some((i) => i.file === 'b.md' && i.code === 'inline-missing'));
+  assert.ok(result.issues.some((i) => i.code === 'path-outside'));
 });
-test('cwd directive and explicit reasoned ignore cover intended exceptions',t=>{
-  const dir=fs.mkdtempSync(path.join(os.tmpdir(),'docs-check-'));t.after(()=>fs.rmSync(dir,{recursive:true,force:true}));
-  fs.writeFileSync(path.join(dir,'README.md'),'<!-- docs-check: ignore-next-line generated by an external tool -->\n`not-built.mjs`\n`schema/input.json`');
-  assert.deepEqual(checkMarkdown(dir,{inlineAllow:['schema/input.json']}).issues,[]);
+test('cwd directive and explicit reasoned ignore cover intended exceptions', (t) => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'docs-check-'));
+  t.after(() => fs.rmSync(dir, {recursive: true, force: true}));
+  fs.writeFileSync(
+    path.join(dir, 'README.md'),
+    '<!-- docs-check: ignore-next-line generated by an external tool -->\n`not-built.mjs`\n`schema/input.json`',
+  );
+  assert.deepEqual(checkMarkdown(dir, {inlineAllow: ['schema/input.json']}).issues, []);
 });
-test('literal config arguments and encoded link punctuation are checked',t=>{
-  const dir=fs.mkdtempSync(path.join(os.tmpdir(),'docs-check-'));t.after(()=>fs.rmSync(dir,{recursive:true,force:true}));
-  fs.writeFileSync(path.join(dir,'README.md'),'[Encoded](file%23name.md#snake_case)\n```sh\nnode demo.mjs missing.json\n```');
-  fs.writeFileSync(path.join(dir,'file#name.md'),'# snake_case');
-  fs.writeFileSync(path.join(dir,'demo.mjs'),'');
-  const result=checkMarkdown(dir);
-  assert.equal(result.issues.length,1);
-  assert.equal(result.issues[0].target,'missing.json');
-  assert.equal(result.issues[0].code,'command-missing');
+test('literal config arguments and encoded link punctuation are checked', (t) => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'docs-check-'));
+  t.after(() => fs.rmSync(dir, {recursive: true, force: true}));
+  fs.writeFileSync(
+    path.join(dir, 'README.md'),
+    '[Encoded](file%23name.md#snake_case)\n```sh\nnode demo.mjs missing.json\n```',
+  );
+  fs.writeFileSync(path.join(dir, 'file#name.md'), '# snake_case');
+  fs.writeFileSync(path.join(dir, 'demo.mjs'), '');
+  const result = checkMarkdown(dir);
+  assert.equal(result.issues.length, 1);
+  assert.equal(result.issues[0].target, 'missing.json');
+  assert.equal(result.issues[0].code, 'command-missing');
 });

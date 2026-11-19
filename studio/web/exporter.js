@@ -1,12 +1,12 @@
-import { Gif } from './gif.js';
-import { draw, observation, boardStates, tickRate } from './scene.js';
+import {Gif} from './gif.js';
+import {draw, observation, boardStates, tickRate} from './scene.js';
 
 // Validation seeds repeat across checkpoints by design. Include the checkpoint
 // and a short sealed-study identity in both downloadable formats.
 export function replayFilename(trace, ext) {
   const parts = ['bend', trace.game, trace.arm, 'cp' + trace.checkpoint, trace.seed];
   if (trace.experiment) parts.push(String(trace.experiment).slice(0, 12));
-  return parts.map(part => String(part).replace(/[^\w-]/g, '-')).join('-') + '.' + ext;
+  return parts.map((part) => String(part).replace(/[^\w-]/g, '-')).join('-') + '.' + ext;
 }
 
 // GIF delays use hundredths of a second. Browsers clamp delays below 20 ms.
@@ -20,20 +20,20 @@ export function timeline(steps, fps) {
     const target = Math.round(step * ticksPerStep);
     const delay = target - elapsed;
     if (delay >= 2 || step === steps) {
-      frames.push({ step: start, delay: Math.max(2, delay) });
+      frames.push({step: start, delay: Math.max(2, delay)});
       start = step;
       elapsed = target;
     }
   }
-  frames.push({ step: steps, delay: 80 });
+  frames.push({step: steps, delay: 80});
   return frames;
 }
 export async function renderGif(trace, speed, onProgress, cancel, canvas) {
   const boards = ['tic-tac-toe', 'raw-board'].includes(trace.game) ? boardStates(trace) : [];
-  const ctx = canvas.getContext('2d', { willReadFrequently: true });
+  const ctx = canvas.getContext('2d', {willReadFrequently: true});
   const frames = timeline(trace.frames.length, tickRate(trace.game) * speed);
   let encoder;
-  for (const [i, { step, delay }] of frames.entries()) {
+  for (const [i, {step, delay}] of frames.entries()) {
     if (cancel()) throw Error('Recording cancelled');
     draw(canvas, trace.game, observation(trace, step), boards[step], trace.gridLayout);
     const pixels = ctx.getImageData(0, 0, canvas.width, canvas.height).data;

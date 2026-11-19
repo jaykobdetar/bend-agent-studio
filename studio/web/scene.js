@@ -4,12 +4,12 @@ const colors = {
   light: '#f9e6c9',
   mint: '#72d6c3',
   coral: '#ff896c',
-  muted: '#9a91b0'
+  muted: '#9a91b0',
 };
 const labels = {
   mountain_car: ['Push left', 'Coast', 'Push right'],
   cartpole: ['Push left', 'Push right'],
-  cliff: { 10: 'West', 20: 'East', 30: 'North', 40: 'South' }
+  cliff: {10: 'West', 20: 'East', 30: 'North', 40: 'South'},
 };
 export const gameName = (id) =>
   ({
@@ -18,7 +18,7 @@ export const gameName = (id) =>
     cliff: 'Cliff Walk',
     'tic-tac-toe': 'Tic-Tac-Toe',
     'raw-board': 'Tic-Tac-Toe',
-    takeaway: 'Takeaway'
+    takeaway: 'Takeaway',
   })[id] ?? id;
 export const replayChoice = (available, previous) =>
   available.includes(previous) ? previous : (available[0] ?? '');
@@ -28,9 +28,14 @@ export function replaySelection(run, checkpoint, phase, episode) {
   if (run.test && Number(checkpoint) === run.checkpoints.at(-1)) phases.push('test');
   if (run.validation) phases.push('validation');
   phase = replayChoice(phases, phase);
-  const max = run[phase] ?? 0, n = Number(episode);
-  return { phases, phase, max,
-    episode: max ? Math.min(max, Math.max(1, Number.isSafeInteger(n) ? n : 1)) : '' };
+  const max = run[phase] ?? 0,
+    n = Number(episode);
+  return {
+    phases,
+    phase,
+    max,
+    episode: max ? Math.min(max, Math.max(1, Number.isSafeInteger(n) ? n : 1)) : '',
+  };
 }
 export function actionName(game, id) {
   if (id === undefined) return '—';
@@ -178,10 +183,10 @@ function mountain(c, s) {
       [420, 94],
       [459, 56],
       [490, 78],
-      [514, 65]
+      [514, 65],
     ],
     '#64506d',
-    '#89667b'
+    '#89667b',
   );
   ridge(
     c,
@@ -202,10 +207,10 @@ function mountain(c, s) {
       [390, 88],
       [432, 115],
       [469, 80],
-      [515, 106]
+      [515, 106],
     ],
     '#493e57',
-    '#71546a'
+    '#71546a',
   );
   ridge(
     c,
@@ -223,9 +228,9 @@ function mountain(c, s) {
       [385, 124],
       [426, 103],
       [463, 117],
-      [513, 103]
+      [513, 103],
     ],
-    '#383246'
+    '#383246',
   );
   for (let x = 0; x < 512; x += 2) {
     const val = ((x - 22) / 468) * 1.8 - 1.2,
@@ -249,7 +254,8 @@ function mountain(c, s) {
 }
 function grid(c) {
   fill(c, '#1c1d2a', 0, 0, 512, 220);
-  for (let x = 0; x < 512; x += 16) for (let y = 0; y < 220; y += 16) fill(c, '#343343', x, y, 1, 1);
+  for (let x = 0; x < 512; x += 16)
+    for (let y = 0; y < 220; y += 16) fill(c, '#343343', x, y, 1, 1);
 }
 function pole(c, s) {
   grid(c);
@@ -337,45 +343,93 @@ function unknown(c, s) {
     c.fillText(txt.slice(i * 60, i * 60 + 60), 256, 108 + i * 13);
 }
 export function gridMarkers(layout, obs) {
-  if (!Number.isInteger(obs) || obs<0) return [];
-  if (layout.decoder==='taxi') {
-    if (obs>=500) return [];
-    const depots={};
-    layout.rows.forEach((row,y)=>[...row].forEach((cell,x)=>{if ('RGYB'.includes(cell)) depots[cell]=[y,x];}));
-    const stops='RGYB';
-    const passenger=Math.floor(obs/4)%5, dest=stops[obs%4];
-    const taxi=Math.floor(obs/20);
-    return [[...depots[dest],'destination'], ...(passenger<4?[[...depots[stops[passenger]],'passenger']]:[]),
-      [Math.floor(taxi/5),taxi%5,passenger===4?'occupied':'taxi']];
+  if (!Number.isInteger(obs) || obs < 0) return [];
+  if (layout.decoder === 'taxi') {
+    if (obs >= 500) return [];
+    const depots = {};
+    layout.rows.forEach((row, y) =>
+      [...row].forEach((cell, x) => {
+        if ('RGYB'.includes(cell)) depots[cell] = [y, x];
+      }),
+    );
+    const stops = 'RGYB';
+    const passenger = Math.floor(obs / 4) % 5,
+      dest = stops[obs % 4];
+    const taxi = Math.floor(obs / 20);
+    return [
+      [...depots[dest], 'destination'],
+      ...(passenger < 4 ? [[...depots[stops[passenger]], 'passenger']] : []),
+      [Math.floor(taxi / 5), taxi % 5, passenger === 4 ? 'occupied' : 'taxi'],
+    ];
   }
-  if (layout.points) return layout.points[obs]??[];
-  const width=layout.rows[0].length;
-  return obs<layout.rows.length*width?[[Math.floor(obs/width),obs%width,'agent']]:[];
+  if (layout.points) return layout.points[obs] ?? [];
+  const width = layout.rows[0].length;
+  return obs < layout.rows.length * width ? [[Math.floor(obs / width), obs % width, 'agent']] : [];
 }
 function drawFiniteGrid(c, layout, obs) {
-  const rows=layout.rows, width=rows[0].length;
-  const size=Math.min(474/width,182/rows.length);
-  const left=(512-width*size)/2, top=(220-rows.length*size)/2;
+  const rows = layout.rows,
+    width = rows[0].length;
+  const size = Math.min(474 / width, 182 / rows.length);
+  const left = (512 - width * size) / 2,
+    top = (220 - rows.length * size) / 2;
   grid(c);
-  const palette={'.':'#163941','S':'#255663','P':'#813a53','#':'#101b21',
-    R:'#913e51',G:'#2a8c67',Y:'#93702e',B:'#36588e'};
-  rows.forEach((row,y)=>[...row].forEach((kind,x)=>{
-    fill(c,palette[kind]??palette['.'],left+x*size,top+y*size,Math.max(1,size-1),Math.max(1,size-1));
-    if (size>=13 && kind!=='.' && kind!=='#') {
-      c.fillStyle='#edfaff'; c.font=Math.min(size*.34,13)+'px monospace'; c.textAlign='left';
-      c.fillText(kind,left+(x+.11)*size,top+(y+.35)*size);
-    }
-  }));
-  for (const [y,x] of layout.verticalWalls??[])
-    line(c,'#edfaff',left+(x+1)*size,top+y*size,left+(x+1)*size,top+(y+1)*size,2);
-  const markers={agent:['#9ef8d3','●'],ball:['#ffe783','●'],paddle:['#78e0ef','▰'],destination:['#ffffff','□'],
-    passenger:['#ffffff','◇'],taxi:['#ffe783','●'],occupied:['#ffe783','◆']};
-  for (const [y,x,mark] of gridMarkers(layout,obs)) {
-    if (!rows[y] || x<0 || x>=width || !markers[mark]) continue;
-    const [color,glyph]=markers[mark];
-    c.fillStyle=color; c.textAlign='center'; c.textBaseline='middle';
-    c.font=Math.max(3,size*((mark==='destination'||mark==='passenger')?.88:.58))+'px sans-serif';
-    c.fillText(glyph,left+(x+.55)*size,top+(y+.58)*size);
+  const palette = {
+    '.': '#163941',
+    S: '#255663',
+    P: '#813a53',
+    '#': '#101b21',
+    R: '#913e51',
+    G: '#2a8c67',
+    Y: '#93702e',
+    B: '#36588e',
+  };
+  rows.forEach((row, y) =>
+    [...row].forEach((kind, x) => {
+      fill(
+        c,
+        palette[kind] ?? palette['.'],
+        left + x * size,
+        top + y * size,
+        Math.max(1, size - 1),
+        Math.max(1, size - 1),
+      );
+      if (size >= 13 && kind !== '.' && kind !== '#') {
+        c.fillStyle = '#edfaff';
+        c.font = Math.min(size * 0.34, 13) + 'px monospace';
+        c.textAlign = 'left';
+        c.fillText(kind, left + (x + 0.11) * size, top + (y + 0.35) * size);
+      }
+    }),
+  );
+  for (const [y, x] of layout.verticalWalls ?? [])
+    line(
+      c,
+      '#edfaff',
+      left + (x + 1) * size,
+      top + y * size,
+      left + (x + 1) * size,
+      top + (y + 1) * size,
+      2,
+    );
+  const markers = {
+    agent: ['#9ef8d3', '●'],
+    ball: ['#ffe783', '●'],
+    paddle: ['#78e0ef', '▰'],
+    destination: ['#ffffff', '□'],
+    passenger: ['#ffffff', '◇'],
+    taxi: ['#ffe783', '●'],
+    occupied: ['#ffe783', '◆'],
+  };
+  for (const [y, x, mark] of gridMarkers(layout, obs)) {
+    if (!rows[y] || x < 0 || x >= width || !markers[mark]) continue;
+    const [color, glyph] = markers[mark];
+    c.fillStyle = color;
+    c.textAlign = 'center';
+    c.textBaseline = 'middle';
+    c.font =
+      Math.max(3, size * (mark === 'destination' || mark === 'passenger' ? 0.88 : 0.58)) +
+      'px sans-serif';
+    c.fillText(glyph, left + (x + 0.55) * size, top + (y + 0.58) * size);
   }
 }
 export function draw(canvas, game, obs, boardState, layout) {
@@ -383,7 +437,7 @@ export function draw(canvas, game, obs, boardState, layout) {
   c.save();
   c.setTransform(canvas.width / 512, 0, 0, canvas.height / 220, 0, 0);
   c.imageSmoothingEnabled = false;
-  if (layout?.rows?.[0]?.length) drawFiniteGrid(c,layout,obs);
+  if (layout?.rows?.[0]?.length) drawFiniteGrid(c, layout, obs);
   else if (game === 'mountain_car') mountain(c, obs);
   else if (game === 'cartpole') pole(c, obs);
   else if (game === 'cliff') cliff(c, obs);
@@ -395,15 +449,15 @@ export function channels(game) {
   return game === 'mountain_car'
     ? [
         ['Position', 'position'],
-        ['Velocity', 'velocity']
+        ['Velocity', 'velocity'],
       ]
     : game === 'cartpole'
       ? [
           ['Cart position', 'x'],
-          ['Pole angle', 'angle']
+          ['Pole angle', 'angle'],
         ]
       : [
           ['Reward', 'reward'],
-          ['Episode return', 'total']
+          ['Episode return', 'total'],
         ];
 }

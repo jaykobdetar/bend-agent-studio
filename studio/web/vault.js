@@ -2,7 +2,7 @@ let opening;
 function db() {
   return (opening ??= new Promise((resolve, reject) => {
     const req = indexedDB.open('bend-studio-recordings', 1);
-    req.onupgradeneeded = () => req.result.createObjectStore('clips', { keyPath: 'id' });
+    req.onupgradeneeded = () => req.result.createObjectStore('clips', {keyPath: 'id'});
     req.onsuccess = () => resolve(req.result);
     req.onerror = () => reject(req.error);
   }));

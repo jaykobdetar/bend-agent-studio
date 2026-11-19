@@ -26,17 +26,22 @@ test(
   'replay and resume with a different exact recorded Node executable',
   {
     ...compilerTest,
-    skip: compilerTest.skip || (!other && 'set BEND_MCP_TEST_OTHER_NODE to another Node 24 executable'),
+    skip:
+      compilerTest.skip || (!other && 'set BEND_MCP_TEST_OTHER_NODE to another Node 24 executable'),
     timeout: 60000,
   },
   async (t) => {
     const dir = tiny(t),
       version = execFileSync(other, ['-p', 'process.versions.node'], {encoding: 'utf8'}).trim();
     assert.notEqual(version, process.versions.node, 'supply a genuinely different Node version');
-    execFileSync(other, [path.join(repo, 'experiment.mjs'), 'run', 'plan.json', 'run', '--until', '0'], {
-      cwd: dir,
-      timeout: 30000,
-    });
+    execFileSync(
+      other,
+      [path.join(repo, 'experiment.mjs'), 'run', 'plan.json', 'run', '--until', '0'],
+      {
+        cwd: dir,
+        timeout: 30000,
+      },
+    );
     const ctx = serverContext(dir, {[version]: other});
     const j = await jobs.resume_run.run({run: 'run'}, ctx);
     let state;
@@ -46,7 +51,15 @@ test(
     } while (state.status === 'running');
     assert.equal(state.status, 'completed', state.lastStderr);
     const r = await inspection.replay_episode.run(
-      {run: 'run', game: 'bridge', arm: 'q', replicate: 0, checkpoint: 1, phase: 'test', episode: 0},
+      {
+        run: 'run',
+        game: 'bridge',
+        arm: 'q',
+        replicate: 0,
+        checkpoint: 1,
+        phase: 'test',
+        episode: 0,
+      },
       ctx,
     );
     assert.ok(r.steps);
@@ -59,8 +72,8 @@ test(
     ...compilerTest,
     skip:
       compilerTest.skip ||
-      spawnSync(backend, ['-I', '-c', 'import matplotlib'], {stdio: 'ignore', timeout: 10000}).status !==
-        0,
+      spawnSync(backend, ['-I', '-c', 'import matplotlib'], {stdio: 'ignore', timeout: 10000})
+        .status !== 0,
     timeout: 60000,
   },
   async (t) => {

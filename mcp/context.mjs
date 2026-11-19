@@ -130,7 +130,8 @@ export function context(workspace, nodeMap = {}) {
       const f = input(path.join(dir, 'code', n));
       const size = fs.statSync(f).size;
       snapshotBytes += size;
-      if (size > 64 * 2 ** 20 || snapshotBytes > 128 * 2 ** 20) throw Error('snapshot file too large');
+      if (size > 64 * 2 ** 20 || snapshotBytes > 128 * 2 ** 20)
+        throw Error('snapshot file too large');
       if (createHash('sha256').update(fs.readFileSync(f)).digest('hex') !== d)
         throw Error('snapshot checksum mismatch: ' + n);
     }
@@ -142,7 +143,8 @@ export function context(workspace, nodeMap = {}) {
       !Array.isArray(p.checkpoints) ||
       !p.checkpoints.length ||
       p.checkpoints.some(
-        (v, i) => !Number.isInteger(v) || v < 0 || v > 0xffffffff || (i && v <= p.checkpoints[i - 1]),
+        (v, i) =>
+          !Number.isInteger(v) || v < 0 || v > 0xffffffff || (i && v <= p.checkpoints[i - 1]),
       ) ||
       p.games.length * p.arms.length * p.replicates * p.checkpoints.length > 200000
     )
@@ -210,13 +212,16 @@ export function serverContext(workspace, nodeMap = {}) {
       return directory;
     },
     nodeFor: async (dir) => {
-      if (!versions.has(dir)) await preflight('archive', dir).then((r) => versions.set(dir, r.version));
+      if (!versions.has(dir))
+        await preflight('archive', dir).then((r) => versions.set(dir, r.version));
       const v = versions.get(dir);
       if (v === process.versions.node) return process.execPath;
       if (!Object.hasOwn(nodeMap, v) || !path.isAbsolute(nodeMap[v]))
         throw Error('configure an absolute Node executable for ' + v);
       const exe = nodeMap[v],
-        actual = await exec(exe, ['--version'], {timeout: 5000, maxBytes: 256}).catch(e=>{throw Error('Node runtime version check failed: '+e.message)});
+        actual = await exec(exe, ['--version'], {timeout: 5000, maxBytes: 256}).catch((e) => {
+          throw Error('Node runtime version check failed: ' + e.message);
+        });
       if (actual.trim() !== 'v' + v) throw Error('configured Node does not match ' + v);
       return exe;
     },

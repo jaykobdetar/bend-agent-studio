@@ -97,7 +97,8 @@ else {
         env: {...process.env, BEND: shim, READY: ready, MARKER: marker},
       });
       t.after(async () => {
-        if (client.child.exitCode === null && client.child.signalCode === null) await client.close();
+        if (client.child.exitCode === null && client.child.signalCode === null)
+          await client.close();
       });
       await client.init();
       data(await client.call('start_run', {plan: 'plan.json', out: 'run'}));
@@ -121,8 +122,10 @@ else {
   );
 
 test('MCP scaffolds and sweep use confined, no-clobber workspace paths', async (t) => {
-  const temp = path.parse(repo).root.toLowerCase() === path.parse(os.tmpdir()).root.toLowerCase()
-    ? os.tmpdir() : repo;
+  const temp =
+    path.parse(repo).root.toLowerCase() === path.parse(os.tmpdir()).root.toLowerCase()
+      ? os.tmpdir()
+      : repo;
   const tmp = await fs.mkdtemp(path.join(temp, 'bend-mcp-scaffold-'));
   const root = path.join(tmp, 'workspace');
   const outside = path.join(tmp, 'outside');
@@ -133,7 +136,9 @@ test('MCP scaffolds and sweep use confined, no-clobber workspace paths', async (
     await fs.rm(tmp, {recursive: true, force: true});
   });
   await cl.init();
-  const byName = Object.fromEntries((await cl.rpc('tools/list')).result.tools.map(x => [x.name, x]));
+  const byName = Object.fromEntries(
+    (await cl.rpc('tools/list')).result.tools.map((x) => [x.name, x]),
+  );
   for (const name of ['init_agent', 'init_world', 'init_plan', 'sweep'])
     assert.equal(byName[name].annotations.readOnlyHint, false);
   assert.ok(failed(await cl.call('init_plan', {name: '../outside/forbidden'})));
@@ -146,7 +151,10 @@ test('MCP scaffolds and sweep use confined, no-clobber workspace paths', async (
   assert.equal(data(await cl.call('init_world', {name: 'finite'})).created.length, 1);
   assert.equal(data(await cl.call('init_world', {name: 'bend', bend: true})).created.length, 1);
   assert.equal(data(await cl.call('init_agent', {name: 'starter'})).created.length, 6);
-  assert.equal(data(await cl.call('validate_plan', {plan: 'agents/starter/example.json'})).trialCount, 1);
+  assert.equal(
+    data(await cl.call('validate_plan', {plan: 'agents/starter/example.json'})).trialCount,
+    1,
+  );
   assert.equal(data(await cl.call('init_plan', {name: 'screen'})).created.length, 1);
   assert.ok(failed(await cl.call('init_plan', {name: 'screen'})));
   const source = path.join(root, 'experiments/screen.json');
@@ -163,22 +171,42 @@ test('MCP scaffolds and sweep use confined, no-clobber workspace paths', async (
   assert.equal(validated.trialCount, 2);
   modified.checkpoints = [0, 2, 4];
   await fs.writeFile(source, JSON.stringify(modified));
-  await fs.writeFile(path.join(root, 'spec.json'),
-    JSON.stringify({...spec, halving: {checkpoints: [2, 4]}}));
+  await fs.writeFile(
+    path.join(root, 'spec.json'),
+    JSON.stringify({...spec, halving: {checkpoints: [2, 4]}}),
+  );
   assert.equal(data(await cl.call('sweep', {spec: 'spec.json', out: 'half-plan.json'})).arms, 2);
   const half = data(await cl.call('validate_plan', {plan: 'half-plan.json'})).plan;
   await fs.mkdir(path.join(root, 'partial'));
   await fs.writeFile(path.join(root, 'partial/run.json'), seal({plan: half}));
-  assert.ok(failed(await cl.call('sweep', {
-    spec: 'spec.json', out: 'forbidden.json', halvingRun: '../outside',
-  })));
-  const next = data(await cl.call('sweep', {
-    spec: 'spec.json', out: 'rung.json', halvingRun: 'partial',
-  }));
-  assert.deepEqual(next.next.map(x => [x.shard, x.until]), [['0/2', 2], ['1/2', 2]]);
+  assert.ok(
+    failed(
+      await cl.call('sweep', {
+        spec: 'spec.json',
+        out: 'forbidden.json',
+        halvingRun: '../outside',
+      }),
+    ),
+  );
+  const next = data(
+    await cl.call('sweep', {
+      spec: 'spec.json',
+      out: 'rung.json',
+      halvingRun: 'partial',
+    }),
+  );
+  assert.deepEqual(
+    next.next.map((x) => [x.shard, x.until]),
+    [
+      ['0/2', 2],
+      ['1/2', 2],
+    ],
+  );
   await fs.writeFile(path.join(outside, 'source.json'), JSON.stringify(modified));
-  await fs.writeFile(path.join(root, 'spec.json'),
-    JSON.stringify({...spec, plan: '../outside/source.json'}));
+  await fs.writeFile(
+    path.join(root, 'spec.json'),
+    JSON.stringify({...spec, plan: '../outside/source.json'}),
+  );
   assert.ok(failed(await cl.call('sweep', {spec: 'spec.json', out: 'forbidden.json'})));
   await assert.rejects(fs.stat(path.join(root, 'forbidden.json')), {code: 'ENOENT'});
   await assert.rejects(fs.stat(path.join(outside, 'forbidden.json')), {code: 'ENOENT'});

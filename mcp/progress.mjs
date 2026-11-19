@@ -25,7 +25,9 @@ try {
       fit: 'fit.json',
       score: 'score.json',
     }[step];
-    const unit = {assess: 'evaluations', collect: 'partitions', fit: 'models', score: 'scores'}[step];
+    const unit = {assess: 'evaluations', collect: 'partitions', fit: 'models', score: 'scores'}[
+      step
+    ];
     let total = null,
       completed = 0,
       entries = 0;

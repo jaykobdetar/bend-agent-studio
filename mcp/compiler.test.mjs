@@ -16,7 +16,12 @@ test(
     const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'bend-mcp-real-'));
     t.after(() => fs.rm(dir, {recursive: true, force: true}));
     const plan = JSON.parse(await fs.readFile(path.join(repo, 'experiments/bridge.json')));
-    Object.assign(plan, {replicates: 2, checkpoints: [0, 2], validationEpisodes: 2, testEpisodes: 2});
+    Object.assign(plan, {
+      replicates: 2,
+      checkpoints: [0, 2],
+      validationEpisodes: 2,
+      testEpisodes: 2,
+    });
     plan.games[0].file = 'bridge.json';
     plan.arms = plan.arms.slice(0, 2);
     await fs.writeFile(path.join(dir, 'plan.json'), JSON.stringify(plan));
@@ -57,13 +62,13 @@ test(
     });
     assert.equal(s.rows.length, 1);
     assert.equal(s.rows[0].replicates, 2);
-    const annotation={notes:'Baseline <b>trial</b>',tags:['pilot']};
-    await fs.writeFile(path.join(dir,'run','notes.json'),JSON.stringify(annotation));
+    const annotation = {notes: 'Baseline <b>trial</b>', tags: ['pilot']};
+    await fs.writeFile(path.join(dir, 'run', 'notes.json'), JSON.stringify(annotation));
     const verified = await call('verify_run', {run: 'run'});
     assert.equal(verified.verified, true);
     const listed = await call('list_runs', {root: '.'});
     assert.ok(listed.runs.some((x) => x.verified && x.complete && x.name === 'run'));
-    assert.deepEqual(listed.runs.find(x=>x.name==='run').annotations,annotation);
+    assert.deepEqual(listed.runs.find((x) => x.name === 'run').annotations, annotation);
     const curve = await call('learning_curve', {run: 'run', phase: 'validation', draws: 100});
     assert.ok(curve.series.some((s) => s.arm === 'q' && s.points.length >= 2));
     const checkpoint = await call('get_checkpoint', {
@@ -92,7 +97,10 @@ test(
     assert.equal(e.total, r.steps);
     assert.equal(e.decisions[0].action, r.frames[0].action);
     assert.equal((await rpc('start_run', {plan: 'plan.json', out: 'run'})).isError, true);
-    await fs.appendFile(path.join(dir, 'run/code/experiment.mjs'), '\n// fixture: altered runner\n');
+    await fs.appendFile(
+      path.join(dir, 'run/code/experiment.mjs'),
+      '\n// fixture: altered runner\n',
+    );
     assert.match((await rpc('replay_episode', coords)).structuredContent.error, /checksum/);
     const j2 = await call('start_run', {plan: 'plan.json', out: 'new'});
     const cancelled = await call('cancel_job', {jobId: j2.jobId});
