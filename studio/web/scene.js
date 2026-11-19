@@ -20,6 +20,16 @@ export const gameName = (id) =>
     'raw-board': 'Tic-Tac-Toe',
     takeaway: 'Takeaway'
   })[id] ?? id;
+// Keep matched evaluation episodes when moving among archived checkpoints.
+export function replaySelection(run, checkpoint, phase, episode) {
+  const phases = [];
+  if (run.test && Number(checkpoint) === run.checkpoints.at(-1)) phases.push('test');
+  if (run.validation) phases.push('validation');
+  if (!phases.includes(phase)) phase = phases[0] ?? '';
+  const max = run[phase] ?? 0, n = Number(episode);
+  return { phases, phase, max,
+    episode: max ? Math.min(max, Math.max(1, Number.isSafeInteger(n) ? n : 1)) : '' };
+}
 export function actionName(game, id) {
   if (id === undefined) return '—';
   return labels[game]?.[id] ?? (isBoard(game) ? 'Place mark' : String(id));

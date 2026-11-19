@@ -9,7 +9,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { setTimeout as delay } from 'node:timers/promises';
 import { worlds } from './catalog.mjs';
-import { boardStates, cumulativeReturns, observation } from './web/scene.js';
+import { boardStates, cumulativeReturns, observation, replaySelection } from './web/scene.js';
 import { replayFilename, timeline } from './web/exporter.js';
 import { Gif } from './web/gif.js';
 import { seal } from '../experiment.mjs';
@@ -36,6 +36,22 @@ test('every visual example is a frozen, continuous Bend evaluation episode', asy
     assert.deepEqual(observation(t, t.steps), t.frames.at(-1).nextObservation);
   }
 });
+test('replay picker preserves matched evaluation coordinates and only falls back when necessary', () => {
+  const run = { checkpoints: [0, 32, 256], validation: 32, test: 128 };
+  const at = (point, phase, episode) => replaySelection(run, String(point), phase, String(episode));
+  assert.deepEqual(at(256, '', ''), { phases: ['test','validation'], phase:'test', max:128, episode:1 });
+  for (const point of [0, 32, 256]) {
+    const pick = at(point, 'validation', 7);
+    assert.equal(pick.phase, 'validation');
+    assert.equal(pick.episode, 7);
+  }
+  assert.deepEqual(at(32, 'test', 100), { phases:['validation'], phase:'validation', max:32, episode:32 });
+  assert.equal(at(256, 'test', 7).episode, 7);
+  assert.equal(at(32, 'validation', 0).episode, 1);
+  assert.deepEqual(replaySelection({...run, validation:0}, 32, 'test', 7),
+    { phases:[], phase:'', max:0, episode:'' });
+});
+
 test('a rejected final move preserves the accumulated Bend return', () => {
   const frames = [{ accepted: true, reward: 0.1 }, { accepted: true, reward: 0.2 }, { accepted: false }];
   const [, first, second, final] = cumulativeReturns(frames);

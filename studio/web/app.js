@@ -1,5 +1,5 @@
 import { comparisonUI } from './compare.js';
-import { actionName, boardStates, channels, cumulativeReturns, draw, gameName, observation, tickRate } from './scene.js';
+import { actionName, boardStates, channels, cumulativeReturns, draw, gameName, observation, replaySelection, tickRate } from './scene.js';
 import { renderGif, replayFilename } from './exporter.js';
 import { deleteClip, listClips, saveClip } from './vault.js';
 
@@ -512,25 +512,20 @@ function openDialog(run) {
       arm,
       run.arms.map((a) => [a, algoName(game.value, a)])
     );
-  const episodes = () => {
-    ep.max = run[phase.value] ?? 0;
-    ep.value = ep.max > 0 ? 1 : '';
-    $('load-replay').disabled = !phase.value;
-    note.textContent = phase.value ? '' : 'This checkpoint has no evaluation episodes.';
-  };
-  const phases = () => {
-    const options = [];
-    if (run.test && Number(point.value) === run.checkpoints.at(-1)) options.push(['test', 'Test']);
-    if (run.validation) options.push(['validation', 'Validation']);
-    choices(phase, options);
-    episodes();
+  const syncEvaluation = () => {
+    const next = replaySelection(run, point.value, phase.value, ep.value);
+    choices(phase, next.phases.map((p) => [p, friendlyPhase(p)]));
+    phase.value = next.phase;
+    ep.max = next.max;
+    ep.value = next.episode;
+    $('load-replay').disabled = !next.phase;
+    note.textContent = next.phase ? '' : 'This checkpoint has no evaluation episodes.';
   };
   game.onchange = agents;
-  point.onchange = phases;
-  phase.onchange = episodes;
+  point.onchange = phase.onchange = syncEvaluation;
   point.value = run.checkpoints.at(-1);
   agents();
-  phases();
+  syncEvaluation();
   $('load-replay').onclick = async () => {
     if (!ep.reportValidity()) return;
     $('load-replay').disabled = true;
