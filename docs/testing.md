@@ -125,3 +125,22 @@ bend laws/PROOF.bend --verdict
 ```
 
 With Bend installed, the second command compiles literal and packed versions of the same generated worlds, checks every 16-bit draw for sampled logging policies, and compares chunked and direct episode reports for both completion hook types. These cases complement the independent proof verdict, which the pinned workflow and advisory Bend watch both run. See [the proof boundaries](laws.md#phase-9-proof-boundaries) for what is formal and what is empirical.
+
+## Formatting JavaScript
+
+Run this from the repository root using the pinned Node version:
+
+```sh
+npm --prefix tools/format ci --ignore-scripts
+npm --prefix tools/format run check
+npm --prefix tools/format run write
+```
+
+The isolated Prettier 3.6.2 package has no effect on the root or runtime
+dependencies. It checks Git-tracked .js and .mjs files under studio, mcp,
+analysis, tools, checks, offline, integrations and benchmarks. Stage new
+files before formatting so they enter the Git inventory. The formatter skips
+dependency directories, vendored/generated sources and documentation checker
+fixtures. Python, Bend, third-party data, core, agents and worlds are not
+formatted. To compare syntax trees and formatter idempotence, run
+`npm --prefix tools/format run audit`. The Linux CI check never rewrites files.

@@ -1,7 +1,18 @@
-import { comparisonUI } from './compare.js';
-import { actionName, boardStates, channels, cumulativeReturns, draw, gameName, observation, replayChoice, replaySelection, tickRate } from './scene.js';
-import { renderGif, replayFilename } from './exporter.js';
-import { deleteClip, listClips, saveClip } from './vault.js';
+import {comparisonUI} from './compare.js';
+import {
+  actionName,
+  boardStates,
+  channels,
+  cumulativeReturns,
+  draw,
+  gameName,
+  observation,
+  replayChoice,
+  replaySelection,
+  tickRate,
+} from './scene.js';
+import {renderGif, replayFilename} from './exporter.js';
+import {deleteClip, listClips, saveClip} from './vault.js';
 
 const $ = (id) => document.getElementById(id);
 const state = {
@@ -12,18 +23,18 @@ const state = {
   frame: 0,
   generation: 0,
   page: '',
-  playing: false
+  playing: false,
 };
 const pages = {
   simulator: [
     'Simulation workspace',
-    'Train an agent and explore its decisions, one step at a time.'
+    'Train an agent and explore its decisions, one step at a time.',
   ],
   experiments: [
     'Experiments',
-    'Open a saved run to compare checkpoints and replay held-out episodes.'
+    'Open a saved run to compare checkpoints and replay held-out episodes.',
   ],
-  recordings: ['Recordings', 'Preview and download gameplay saved in this browser.']
+  recordings: ['Recordings', 'Preview and download gameplay saved in this browser.'],
 };
 
 function element(tag, text, className) {
@@ -58,7 +69,7 @@ function notify(text) {
 }
 const number = (value) =>
   Number.isFinite(value)
-    ? Number(value.toFixed(3)).toLocaleString('en-US', { maximumFractionDigits: 3 })
+    ? Number(value.toFixed(3)).toLocaleString('en-US', {maximumFractionDigits: 3})
     : '—';
 const algoName = (game, id) =>
   state.worlds.find((w) => w.id === game)?.algorithms.find((a) => a.id === id)?.name ?? id;
@@ -82,7 +93,7 @@ function selectPreset(world) {
   });
   choices(
     $('agent'),
-    (world?.algorithms ?? []).map((a) => [a.id, a.name])
+    (world?.algorithms ?? []).map((a) => [a.id, a.name]),
   );
   $('budget').value = world?.episodes ?? '';
   syncForm();
@@ -114,7 +125,7 @@ function showWorlds() {
       labels.append(element('strong', world.name), element('small', world.category));
       el.append(thumb, labels);
       return el;
-    })
+    }),
   );
 }
 function showTrace(trace, source) {
@@ -130,7 +141,9 @@ function showTrace(trace, source) {
     state.worlds.find((w) => w.id === trace.game)?.description ??
     'Inspect the public observations from this environment.';
   $('stage-label').textContent =
-    friendlyPhase(trace.phase).toUpperCase() + ' EPISODE ' + String(trace.index + 1).padStart(2, '0');
+    friendlyPhase(trace.phase).toUpperCase() +
+    ' EPISODE ' +
+    String(trace.index + 1).padStart(2, '0');
   $('scrub').max = trace.frames.length;
   $('scene').setAttribute('aria-label', gameName(trace.game) + ' agent replay');
   $('details').replaceChildren();
@@ -138,14 +151,14 @@ function showTrace(trace, source) {
     ['Agent', algoName(trace.game, trace.arm)],
     ['Checkpoint', number(trace.checkpoint) + ' ' + trace.budgetUnit],
     ['Replay seed', String(trace.seed)],
-    ['Outcome', reason(trace)]
+    ['Outcome', reason(trace)],
   ])
     $('details').append(element('dt', key), element('dd', value));
   state.metrics = ['Return so far', 'Last action', 'Step reward'].map((name) => {
     const el = element('div', undefined, 'metric'),
       value = element('strong');
     el.append(element('span', name), value);
-    return { el, value };
+    return {el, value};
   });
   $('metrics').replaceChildren(...state.metrics.map((m) => m.el));
   state.signals = channels(trace.game).map(([name, key], index) => {
@@ -163,13 +176,13 @@ function showTrace(trace, source) {
         ? sum
         : key === 'reward'
           ? (trace.frames[i - 1]?.reward ?? 0)
-          : (observation(trace, i)?.[key] ?? 0)
+          : (observation(trace, i)?.[key] ?? 0),
     );
     const bounds = data.reduce(
       ([lo, hi], n) => [Math.min(lo, n), Math.max(hi, n)],
-      [Infinity, -Infinity]
+      [Infinity, -Infinity],
     );
-    return { el, value, canvas, data, bounds, color: index ? '#93d8bd' : '#ffa386' };
+    return {el, value, canvas, data, bounds, color: index ? '#93d8bd' : '#ffa386'};
   });
   $('signals').replaceChildren(...state.signals.map((s) => s.el));
   render();
@@ -179,7 +192,7 @@ function graph(signal, index) {
     canvas,
     data,
     bounds: [lo, hi],
-    color
+    color,
   } = signal;
   const c = canvas.getContext('2d'),
     w = canvas.width,
@@ -244,7 +257,7 @@ function play() {
       render();
       if (state.frame === state.trace.frames.length) pause();
     },
-    1000 / (tickRate(state.trace.game) * Number($('speed').value))
+    1000 / (tickRate(state.trace.game) * Number($('speed').value)),
   );
 }
 function seek(index) {
@@ -294,8 +307,8 @@ function download(blob, name) {
 $('export-json').onclick = () => {
   if (state.trace)
     download(
-      new Blob([JSON.stringify(state.trace, null, 2)], { type: 'application/json' }),
-      replayFilename(state.trace, 'json')
+      new Blob([JSON.stringify(state.trace, null, 2)], {type: 'application/json'}),
+      replayFilename(state.trace, 'json'),
     );
 };
 $('reroll').onclick = () => {
@@ -307,19 +320,26 @@ function empty(title, hint) {
   box.append(element('strong', title), element('span', hint));
   return box;
 }
-const refreshCompare = comparisonUI($('comparison'),api);
+const refreshCompare = comparisonUI($('comparison'), api);
 function syncForm() {
   const busy = state.runs.some((r) => r.status === 'training' || r.status === 'queued');
-  const usingManifest=Boolean($('manifest').value);
-  $('preset-fields').hidden=usingManifest;
-  $('preset-fields').disabled=usingManifest;
-  $('train-btn').disabled = !(usingManifest ? state.manifestInfo : state.selected) || state.submitting;
-  $('train-btn').lastElementChild.textContent = state.submitting ? 'Submitting…' : busy ? 'Queue training' : usingManifest ? 'Train plan' : 'Train agent';
+  const usingManifest = Boolean($('manifest').value);
+  $('preset-fields').hidden = usingManifest;
+  $('preset-fields').disabled = usingManifest;
+  $('train-btn').disabled =
+    !(usingManifest ? state.manifestInfo : state.selected) || state.submitting;
+  $('train-btn').lastElementChild.textContent = state.submitting
+    ? 'Submitting…'
+    : busy
+      ? 'Queue training'
+      : usingManifest
+        ? 'Train plan'
+        : 'Train agent';
   $('job-status').textContent =
     state.message ||
     (busy
       ? 'One run trains at a time. Queued jobs can be cancelled in Experiments.'
-      : (state.selected || state.manifestInfo)
+      : state.selected || state.manifestInfo
         ? 'New runs are saved in Experiments.'
         : 'Choose an environment or training plan to start a new run.');
 }
@@ -337,30 +357,45 @@ function showRuns() {
       info = element('div');
     row.dataset.runId = run.id;
     info.append(element('strong', run.name));
-    const description = run.attached ? ['Attached run', 'Checkpoint completeness not checked'] : [
-      run.status === 'ready' ? 'Ready' : run.status === 'queued' ? 'Queued · position '+run.position : run.status,
-      run.created ? new Date(run.created).toLocaleString() : 'Attached run'
-    ];
+    const description = run.attached
+      ? ['Attached run', 'Checkpoint completeness not checked']
+      : [
+          run.status === 'ready'
+            ? 'Ready'
+            : run.status === 'queued'
+              ? 'Queued · position ' + run.position
+              : run.status,
+          run.created ? new Date(run.created).toLocaleString() : 'Attached run',
+        ];
     if (run.manifest) description.push(run.manifest);
     if (run.episodes) description.push(number(run.episodes) + ' episodes', 'seed ' + run.seed);
     info.append(element('p', description.join(' · '), 'meta'));
     if (run.annotations?.notes) info.append(element('p', run.annotations.notes, 'run-notes'));
-    if (run.annotations?.tags?.length) info.append(element('p', 'Tags: ' + run.annotations.tags.join(', '), 'meta'));
-    if (run.annotationWarning) info.append(element('p',run.annotationWarning,'meta'));
+    if (run.annotations?.tags?.length)
+      info.append(element('p', 'Tags: ' + run.annotations.tags.join(', '), 'meta'));
+    if (run.annotationWarning) info.append(element('p', run.annotationWarning, 'meta'));
     if (run.error) info.append(element('p', run.error, 'meta'));
     row.append(info);
-    if (run.status === 'ready') row.append(button('Open replay', () => openDialog(run), 'secondary'));
-    if (['training','queued'].includes(run.status)) row.append(button(run.status==='queued'?'Cancel queued job':'Cancel training', async (event) => {
-      const cancel = event.currentTarget;
-      cancel.disabled = true;
-      try {
-        await api('/api/runs/' + run.id + '/cancel', { method: 'POST' });
-        await refreshRuns();
-      } catch (err) {
-        notify(err.message);
-        cancel.disabled = false;
-      }
-    }, 'secondary'));
+    if (run.status === 'ready')
+      row.append(button('Open replay', () => openDialog(run), 'secondary'));
+    if (['training', 'queued'].includes(run.status))
+      row.append(
+        button(
+          run.status === 'queued' ? 'Cancel queued job' : 'Cancel training',
+          async (event) => {
+            const cancel = event.currentTarget;
+            cancel.disabled = true;
+            try {
+              await api('/api/runs/' + run.id + '/cancel', {method: 'POST'});
+              await refreshRuns();
+            } catch (err) {
+              notify(err.message);
+              cancel.disabled = false;
+            }
+          },
+          'secondary',
+        ),
+      );
     return row;
   });
   list.replaceChildren(
@@ -369,14 +404,15 @@ function showRuns() {
       : [
           empty(
             'No experiments yet',
-            'Choose an environment and select Train agent to save your first run.'
-          )
-        ])
+            'Choose an environment and select Train agent to save your first run.',
+          ),
+        ]),
   );
   // Polling another job must not take the keyboard away from this run.
-  const replacement = focusedId && items.find(row => row.dataset.runId === focusedId)?.querySelector('button');
+  const replacement =
+    focusedId && items.find((row) => row.dataset.runId === focusedId)?.querySelector('button');
   if (replacement && replacement.textContent === focused.textContent)
-    replacement.focus({ preventScroll: true });
+    replacement.focus({preventScroll: true});
 }
 let refreshPending, watchTimer;
 async function refreshRuns() {
@@ -386,14 +422,19 @@ async function refreshRuns() {
     state.runs = runs;
     showRuns();
     syncForm();
-    const finished = runs.find((r) => r.id === state.watch && !['queued','training'].includes(r.status));
+    const finished = runs.find(
+      (r) => r.id === state.watch && !['queued', 'training'].includes(r.status),
+    );
     if (finished) {
       state.watch = undefined;
       state.message =
-        finished.status === 'ready' ? 'Training complete. Run saved in Experiments.' : finished.error;
+        finished.status === 'ready'
+          ? 'Training complete. Run saved in Experiments.'
+          : finished.error;
       syncForm();
       if (
-        finished.status === 'ready' && !finished.manifest &&
+        finished.status === 'ready' &&
+        !finished.manifest &&
         state.page === 'simulator' &&
         state.generation === state.watchGeneration
       )
@@ -403,7 +444,7 @@ async function refreshRuns() {
           point: finished.checkpoints.at(-1),
           rep: 0,
           phase: 'test',
-          episode: 0
+          episode: 0,
         });
     }
   })();
@@ -412,47 +453,55 @@ async function refreshRuns() {
   } finally {
     refreshPending = undefined;
     clearTimeout(watchTimer);
-    if (state.watch || state.runs.some((r) => ['queued','training'].includes(r.status)))
+    if (state.watch || state.runs.some((r) => ['queued', 'training'].includes(r.status)))
       watchTimer = setTimeout(() => refreshRuns().catch((e) => notify(e.message)), 900);
   }
 }
 $('manifest').onchange = async () => {
-  const seq=(state.manifestSequence??0)+1, file=$('manifest').value;
-  state.manifestSequence=seq;
-  state.manifestInfo=null;
-  state.message='';
-  const info=$('manifest-info');
-  info.hidden=!file;
-  info.textContent=file?'Validating plan…':'';
+  const seq = (state.manifestSequence ?? 0) + 1,
+    file = $('manifest').value;
+  state.manifestSequence = seq;
+  state.manifestInfo = null;
+  state.message = '';
+  const info = $('manifest-info');
+  info.hidden = !file;
+  info.textContent = file ? 'Validating plan…' : '';
   syncForm();
   if (!file) return;
   try {
-    const plan=await api('/api/manifest?file='+encodeURIComponent(file));
-    if (seq!==state.manifestSequence) return;
-    state.manifestInfo=plan;
-    info.textContent=plan.name+' · '+plan.replicates+' replicate(s) · '+plan.hooks.map(({arm,hook})=>arm+': '+hook).join(', ');
+    const plan = await api('/api/manifest?file=' + encodeURIComponent(file));
+    if (seq !== state.manifestSequence) return;
+    state.manifestInfo = plan;
+    info.textContent =
+      plan.name +
+      ' · ' +
+      plan.replicates +
+      ' replicate(s) · ' +
+      plan.hooks.map(({arm, hook}) => arm + ': ' + hook).join(', ');
   } catch (err) {
-    if (seq===state.manifestSequence) info.textContent=err.message;
+    if (seq === state.manifestSequence) info.textContent = err.message;
   }
   syncForm();
 };
 $('train').onsubmit = async (e) => {
   e.preventDefault();
   const generation = state.generation;
-  const body = state.manifestInfo ? {manifest:state.manifestInfo.file} : {
-    world: state.selected,
-    algorithm: $('agent').value,
-    episodes: Number($('budget').value),
-    seed: Number($('seed').value)
-  };
+  const body = state.manifestInfo
+    ? {manifest: state.manifestInfo.file}
+    : {
+        world: state.selected,
+        algorithm: $('agent').value,
+        episodes: Number($('budget').value),
+        seed: Number($('seed').value),
+      };
   state.submitting = true;
   state.message = '';
   syncForm();
   try {
     const run = await api('/api/runs', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(body)
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify(body),
     });
     state.watch = run.id;
     state.watchGeneration = generation;
@@ -472,7 +521,7 @@ async function loadRun(run, params) {
   const generation = ++state.generation;
   try {
     const trace = await api('/api/runs/' + run.id + '/replay?' + new URLSearchParams(params), {
-      signal: controller.signal
+      signal: controller.signal,
     });
     if (controller.signal.aborted || generation !== state.generation) return false;
     const world = state.worlds.find((w) => w.id === trace.game);
@@ -505,18 +554,18 @@ function openDialog(run) {
   const game = field(
     'Environment',
     'game',
-    run.games.map((g) => [g.id, gameName(g.id)])
+    run.games.map((g) => [g.id, gameName(g.id)]),
   );
   const arm = field('Agent', 'arm');
   const point = field(
     'Training checkpoint',
     'point',
-    run.checkpoints.map((n) => [n, number(n)])
+    run.checkpoints.map((n) => [n, number(n)]),
   );
   const rep = field(
     'Replicate',
     'rep',
-    Array.from({ length: run.replicates }, (_, i) => [i, i + 1])
+    Array.from({length: run.replicates}, (_, i) => [i, i + 1]),
   );
   const phase = field('Evaluation split', 'phase');
   const group = element('div'),
@@ -533,12 +582,18 @@ function openDialog(run) {
   box.append(note);
   const agents = () => {
     const selected = replayChoice(run.arms, arm.value);
-    choices(arm, run.arms.map((a) => [a, algoName(game.value, a)]));
+    choices(
+      arm,
+      run.arms.map((a) => [a, algoName(game.value, a)]),
+    );
     arm.value = selected;
   };
   const syncEvaluation = () => {
     const next = replaySelection(run, point.value, phase.value, ep.value);
-    choices(phase, next.phases.map((p) => [p, friendlyPhase(p)]));
+    choices(
+      phase,
+      next.phases.map((p) => [p, friendlyPhase(p)]),
+    );
     phase.value = next.phase;
     ep.max = next.max;
     ep.value = next.episode;
@@ -562,7 +617,7 @@ function openDialog(run) {
         point: point.value,
         rep: rep.value,
         phase: phase.value,
-        episode: Number(ep.value) - 1
+        episode: Number(ep.value) - 1,
       });
       if (!loaded || !$('run-dialog').open) return;
       $('run-dialog').close();
@@ -597,7 +652,7 @@ async function record() {
     cancel() {
       this.cancelled = true;
       this.stop?.();
-    }
+    },
   };
   recording = current;
   const progress = (n) => recordLabel('Cancel · ' + n + '%');
@@ -605,17 +660,17 @@ async function record() {
     progress(0);
     let blob;
     if (typeof Worker === 'function' && typeof OffscreenCanvas === 'function') {
-      const worker = new Worker(new URL('./record-worker.js', import.meta.url), { type: 'module' });
+      const worker = new Worker(new URL('./record-worker.js', import.meta.url), {type: 'module'});
       try {
         blob = await new Promise((resolve, reject) => {
           current.stop = () => reject(Error('Recording cancelled'));
-          worker.onmessage = ({ data }) => {
+          worker.onmessage = ({data}) => {
             if (data.blob) resolve(data.blob);
             else if (data.error) reject(Error(data.error));
             else progress(data.progress);
           };
           worker.onerror = (e) => reject(Error(e.message || 'Recording failed'));
-          worker.postMessage({ trace, speed });
+          worker.postMessage({trace, speed});
         });
       } finally {
         worker.terminate();
@@ -636,7 +691,7 @@ async function record() {
         speed,
         created: Date.now(),
         file,
-        blob
+        blob,
       });
       notify('GIF saved in Recordings.');
       if (state.page === 'recordings') await showClips();
@@ -669,7 +724,10 @@ async function showClips() {
     box.className = clips.length ? 'clip-grid' : '';
     if (!clips.length) {
       box.replaceChildren(
-        empty('No recordings yet', 'Open a replay and select Record GIF to save the entire episode.')
+        empty(
+          'No recordings yet',
+          'Open a replay and select Record GIF to save the entire episode.',
+        ),
       );
       return;
     }
@@ -686,7 +744,7 @@ async function showClips() {
           const info = element(
             'p',
             clip.agent + ' · ' + clip.steps + ' steps · ' + clip.speed + '×',
-            'meta'
+            'meta',
           );
           const footer = element('footer'),
             link = element('a', 'Download GIF');
@@ -702,11 +760,11 @@ async function showClips() {
               } catch (err) {
                 notify(err.message);
               }
-            })
+            }),
           );
           item.append(img, element('strong', clip.title), info, footer);
           return item;
-        })
+        }),
     );
   } catch (err) {
     $('clip-list').replaceChildren(empty('Recordings unavailable', err.message));
@@ -742,8 +800,11 @@ for (const el of document.querySelectorAll('[data-nav],[data-go]'))
 window.onhashchange = () => navigate(location.hash.slice(1), true);
 try {
   state.worlds = await api('/api/catalog');
-  const manifests=await api('/api/manifests');
-  choices($('manifest'), [['','Use an environment preset'], ...manifests.map(file=>[file,file])]);
+  const manifests = await api('/api/manifests');
+  choices($('manifest'), [
+    ['', 'Use an environment preset'],
+    ...manifests.map((file) => [file, file]),
+  ]);
   showWorlds();
   await chooseWorld(state.worlds[0]);
   navigate(location.hash.slice(1), true);

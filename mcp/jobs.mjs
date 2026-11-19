@@ -75,7 +75,9 @@ async function prepare(op, a, c) {
   } else {
     dir = c.output(a.out);
     const spec = c.input(a.spec);
-    const expected = {collect: ['run'], fit: ['dataset'], score: ['run', 'dataset', 'models']}[a.step];
+    const expected = {collect: ['run'], fit: ['dataset'], score: ['run', 'dataset', 'models']}[
+      a.step
+    ];
     for (const k of ['run', 'dataset', 'models'])
       if (expected.includes(k) !== (a[k] !== undefined))
         throw Error('invalid ' + a.step + ' inputs: expected ' + expected.join(', '));
@@ -184,7 +186,14 @@ export const jobs = {
   start_offline: make(
     'start_offline',
     'Collect requires run; fit requires dataset; score requires run, dataset and models. Each writes a new directory.',
-    {step: choice('collect', 'fit', 'score'), spec: str, out: str, run: str, dataset: str, models: str},
+    {
+      step: choice('collect', 'fit', 'score'),
+      spec: str,
+      out: str,
+      run: str,
+      dataset: str,
+      models: str,
+    },
     ['step', 'spec', 'out'],
   ),
   job_status: tool(

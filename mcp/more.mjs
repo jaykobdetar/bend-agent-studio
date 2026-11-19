@@ -61,12 +61,14 @@ export const more = {
           row.node = m.body.toolchain.node;
           row.experimentName = m.body.plan.name;
           row.progress = JSON.parse(
-            await c.exec(process.execPath, [script(c, 'experiment.mjs'), 'status', d], {timeout: 5000}),
+            await c.exec(process.execPath, [script(c, 'experiment.mjs'), 'status', d], {
+              timeout: 5000,
+            }),
           );
           row.complete = row.progress.completeTrials === row.progress.totalTrials;
           await stat(c, d);
           row.verified = true;
-          Object.assign(row,readRunNotes(d));
+          Object.assign(row, readRunNotes(d));
         } catch (e) {
           row.error = e.message;
         }
@@ -77,7 +79,14 @@ export const more = {
   ),
   get_checkpoint: tool(
     'Inspect verified checkpoint metrics and model lineage. Model is opt-in and limited to 128 KiB.',
-    {run: str, game: str, arm: str, replicate: uint, checkpoint: uint, includeModel: {type: 'boolean'}},
+    {
+      run: str,
+      game: str,
+      arm: str,
+      replicate: uint,
+      checkpoint: uint,
+      includeModel: {type: 'boolean'},
+    },
     ['run', 'game', 'arm', 'replicate', 'checkpoint'],
     true,
     async (a, c) => {
@@ -122,7 +131,9 @@ export const more = {
       scratch(async (d) => {
         const r = await c.archive(a.run);
         const summary = JSON.parse(
-          await c.exec(await c.nodeFor(r), [script(c, 'analysis/arena_tournament.mjs'), r, d], {timeout: 30000}),
+          await c.exec(await c.nodeFor(r), [script(c, 'analysis/arena_tournament.mjs'), r, d], {
+            timeout: 30000,
+          }),
         );
         function table(name) {
           const f = path.join(d, name + '.csv');
@@ -177,7 +188,10 @@ export const more = {
           String(a.draws ?? 2000),
         ];
         const result = JSON.parse(
-          await c.exec(py, ['-I', script(c, 'mcp/curves.py'), ...args], {cwd: c.repo, timeout: 30000}),
+          await c.exec(py, ['-I', script(c, 'mcp/curves.py'), ...args], {
+            cwd: c.repo,
+            timeout: 30000,
+          }),
         );
         if (out) {
           const svg = path.join(d, 'curve.svg');
@@ -213,7 +227,11 @@ export const more = {
         }
         for (const e of fs.readdirSync(stock, {withFileTypes: true}))
           if (e.isFile() && e.name.endsWith('.bend'))
-            fs.copyFileSync(path.join(stock, e.name), path.join(d, e.name), fs.constants.COPYFILE_EXCL);
+            fs.copyFileSync(
+              path.join(stock, e.name),
+              path.join(d, e.name),
+              fs.constants.COPYFILE_EXCL,
+            );
         await c.exec(
           process.env.BEND ?? 'bend',
           [path.join(d, bundle.entry + '.bend'), '--check-only'],

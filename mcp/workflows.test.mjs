@@ -50,13 +50,19 @@ test('memory composition, exact policy, examples, and sequential inference', asy
   });
   assert.equal(res.expectedReturn, 1);
   const {examples} = await call('list_examples', {});
-  assert.ok(examples.some((x) => x.path === 'experiments/bridge.json' && x.kind === 'training plan'));
+  assert.ok(
+    examples.some((x) => x.path === 'experiments/bridge.json' && x.kind === 'training plan'),
+  );
   for (const stem of ['sarsa', 'n_step', 'td_lambda', 'reinforce', 'linear', 'clipped_pg'])
-    assert.ok(examples.some(x => x.kind === 'agent' && x.path === 'agents/' + stem + '/agent.bend'), stem);
-  assert.ok(!examples.some(x => x.kind === 'agent' && /(?:checks|laws|proof|lib)/.test(x.path)));
+    assert.ok(
+      examples.some((x) => x.kind === 'agent' && x.path === 'agents/' + stem + '/agent.bend'),
+      stem,
+    );
+  assert.ok(!examples.some((x) => x.kind === 'agent' && /(?:checks|laws|proof|lib)/.test(x.path)));
   for (const x of examples) {
     assert.ok(fs.lstatSync(path.join(repo, x.path)).isFile(), x.path);
-    if (x.kind === 'agent') assert.ok(bundleAgent(path.join(repo, x.path), path.join(repo, 'core')).entry);
+    if (x.kind === 'agent')
+      assert.ok(bundleAgent(path.join(repo, x.path), path.join(repo, 'core')).entry);
   }
   write('design.json', {
     design: {lower: -1, upper: 1},
@@ -108,12 +114,17 @@ test(
       testEpisodes: 2,
     });
     assert.equal(
-      (await call('select_confirmation', {run: 'source', spec: 'select.json', out: 'selected'})).plan
-        .arms.length,
+      (await call('select_confirmation', {run: 'source', spec: 'select.json', out: 'selected'}))
+        .plan.arms.length,
       2,
     );
     write('collect.json', {...sample('dispatch-narrow'), fitEpisodes: 4, holdoutEpisodes: 4});
-    await run('start_offline', {step: 'collect', run: 'source', spec: 'collect.json', out: 'dataset'});
+    await run('start_offline', {
+      step: 'collect',
+      run: 'source',
+      spec: 'collect.json',
+      out: 'dataset',
+    });
     write('fit.json', sample('dispatch-fit'));
     await run('start_offline', {step: 'fit', dataset: 'dataset', spec: 'fit.json', out: 'models'});
     write('score.json', {...sample('dispatch-score'), episodes: 4});

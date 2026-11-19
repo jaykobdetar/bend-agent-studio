@@ -7,11 +7,11 @@ export const worlds = [
     episodes: 256,
     description: 'Build momentum in the valley to reach the flag.',
     algorithms: [
-      { id: 'tile_expected', name: 'Tile Expected SARSA', alpha: 0.125, gamma: 1, epsilon: 0.25 },
-      { id: 'tile_q', name: 'Tile Q-learning', alpha: 0.5, gamma: 1, epsilon: 0.0625 },
-      { id: 'coarse_q', name: 'Coarse Q-learning', alpha: 0.5, gamma: 1, epsilon: 0.0625 },
-      { id: 'random', name: 'Random policy' }
-    ]
+      {id: 'tile_expected', name: 'Tile Expected SARSA', alpha: 0.125, gamma: 1, epsilon: 0.25},
+      {id: 'tile_q', name: 'Tile Q-learning', alpha: 0.5, gamma: 1, epsilon: 0.0625},
+      {id: 'coarse_q', name: 'Coarse Q-learning', alpha: 0.5, gamma: 1, epsilon: 0.0625},
+      {id: 'random', name: 'Random policy'},
+    ],
   },
   {
     id: 'cartpole',
@@ -21,10 +21,10 @@ export const worlds = [
     episodes: 512,
     description: 'Keep the pole upright by moving the cart left or right.',
     algorithms: [
-      { id: 'network_ac', name: 'Neural actor–critic', alpha: 0.009, criticRate: 0.02, gamma: 0.99 },
-      { id: 'linear_ac', name: 'Linear actor–critic', alpha: 0.003, criticRate: 0.02, gamma: 0.99 },
-      { id: 'random', name: 'Random policy' }
-    ]
+      {id: 'network_ac', name: 'Neural actor–critic', alpha: 0.009, criticRate: 0.02, gamma: 0.99},
+      {id: 'linear_ac', name: 'Linear actor–critic', alpha: 0.003, criticRate: 0.02, gamma: 0.99},
+      {id: 'random', name: 'Random policy'},
+    ],
   },
   {
     id: 'cliff',
@@ -34,11 +34,11 @@ export const worlds = [
     episodes: 256,
     description: 'Find a route to the goal without stepping over the cliff.',
     algorithms: [
-      { id: 'q_learning', name: 'Q-learning', alpha: 0.25, gamma: 0.95, epsilon: 0.125 },
-      { id: 'expected_sarsa', name: 'Expected SARSA', alpha: 0.25, gamma: 0.95, epsilon: 0.125 },
-      { id: 'dyna_q', name: 'Dyna-Q', alpha: 0.25, gamma: 0.95, epsilon: 0.125, planningSteps: 5 },
-      { id: 'random', name: 'Random policy' }
-    ]
+      {id: 'q_learning', name: 'Q-learning', alpha: 0.25, gamma: 0.95, epsilon: 0.125},
+      {id: 'expected_sarsa', name: 'Expected SARSA', alpha: 0.25, gamma: 0.95, epsilon: 0.125},
+      {id: 'dyna_q', name: 'Dyna-Q', alpha: 0.25, gamma: 0.95, epsilon: 0.125, planningSteps: 5},
+      {id: 'random', name: 'Random policy'},
+    ],
   },
   {
     id: 'tic-tac-toe',
@@ -48,10 +48,10 @@ export const worlds = [
     episodes: 1024,
     description: 'One policy learns both seats on a three-by-three board.',
     algorithms: [
-      { id: 'negamax', name: 'Negamax Q-learning', rule: 1 },
-      { id: 'expected', name: 'Expected TD', rule: 2 },
-      { id: 'mc', name: 'Monte Carlo', rule: 3 },
-      { id: 'uniform', name: 'Random policy', rule: 0 }
-    ]
-  }
+      {id: 'negamax', name: 'Negamax Q-learning', rule: 1},
+      {id: 'expected', name: 'Expected TD', rule: 2},
+      {id: 'mc', name: 'Monte Carlo', rule: 3},
+      {id: 'uniform', name: 'Random policy', rule: 0},
+    ],
+  },
 ];

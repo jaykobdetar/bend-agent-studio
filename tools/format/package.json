@@ -1,0 +1,13 @@
+{
+  "name": "bend-agent-studio-formatter",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "check": "node format.mjs --check",
+    "write": "node format.mjs --write",
+    "audit": "node format.mjs --debug-check"
+  },
+  "devDependencies": {
+    "prettier": "3.6.2"
+  }
+}

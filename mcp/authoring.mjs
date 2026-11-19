@@ -5,7 +5,12 @@ import {repo} from './context.mjs';
 import {choice, horizon, str, tool, planInput, worldInput} from './schema.mjs';
 import {armHooks, readPlanSource} from '../core/experiment.mjs';
 import {validate} from '../core/experiment_config.mjs';
-import {worldDefinition, oracle, reactiveOracle, numberPreservingJson} from '../core/finite_world.mjs';
+import {
+  worldDefinition,
+  oracle,
+  reactiveOracle,
+  numberPreservingJson,
+} from '../core/finite_world.mjs';
 import {beliefOracle, clockOracle, policyOracle} from '../core/public_oracle.mjs';
 import {memoryWorld} from '../tools/memory_world.mjs';
 import {scaffold, sweep} from '../tools/scaffold.mjs';
@@ -69,7 +74,10 @@ function load(p, ctx) {
 export function compute(name, a, ctx) {
   if (name === 'sweep')
     return sweep(a.spec, a.out, {
-      input: ctx.input, output: ctx.output, readSource: p => guardedSource(p, ctx), halvingRun: a.halvingRun,
+      input: ctx.input,
+      output: ctx.output,
+      readSource: (p) => guardedSource(p, ctx),
+      halvingRun: a.halvingRun,
     });
   if (name === 'init_agent' || name === 'init_world' || name === 'init_plan')
     return scaffold(ctx.root, name.slice(5), a.name, {bend: a.bend, output: ctx.output});
@@ -120,7 +128,10 @@ export function compute(name, a, ctx) {
     });
   }
   if (name === 'build_memory_world') {
-    const world = memoryWorld(w, load(a.rules, ctx), {maxStates: 20000, taskHorizon: a.horizon ?? null});
+    const world = memoryWorld(w, load(a.rules, ctx), {
+      maxStates: 20000,
+      taskHorizon: a.horizon ?? null,
+    });
     if (Buffer.byteLength(JSON.stringify({world})) > 2 ** 20)
       throw Error('generated world exceeds 1 MiB');
     if (a.out) {
@@ -151,12 +162,34 @@ async function isolated(name, a, ctx) {
 const make = (name, desc, props, required, ro = true) =>
   tool(desc, props, required, ro, (a, c) => isolated(name, a, c));
 export const authoring = {
-  init_agent: make('init_agent', 'Create a new scaffold under workspace agents/.', {name: str}, ['name'], false),
-  init_world: make('init_world', 'Create a finite JSON or Bend world under workspace worlds/.',
-    {name: str, bend: {type: 'boolean'}}, ['name'], false),
-  init_plan: make('init_plan', 'Create a new plan under workspace experiments/.', {name: str}, ['name'], false),
-  sweep: make('sweep', 'Expand a sweep spec into a validation-only manifest, or plan the next halving rung from a screening archive.',
-    {spec: str, out: str, halvingRun: str}, ['spec', 'out'], false),
+  init_agent: make(
+    'init_agent',
+    'Create a new scaffold under workspace agents/.',
+    {name: str},
+    ['name'],
+    false,
+  ),
+  init_world: make(
+    'init_world',
+    'Create a finite JSON or Bend world under workspace worlds/.',
+    {name: str, bend: {type: 'boolean'}},
+    ['name'],
+    false,
+  ),
+  init_plan: make(
+    'init_plan',
+    'Create a new plan under workspace experiments/.',
+    {name: str},
+    ['name'],
+    false,
+  ),
+  sweep: make(
+    'sweep',
+    'Expand a sweep spec into a validation-only manifest, or plan the next halving rung from a screening archive.',
+    {spec: str, out: str, halvingRun: str},
+    ['spec', 'out'],
+    false,
+  ),
   validate_plan: make(
     'validate_plan',
     'Normalize a training plan and describe its trial count, seed blocks and selected arm hooks.',
