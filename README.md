@@ -16,8 +16,6 @@ npm start
 
 Open **http://127.0.0.1:4173**. Four included replays work immediately, without a compiler or package installation. Training requires [Bend 2.0.40](https://github.com/bendlang/bend/releases/tag/v2.0.40). The [Studio guide](docs/studio.md) covers training, recordings, comparisons, attached runs, runtime versions and configuration.
 
-![Studio comparison of Cliff Walk validation returns for Q-learning and a random policy. Both runs used seed 42 and 128 training episodes, with one trained replicate per policy.](docs/studio-comparison.png)
-
 ### If Studio stops during training
 
 See [Studio interruption and recovery](docs/studio.md#if-studio-stops-during-training), including the limits of process supervision and how recovered jobs are handled.
@@ -37,6 +35,10 @@ npm start -- --run runs/bridge
 The [experiment guide](docs/experiments.md) explains seed blocks, validation, checkpoints, confirmation and archives. Open only trusted local runs: replay executes their archived code with the recorded Node version.
 
 Try the [flagship toy-text study](studies/flagship-toy-text/README.md) for a worked example with five worlds, eight learners, verified checkpoint exports, uncertainty tables and learning curves.
+
+![Studio chart of flagship CliffWalking validation returns: Dyna-Q improves earlier than Q-learning and Expected SARSA. Shaded regions show pointwise intervals across ten trained replicates per learner.](docs/studio-comparison.png)
+
+On this CliffWalking run, Dyna-Q reached a mean validation return of −13 by 64 training episodes; Q-learning reached the same value by 128. The plot shows a difference in when the agents learned on this task, not an overall ranking or an equal-compute comparison. The study page shows how to replay a learned route.
 
 ## Guides
 

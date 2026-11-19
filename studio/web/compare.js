@@ -50,6 +50,22 @@ export function comparisonGroups(results, selected) {
   }
   return {groups: [...groups.values()], errors};
 }
+const plotLeft = 56,
+  plotRight = 638;
+export function comparisonBudgetTicks(budgets) {
+  const values = [...new Set([0, ...budgets])].sort((a, b) => a - b);
+  const max = values.at(-1),
+    x = (v) => plotLeft + ((plotRight - plotLeft) * v) / (max || 1);
+  // Keep both ends and place intermediate labels only where adjacent labels can fit.
+  const gap = (a, b) => 14 + 4 * (String(a).length + String(b).length);
+  const chosen = [0];
+  for (const v of values.slice(1, -1)) {
+    const previous = chosen.at(-1);
+    if (x(v) - x(previous) >= gap(previous, v) && x(max) - x(v) >= gap(v, max)) chosen.push(v);
+  }
+  if (max) chosen.push(max);
+  return chosen.map((value) => ({value, x: x(value)}));
+}
 function chart({game, gameSpecHash, unit, lines}) {
   const box = E('section');
   box.append(E('h4', game + ' · ' + unit + ' · ' + gameSpecHash.slice(0, 8)));
@@ -59,26 +75,57 @@ function chart({game, gameSpecHash, unit, lines}) {
     'aria-label': game + ' validation mean return by ' + unit,
   });
   const points = lines.flatMap((l) => l.points);
-  const maxX = Math.max(1, ...points.map((p) => p.budget)),
+  const ticks = comparisonBudgetTicks(points.map((p) => p.budget));
+  const maxX = ticks.at(-1).value || 1,
     low = Math.min(...points.map((p) => p.interval?.[0] ?? p.mean)),
     high = Math.max(...points.map((p) => p.interval?.[1] ?? p.mean));
-  const x = (v) => 54 + (610 * v) / maxX,
-    y = (v) => (high === low ? 102 : 178 - (150 * (v - low)) / (high - low));
+  const x = (v) => plotLeft + ((plotRight - plotLeft) * v) / maxX,
+    y = (v) => (high === low ? 102 : 178 - (146 * (v - low)) / (high - low));
   for (const [a, b, c, d] of [
-    [54, 20, 54, 178],
-    [54, 178, 664, 178],
+    [plotLeft, 28, plotLeft, 178],
+    [plotLeft, 178, plotRight, 178],
   ])
     graphic.append(svg('line', {x1: a, y1: b, x2: c, y2: d, stroke: 'currentColor'}));
-  const tag = (a, b, t) => {
-    const e = svg('text', {x: a, y: b, fill: 'currentColor', 'font-size': 12});
+  const tag = (a, b, t, anchor = 'start') => {
+    const e = svg('text', {
+      x: a,
+      y: b,
+      fill: 'currentColor',
+      'font-size': 12,
+      'text-anchor': anchor,
+    });
     e.textContent = t;
     graphic.append(e);
   };
-  tag(2, 30, Number(high.toPrecision(3)));
-  tag(2, 178, Number(low.toPrecision(3)));
-  tag(54, 200, '0');
-  tag(614, 200, maxX);
-  tag(260, 216, 'Training budget (' + unit + ')');
+  tag(plotLeft, 16, 'Validation mean episode return');
+  const levels = high === low ? [low] : [low, (low + high) / 2, high];
+  for (const level of levels) {
+    const py = y(level);
+    graphic.append(
+      svg('line', {
+        x1: plotLeft - 4,
+        y1: py,
+        x2: plotRight,
+        y2: py,
+        stroke: 'currentColor',
+        opacity: 0.22,
+      }),
+    );
+    tag(plotLeft - 7, py + 4, Number(level.toPrecision(3)), 'end');
+  }
+  for (const tick of ticks) {
+    graphic.append(
+      svg('line', {
+        x1: tick.x,
+        y1: 178,
+        x2: tick.x,
+        y2: 183,
+        stroke: 'currentColor',
+      }),
+    );
+    tag(tick.x, 199, tick.value, 'middle');
+  }
+  tag((plotLeft + plotRight) / 2, 216, 'Training budget (' + unit + ')', 'middle');
   const legend = E('ul');
   for (const [i, l] of lines.entries()) {
     const color = palette[i % palette.length],

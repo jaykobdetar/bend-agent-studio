@@ -24,6 +24,14 @@ At the held-out final checkpoint, Dyna-Q had the highest normalized IQM in this 
 
 The intervals are 95% percentile intervals from 2,000 bootstrap resamples of trained replicate blocks. Suite PI averages, within each game, all cross-arm replicate pairs with ties counted as half; it is not the paired replicate win rate. Game membership stays fixed, and suite bootstrap samples the matched arm blocks within each game. These are pointwise estimates with no multiplicity adjustment. A tied estimate or zero-width interval can arise from discrete outcomes or identical choices in these seed blocks; it is not proof of identical policies. Small sample sizes, shared evaluation seeds across budgets, equal weighting of the two easy bandits, sparse FrozenLake reward and the short episode budget limit conclusions. Use independent seeds and a more diverse fixed suite to confirm any ranking.
 
+## Inspect a learned route in Studio
+
+After reproducing the archive below, attach it with `npm start -- --run runs/flagship-toy-text`. In **Experiments**, compare Q-learning, Expected SARSA and Dyna-Q on `cliff4x12` to see the [README comparison](../../README.md#design-an-experiment). The figure leaves out the uniform baseline so the differences among the three learning curves remain visible. Studio uses pointwise bootstrap intervals over ten trained replicates per arm.
+
+Choose **Open replay**, then select `cliff4x12`, `dyna_q`, checkpoint **128**, replicate **1**, **test** and episode **1**. At step 11 the agent is above the cliff and two moves from the goal. This held-out episode ends after 13 moves with return −13; one replay illustrates the route, not the variability across seeds.
+
+![Studio grid replay of the trained Dyna-Q agent at step 11 of 13, one row above the cliff, with the held-out episode's telemetry and checkpoint information.](../../docs/flagship-cliff-replay.png)
+
 ## Reproduce
 
 Run from the repository root with Bend 2.0.40 and Node 24.22.3. For the figures activate an isolated Python environment with Matplotlib (the committed charts were made with Python 3.14.7 and Matplotlib 3.11.2; numerical analyses are standard-library only). Output directories must not exist. Do not commit the run archive.

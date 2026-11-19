@@ -25,6 +25,24 @@ import {replayFilename, timeline} from './web/exporter.js';
 import {Gif} from './web/gif.js';
 import {seal} from '../core/experiment.mjs';
 import {digest} from '../core/experiment_config.mjs';
+import {comparisonBudgetTicks} from './web/compare.js';
+
+test('comparison ticks mark actual checkpoint budgets and align to both plot ends', () => {
+  const ticks = comparisonBudgetTicks([32, 0, 8, 8, 16, 64, 128]);
+  assert.deepEqual(
+    ticks.map(({value}) => value),
+    [0, 8, 16, 32, 64, 128],
+  );
+  assert.equal(ticks[0].x, 56);
+  assert.equal(ticks.at(-1).x, 638);
+  assert.equal(ticks[3].x, 56 + (638 - 56) / 4);
+  const dense = comparisonBudgetTicks([0, 1, 7, 64, 512, 4294967294, 4294967295]);
+  assert.deepEqual(
+    dense.map(({value}) => value),
+    [0, 4294967295],
+  );
+  assert.deepEqual(comparisonBudgetTicks([0]), [{value: 0, x: 56}]);
+});
 
 async function demo(id) {
   return JSON.parse(
