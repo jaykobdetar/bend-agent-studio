@@ -1,11 +1,11 @@
 import Base
-import ./core/engine.bend as E
-import ./core/tabular.bend as T
+import ../core/engine.bend as E
+import ../core/tabular.bend as T
 import ./checks.bend as Tests
-import ./core/cliff.bend as Cliff
-import ./core/ferry.bend as Ferry
-import ./core/key_maze.bend as Maze
-import ./core/orchard.bend as Orchard
+import ../core/cliff.bend as Cliff
+import ../core/ferry.bend as Ferry
+import ../core/key_maze.bend as Maze
+import ../core/orchard.bend as Orchard
 
 # Both actions receive exactly the same reward function, a coin toss.
 type CoinCounts is Data:

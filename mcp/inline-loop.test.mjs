@@ -6,7 +6,7 @@ import path from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {setTimeout as wait} from 'node:timers/promises';
 import {Client} from './wire-client.test-helper.mjs';
-import {compilerTest} from '../bend_test_support.mjs';
+import {compilerTest} from '../checks/support.mjs';
 const repo = fileURLToPath(new URL('../', import.meta.url));
 test(
   'an MCP-only client authors a world and plan in an empty workspace and inspects its learned policy',

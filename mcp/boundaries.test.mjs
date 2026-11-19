@@ -7,7 +7,7 @@ import {fileURLToPath} from 'node:url';
 import {Client} from './wire-client.test-helper.mjs';
 import {seal, stats} from '../core/experiment.mjs';
 import {digest} from '../core/experiment_config.mjs';
-import {compilerTest} from '../bend_test_support.mjs';
+import {compilerTest} from '../checks/support.mjs';
 
 const repo = fileURLToPath(new URL('../', import.meta.url));
 async function fixture(t) {

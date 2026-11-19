@@ -1,4 +1,4 @@
-import { compilerTest } from '../bend_test_support.mjs';
+import { compilerTest } from '../checks/support.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { spawn, spawnSync } from 'node:child_process';

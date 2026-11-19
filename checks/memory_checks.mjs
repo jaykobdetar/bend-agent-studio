@@ -1,10 +1,10 @@
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
-import {worldDefinition} from './core/finite_world.mjs';
-import {memoryWorld} from './memory_world.mjs';
-import {policyOracle} from './core/public_oracle.mjs';
+import {worldDefinition} from '../core/finite_world.mjs';
+import {memoryWorld} from '../memory_world.mjs';
+import {policyOracle} from '../core/public_oracle.mjs';
 
-const read=name=>JSON.parse(fs.readFileSync(new URL('./worlds/'+name+'.json',import.meta.url),'utf8'));
+const read=name=>JSON.parse(fs.readFileSync(new URL('../worlds/'+name+'.json',import.meta.url),'utf8'));
 const tiger=worldDefinition(read('tiger'));
 for (const name of ['sound','clock','evidence']) {
   const rebuilt=memoryWorld(tiger,read('tiger-'+name+'-rules'),{taskHorizon:8});

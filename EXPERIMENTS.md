@@ -14,7 +14,7 @@ The simulation, policy, learning updates, and action-by-action replay run in Ben
 8. A comparison declares its budget unit, metrics, replicate blocks, and evaluation conditions. Frozen evaluation decisions, saved weights, code fingerprints, and seed blocks remain traceable to their checkpoint. Hyperparameter selection uses validation. A confirmatory comparison retrains on fresh seeds.
 9. Offline fitting reads only the fit partition. Logging records the behavior probability of every taken action. The held-out log and fresh-simulator score have distinct seeds. Unsupported actions are explicitly reported.
 
-The project defines 46 propositions in `LAWS.bend` and `PROOF.bend`. They also cover feature-tree readback, logged-support restrictions, terminal critic and bootstrap targets, and two-seat payoff rules. The engine applies the learner once per training transition and preserves the model during evaluation. The whole-rollout counting-learner laws prove evaluation freezes the counter and training changes it by exactly the accepted-step delta; the proof preserves the signed difference from an arbitrary starting counter. Updating one Double Q table preserves the other. With a nonempty legal-action list, Double Q selects the bootstrap action with the table being updated and values it with the other table. Dyna planning preserves recorded experience. Completing a Monte Carlo self-play episode clears its buffered decisions, not the learned table. On the engine’s actual decision path, rejecting an illegal action preserves model, score and accepted steps, produces no transition and ends the episode. Only an open view at zero remaining fuel is truncated; positive fuel never causes truncation. Each report increases the episode count by one, including illegal exits. From any starting run, the final step count is at most the initial count plus available fuel. The history wrapper preserves legal actions and rewards. At each reset it restores the configured memory and seeds the underlying world anew. For any typed world and agent hooks, observing decisions preserves the final report, and splitting an interaction budget gives the same cursor as advancing once, including model, seed and remaining horizon. These laws cover both training and evaluation. Completing a fresh cursor yields exactly the ordinary episode report for all worlds and policies, including the model, score, steps and stop reason.
+The project defines 46 propositions in `laws/LAWS.bend` and `laws/PROOF.bend`. They also cover feature-tree readback, logged-support restrictions, terminal critic and bootstrap targets, and two-seat payoff rules. The engine applies the learner once per training transition and preserves the model during evaluation. The whole-rollout counting-learner laws prove evaluation freezes the counter and training changes it by exactly the accepted-step delta; the proof preserves the signed difference from an arbitrary starting counter. Updating one Double Q table preserves the other. With a nonempty legal-action list, Double Q selects the bootstrap action with the table being updated and values it with the other table. Dyna planning preserves recorded experience. Completing a Monte Carlo self-play episode clears its buffered decisions, not the learned table. On the engine’s actual decision path, rejecting an illegal action preserves model, score and accepted steps, produces no transition and ends the episode. Only an open view at zero remaining fuel is truncated; positive fuel never causes truncation. Each report increases the episode count by one, including illegal exits. From any starting run, the final step count is at most the initial count plus available fuel. The history wrapper preserves legal actions and rewards. At each reset it restores the configured memory and seeds the underlying world anew. For any typed world and agent hooks, observing decisions preserves the final report, and splitting an interaction budget gives the same cursor as advancing once, including model, seed and remaining horizon. These laws cover both training and evaluation. Completing a fresh cursor yields exactly the ordinary episode report for all worlds and policies, including the model, score, steps and stop reason.
 
 The addressed observation/action key reads back the revised F32 value and its incremented U32 visit count. All other keys preserve both reads, even when a key was absent or input entries are not unique.
 
@@ -99,7 +99,7 @@ for variant in sound clock evidence; do
 done
 ```
 
-Run `node memory_checks.mjs` to rebuild the worlds in memory, compare them with the checked-in JSON, and verify that always listening ends the task after eight steps with a return of −8.
+Run `node checks/memory_checks.mjs` to rebuild the worlds in memory, compare them with the checked-in JSON, and verify that always listening ends the task after eight steps with a return of −8.
 
 ## Declare the comparison
 
@@ -213,20 +213,20 @@ The <!-- count:experiment-files -->39<!-- /count --> names below refer to JSON f
 | How does performance change during training? | `python3 plot_curves.py bridge.csv bridge.svg --reference random` plots validation curves from a run export. Install Matplotlib for plotting. |
 | How does paired evidence accumulate? | `node sequential.mjs paired.json` reads `design` with fixed bounds `lower` and `upper` on the candidate-minus-reference difference, and `rows` with `replicate`, `candidate`, and `reference`. Its confidence sequence assumes a prospectively fixed replicate order starting at zero and a common conditional mean. |
 | How do archived self-play policies perform in each seat? | `node arena_tournament.mjs runs/self-play runs/tournament` scores a completed self-play run and writes `ratings.csv` and `crossplay.csv`. |
-| Do the board encodings, oracles and memory worlds match their independent checks? | `node arena_checks.mjs runs/self-play` uses the compiled self-play snapshot. `node oracle_checks.mjs` and `node memory_checks.mjs` run directly and are included in `npm test`. |
+| Do the board encodings, oracles and memory worlds match their independent checks? | `node checks/arena_checks.mjs runs/self-play` uses the compiled self-play snapshot. `node checks/oracle_checks.mjs` and `node checks/memory_checks.mjs` run directly and are included in `npm test`. |
 
 The fixed benchmark helpers `tabular.q_learning` and `tabular.expected_sarsa` use a learning rate of 0.25 and a discount of 0.9. Their benchmark policy explores on one quarter of training draws. For configurable built-in learners, set `alpha`, `gamma`, and `epsilon` on the manifest arm. [Benchmark helpers](core/tabular.bend) · [Study settings](core/study.bend)
 
 ## Test the implementation
 
 ```sh
-bend checks.bend
-bend benchmark_checks.bend
-bend study_checks.bend
-bend PROOF.bend --verdict
-node experiment_checks.mjs
-node batch_checks.mjs
-node world_campaign.mjs --bend bend --seed 30000 --worlds 4 --episodes 128 --batches 1
+bend checks/checks.bend
+bend checks/benchmark_checks.bend
+bend checks/study_checks.bend
+bend laws/PROOF.bend --verdict
+node checks/experiment_checks.mjs
+node checks/batch_checks.mjs
+node checks/world_campaign.mjs --bend bend --seed 30000 --worlds 4 --episodes 128 --batches 1
 ```
 
 The independent verdict needs a matching BendTT kernel available to Bend. The randomized campaign compiles newly generated games and compares boundary transitions, episode reports, and paused execution with an independent simulator. Its output lists the seed and source fingerprints so a failing batch can be repeated.

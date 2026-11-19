@@ -5,7 +5,7 @@ import os from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
 import {fileURLToPath,pathToFileURL} from 'node:url';
-import {compilerTest} from '../../bend_test_support.mjs';
+import {compilerTest} from '../../checks/support.mjs';
 import {bendSource,buckets,usesPackedWorld,worldDefinition} from '../../core/finite_world.mjs';
 import {packedSource} from '../../core/packed_world.mjs';
 

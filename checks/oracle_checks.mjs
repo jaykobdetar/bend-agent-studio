@@ -1,9 +1,9 @@
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
-import {beliefOracle,clockOracle,explainDecisions,policyOracle} from './core/public_oracle.mjs';
-import {worldDefinition} from './core/finite_world.mjs';
+import {beliefOracle,clockOracle,explainDecisions,policyOracle} from '../core/public_oracle.mjs';
+import {worldDefinition} from '../core/finite_world.mjs';
 
-const load=name=>worldDefinition(JSON.parse(fs.readFileSync(new URL('./worlds/'+name+'.json',import.meta.url),'utf8')));
+const load=name=>worldDefinition(JSON.parse(fs.readFileSync(new URL('../worlds/'+name+'.json',import.meta.url),'utf8')));
 const clue=load('reward-cue');
 assert.equal(beliefOracle(clue,2).optimalPublicHistoryReturn,2.5);
 const frames=[{observation:99,legal:[0],action:0,accepted:true,reward:1,nextObservation:10,nextLegal:[1,2],terminal:false,truncated:false},
@@ -39,7 +39,7 @@ assert.equal(policyOracle(switches,2,()=>0).expectedReturn,0);
 assert.equal(policyOracle(switches,2,()=>1).expectedReturn,0);
 console.log('Public-history planning, decision auditing and importance-weight moments passed.');
 
-const {discountedOracle,oracle}=await import('./core/finite_world.mjs');
+const {discountedOracle,oracle}=await import('../core/finite_world.mjs');
 const bridge=load('bridge'),detour=load('detour');
 for(const solution of ['valueIteration','policyIteration']){
   assert.equal(discountedOracle(bridge,1)[solution].optimalFullStateReturn,oracle(bridge,100).optimalFullStateReturn);
@@ -61,8 +61,8 @@ for(const g of [0,.5,.99]){
 }
 assert.throws(()=>discountedOracle(geometric,1),/acyclic/);
 
-const {exportPomdp}=await import('./tools/export_pomdp.mjs');
-const bridgeInput=JSON.parse(fs.readFileSync(new URL('./worlds/bridge.json',import.meta.url)));
+const {exportPomdp}=await import('../tools/export_pomdp.mjs');
+const bridgeInput=JSON.parse(fs.readFileSync(new URL('../worlds/bridge.json',import.meta.url)));
 const file=exportPomdp(bridgeInput,{illegalPenalty:-42});
 assert.equal(file,exportPomdp(bridgeInput,{illegalPenalty:-42}));
 assert.match(file,/T: a9 : s0 : sink 1\nR: a9 : s0 : sink : \* -42/);

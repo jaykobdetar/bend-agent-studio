@@ -1,16 +1,16 @@
-import { compilerTest } from './bend_test_support.mjs';
+import { compilerTest } from './support.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import * as fs from 'node:fs';
 import * as os from 'node:os';
 import path from 'node:path';
 import {fileURLToPath} from 'node:url';
-import {execute} from './core/process_output.mjs';
-import {canonical,checkSeedBlocks,validate} from './core/experiment_config.mjs';
-import {buckets,numberPreservingJson,worldDefinition,oracle,reactiveOracle,symbol} from './core/finite_world.mjs';
-import {bundleAgent} from './core/agent_source.mjs';
+import {execute} from '../core/process_output.mjs';
+import {canonical,checkSeedBlocks,validate} from '../core/experiment_config.mjs';
+import {buckets,numberPreservingJson,worldDefinition,oracle,reactiveOracle,symbol} from '../core/finite_world.mjs';
+import {bundleAgent} from '../core/agent_source.mjs';
 
-const here=path.dirname(fileURLToPath(import.meta.url));
+const here=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..');
 const cli=path.join(here,'experiment.mjs');
 const bend=process.env.BEND??'bend';
 const read=file=>JSON.parse(fs.readFileSync(file,'utf8'));
@@ -181,7 +181,7 @@ test('transfer targets receive frozen models and validation ties choose the earl
 });
 
 test('optional run annotations reject oversize, malformed and linked files',async t=>{
-  const {readRunNotes}=await import('./core/run_notes.mjs'),dir=directory(t),file=path.join(dir,'notes.json');
+  const {readRunNotes}=await import('../core/run_notes.mjs'),dir=directory(t),file=path.join(dir,'notes.json');
   assert.deepEqual(readRunNotes(dir),{});
   for(const content of ['not json','x'.repeat(17000),'{"tags":[""]}','{"notes":null}']){
     fs.writeFileSync(file,content);assert.ok(readRunNotes(dir).annotationWarning);
@@ -256,7 +256,7 @@ test('a failed local worker cancels its live peer before the supervisor returns'
       const timer=setInterval(()=>{if(fs.existsSync(ready)){clearInterval(timer);process.exit(7)}},10);
     }
   `);
-  const {launchShards}=await import('./core/parallel_trials.mjs');
+  const {launchShards}=await import('../core/parallel_trials.mjs');
   await assert.rejects(launchShards(dir,2,Infinity,'fixture',2),/shard 0\/2 failed/);
   const peer=Number(fs.readFileSync(ready,'utf8'));
   assert.throws(()=>process.kill(peer,0),{code:'ESRCH'});

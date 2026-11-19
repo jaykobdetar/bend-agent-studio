@@ -62,7 +62,7 @@ For `sequential.mjs`, a minimal input shape is `{"design":{"lower":-1,"upper":1}
 | Check that generated diagnostic probe worlds/plans match the checked-in files. | `node worlds/benchmarks/probes/generate.mjs --check` |
 | Compare toy-text transition/oracle references; see the adapter guide for pinned Gymnasium regeneration. | `node integrations/gymnasium/toy_text/oracles.mjs` |
 | Run the normal Node suite; compiler-backed checks require Bend. | `npm test` |
-| Run a bounded generated-world/compiler cross-check. | `node world_campaign.mjs --bend bend --seed 30000 --worlds 2 --episodes 12 --batches 1` |
-| Check the core proof with BendTT and Lean 4.34.0. | `bend PROOF.bend --verdict` |
+| Run a bounded generated-world/compiler cross-check. | `node checks/world_campaign.mjs --bend bend --seed 30000 --worlds 2 --episodes 12 --batches 1` |
+| Check the core proof with BendTT and Lean 4.34.0. | `bend laws/PROOF.bend --verdict` |
 
 The [experiment guide](../EXPERIMENTS.md) covers designs, file schemas and statistical assumptions. See the [MCP](../mcp/README.md), [Gymnasium](../integrations/gymnasium/README.md) and [Minari](../integrations/minari/README.md) guides for optional setup. The [table-timing procedure](../EXPERIMENTS.md#compare-keyed-tabular-training-against-list-backed-archives), [large-world compiler measurements](../tools/finite-layout/README.md) and [historical native experiment](../tools/native-spike/README.md) have specific prerequisites; none is a normal install or training step.

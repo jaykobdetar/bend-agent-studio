@@ -1,16 +1,16 @@
 import Base
 import ./checks.bend as Check
-import ./core/engine.bend as E
-import ./core/tabular.bend as T
-import ./core/double_q.bend as Double
-import ./core/dyna.bend as D
-import ./core/mountain_car.bend as Car
-import ./core/tile_control.bend as Tile
-import ./core/weights.bend as W
-import ./core/cartpole.bend as Pole
-import ./core/actor_critic.bend as AC
-import ./core/offline.bend as Offline
-import ./core/logged.bend as Log
+import ../core/engine.bend as E
+import ../core/tabular.bend as T
+import ../core/double_q.bend as Double
+import ../core/dyna.bend as D
+import ../core/mountain_car.bend as Car
+import ../core/tile_control.bend as Tile
+import ../core/weights.bend as W
+import ../core/cartpole.bend as Pole
+import ../core/actor_critic.bend as AC
+import ../core/offline.bend as Offline
+import ../core/logged.bend as Log
 
 def near(x: F32, y: F32, tolerance: F32) -> Bool:
   F32.is_le(F32.abs(F32.sub(x,y)),tolerance)

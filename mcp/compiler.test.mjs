@@ -7,7 +7,7 @@ import {fileURLToPath} from 'node:url';
 import {setTimeout as delay} from 'node:timers/promises';
 import {Client} from '@modelcontextprotocol/sdk/client/index.js';
 import {StdioClientTransport} from '@modelcontextprotocol/sdk/client/stdio.js';
-import {compilerTest} from '../bend_test_support.mjs';
+import {compilerTest} from '../checks/support.mjs';
 const repo = fileURLToPath(new URL('../', import.meta.url));
 test(
   'SDK client: real Bend training, completion, paired summary, archived replay, finite explanation and cancellation',

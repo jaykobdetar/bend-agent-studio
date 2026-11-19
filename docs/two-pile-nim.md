@@ -1,7 +1,7 @@
 # Two-pile Nim
 
 Run `node experiment.mjs run experiments/two-pile-nim.json RUN`,
-`node nim_checks.mjs RUN`, then `node arena_tournament.mjs RUN TOURNAMENT`.
+`node checks/nim_checks.mjs RUN`, then `node arena_tournament.mjs RUN TOURNAMENT`.
 Take any positive number of stones from a single pile; taking the last one
 wins. Each pile starts with 1–3 stones (parameters clamp and floor). The
 observation is the mover's seat and key 4×left+right. Actions 1–3 remove

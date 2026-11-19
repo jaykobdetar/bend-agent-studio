@@ -47,12 +47,12 @@ jobs:
         run: npm test
       - name: Check statistical comparisons and positive-exponent Bend literals
         run: |
-          python3 -m unittest test_multiple_comparisons test_suite_stats
-          node world_campaign.mjs --bend bend --seed 30000 --worlds 2 --episodes 12 --batches 1
+          python3 -m unittest checks.test_multiple_comparisons checks.test_suite_stats
+          node checks/world_campaign.mjs --bend bend --seed 30000 --worlds 2 --episodes 12 --batches 1
       - name: Verify two-pile Nim arena and every starting position
         run: |
           node experiment.mjs run experiments/two-pile-nim.json "$RUNNER_TEMP/nim-study"
-          node nim_checks.mjs "$RUNNER_TEMP/nim-study"
+          node checks/nim_checks.mjs "$RUNNER_TEMP/nim-study"
       - name: Test MCP with real Bend
         working-directory: mcp
         run: |
@@ -75,16 +75,16 @@ jobs:
           "$RUNNER_TEMP/bend-minari-env/bin/python" -m unittest discover -s integrations/minari -v
       - name: Run Bend checks
         run: |
-          bend checks.bend
-          bend benchmark_checks.bend
-          bend study_checks.bend
+          bend checks/checks.bend
+          bend checks/benchmark_checks.bend
+          bend checks/study_checks.bend
           bend sarsa_checks.bend
           bend n_step_checks.bend
           bend td_lambda_checks.bend
           bend reinforce_checks.bend
           bend linear_checks.bend
           bend clipped_pg_checks.bend
-          bend PROOF.bend
+          bend laws/PROOF.bend
 
       - name: Install Lean 4.34.0 for the independent proof check
         working-directory: ${{ runner.temp }}
@@ -95,7 +95,7 @@ jobs:
           echo "$RUNNER_TEMP/lean-4.34.0-linux/bin" >> "$GITHUB_PATH"
       - name: Verify proofs with BendTT
         run: |
-          bend PROOF.bend --verdict
+          bend laws/PROOF.bend --verdict
           bend sarsa_proof.bend --verdict
           bend n_step_proof.bend --verdict
           bend td_lambda_proof.bend --verdict

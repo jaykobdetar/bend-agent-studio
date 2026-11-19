@@ -7,7 +7,7 @@ import {context, repo} from './context.mjs';
 import {jobs} from './jobs.mjs';
 import {more} from './more.mjs';
 import {authoring} from './authoring.mjs';
-import {compilerTest} from '../bend_test_support.mjs';
+import {compilerTest} from '../checks/support.mjs';
 const read = (f) => JSON.parse(fs.readFileSync(f)),
   sample = (n) => read(path.join(repo, 'experiments', n + '.json'));
 function fixture(t, repoMode = false) {

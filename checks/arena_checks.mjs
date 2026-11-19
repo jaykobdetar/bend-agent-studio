@@ -2,12 +2,12 @@
 import assert from 'node:assert/strict';
 import path from 'node:path';
 import {pathToFileURL} from 'node:url';
-import {parameterList} from './core/agent_source.mjs';
-import {checkedSnapshot,manifestPath,unpack,unseal} from './core/experiment.mjs';
-import {gameGraph,matchup} from './arena_tournament.mjs';
+import {parameterList} from '../core/agent_source.mjs';
+import {checkedSnapshot,manifestPath,unpack,unseal} from '../core/experiment.mjs';
+import {gameGraph,matchup} from '../arena_tournament.mjs';
 
 const root=process.argv[2];
-if(!root) throw Error('usage: node arena_checks.mjs SELF_PLAY_RUN_DIRECTORY');
+if(!root) throw Error('usage: node checks/arena_checks.mjs SELF_PLAY_RUN_DIRECTORY');
 const manifest=unseal(manifestPath(root));
 checkedSnapshot(root,manifest);
 const api=(await import(pathToFileURL(path.resolve(root,'code/backend.mjs')).href)).default;

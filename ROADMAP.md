@@ -10,7 +10,7 @@ This roadmap is for the agent continuing development. It turns the November 2026
 2. **Dependencies.** Studio, the Node runner, and `analyze.py` use only standard libraries. Put anything needing third-party packages in its own folder with its own manifest, like `mcp/`. Examples: Gymnasium, MLflow, Minari, rliable, Matplotlib.
 3. **Existing runs keep working.** Archived runs replay with the code stored in their `code/` folder, so engine changes affect only new runs. Do not change sealed file formats, the seed scheme, or the random-number generator without a schema bump. A changed generator produces different trajectories. It needs a new, separately identified design (see EXPERIMENTS.md).
 4. **Laws before refactors.** When an item replaces a data structure or adds a learner, write the protecting laws first (phase 1), then make the change.
-5. **Verification.** Each PR passes `npm test`, `bend checks.bend`, `bend benchmark_checks.bend`, `bend study_checks.bend`, and `bend PROOF.bend`, plus the full CI workflow, including the BendTT verdict and the Windows job.
+5. **Verification.** Each PR passes `npm test`, `bend checks/checks.bend`, `bend checks/benchmark_checks.bend`, `bend checks/study_checks.bend`, and `bend laws/PROOF.bend`, plus the full CI workflow, including the BendTT verdict and the Windows job.
 6. **Docs in the same PR.** Update README.md and EXPERIMENTS.md with every user-visible change. That includes command and analysis-tool tables, the current law count, and the README "Formal Properties" list. Then update the status table at the end of this file.
 7. **One item per PR,** small enough to review. Items in the same phase can run in parallel unless a dependency is listed.
 
@@ -33,24 +33,24 @@ See [Studio crash recovery](README.md#if-studio-stops-during-training) for super
 
 ## Phase 1: laws (do these first)
 
-Context: `LAWS.bend` declares <!-- count:core-laws -->46<!-- /count --> laws and `PROOF.bend` proves each one. Laws should cover structure, accounting, and information flow. Do not attempt floating-point results (convergence, exact values, unbiasedness). Do not restate determinism, which purity gives, or hidden-state isolation, which the `Transition<O>` type already enforces. Host-side properties (seed blocks, storage, statistics) stay as Node tests.
+Context: `laws/LAWS.bend` declares <!-- count:core-laws -->46<!-- /count --> laws and `laws/PROOF.bend` proves each one. Laws should cover structure, accounting, and information flow. Do not attempt floating-point results (convergence, exact values, unbiasedness). Do not restate determinism, which purity gives, or hidden-state isolation, which the `Transition<O>` type already enforces. Host-side properties (seed blocks, storage, statistics) stay as Node tests.
 
 If Bend's `law` syntax cannot express a hypothesis (for example "for a key different from…"), use an unconditional special case or a guard expression, and record the limitation in a comment.
 
 ### Changes to existing laws
 
 **L1. Restate `rejection_preserves_progress` on the path the engine uses (S).**
-`E.accept` is called only from `LAWS.bend`. The engine goes `E.decide` → `E.attempt`. Restate the law on `E.attempt` with `valid = False{}`: the turn's run is `Stopped{Report{model, score, steps, Illegal{action}}}` and its event is `None{}`. Then delete the unused `E.accept`, `E.take_step`, and `E.record_step` from `core/engine.bend`. Confirm with `git grep` that nothing else uses them.
+`E.accept` is called only from `laws/LAWS.bend`. The engine goes `E.decide` → `E.attempt`. Restate the law on `E.attempt` with `valid = False{}`: the turn's run is `Stopped{Report{model, score, steps, Illegal{action}}}` and its event is `None{}`. Then delete the unused `E.accept`, `E.take_step`, and `E.record_step` from `core/engine.bend`. Confirm with `git grep` that nothing else uses them.
 
 **L2. Make the evaluation and one-update laws cover whole episodes (M).**
 The current `evaluation_freezes_model` and `training_uses_one_update` cover only the `E.update` helper. Keep them as lemmas. Add episode-level laws over any world and policy, using a counting learner (`M = Nat`, `learn = m => e => 1n+m`):
 - In `Evaluate` mode, the model in the report from `E.roll` (or `E.drive`) equals the model in the starting run.
 - In `Train` mode, the report's model equals the starting model plus the number of accepted steps taken: report steps minus starting steps.
 
-Prove both by induction over `drive`, following the shape of `observer_invariant` in `PROOF.bend`. These directly verify rule 3 in EXPERIMENTS.md.
+Prove both by induction over `drive`, following the shape of `observer_invariant` in `laws/PROOF.bend`. These directly verify rule 3 in EXPERIMENTS.md.
 
 **L3. Cover more worlds with the observer and pause laws (S per world).**
-`observer_invariant` and `split_budget` are already proven generically in `PROOF.bend`. The laws `ferry_observer_preserves_report` and `ferry_pause_composes` apply them only to Ferry. If `law` can quantify over the `~` parameters, state them generically. Otherwise add instantiations for Cliff (`U32` state), one authored finite world, and CartPole (`Pole.State`).
+`observer_invariant` and `split_budget` are already proven generically in `laws/PROOF.bend`. The laws `ferry_observer_preserves_report` and `ferry_pause_composes` apply them only to Ferry. If `law` can quantify over the `~` parameters, state them generically. Otherwise add instantiations for Cliff (`U32` state), one authored finite world, and CartPole (`Pole.State`).
 
 **L4. State Double Q's defining property (S).**
 Rule 7 says Double Q chooses and values its bootstrap with different tables. The current laws only prove that the other table is untouched. Add, for a nonempty action list `a <> rest`:
@@ -62,7 +62,7 @@ The nonempty condition matters: with no choices, `evaluate_best` returns 0.0 rat
 **L5. A paused episode finishes the same as an unpaused one (M).** Highest value.
 For any hooks, model, seed, mode and limit:
 `C.finished(C.advance(limit, mode, C.start(hooks, model, seed, limit))) == Some{E.episode(hooks, mode, model, seed, limit)}`.
-Why: step-budget training runs episodes in cursor segments, but `replay` in `core/experiment.mjs` rebuilds earlier training episodes with `runner.episode`. Today only `world_campaign.mjs` checks that equivalence, and only on finite worlds. Both paths apply `E.mixed_hooks` to the policy and step, and both reset through the unmixed world. Check that this holds when writing the proof.
+Why: step-budget training runs episodes in cursor segments, but `replay` in `core/experiment.mjs` rebuilds earlier training episodes with `runner.episode`. Today only `checks/world_campaign.mjs` checks that equivalence, and only on finite worlds. Both paths apply `E.mixed_hooks` to the policy and step, and both reset through the unmixed world. Check that this holds when writing the proof.
 
 **L6. Truncation happens only at the horizon (S).** `E.truncated(O, 1n+n, view) == False{}`.
 
@@ -104,7 +104,7 @@ The bucket-count formula stays host-tested, because `actionBuckets` in `dataset.
 - `T.Table` in `core/tabular.bend` is a `List<Entry>`, so every lookup is linear. Replace it with a tree keyed by (observation, action), for example a 32-bit observation path to an action path. Reuse the pattern and proofs of `core/weights.bend`, whose read-after-write is already proven.
 - Check everything that touches tables: `core/study.bend`, `core/double_q.bend`, `core/dyna.bend` (values only; `Dyna.Model` stays a list because planning samples it by index), `core/offline.bend`, `agents/ucb.bend` (`total` sums visits for one observation, so give the tree an equivalent), and `core/arena_table.bend`.
 - Behavior must not change: greedy ties are decided by legal-list order, not table order, so action choices are unaffected. The model's JSON form and hash will change for new runs only.
-- Acceptance: all L8 laws hold for the new implementation. `benchmark_checks.bend` and `study_checks.bend` pass unchanged. On a fixed plan such as `experiments/planning-budget.json`, train/validation/test metrics match the list version exactly. Report the speedup on one tabular plan.
+- Acceptance: all L8 laws hold for the new implementation. `checks/benchmark_checks.bend` and `checks/study_checks.bend` pass unchanged. On a fixed plan such as `experiments/planning-budget.json`, train/validation/test metrics match the list version exactly. Report the speedup on one tabular plan.
 
 **T2.3. Native or parallel Bend runtime spike (timeboxed to one day).**
 - Find out whether Bend 2.0.40 can build `core/study.bend` for its native or parallel runtime (BendRT) in a form the Node host can call. The backend is currently the JavaScript module from compiling the generated study entry to an ES module.
@@ -115,7 +115,7 @@ The bucket-count formula stays host-tested, because `actionBuckets` in `dataset.
 
 ## Phase 3: benchmark worlds
 
-Put generators in one script, where practical, that writes JSON worlds into `worlds/benchmarks/`. Commit the generated files, and add a check that regenerates and compares them, as `memory_checks.mjs` does for the Tiger worlds. Record each world's oracle values in that check.
+Put generators in one script, where practical, that writes JSON worlds into `worlds/benchmarks/`. Commit the generated files, and add a check that regenerates and compares them, as `checks/memory_checks.mjs` does for the Tiger worlds. Record each world's oracle values in that check.
 
 **B3.1. Gymnasium toy-text ports (M). Depends on P0.4 for acceptance.**
 - FrozenLake 4×4 and 8×8, slippery and not. Taxi. CliffWalking 4×12 (the current `core/cliff.bend` is a smaller 5×3 variant, so its numbers are not comparable to published ones). Blackjack, with the dealer drawing to 17 and Gymnasium's default flags.
@@ -135,7 +135,7 @@ Put generators in one script, where practical, that writes JSON worlds into `wor
 
 **S4.1. Infinite-horizon discounted solvers (S).**
 - `oracle` in `core/finite_world.mjs` is finite-horizon only. Add discounted value iteration (tolerance-based stop) and policy iteration, available as `node experiment.mjs oracle WORLD --discount G [--tolerance E]`.
-- Acceptance: on Bridge and Detour, value iteration agrees with the finite-horizon oracle as the horizon grows, with discount 1 where terminal. Add a test in `oracle_checks.mjs`.
+- Acceptance: on Bridge and Detour, value iteration agrees with the finite-horizon oracle as the horizon grows, with discount 1 where terminal. Add a test in `checks/oracle_checks.mjs`.
 
 **S4.2. Export to Cassandra `.pomdp` format (S–M).**
 - Write finite worlds as `.pomdp` files so external solvers can run on them (SARSOP via APPL, or POMDPs.jl via POMDPFiles.jl).
@@ -219,7 +219,7 @@ Acceptance: covered by `studio/studio_checks.mjs`, including a damaged run in th
 | O7.1 | MCP tools `env_reset` and `env_step` for playing a world interactively | S | Session state keyed per world. Same seeding as the engine, so a played episode can be compared with a replay. |
 | O7.2 | More perfect-information arena games | S each | For example 4×4 connect-three, Nim variants, small dots-and-boxes. Each needs a `gameGraph` height check and exploitability results from `arena_tournament.mjs`. |
 | O7.3 | Hidden-information arena, Kuhn poker, and counterfactual regret minimization (CFR) | L | Needs information sets in `core/arena.bend`. OpenSpiel stays far ahead. Do this only for a specific research question. |
-| O7.4 | Exponent literals | S | `floatLiteral` in `core/finite_world.mjs` can emit `e+21`. Check that Bend 2.0.40 parses it by adding a reward of at least 1e21 to `world_campaign.mjs`'s reward pool, or emit literals without `+`. |
+| O7.4 | Exponent literals | S | `floatLiteral` in `core/finite_world.mjs` can emit `e+21`. Check that Bend 2.0.40 parses it by adding a reward of at least 1e21 to `checks/world_campaign.mjs`'s reward pool, or emit literals without `+`. |
 | O7.5 | Multiple-comparison handling across many arms | S | Apply `sequential.mjs`'s `comparisons` parameter, or a Holm correction, in `analyze.py` when several arms are compared to one reference. |
 
 ## Non-goals
@@ -295,5 +295,5 @@ Update this table in the same PR as each item.
 | O7.1 | Not started | |
 | O7.2 | Implemented: bounded two-pile Nim, complete transition graph and exact exploitability checks | [Notes](docs/two-pile-nim.md) |
 | O7.3 | Deferred: requires a concrete research question | |
-| O7.4 | Verified: compiler campaign includes positive-exponent F32 rewards | [Campaign](world_campaign.mjs) |
+| O7.4 | Verified: compiler campaign includes positive-exponent F32 rewards | [Campaign](checks/world_campaign.mjs) |
 | O7.5 | Implemented: optional Holm-adjusted paired sign tests across arms | [Method](EXPERIMENTS.md#multiple-arms-versus-one-reference) |

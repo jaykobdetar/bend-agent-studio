@@ -9,10 +9,10 @@ import {Worker,isMainThread,parentPort,workerData} from 'node:worker_threads';
 import {promisify} from 'node:util';
 import {createHash} from 'node:crypto';
 import assert from 'node:assert/strict';
-import {bendSource,worldDefinition} from './core/finite_world.mjs';
+import {bendSource,worldDefinition} from '../core/finite_world.mjs';
 
 const exec=promisify(execFile), here=path.dirname(fileURLToPath(import.meta.url));
-const coreDir=path.join(here,'core');
+const coreDir=path.join(here,'..','core');
 const modulus=1n<<32n;
 function mix(w) {
   w=Math.imul(w^(w>>>16),2246822507);
@@ -168,7 +168,7 @@ async function batch(dir,bend,id,worldCount,checks) {
 }
 
 async function isolatedBatch(dir,bend,id,worlds,episodes) {
-  const worker=new Worker(pathToFileURL(path.join(dir,'world_campaign.mjs')),{workerData:{dir,bend,id,worlds,episodes}});
+  const worker=new Worker(pathToFileURL(path.join(dir,'checks','world_campaign.mjs')),{workerData:{dir,bend,id,worlds,episodes}});
   return new Promise((resolve,reject)=>{
     let result;
     worker.once('message',message=>{result=message;});
@@ -195,7 +195,7 @@ try {
   const hashes={};
   for (const name of ['engine.bend','cursor.bend','tabular.bend','finite.bend','history.bend','finite_world.mjs','packed_world.mjs','packed_world.bend','world_campaign.mjs']) {
     const data=fs.readFileSync(path.join(name==='world_campaign.mjs'?here:coreDir,name));hashes[name]=createHash('sha256').update(data).digest('hex');
-    const destination=path.join(dir,name.endsWith('.mjs')&&name!=='world_campaign.mjs'?'core':'',name);
+    const destination=path.join(dir,name==='world_campaign.mjs'?'checks':name.endsWith('.mjs')?'core':'',name);
     fs.mkdirSync(path.dirname(destination),{recursive:true});
     fs.writeFileSync(destination,data);
   }

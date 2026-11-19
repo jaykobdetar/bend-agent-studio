@@ -79,7 +79,7 @@ Start with [worlds/bridge.json](worlds/bridge.json) for a finite game, [worlds/i
 
 ## Formal Properties
 
-The <!-- count:core-laws -->46<!-- /count --> core laws are stated in [LAWS.bend](LAWS.bend) and proved in [PROOF.bend](PROOF.bend). The learners declare <!-- count:learner-laws -->15<!-- /count --> additional laws in their own modules:
+The <!-- count:core-laws -->46<!-- /count --> core laws are stated in [laws/LAWS.bend](laws/LAWS.bend) and proved in [laws/PROOF.bend](laws/PROOF.bend). The learners declare <!-- count:learner-laws -->15<!-- /count --> additional laws in their own modules:
 
 | Learner | Statements | Proofs |
 | --- | --- | --- |
@@ -105,15 +105,15 @@ With Bend 2.0.40 and Node 24 installed:
 
 ```sh
 npm test
-bend checks.bend
-bend benchmark_checks.bend
-bend study_checks.bend
-bend PROOF.bend
+bend checks/checks.bend
+bend checks/benchmark_checks.bend
+bend checks/study_checks.bend
+bend laws/PROOF.bend
 ```
 
 `npm test` runs the Node checks, including public-policy oracles and generated memory worlds. If the Bend executable is absent, compiler-backed tests are marked skipped. With Bend installed, they exercise training, replay, checkpoint persistence, and offline evaluation.
 
-For an independent proof verdict, install Lean 4.34.0 (for example, `elan toolchain install leanprover/lean4:v4.34.0`) and run `bend PROOF.bend --verdict`. Bend 2.0.40 builds and caches its bundled BendTT kernel on first use. You can also set `BENDTT` to a kernel built from the same release.
+For an independent proof verdict, install Lean 4.34.0 (for example, `elan toolchain install leanprover/lean4:v4.34.0`) and run `bend laws/PROOF.bend --verdict`. Bend 2.0.40 builds and caches its bundled BendTT kernel on first use. You can also set `BENDTT` to a kernel built from the same release.
 
 ### Agent access over MCP
 

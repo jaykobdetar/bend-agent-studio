@@ -26,7 +26,7 @@ const validators = new Map(Object.entries(tools).map(([k, t]) => [k, ajv.compile
 const resources = {
   'bend://docs/experiments': ['Experiments guide', 'text/markdown', 'EXPERIMENTS.md'],
   'bend://docs/fields': ['Plan and spec field reference', 'text/markdown', 'mcp/FIELDS.md'],
-  'bend://docs/laws': ['Bend laws', 'text/plain', 'LAWS.bend'],
+  'bend://docs/laws': ['Bend laws', 'text/plain', 'laws/LAWS.bend'],
   'bend://studio/catalog': ['Studio catalog', 'application/json', null],
 };
 const server = new Server(

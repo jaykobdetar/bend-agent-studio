@@ -8,7 +8,7 @@ import {context, repo, serverContext} from './context.mjs';
 import {inspection} from './inspection.mjs';
 import {jobs} from './jobs.mjs';
 import {more} from './more.mjs';
-import {compilerTest} from '../bend_test_support.mjs';
+import {compilerTest} from '../checks/support.mjs';
 
 const other = process.env.BEND_MCP_TEST_OTHER_NODE;
 const backend = process.platform === 'win32' ? 'python' : 'python3';

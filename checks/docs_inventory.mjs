@@ -13,7 +13,7 @@ export function inventory(root) {
   if(!usage)throw Error('core/experiment.mjs: cannot locate CLI usage');
   const commands=[...usage.matchAll(/(?:^| \| )([a-z]+)\s+[A-Z]/g)].map(m=>m[1]);
   return {experiments,commands,counts:{
-    'core-laws':laws(read(root,'LAWS.bend')),
+    'core-laws':laws(read(root,'laws/LAWS.bend')),
     'learner-laws':files(root).filter(n=>n.endsWith('_laws.bend')).reduce((n,f)=>n+laws(read(root,f)),0),
     'experiment-files':experiments.length,
     'benchmark-worlds':benchmarkFiles.filter(n=>Array.isArray(JSON.parse(read(root,path.join('worlds/benchmarks',n))).states)).length
