@@ -315,4 +315,4 @@ Update this table in the same PR as each item.
 | F8.1 | Implemented: contextual learn shares the source view’s ordered actions with the policy | [Rule coverage](docs/laws.md) |
 | F8.2 | Implemented: CLI and MCP validation report the selected hook for each arm | [Agent interface](docs/agents.md) |
 | F8.3 | Implemented: Linux CI trains a bounded self-play study and checks both board encodings | [Test guide](docs/testing.md) |
-| F8.4 | Planned | |
+| F8.4 | Documented: Studio lock uses Node SQLite; pinned Node 24.22.3 starts without the warning | [Startup and recovery](docs/studio.md#if-studio-stops-during-training) |
