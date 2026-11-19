@@ -22,6 +22,21 @@ For multi-game IQM and profiles, normalize unlike task scales using `--anchors a
 
 The suite reports *pointwise*, nominal 95% percentile intervals. The default (`--blocks within-game`) holds the game suite fixed, resamples trained replicates within each game and uses the same indices for paired arms. With a shared cross-game replicate effect, choose `--blocks across-games` to move whole replicate vectors together. Neither estimates uncertainty over newly sampled games. Matched Studio arms should not be bootstrapped independently; independent, unrelated arm designs are not supported by this paired interface. A single replicate per game gives a blank interval. Few replicates or tied outcomes can cause severe undercoverage or a zero-width interval; more bootstrap draws do not replace more runs. Repeated thresholds/checkpoints are not simultaneous confidence bands. See [rliable's evaluation methodology](https://github.com/google-research/rliable) for the reference metrics.
 
+## Plan the number of training replicates
+
+Use a completed, verified pilot export and choose one comparison, game, checkpoint, phase and metric. The planner uses only those matched blocks from the export; it does not pool checkpoints, games or evaluation episodes. Validation is the default for planning. Do not reuse confirmatory test data to revise that same study's design.
+
+```sh
+python3 analysis/replicates.py studies/flagship-toy-text/checkpoints.csv --game cliff4x12 --budget 128 --phase validation --metric return --reference random --challenger q_learning --target-half-width 50
+```
+
+The target is in units of the metric: here, 50 reward units for the **mean challenger-minus-reference return**. `completion`, `timeout` and `illegal` use fractions, not percentage points. Supported metrics match the training-export analysis; compressed CSV files also work. The planner checks episode/step accounting, unique checkpoint rows and matched seed blocks. A pilot needs at least two paired training replicates. Replicate IDs are sorted, so changing CSV row order does not change a seeded result.
+
+- **Precision:** resample the pilot paired differences and measure the half-width of their 95% percentile interval. Multiply by `sqrt(n/(n-1))` to adjust for the empirical resampling distribution's denominator, then project by `sqrt(n/N)` and round up the smallest total `N` meeting the target, never below the pilot count. The default is 4,000 draws with seed 0. A zero observed half-width keeps the pilot count as a floor and emits a warning, not a claim of precise inference. Estimates above 2,000 replicates are rejected rather than silently capped.
+- **Power:** at that planned count, estimate the exact two-sided sign test's rejection probability at 0.05, using pilot positive, negative and tie rates as plug-in probabilities. Differences exactly equal to zero are ties. The sign test discards them, so power averages over the random remaining count. This tests sign balance, not a mean effect, and does not implement Holm or any other multiplicity adjustment.
+
+These are **planning estimates, not evidence**. They assume independent paired training replicates and a future design with a similar difference distribution, variance and tie rate. Small or unrepresentative pilots can substantially underestimate how many runs you need. Treat very low or high plug-in power as a prompt to examine the pilot, not a guarantee. Use a new, prospectively declared confirmation with independent seeds.
+
 ## Analysis tools and checks
 
 | Question | Command from the repository root |
