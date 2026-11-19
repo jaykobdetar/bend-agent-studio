@@ -40,6 +40,14 @@ First create `runs/dispatch` with `node experiment.mjs run experiments/dispatch-
 
 ## Analysis and authoring
 
+See [scaffolding and sweeps](scaffolding.md) for examples.
+
+- `node experiment.mjs init agent NAME`
+- `node experiment.mjs init world NAME` (add `--bend` for a typed world)
+- `node experiment.mjs init plan NAME`
+- `node experiment.mjs sweep SPEC OUT`
+
+
 | Task | Example |
 | --- | --- |
 | Estimate paired replicate count and sign-test power for planning only. | `python3 analysis/replicates.py bridge.csv --game bridge --budget 256 --reference random --challenger q --target-half-width 0.25` |
@@ -64,6 +72,7 @@ For `analysis/sequential.mjs`, a minimal input shape is `{"design":{"lower":-1,"
 | Export a verified logged dataset locally with the optional Minari environment active. | `python3 integrations/minari/export_minari.py runs/data runs/minari-fit --split fit` |
 | Check that generated diagnostic probe worlds/plans match the checked-in files. | `node worlds/benchmarks/probes/generate.mjs --check` |
 | Compare toy-text transition/oracle references; see the adapter guide for pinned Gymnasium regeneration. | `node integrations/gymnasium/toy_text/oracles.mjs` |
+| Verify the real Studio browser flow. | In `tools/studio-smoke`, install the pinned browser harness and run `npm test` as described in [Testing](testing.md#studio-browser-smoke). |
 | Run the normal Node suite; compiler-backed checks require Bend. | `npm test` |
 | Reproduce two exact checkpoint byte hashes from the flagship study. | `node checks/flagship_slice.mjs` |
 | Regenerate the flagship study figures and analysis into a new directory. | `bash studies/flagship-toy-text/render.sh runs/flagship-toy-text flagship-export` |

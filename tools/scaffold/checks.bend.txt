@@ -1,0 +1,11 @@
+import Base
+import ./agent.bend as A
+import @CORE@/engine.bend as E
+
+def check(chosen: U32) -> IO(Unit):
+  match chosen:
+    case 7: IO.print("pass - chooses the first legal action")
+    case _: IO.die(Unit,1,"failed - action was not the first legal action")
+
+def main() -> IO(Unit):
+  check(A.act(0,0,[7,9],E.Evaluate{},0))

@@ -38,7 +38,15 @@ Run commands from the repository root unless a different working directory is sp
 
 A green Windows job means the Node-only workflow passed. It does **not** mean Bend, Lean, the compiled backend hash checks, Gymnasium or Minari ran on Windows. For the quick local smoke test use `npm test`; for a change to archive layout, learner semantics or Python integration, run the matching row above as well.
 
+The [Bend upgrade watch](upgrading-bend.md) is a separate weekly/manual check against the latest official 2.x version. It does not replace any pinned job, and its results are never required for a merge.
+
 ### Running individual checks
+
+Run `node --test checks/scaffold_checks.mjs` for starter validity, no-clobber
+behavior, seeded sweep determinism, compiled multi-arm screening, halving and held-out-data rejection. With
+pinned Lean available, `BEND_CHECK_SCAFFOLD_VERDICT=1 node --test checks/scaffold_checks.mjs`
+also proves the generated placeholder law independently; Linux CI runs it in
+the BendTT step. MCP stdio covers workspace-only authoring and sweep paths.
 
 The Linux workflow also runs `node checks/flagship_slice.mjs` to reproduce two original first-checkpoint files from the [flagship study](../studies/flagship-toy-text/README.md). This checks the exact byte hashes under the pinned runner, not training quality or reproduction of every row. For G2/G3, the [additive fixture](../tools/archive-gates/n9-flagship-plan.json) also pins the new manifest and full source/bundle identities without replacing the historical baselines.
 
@@ -91,3 +99,17 @@ bend laws/PROOF.bend
 `npm test` runs the Node checks, including public-policy oracles and generated memory worlds. If the Bend executable is absent, compiler-backed tests are marked skipped. With Bend installed, they exercise training, replay, checkpoint persistence, and offline evaluation.
 
 For an independent proof verdict, install Lean 4.34.0 (for example, `elan toolchain install leanprover/lean4:v4.34.0`) and run `bend laws/PROOF.bend --verdict`. Bend 2.0.40 builds and caches its bundled BendTT kernel on first use. You can also set `BENDTT` to a kernel built from the same release.
+
+
+## Studio browser smoke
+
+With the normal pinned Node and Bend tools on PATH, run this isolated Playwright harness:
+
+```sh
+cd tools/studio-smoke
+npm ci --ignore-scripts
+PLAYWRIGHT_BROWSERS_PATH=0 npx --no-install playwright install --no-shell chromium
+PLAYWRIGHT_BROWSERS_PATH=0 npm test
+```
+
+The Linux job installs browser prerequisites on its fresh runner. The smoke test starts a loopback Studio with a temporary home, selects and trains a multi-world manifest, verifies the planned hook types, dismisses and reopens the replay picker, checks the expected rendered grid colors, and fails on console or script errors or page overflow at 390 px. Studio's root Node tests separately cover manifest/source confinement, FIFO crash recovery, and generated sidecar identity.

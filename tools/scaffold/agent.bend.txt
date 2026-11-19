@@ -1,0 +1,16 @@
+import Base
+import @CORE@/engine.bend as E
+import @CORE@/parameters.bend as P
+
+def Model() -> Data: U32
+
+def initial(seed: U32, params: P.Parameters) -> Model:
+  0
+
+def act(model: Model, observation: U32, legal: List<&2,U32>, mode: E.Mode, word: U32) -> U32:
+  match legal:
+    case Nil{}: 0
+    case first <> rest: first
+
+def learn(model: Model, event: E.Transition<U32>) -> Model:
+  model
