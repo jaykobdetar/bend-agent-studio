@@ -1,16 +1,8 @@
 # General sparse linear Q-learning
 
-[Experiment guide](../../EXPERIMENTS.md#change-the-world-policy-or-learner) · [Implementation](agent.bend) · [Checks](checks.bend) · [Laws](laws.bend) · [Proofs](proof.bend)
+[Agent interface](../../docs/agents.md) · [Implementation](agent.bend)
 
-Run commands from the repository root.
-
-Run the small comparison study:
-
-```sh
-node experiment.mjs run experiments/cliff-linear.json OUT
-node --test agents/linear/checks.mjs
-bend agents/linear/proof.bend --verdict
-```
+## What it learns
 
 `agents/lib/linear.bend` accepts any observation data type and a pure feature
 function `O -> List<&2,Feature>`. Each `Feature{id,value}` has a U32 identifier
@@ -24,7 +16,7 @@ indexed by the low 16 observation bits. This is an example, not an automatic
 feature encoder. States outside that range can alias; replace `features` for
 the problem at hand. Sparse feature IDs and action IDs both support all 32 bits.
 
-## Exact arithmetic and policy
+### Exact arithmetic and policy
 
 Q(s,a) is the right-associated F32 sum of feature value times weight, in the
 authored list order. Duplicate IDs contribute every term. Update uses one
@@ -36,11 +28,9 @@ Empty feature lists give zero predictions and no weight changes. No automatic
 normalization, clipping, or finite-value filtering is applied to feature
 outputs; authors must choose finite, appropriately scaled features and rates.
 
-Terminals have no bootstrap. Truncated open states bootstrap normally.
-Epsilon is a 16-bit threshold; exploratory action selection uses the existing
-random-action helper and mixed word. Evaluation always chooses the first
-maximum in the supplied legal-action order, never an unlisted action. The
-training epsilon is not a claim of independent randomness from every world.
+## Parameters
+
+`alpha` (learning rate, 0.05), `gamma` (discount, 0.95) and `epsilon` (exploration, 0.125) are clamped to [0, 1]. Training exploration uses a 16-bit threshold and the existing mixed-word random-action helper. Evaluation selects the first maximal value in the supplied legal order. Domain separation does not imply statistical independence.
 
 Weights reuse the existing immutable [weight tree](../../core/weights.bend). A full 32-bit action
 path followed by a 32-bit feature path addresses a scalar in the row's left
@@ -52,14 +42,30 @@ and checkpoints are unchanged. Semi-gradient off-policy Q-learning with
 general features need not converge. The included plan is reproducible
 comparison material, not evidence that shared features outperform tables.
 
+## Episode ends
+
+A terminal target has zero continuation. A truncated open state still bootstraps; there is no trajectory buffer to flush. An illegal action yields no transition update.
+
+## Laws
+
+The [four laws](laws.bend) cover scalar read-after-write, empty-gradient identity, no terminal bootstrap and greedy evaluation. The [proofs](proof.bend) do not establish convergence for arbitrary features or superiority to tabular Q-learning.
+
 ## Checks
 
-Ten compiled checks cover signed/repeated features, empty features, full-width
-IDs, cross-action preservation, real observations, terminal/truncation targets,
-legal-order ties and evaluation behavior. Four independent-kernel laws pin
-scalar read-after-write, empty-gradient identity, no terminal bootstrap and
-greedy evaluation. The existing engine laws enforce no learning in evaluation.
-The Node integration test trains, verifies, replays and resumes a sealed run.
+The [Bend fixtures](checks.bend) cover signed and repeated features, empty features, full-width IDs, cross-action preservation, real observations, terminal/truncation targets and legal-order ties. The [Node integration test](checks.mjs) trains, verifies, replays and resumes a sealed run. From the repository root:
+
+```sh
+node --test agents/linear/checks.mjs
+bend agents/linear/proof.bend --verdict
+```
+
+## Example plan
+
+Run the [Cliff comparison](../../experiments/cliff-linear.json) from the repository root:
+
+```sh
+node experiment.mjs run experiments/cliff-linear.json runs/cliff-linear
+```
 
 On the shipped four-replicate, 128-episode study (Bend 2.0.40, Node 24.22.3),
 all four linear final test means were −60, versus −6 for all four tabular

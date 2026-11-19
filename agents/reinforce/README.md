@@ -1,29 +1,33 @@
 # REINFORCE with a state baseline
 
-[Experiment guide](../../EXPERIMENTS.md#change-the-world-policy-or-learner) · [Implementation](agent.bend) · [Checks](checks.bend) · [Laws](laws.bend) · [Proofs](proof.bend)
+[Agent interface](../../docs/agents.md) · [Implementation](agent.bend)
 
-Run commands from the repository root.
+## What it learns
 
-Run `node experiment.mjs run experiments/reinforce-orchard.json OUT`. Training
-samples a categorical softmax over **the current public legal actions** (max
-logit subtracted for stability, top 24 random bits used for the F32 draw).
-Evaluation chooses the first highest-logit legal action. Numeric F32 probabilities
-and sampling are approximations to the continuous softmax policy.
+REINFORCE learns softmax policy logits and a state baseline. Training samples from the **current public legal action list** using max-subtracted logits and a 24-bit F32 draw; evaluation picks the first highest-logit legal action. The finite draw and F32 probabilities approximate continuous softmax.
 
-Accepted steps buffer the pre-update probabilities, choice, reward, current
-state baseline and γᵗ. No policy or baseline changes mid-episode. At finish,
-compute backward discounted returns G and apply α γᵗ (G−b(s)) (1[action=chosen]−p)
-to each legal action's logit. Update the baseline with β (G−b(s)); advantages
-use the frozen episode baseline, not a value learned from this episode. Both
-limits and illegal stops use zero continuation for the finite observed episode.
-There is no fabricated reward or gradient for a rejected action. Empty episodes
-do nothing, and finishing resets the buffer and discount power.
+The optional `learn_context(model, legal, event)` callback receives the source view’s public action list, not the next state’s. It requires `finish`; ordinary agents can keep `learn(model,event)` and do not pay for the extra view lookup.
 
-The optional custom-agent method `learn_context(model, legal, event)` in the
-entry module opts into a public-context hook and requires `finish`. Its ordered
-legal action list comes from the source state's public view, not the next state,
-and never exposes hidden simulator state. This is useful when learning needs
-the action probabilities that were available at a particular decision. The
-ordinary `learn(model,event)` contract, transition/replay data schema, and
-archived runners are unchanged. Only contextual learners pay for an extra view
-lookup. Built-in and existing custom agents need no migration.
+## Parameters
+
+`alpha` (policy rate, default 0.05), `beta` (baseline rate, default 0.1), and `gamma` (discount, default 1) are clamped to [0, 1].
+
+## Episode ends
+
+During an episode, buffer the chosen action, ordered probabilities, reward, baseline and γᵗ; neither policy nor baseline changes mid-episode. At finish, compute discounted returns backward, then apply α γᵗ (G−b(s)) (1[action=chosen]−p) and update the baseline by β(G−b(s)), using the frozen baseline. Time limits and illegal stops have zero continuation; an illegal choice itself gets no reward or gradient. An empty episode does nothing, and finish resets the history and discount power.
+
+## Laws
+
+`episode_buffer_empty` proves the post-finish history is empty. It does not establish unbiasedness for a truncated trajectory. See the [statements](laws.bend) and [proofs](proof.bend).
+
+## Checks
+
+Fixtures check a two-action gradient, the learned baseline, a singleton legal set, policy draw boundaries and an illegal finish with prior accepted work. The [contextual learner integration test](../../checks/experiment_checks.mjs) also checks archived policy snapshots and frozen replay. Run `bend agents/reinforce/checks.bend` for the [fixtures](checks.bend), or `bend agents/reinforce/proof.bend --verdict` for the independent proof check.
+
+## Example plan
+
+From the repository root, run the [shipped plan](../../experiments/reinforce-orchard.json):
+
+```sh
+node experiment.mjs run experiments/reinforce-orchard.json runs/reinforce-orchard
+```
