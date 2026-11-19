@@ -38,6 +38,8 @@ Run commands from the repository root unless a different working directory is sp
 
 A green Windows job means the Node-only workflow passed. It does **not** mean Bend, Lean, the compiled backend hash checks, Gymnasium or Minari ran on Windows. For the quick local smoke test use `npm test`; for a change to archive layout, learner semantics or Python integration, run the matching row above as well.
 
+The [Bend upgrade watch](upgrading-bend.md) is a separate weekly/manual check against the latest official 2.x version. It does not replace any pinned job, and its results are never required for a merge.
+
 ### Running individual checks
 
 Run `node --test checks/scaffold_checks.mjs` for starter validity, no-clobber
@@ -53,8 +55,9 @@ The Linux workflow also runs `node checks/flagship_slice.mjs` to reproduce two o
 | `node checks/docs_check.mjs`; `node --test checks/docs_inventory.test.mjs checks/docs_markdown.test.mjs` | Link targets, headings, executable paths, source counts and negative fixtures. Root Node tests. |
 | `node --test checks/experiment_checks.mjs checks/batch_checks.mjs studio/studio_checks.mjs` | Checkpoints, resume/replay, selection/assessment, offline partitions and Studio workflows. Root Node tests. |
 | `node --test checks/legacy_examples.test.mjs agents/linear/checks.mjs` | Fixed two-door demo output, the 100-row legacy benchmark CSV hash, and linear learning/replay. Root Node tests, compiler-dependent. |
-| `node --test checks/oracle_checks.mjs checks/memory_checks.mjs checks/statistics_checks.mjs` | Oracle values and memory-world regeneration (also executable directly); Python suite-statistics regressions through a Node wrapper. Root Node tests. |
+| `node --test checks/oracle_checks.mjs checks/memory_checks.mjs checks/statistics_checks.mjs` | Oracle values and memory-world regeneration (also executable directly); Python suite-statistics and replicate-planning regressions through a Node wrapper. Root Node tests. |
 | `node --test worlds/benchmarks/probes/checks.mjs tools/finite-layout/packed-checks.mjs` | Regenerate authored probes; compare packed/expanded storage, partial episodes and replay. Root Node tests. |
+| `python3 -m unittest checks.test_replicates` | Paired precision planning, exact sign-power checks and export/seed validation. Also run through the root Node suite. |
 | `python3 -m unittest checks.test_multiple_comparisons checks.test_suite_stats` | Multiplicity adjustments, paired bootstrap and statistical CLI behavior. Linux statistical comparisons step. |
 | `node experiment.mjs run experiments/two-pile-nim.json runs/nim`, then `node checks/nim_checks.mjs runs/nim` | Exact independent checks for all nine starting pile pairs. Linux Nim step. |
 | `node experiment.mjs run experiments/self-play.json runs/self-play --until 128`, then `node checks/arena_checks.mjs runs/self-play` | Exact physical-coordinate checks for both tic-tac-toe encodings, plus minimax and self-play update checks. Linux self-play step. |
@@ -97,6 +100,19 @@ bend laws/PROOF.bend
 
 For an independent proof verdict, install Lean 4.34.0 (for example, `elan toolchain install leanprover/lean4:v4.34.0`) and run `bend laws/PROOF.bend --verdict`. Bend 2.0.40 builds and caches its bundled BendTT kernel on first use. You can also set `BENDTT` to a kernel built from the same release.
 
+
+## Studio browser smoke
+
+With the normal pinned Node and Bend tools on PATH, run this isolated Playwright harness:
+
+```sh
+cd tools/studio-smoke
+npm ci --ignore-scripts
+PLAYWRIGHT_BROWSERS_PATH=0 npx --no-install playwright install --no-shell chromium
+PLAYWRIGHT_BROWSERS_PATH=0 npm test
+```
+
+The Linux job installs browser prerequisites on its fresh runner. The smoke test starts a loopback Studio with a temporary home, selects and trains a multi-world manifest, verifies the planned hook types, dismisses and reopens the replay picker, checks the expected rendered grid colors, and fails on console or script errors or page overflow at 390 px. Studio's root Node tests separately cover manifest/source confinement, FIFO crash recovery, and generated sidecar identity.
 
 ## Generated properties and boundary checks
 

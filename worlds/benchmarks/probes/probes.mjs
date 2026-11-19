@@ -33,9 +33,10 @@ export function rightAction(row,col,seed=mappingSeed) {
   x=Math.imul(x^(x>>>16),0x21f0aaad);
   return (x^(x>>>15))&1;
 }
-function deepSea(n) {
+function deepSea(n, points) {
   return reachable([[0,0]],([t,c],i)=>{
     if(t===undefined) return end;
+    if(points) points[i+1]=[[t,c,"agent"]];
     return {observation:i+1,choices:range(2).map(a=>{
       const right=a===rightAction(t,c), last=t===n-1;
       const r=(right&&c===n-1?1:0)-(right?0.01/n:0);
@@ -80,10 +81,11 @@ function bandit(n) {
   return reachable([[0]],([t])=>t===undefined?end:{observation:1,
     choices:range(n).map(a=>[outcome([],1,a===n-1?3:1),outcome([],-1,a===n-1?1:3)])});
 }
-function catchGame(width) {
+function catchGame(width, points) {
   // Three rows: two controllable moves before landing. The ball is visible.
   return reachable(range(width).map(ball=>[0,ball,Math.floor(width/2)]),([t,ball,paddle],i)=>{
     if(t===undefined) return end;
+    if(points) points[i+1]=[[t,ball,"ball"],[2,paddle,"paddle"]];
     return {observation:i+1,choices:[-1,0,1].map(move=>{
       const p=Math.min(width-1,Math.max(0,paddle+move));
       return t===1?terminal(p===ball?1:-1):[outcome([t+1,ball,p])];
@@ -91,8 +93,12 @@ function catchGame(width) {
   });
 }
 const factories={'deep-sea':deepSea,umbrella,memory,discount,bandit,catch:catchGame};
-export function probe(name,size) {
+export function probe(name,size,withLayout=false) {
   if(!Object.hasOwn(sizes,name) || !sizes[name].includes(size)) throw Error('unknown probe or unsupported size');
   const horizon=name==='bandit'?1:name==='catch'?2:size;
-  return {definition:factories[name](size),horizon};
+  const spatial=withLayout && ['deep-sea','catch'].includes(name);
+  const points=spatial?{}:undefined;
+  const definition=factories[name](size,points);
+  const layout=spatial?{rows:range(name==='catch'?3:size).map(()=>'.'.repeat(size)),points}:undefined;
+  return {definition,horizon,...(layout?{layout}:{})};
 }
