@@ -139,6 +139,9 @@ test('screening uses validation only and confirmation seed reuse is rejected',co
   const p=plan({testEpisodes:0,budgetUnit:'steps'});
   write(cfg,p);
   await invoke('run',cfg,root,'--bend',bend);
+  const report=path.join(d,'screen.html');
+  await invoke('report',root,report);
+  assert.match(fs.readFileSync(report,'utf8'),/<h2>Held-out test return<\/h2>\s*<p>No held-out test episodes were scheduled/);
   const options={name:'confirm',reference:'q',metric:'return',replicates:2,checkpoints:[0,9],validationEpisodes:3,testEpisodes:5,seeds:p.seeds};
   write(spec,options);
   await assert.rejects(invoke('select',root,spec,out),/overlapping/);
@@ -197,6 +200,8 @@ test('portable report embeds analyze.py rows and exact finite-world replay decis
   const html=fs.readFileSync(out,'utf8');
   assert.match(html,/Training budget: episodes\./);
   assert.match(html,/not paired differences.*pointwise 95% bootstrap intervals across trained replicates/);
+  assert.match(html,/<h2>Validation return<\/h2>\s*<p>[^<]+not held-out results/);
+  assert.match(html,/<h2>Held-out test return<\/h2>\s*<p>[^<]+only at the final checkpoint/);
   assert.match(html,/<svg /);assert.doesNotMatch(html,/<line x1=/);assert.match(html,/Full-state optimum: 2; uniform baseline: 1.5/);
   assert.match(html,/Best test episode/);assert.match(html,/Worst test episode/);assert.match(html,/Decision gap/);
   assert.doesNotMatch(html,/<script\b|\b(?:src|href)\s*=/i);

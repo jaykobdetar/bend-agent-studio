@@ -30,8 +30,14 @@ export async function writeReport(root,out){
     const body=['<h1>'+esc(p.name)+'</h1><p>Run <code>'+esc(m.hash)+'</code></p>',
       '<p>Training budget: '+unit+'. Charts and tables show mean return for each arm, not paired differences. Intervals, when present, are pointwise 95% bootstrap intervals across trained replicates.</p>'];
     for(const phase of ['validation','test']){
-      body.push('<h2>'+phase+' return</h2>');
-      if(!p[phase+'Episodes']){body.push('<p>No episodes in this phase.</p>');continue;}
+      const validation=phase==='validation';
+      body.push(validation?'<h2>Validation return</h2>':'<h2>Held-out test return</h2>');
+      if(!p[phase+'Episodes']){
+        body.push(validation?'<p>No validation episodes were scheduled.</p>':'<p>No held-out test episodes were scheduled. This report contains no held-out results.</p>');
+        continue;
+      }
+      body.push(validation?'<p>Validation scores can guide screening or checkpoint selection. They are not held-out results.</p>'
+        :'<p>Held-out test episodes use a separate seed block and are evaluated only at the final checkpoint.</p>');
       const {stdout}=await execute(process.env.PYTHON??(process.platform==='win32'?'python':'python3'),[fileURLToPath(new URL('./analyze.py',import.meta.url)),csv,'--phase',phase]);
       // Analysis dimensions are validated identifier tokens; all other CSV fields
       // for this unpaired invocation are numeric or empty (never quoted commas).

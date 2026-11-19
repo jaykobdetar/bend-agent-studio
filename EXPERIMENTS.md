@@ -132,10 +132,12 @@ node experiment.mjs run experiments/car-screen.json runs/screen
 node experiment.mjs select runs/screen experiments/car-confirmation.json runs/decision
 node experiment.mjs run runs/decision/plan.json runs/confirmation
 node experiment.mjs export runs/confirmation > confirmation.csv
-python3 analyze.py confirmation.csv --reference q-a05-e00625
+python3 analyze.py confirmation.csv --phase test --reference q-a05-e00625
 ```
 
 The confirmation specification declares a reference arm, selection metric, budget, sample size, and new seed allocations. Selection ranks final-checkpoint validation scores and records the overall winner. Confirmation retrains the reference and the highest-ranked distinct challenger from scratch, including when the reference wins the screen. Ties follow the screen's arm order. Finish all screen trials before running `select`; it rejects an unfinished screen rather than comparing only the trials that finished first.
+
+The last command estimates the paired difference on the confirmation run's final held-out test block. In a raw export, `test_seed` is a seed allocation: only rows with a populated `test_episodes` field contain held-out results. Use `--phase validation` to analyze a validation-only screen. An offline report labels validation and held-out test results separately but does not link the two runs. Keep `runs/decision/selection.json` with your confirmation results; it records the source run, ranking, and generated plan hash.
 
 `analyze.py` reports a pointwise 95% percentile bootstrap interval. It resamples trained replicate blocks, keeping paired arms together when a reference is specified. With one replicate the interval is blank. With a few replicates or identical observed values, the interval can be narrow and its coverage can be poor. Report the replicate count and inspect the individual paired differences. Increasing bootstrap draws only refines the resampling calculation. [Hesterberg, 2015](https://doi.org/10.1080/00031305.2015.1089789)
 
