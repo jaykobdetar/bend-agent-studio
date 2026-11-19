@@ -11,7 +11,7 @@ Starting revision: [fc3c2d3](https://github.com/jaykobdetar/bend-agent-studio/co
 | N9.4 | Queued | Weekly non-blocking latest-Bend-2.x check and single failure issue; document the pin upgrade procedure. |
 | N9.5 | Implemented in [scaffolding](../scaffolding.md); CI required before merge | Starter sources, example, law and verdict; validation-only grid and deterministic sampling; workspace-confined MCP tools. Optional bounded validation-only halving recommends existing runner shards; it never schedules training itself. No core or archive baselines changed. Next: confirm selected settings with independent seeds. |
 | N9.6 | Queued | Estimate paired bootstrap precision and sign-test power from pilot exports, for planning only. |
-| N9.7 | Queued | Check finite lookups, logging mass and hook pause/resume; exercise validation, export and MCP boundaries. |
+| N9.7 | Left on branch | Independently proved split segment equality and direct episode parity for Finishing and Contextual (four laws). Chose direct packed/literal differential checks and exhaustive sampled logging histograms instead of claiming a general proof. Added seeded host campaigns. No core or archive baseline edits. Require full CI and review the remaining representation/arithmetic proof obligations. |
 | N9.8 | Queued | Pin an isolated formatter outside archive inputs; separate formatting-only commit from CI enforcement. |
 | N9.9 | Queued | Add tested Acrobot dynamics and simultaneous zero-sum games with exact values and exploitability. |
 | N9.10 | Queued | Isolated optional tracking exporter with checkpoint curves checked against the plotting data. |

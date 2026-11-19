@@ -96,3 +96,16 @@ bend laws/PROOF.bend
 `npm test` runs the Node checks, including public-policy oracles and generated memory worlds. If the Bend executable is absent, compiler-backed tests are marked skipped. With Bend installed, they exercise training, replay, checkpoint persistence, and offline evaluation.
 
 For an independent proof verdict, install Lean 4.34.0 (for example, `elan toolchain install leanprover/lean4:v4.34.0`) and run `bend laws/PROOF.bend --verdict`. Bend 2.0.40 builds and caches its bundled BendTT kernel on first use. You can also set `BENDTT` to a kernel built from the same release.
+
+
+## Generated properties and boundary checks
+
+Root `npm test` runs 64 reproducible cases per domain for manifest validation, finite-world normalization including authored grids, memory-world product rules, Cassandra sparse POMDP export/reparse, and MCP workspace path confinement. The path cases use only owned temporary test fixtures and check both allowed destinations and rejected sibling paths. The direct CLI prints the seed and the failing case, and can run larger campaigns.
+
+```sh
+node checks/seeded_properties.mjs --seed 23 --cases 1000
+node --test checks/layout_logging_checks.mjs
+bend laws/PROOF.bend --verdict
+```
+
+With Bend installed, the second command compiles literal and packed versions of the same generated worlds, checks every 16-bit draw for sampled logging policies, and compares chunked and direct episode reports for both completion hook types. These cases complement the independent proof verdict, which the pinned workflow and advisory Bend watch both run. See [the proof boundaries](laws.md#phase-9-proof-boundaries) for what is formal and what is empirical.
