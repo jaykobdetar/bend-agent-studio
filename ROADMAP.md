@@ -250,6 +250,7 @@ Acceptance: covered by `studio/studio_checks.mjs`, including a damaged run in th
 - **Authoring (pure, fast):** `list_examples`, `validate_plan`, `validate_world`, `solve_world` (full, reactive, history or clock), `evaluate_policy_exact`, `build_memory_world`, `check_bend`.
 - **Running (background jobs with an ID):** `start_run`, `resume_run` and `rerun`, `start_assessment`, `start_offline` (collect, fit or score), `job_status`, `cancel_job`. `select_confirmation` can run directly.
 - **Inspection (read-only):** `list_runs`, `verify_run`, `summarize_results`, `learning_curve`, `get_checkpoint` (model only on request, with a size cap), `replay_episode` (paged frames), `explain_episode`, `sequential_test`, `arena_tournament`.
+- **Play (process-local sessions):** `env_reset` and `env_step` for finite JSON worlds and public replay-compatible frames.
 - **Constraints:**
   - Never write to stdout outside the protocol. `exportCsv`, `status`, `replay` and `executeTrials` must return values to the server, with only the CLI printing.
   - Run synchronous Bend work in child processes.
@@ -306,7 +307,7 @@ Update this table in the same PR as each item.
 | V6.2 | Implemented: unsealed notes and tags in Studio and MCP | [#23](https://github.com/jaykobdetar/bend-agent-studio/pull/23) |
 | V6.3 | Implemented: self-contained offline reports | [#25](https://github.com/jaykobdetar/bend-agent-studio/pull/25) |
 | V6.4 | Implemented: local FIFO training queue and validation-curve comparison | [#28](https://github.com/jaykobdetar/bend-agent-studio/pull/28) |
-| O7.1 | Not started | |
+| O7.1 | Implemented: bounded seeded public finite-world sessions | [MCP guide](mcp/README.md#play-a-finite-world) |
 | O7.2 | Implemented: bounded two-pile Nim, complete transition graph and exact exploitability checks | [Notes](docs/two-pile-nim.md) |
 | O7.3 | Deferred: requires a concrete research question | |
 | O7.4 | Verified: compiler campaign includes positive-exponent F32 rewards | [Campaign](checks/world_campaign.mjs) |
@@ -334,7 +335,7 @@ Work in ID order, on one branch per item. Merge only after the full Linux and Wi
 | N9.8 | Formatter | Pin an isolated formatter outside archive inputs; separate formatting-only commit from CI enforcement. | Implemented; [scope and commands](docs/testing.md#formatting-javascript) |
 | N9.9 | More environments | Add tested Acrobot dynamics and simultaneous zero-sum games with exact values and exploitability. | Implemented on item branch; pending CI |
 | N9.10 | MLflow export | Isolated optional tracking exporter with checkpoint curves checked against the plotting data. | Queued |
-| N9.11 | MCP environment tools | Expose bounded seeded finite-world sessions and check public frames against replay. | Queued |
+| N9.11 | MCP environment tools | Expose bounded seeded finite-world sessions and check public frames against replay. | Implemented; [MCP guide](mcp/README.md#play-a-finite-world) |
 
 Core files stay out of the formatter. Format any core file only when a future
 change already needs a reviewed core transition, with the exact old-to-new

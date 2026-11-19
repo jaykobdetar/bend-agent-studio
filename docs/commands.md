@@ -40,6 +40,11 @@ First create `runs/dispatch` with `node experiment.mjs run experiments/dispatch-
 
 ## Analysis and authoring
 
+For interactive play over MCP, call `env_reset` with world, seed and optional
+limit, then `env_step` with world, session and action. See the
+[MCP play guide](../mcp/README.md#play-a-finite-world).
+
+
 See [scaffolding and sweeps](scaffolding.md) for examples.
 
 - `node experiment.mjs init agent NAME`

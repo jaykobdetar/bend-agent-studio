@@ -42,6 +42,12 @@ The [Bend upgrade watch](upgrading-bend.md) is a separate weekly/manual check ag
 
 ### Running individual checks
 
+Run `node --test mcp/environment.test.mjs` after installing the MCP package to
+test public views, capacity/lifetime and confinement. With pinned Bend on PATH
+the same suite plays 24 stochastic literal and packed episodes by submitting
+their replayed action sequences and compares every public frame exactly.
+
+
 The Linux CI job checks Prettier formatting of authored, tracked JavaScript.
 See [formatter setup and scope](#formatting-javascript).
 
