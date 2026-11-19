@@ -1,0 +1,26 @@
+{
+  "schema": 1,
+  "name": "flagship-toy-text",
+  "games": [
+    {"id": "lake4-slip", "file": "../worlds/benchmarks/toy-text/lake4-slip.json", "limit": 100},
+    {"id": "lake4-dry", "file": "../worlds/benchmarks/toy-text/lake4-dry.json", "limit": 100},
+    {"id": "cliff4x12", "file": "../worlds/benchmarks/toy-text/cliff4x12.json", "limit": 200},
+    {"id": "bandit-2", "file": "../worlds/benchmarks/probes/bandit-2.json", "limit": 1},
+    {"id": "bandit-4", "file": "../worlds/benchmarks/probes/bandit-4.json", "limit": 1}
+  ],
+  "arms": [
+    {"id": "random", "method": "random"},
+    {"id": "q_learning", "method": "q_learning", "alpha": 0.25, "gamma": 0.9, "epsilon": 0.25},
+    {"id": "expected_sarsa", "method": "expected_sarsa", "alpha": 0.25, "gamma": 0.9, "epsilon": 0.25},
+    {"id": "double_q", "method": "double_q", "alpha": 0.25, "gamma": 0.9, "epsilon": 0.25},
+    {"id": "dyna_q", "method": "dyna_q", "planningSteps": 5, "alpha": 0.25, "gamma": 0.9, "epsilon": 0.25},
+    {"id": "sarsa", "method": "custom", "agentFile": "../agents/sarsa/agent.bend", "parameters": {"alpha": 0.25, "gamma": 0.9}},
+    {"id": "n_step", "method": "custom", "agentFile": "../agents/n_step/agent.bend", "parameters": {"alpha": 0.25, "gamma": 0.9, "n": 3}},
+    {"id": "td_lambda", "method": "custom", "agentFile": "../agents/td_lambda/agent.bend", "parameters": {"alpha": 0.25, "gamma": 0.9, "linear": 0, "lambda": 0.8}}
+  ],
+  "replicates": 10,
+  "checkpoints": [0, 8, 16, 32, 64, 128],
+  "validationEpisodes": 8,
+  "testEpisodes": 16,
+  "seeds": {"train": 142000000, "validation": 1642000000, "test": 2642000000, "stride": 10000}
+}
