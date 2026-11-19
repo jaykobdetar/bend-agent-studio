@@ -3,8 +3,8 @@ import path from 'node:path';
 import {createHash} from 'node:crypto';
 import {symbol} from '../core/finite_world.mjs';
 
-// Bind display-only data to the exact generated inputs. The normalized world
-// identifier also recognizes verified replays without needing their source path.
+// Bind display-only data to generated inputs, ignoring only Git checkout EOLs.
+// The normalized world identifier also recognizes verified replays without their source path.
 export function knownGridLayouts(root) {
   const layouts=new Map();
   for (const pack of ['toy-text','probes']) {
@@ -14,9 +14,9 @@ export function knownGridLayouts(root) {
       for (const [name,{sha256,...layout}] of Object.entries(index)) {
         if (!/^[\w-]+\.json$/.test(name)) continue;
         try {
-          const bytes=fs.readFileSync(path.join(dir,name));
-          if (createHash('sha256').update(bytes).digest('hex')===sha256)
-            layouts.set(symbol(JSON.parse(bytes)),layout);
+          const text=fs.readFileSync(path.join(dir,name),'utf8').replaceAll('\r\n','\n');
+          if (createHash('sha256').update(text).digest('hex')===sha256)
+            layouts.set(symbol(JSON.parse(text)),layout);
         } catch { /* Older or incomplete checkouts can omit display metadata. */ }
       }
     } catch { /* Layout sidecars are optional. */ }

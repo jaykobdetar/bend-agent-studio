@@ -791,6 +791,26 @@ test('generated grid layouts are matched by world definition, not game names',as
   assert.equal(await get('probes/memory-3'),undefined);
 });
 
+test('generated layout fingerprints tolerate checkout EOLs but reject altered world data',async t=>{
+  const root=await mkdtemp(path.join(os.tmpdir(),'studio-layout-eol-'));
+  t.after(()=>rm(root,{recursive:true,force:true}));
+  const dir=path.join(root,'worlds','benchmarks','toy-text');
+  await mkdir(dir,{recursive:true});
+  const source=new URL('../worlds/benchmarks/toy-text/',import.meta.url);
+  const layoutText=(await readFile(new URL('layouts.json',source),'utf8')).replaceAll('\r\n','\n');
+  const name='lake4-slip.json', target=path.join(dir,name);
+  const lf=(await readFile(new URL(name,source),'utf8')).replaceAll('\r\n','\n');
+  const crlf=text=>text.replaceAll('\n','\r\n');
+  const key=symbol(JSON.parse(lf));
+  await writeFile(path.join(dir,'layouts.json'),crlf(layoutText));
+  for (const text of [lf,crlf(lf)]) {
+    await writeFile(target,text);
+    assert.deepEqual(knownGridLayouts(root).get(key)?.rows,['S...','.P.P','...P','P..G']);
+  }
+  await writeFile(target,crlf(lf.replace('"reward":0','"reward":1')));
+  assert.equal(knownGridLayouts(root).size,0);
+});
+
 test('Studio trains a manifest with checkout-relative worlds and returns grid replay metadata',compilerTest,async t=>{
   const home=await mkdtemp(path.join(os.tmpdir(),'studio-finite-grid-'));
   t.after(()=>rm(home,{recursive:true,force:true}));
