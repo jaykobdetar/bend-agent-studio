@@ -316,3 +316,22 @@ Update this table in the same PR as each item.
 | F8.2 | Implemented: CLI and MCP validation report the selected hook for each arm | [Agent interface](docs/agents.md) |
 | F8.3 | Implemented: Linux CI trains a bounded self-play study and checks both board encodings | [Test guide](docs/testing.md) |
 | F8.4 | Documented: Studio lock uses Node SQLite; pinned Node 24.22.3 starts without the warning | [Startup and recovery](docs/studio.md#if-studio-stops-during-training) |
+
+## Phase 9: overnight work order
+
+Work in ID order, on one branch per item. Merge only after the full Linux and Windows workflow passes for the specific revision, including MCP, archive gates and all pinned proofs. Do not replace archive baselines. A core byte change needs a reviewed transition and passing G4. Leave an item unmerged after three failed CI attempts and record the blocker. See the [overnight handoff](docs/history/overnight-2026-11-19.md).
+
+| ID | Work | Acceptance target | Status |
+| --- | --- | --- | --- |
+| N9.0 | Housekeeping | Remove the named pre-rewrite remote branch and record Phase 9. | In progress |
+| N9.1 | One-command setup | Idempotent pinned Linux/macOS setup, devcontainer and clean-runner verification. | Queued |
+| N9.2 | Flagship study | Run and verify the eight-learner toy-text/probe study; publish outputs, uncertainty and a deterministic CI slice. | Queued |
+| N9.3 | Studio manifests and grid rendering | Validate and queue training plans from experiments/; render layout metadata with text fallback and mobile coverage. | Queued |
+| N9.4 | Upgrade warning | Weekly non-blocking latest-Bend-2.x check and single failure issue; document the pin upgrade procedure. | Queued |
+| N9.5 | Scaffolding and sweeps | Add safe agent/world/plan initialization and seeded sweeps with matching MCP tools. | Queued |
+| N9.6 | Replicate planning | Estimate paired bootstrap precision and sign-test power from pilot exports, for planning only. | Queued |
+| N9.7 | Laws and generated cases | Check finite lookups, logging mass and hook pause/resume; exercise validation, export and MCP boundaries. | Queued |
+| N9.8 | Formatter | Pin an isolated formatter outside archive inputs; separate formatting-only commit from CI enforcement. | Queued |
+| N9.9 | More environments | Add tested Acrobot dynamics and simultaneous zero-sum games with exact values and exploitability. | Queued |
+| N9.10 | MLflow export | Isolated optional tracking exporter with checkpoint curves checked against the plotting data. | Queued |
+| N9.11 | MCP environment tools | Expose bounded seeded finite-world sessions and check public frames against replay. | Queued |
