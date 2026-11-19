@@ -1,0 +1,17 @@
+import Base
+import @CORE@/engine.bend as E
+import @CORE@/parameters.bend as P
+
+type State is Data:
+  Start{}
+  End{}
+
+def Observation() -> Data: U32
+
+def view(state: State) -> E.View<U32>:
+  match state:
+    case Start{}: E.Open{0,[0]}
+    case End{}: E.End{1}
+
+def world(params: P.Parameters) -> E.World<State,Observation>:
+  E.World{seed => Start{},view,state => action => word => (End{},1.0)}

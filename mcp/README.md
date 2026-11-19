@@ -53,6 +53,7 @@ Both validations are read-only. An inline run validates its data and saves the o
 
 ## Surface
 
+- **Write confined starters and sweeps:** init_agent, init_world, init_plan and sweep. See the [scaffolding guide](../docs/scaffolding.md).
 - **Author/check:** list_examples, validate_plan, validate_world, solve_world (full/reactive/history/clock), evaluate_policy_exact (JSON observation keys to action ID or probability vector in legal-action order), build_memory_world, check_bend.
 - **Jobs:** start_run, resume_run, rerun, start_assessment, start_offline (collect/fit/score), job_status, cancel_job. select_confirmation is synchronous.
 - **Inspect:** list_runs, verify_run, summarize_results, learning_curve, get_checkpoint, replay_episode, explain_episode, sequential_test, arena_tournament. The last returns separate rating and cross-play tables. Verification requires a complete run; status can report a partial one.

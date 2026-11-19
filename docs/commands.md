@@ -40,6 +40,14 @@ First create `runs/dispatch` with `node experiment.mjs run experiments/dispatch-
 
 ## Analysis and authoring
 
+See [scaffolding and sweeps](scaffolding.md) for examples.
+
+- `node experiment.mjs init agent NAME`
+- `node experiment.mjs init world NAME` (add `--bend` for a typed world)
+- `node experiment.mjs init plan NAME`
+- `node experiment.mjs sweep SPEC OUT`
+
+
 | Task | Example |
 | --- | --- |
 | Estimate an arm’s paired difference from a reference on a completed training export. | `python3 analysis/analyze.py bridge.csv --reference random` |

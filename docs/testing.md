@@ -40,6 +40,12 @@ A green Windows job means the Node-only workflow passed. It does **not** mean Be
 
 ### Running individual checks
 
+Run `node --test checks/scaffold_checks.mjs` for starter validity, no-clobber
+behavior, seeded sweep determinism, compiled multi-arm screening, halving and held-out-data rejection. With
+pinned Lean available, `BEND_CHECK_SCAFFOLD_VERDICT=1 node --test checks/scaffold_checks.mjs`
+also proves the generated placeholder law independently; Linux CI runs it in
+the BendTT step. MCP stdio covers workspace-only authoring and sweep paths.
+
 The Linux workflow also runs `node checks/flagship_slice.mjs` to reproduce two original first-checkpoint files from the [flagship study](../studies/flagship-toy-text/README.md). This checks the exact byte hashes under the pinned runner, not training quality or reproduction of every row. For G2/G3, the [additive fixture](../tools/archive-gates/n9-flagship-plan.json) also pins the new manifest and full source/bundle identities without replacing the historical baselines.
 
 | Local command or guide | Coverage and CI step |
