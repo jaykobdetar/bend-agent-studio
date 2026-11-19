@@ -331,8 +331,8 @@ Work in ID order, on one branch per item. Merge only after the full Linux and Wi
 | N9.5 | Scaffolding and sweeps | Add safe agent/world/plan initialization and seeded sweeps with matching MCP tools. | Merged; [PR #35](https://github.com/jaykobdetar/bend-agent-studio/pull/35) |
 | N9.6 | Replicate planning | Estimate paired bootstrap precision and sign-test power from pilot exports, for planning only. | Merged; [PR #36](https://github.com/jaykobdetar/bend-agent-studio/pull/36) |
 | N9.7 | Laws and generated cases | Check finite lookups, logging mass and hook pause/resume; exercise validation, export and MCP boundaries. | Merged; [PR #37](https://github.com/jaykobdetar/bend-agent-studio/pull/37) |
-| N9.8 | Formatter | Pin an isolated formatter outside archive inputs; separate formatting-only commit from CI enforcement. | Implemented; [scope and commands](docs/testing.md#formatting-javascript) |
-| N9.9 | More environments | Add tested Acrobot dynamics and simultaneous zero-sum games with exact values and exploitability. | Queued |
+| N9.8 | Formatter | Pin an isolated formatter outside archive inputs; separate formatting-only commit from CI enforcement. | Merged; [PR #38](https://github.com/jaykobdetar/bend-agent-studio/pull/38) |
+| N9.9 | More environments | Add tested Acrobot dynamics and simultaneous zero-sum games with exact values and exploitability. | Implemented on item branch; pending CI |
 | N9.10 | MLflow export | Isolated optional tracking exporter with checkpoint curves checked against the plotting data. | Queued |
 | N9.11 | MCP environment tools | Expose bounded seeded finite-world sessions and check public frames against replay. | Queued |
 

@@ -144,3 +144,14 @@ dependency directories, vendored/generated sources and documentation checker
 fixtures. Python, Bend, third-party data, core, agents and worlds are not
 formatted. To compare syntax trees and formatter idempotence, run
 `npm --prefix tools/format run audit`. The Linux CI check never rewrites files.
+
+## Acrobot and matrix games
+
+```sh
+node --test checks/acrobot.test.mjs checks/matrix_solver.test.mjs checks/matrix_world.test.mjs
+node tools/matrix-games/generate.mjs --check
+```
+
+The root suite checks 21 Acrobot reference steps with independently written double-precision dynamics, wrapping/clamps, seeded reset and terminal rewards. To add the independent upstream implementation as a cross-check, set `BEND_ACROBOT_GYM_PYTHON` to the existing pinned Gymnasium virtual environment's Python and rerun the Acrobot case. The mobile Studio smoke checks pixels from a real trained Acrobot replay as well as the finite grid.
+
+Matrix tests check exact closed forms, reconstruct the generated files, verify the live Bend run, and confirm that both seats see an identical precommitment observation independent of the private action. They check the revealed pair, payoff and empirical exploitability on archived validation rolls. The archive gates separately pin the new plan identities without changing older fingerprints.

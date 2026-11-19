@@ -13,6 +13,7 @@ import {manifestPicker, readPlanSnapshot, savePlanSnapshot} from './manifests.mj
 import {knownGridLayouts} from './grid-layouts.mjs';
 import {symbol} from '../core/finite_world.mjs';
 import {
+  acrobotPose,
   boardStates,
   cumulativeReturns,
   gridMarkers,
@@ -1161,3 +1162,19 @@ test(
     }
   },
 );
+
+test('Acrobot viewer places both links and detects the public goal height', () => {
+  assert.deepEqual(acrobotPose({theta1: 0, theta2: 0}), {
+    joint: [0, 1],
+    tip: [0, 2],
+    reached: false,
+  });
+  const flipped = acrobotPose({theta1: Math.PI, theta2: 0});
+  assert.ok(Math.abs(flipped.tip[0]) < 1e-12);
+  assert.equal(flipped.tip[1], -2);
+  assert.equal(flipped.reached, true);
+  const bent = acrobotPose({theta1: 0, theta2: Math.PI});
+  assert.ok(Math.abs(bent.tip[0]) < 1e-12);
+  assert.equal(bent.tip[1], 0);
+  assert.equal(bent.reached, false);
+});

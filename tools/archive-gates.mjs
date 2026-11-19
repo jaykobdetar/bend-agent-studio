@@ -360,7 +360,16 @@ try {
     if (mode === 'capture') console.log(JSON.stringify(report, null, 2));
     else {
       const historical = json(path.join(fixtures, 'sources.json'));
-      const added = json(path.join(fixtures, 'n9-flagship-plan.json'));
+      const added = {};
+      for (const file of ['n9-flagship-plan.json', 'n9-environment-plans.json']) {
+        for (const [key, entry] of Object.entries(json(path.join(fixtures, file)))) {
+          assert(
+            !Object.hasOwn(historical.plans, key) && !Object.hasOwn(added, key),
+            'duplicate added inventory entry: ' + key,
+          );
+          added[key] = entry;
+        }
+      }
       const expected = [...Object.keys(historical.plans), ...Object.keys(added)].sort();
       assert.deepEqual(Object.keys(report.plans), expected, 'training plan inventory changed');
       const original = {...report, plans: {...report.plans}};

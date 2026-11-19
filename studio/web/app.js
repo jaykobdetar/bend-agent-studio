@@ -78,7 +78,8 @@ function reason(t) {
   const why = t.reason?.$ ?? t.reason;
   if (why === 'Limit') return 'Step limit';
   if (why === 'Illegal') return 'Illegal action';
-  if (why === 'Terminal' && ['cliff', 'mountain_car'].includes(t.game)) return 'Goal reached';
+  if (why === 'Terminal' && ['cliff', 'mountain_car', 'acrobot'].includes(t.game))
+    return 'Goal reached';
   if (why === 'Terminal' && ['tic-tac-toe', 'raw-board'].includes(t.game))
     return t.score === 0 ? 'Draw' : t.score > 0 ? 'X won' : 'O won';
   return why || '—';

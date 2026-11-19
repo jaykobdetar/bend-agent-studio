@@ -108,3 +108,17 @@ where exact backward propagation terminates. Merely having a goal is insufficien
 Detour permits circling, and even an almost-surely terminating stochastic loop is
 outside this conservative undiscounted solver. Choose a discount below 1 or use
 the original finite-horizon oracle for such worlds.
+
+## Matrix game values and exploitability
+
+After running and verifying [the matrix study](../experiments/matrix-games.json), use the exact recorded Node version:
+
+```sh
+node experiment.mjs run experiments/matrix-games.json runs/matrix-games
+node experiment.mjs verify runs/matrix-games
+node analysis/matrix_report.mjs runs/matrix-games
+```
+
+The standard-library [solver](../analysis/matrix_games.mjs) enumerates the active constraints of the small primal and dual linear programs and solves each candidate vertex using exact BigInt rational arithmetic. It rejects infeasible or singular candidates, tests both seat strategies, and checks that their values agree. It supports rectangular games, degeneracy and negative values, with at most six actions per seat. Nash values are 0 for both RPS variants and Matching Pennies, 2/3 for the rectangular game and −2 for the negative saddle.
+
+For each learner, the [report](../analysis/matrix_report.mjs) reads accepted choices at the fixed final checkpoint from the archived, frozen validation models. It reports the row and column action counts, exact expected payoff under the product of their empirical distributions, each seat's best response and regret, NashConv (sum of regrets), and exploitability (NashConv/2). The column best response is shown in **row-payoff units**, so a smaller value favors column. A checked-in plan run gives Q-learning exploitability 0 on the negative saddle but 3/4 on weighted RPS. This demonstrates the difference between learning against a fixed random opponent and learning an equilibrium. The arithmetic is exact for the profile of measured choices; 16 validation decisions per seat and arm are not a precise estimate of every seed or a general convergence claim. Open only trusted local archives.

@@ -93,9 +93,29 @@ try {
   assert.equal(count, 3);
   await page.getByRole('button', {name: 'Next step'}).click();
   await fits();
+  await picker.selectOption('acrobot.json');
+  await page.getByText(/coarse-linear-q: Hooks/).waitFor();
+  await page.getByRole('button', {name: 'Train plan'}).click();
+  await page.getByRole('button', {name: 'Experiments', exact: true}).click();
+  const robot = page.getByRole('article').filter({hasText: 'acrobot.json'});
+  await robot.getByRole('button', {name: 'Open replay'}).click();
+  await page.getByLabel('Training checkpoint').selectOption('0');
+  const robotResponse = page.waitForResponse((r) => r.url().includes('/replay?') && r.ok());
+  await page.locator('#load-replay').click();
+  const robotTrace = await (await robotResponse).json();
+  assert.equal(robotTrace.frames[0].observation.$, 'Acrobot');
+  await page.getByRole('dialog').waitFor({state: 'hidden'});
+  await page.getByRole('heading', {name: 'Acrobot'}).waitFor();
+  const robotPixels = await page.locator('#scene').evaluate((canvas) => {
+    const pixel = canvas.getContext('2d').getImageData(512, 226, 1, 1).data;
+    return Array.from(pixel.slice(0, 3));
+  });
+  assert.deepEqual(robotPixels, [0xff, 0x89, 0x6c], 'the rendered pivot should be coral');
+  await page.getByRole('button', {name: 'Next step'}).click();
+  await fits();
   assert.deepEqual(errors, []);
   console.log(
-    'Studio browser smoke passed: plan selection, replay, grid pixels, and 390 px layout.',
+    'Studio browser smoke passed: plan selection, replay, grid and Acrobot pixels, and 390 px layout.',
   );
 } finally {
   await browser?.close();

@@ -1,0 +1,15 @@
+{
+  "schema": 1,
+  "name": "acrobot",
+  "games": [
+    {"id": "acrobot", "domain": "acrobot", "worldFile": "../worlds/acrobot.bend", "limit": 500}
+  ],
+  "arms": [
+    {"id": "coarse-linear-q", "method": "custom", "domain": "acrobot", "agentFile": "../agents/acrobot/agent.bend"}
+  ],
+  "replicates": 2,
+  "checkpoints": [0, 8, 32, 64],
+  "validationEpisodes": 4,
+  "testEpisodes": 8,
+  "seeds": {"train": 157000000, "validation": 2010000000, "test": 3010000000, "stride": 10000}
+}
