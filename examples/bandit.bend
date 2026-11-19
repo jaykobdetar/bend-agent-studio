@@ -1,5 +1,5 @@
 import Base
-import ./core/engine.bend as E
+import ../core/engine.bend as E
 
 # Estimated rewards for actions 0 and 1 under each of two observations.
 type Row is Data:

@@ -77,6 +77,15 @@ Studio runs up to two replay processes at once. A third request receives HTTP 42
 
 Start with [worlds/bridge.json](worlds/bridge.json) for a finite game, [worlds/inventory.bend](worlds/inventory.bend) for a custom Bend world, or [agents/ucb/agent.bend](agents/ucb/agent.bend) for a learning algorithm. The [experiment guide](EXPERIMENTS.md) covers authoring, offline learning, evaluation, and resuming studies. It also explains how to [regenerate the three Tiger worlds](EXPERIMENTS.md#regenerate-the-tiger-worlds).
 
+## Repository layout
+
+Studio starts in [studio/server.mjs](studio/server.mjs). The root [experiment CLI](experiment.mjs) runs studies; the [batch CLI](batch.mjs) works with offline datasets. Their implementations live in [core/](core/) and [offline/](offline/). Look in [worlds/](worlds/) for environments, [agents/](agents/) for learners, [experiments/](experiments/) for runnable plans, and [analysis/](analysis/) for reporting scripts.
+
+Two standalone Bend programs serve different purposes:
+
+- Run `bend examples/main.bend` for a small two-door example that prints the bandit's held-out score before and after training. [Its learner](examples/bandit.bend) is a helper, not a second entry point.
+- Run `bend checks/benchmark.bend` to print a CSV header plus 100 data rows: five worlds × four algorithms × five seeded replicates. This produces benchmark data; it is not the pass/fail [benchmark check](checks/benchmark_checks.bend) or a Studio study archive.
+
 ## Formal Properties
 
 The <!-- count:core-laws -->46<!-- /count --> core laws are stated in [laws/LAWS.bend](laws/LAWS.bend) and proved in [laws/PROOF.bend](laws/PROOF.bend). The learners declare <!-- count:learner-laws -->15<!-- /count --> additional laws in their own modules:

@@ -1,11 +1,11 @@
 import Base
-import ./core/engine.bend as E
-import ./core/tabular.bend as T
-import ./core/cliff.bend as Cliff
-import ./core/doors.bend as Doors
-import ./core/ferry.bend as Ferry
-import ./core/key_maze.bend as Maze
-import ./core/orchard.bend as Orchard
+import ../core/engine.bend as E
+import ../core/tabular.bend as T
+import ../core/cliff.bend as Cliff
+import ../core/doors.bend as Doors
+import ../core/ferry.bend as Ferry
+import ../core/key_maze.bend as Maze
+import ../core/orchard.bend as Orchard
 
 # Fixed before comparing learners. Each replicate gets a distinct block.
 def training_episodes() -> Nat: 512n

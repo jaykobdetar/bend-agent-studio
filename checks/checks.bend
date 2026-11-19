@@ -2,8 +2,8 @@ import Base
 import ../core/engine.bend as E
 import ../core/doors.bend as Doors
 import ../core/history.bend as H
-import ../main.bend as Demo
-import ../bandit.bend as Bandit
+import ../examples/main.bend as Demo
+import ../examples/bandit.bend as Bandit
 
 # A second world with a different state, observation, action set and model.
 # Each accepted action earns two points and consumes one tick.
