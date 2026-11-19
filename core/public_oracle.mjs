@@ -52,7 +52,13 @@ function integerBuckets(xs) {
   }).filter(e=>e.count!==0n);
 }
 
-export function publicPlanner(world,horizon,{maxBeliefs=100000,discount=1}={}) {
+export function publicPlanner(world,horizon,options={}) {
+  return makePublicPlanner(world,horizon,options,true);
+}
+
+// A summary returns only the best initial decision. Do not retain an action
+// explanation for every memoized belief when none can be requested later.
+function makePublicPlanner(world,horizon,{maxBeliefs=100000,discount=1}={},keepChoices) {
   if (!Number.isSafeInteger(horizon) || horizon<0 || !Number.isSafeInteger(maxBeliefs) || maxBeliefs<1 ||
       !Number.isFinite(discount) || discount<0 || discount>1) throw Error('invalid planning horizon, discount, or belief limit');
   const states=new Map(world.states.map(s=>[s.id,s]));
@@ -79,7 +85,7 @@ export function publicPlanner(world,horizon,{maxBeliefs=100000,discount=1}={}) {
     if (++expanded>maxBeliefs) throw Error('belief-state budget exceeded; increase maxBeliefs or reduce the horizon');
     const total=reduced.reduce((t,[,n])=>t+n,0n)*4294967296n;
     let best={action:null,value:-Infinity};
-    const choices=[];
+    const choices=keepChoices?[]:null;
     for (const a of state.actions) {
       const groups=new Map();
       for (const [s,n] of reduced) for (const event of transitions.get(s).get(a.id)) {
@@ -91,10 +97,10 @@ export function publicPlanner(world,horizon,{maxBeliefs=100000,discount=1}={}) {
         const future=depth>1 && discount ? (yield [group.mass,depth-1]).value : 0;
         value+=probabilityRatio(group.total,total)*(group.reward+discount*future);
       }
-      choices.push({action:a.id,value});
+      if (choices) choices.push({action:a.id,value});
       if (value>best.value) best={action:a.id,value};
     }
-    best.choices=choices;
+    if (choices) best.choices=choices;
     memo.set(key,best);
     return best;
   }
@@ -130,7 +136,7 @@ export function publicPlanner(world,horizon,{maxBeliefs=100000,discount=1}={}) {
 }
 
 export function beliefOracle(world,horizon,options) {
-  return publicPlanner(world,horizon,options).summary();
+  return makePublicPlanner(world,horizon,options,false).summary();
 }
 
 // In a previous-observation arm, H.history_id encodes the ranked public

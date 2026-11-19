@@ -1,6 +1,12 @@
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
-import {beliefOracle, clockOracle, explainDecisions, policyOracle} from '../core/public_oracle.mjs';
+import {
+  beliefOracle,
+  clockOracle,
+  explainDecisions,
+  policyOracle,
+  publicPlanner,
+} from '../core/public_oracle.mjs';
 import {worldDefinition} from '../core/finite_world.mjs';
 
 const load = (name) =>
@@ -41,6 +47,23 @@ assert.throws(() => explainDecisions(clue, 2, [{...frames[0], reward: -5}]), /im
 const tiger = load('tiger');
 assert.ok(Math.abs(beliefOracle(tiger, 8).optimalPublicHistoryReturn - 4.765635530480979) < 1e-10);
 assert.throws(() => beliefOracle(tiger, 8, {maxBeliefs: 1}), /budget/);
+// Summary-only searches must keep the public result and belief counts identical to
+// the explanatory planner, whose callers can still inspect every legal action.
+for (const depth of [0, 2, 4]) {
+  for (const discount of [0, 0.75, 1]) {
+    const options = {discount};
+    const planner = publicPlanner(tiger, depth, options);
+    const summary = planner.summary();
+    assert.deepEqual(beliefOracle(tiger, depth, options), summary);
+    for (const {observation, legal} of summary.initialDecisions) {
+      const {choices} = planner.solve(planner.initial(observation, legal), depth);
+      assert.deepEqual(
+        choices.map((x) => x.action),
+        depth ? legal : [],
+      );
+    }
+  }
+}
 const dispatch = load('dispatch'),
   preferred = (_s, legal) => legal[0],
   trained = (s) => (s === 0 ? 4 : 7);
