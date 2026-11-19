@@ -1,0 +1,197 @@
+name: Bend upgrade watch
+
+on:
+  schedule:
+    - cron: '27 8 * * 1'
+  workflow_dispatch:
+
+permissions: {}
+
+# No overlap between trusted runs; a manual run on another ref is isolated and skipped.
+concurrency:
+  group: bend-upgrade-watch-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  probe:
+    name: Latest Bend 2.x
+    if: github.ref == format('refs/heads/{0}', github.event.repository.default_branch) && (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch')
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    permissions:
+      contents: read
+    env:
+      BEND_NO_TELEMETRY: "1"
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version: 24.22.3
+      - name: Install Lean 4.34.0 for the independent proof check
+        working-directory: ${{ runner.temp }}
+        run: |
+          curl -fsSL --retry 3 -o lean.tar.zst https://github.com/leanprover/lean4/releases/download/v4.34.0/lean-4.34.0-linux.tar.zst
+          echo 'caaa98356098c85dc0fcbbd28e1ec66f39eb6551829972b752ff20e1286b646b  lean.tar.zst' | sha256sum --check
+          tar --zstd -xf lean.tar.zst
+          echo "$RUNNER_TEMP/lean-4.34.0-linux/bin" >> "$GITHUB_PATH"
+      - name: Install latest official Bend 2.x
+        id: compiler
+        working-directory: ${{ runner.temp }}
+        run: |
+          python3 - <<'PY3'
+          import json
+          import re
+          import subprocess
+
+          release_api = "https://api.github.com/repos/bendlang/bend/releases"
+          curl = ["curl", "--fail", "--silent", "--show-error", "--location",
+                  "--proto", "=https", "--retry", "3", "--max-time", "120"]
+          releases = []
+          # GitHub lists releases newest first, but select the highest stable 2.x semver.
+          for page in range(1, 11):
+              batch = json.loads(subprocess.check_output(
+                  curl + [f"{release_api}?per_page=100&page={page}"]))
+              releases.extend(batch)
+              if len(batch) < 100:
+                  break
+          else:
+              raise SystemExit("Too many release pages; review the bounded lookup.")
+          candidates = []
+          for item in releases:
+              match = re.fullmatch(r"v(2)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)", item["tag_name"])
+              if match and not item["draft"] and not item["prerelease"]:
+                  candidates.append((tuple(map(int, match.groups())), item))
+          if not candidates:
+              raise SystemExit("No stable official Bend 2.x release found.")
+          version, release = max(candidates, key=lambda entry: entry[0])
+          version = ".".join(map(str, version))
+          archive = f"bend-{version}-linux-x64.tar.gz"
+          url = f"https://github.com/bendlang/bend/releases/download/v{version}/{archive}"
+          assets = [a for a in release["assets"] if a["name"] == archive
+                    and a["browser_download_url"] == url]
+          if len(assets) != 1:
+              raise SystemExit(f"Latest release v{version} has no unique expected Linux x64 asset.")
+          digest = str(assets[0].get("digest", ""))
+          if not re.fullmatch(r"sha256:[0-9a-f]{64}", digest):
+              raise SystemExit(f"Latest release v{version} has no valid GitHub asset digest.")
+          print(f"Checking official Bend v{version} (sha256 {digest[7:]})", flush=True)
+          subprocess.run(curl + ["-o", "watch-bend.tar.gz", url], check=True)
+          subprocess.run(["sha256sum", "--check"],
+                         input=f"{digest[7:]}  watch-bend.tar.gz\n", text=True, check=True)
+          subprocess.run(["tar", "-xzf", "watch-bend.tar.gz"], check=True)
+          output = subprocess.check_output(["./bend/bin/bend", "version"], text=True).strip()
+          if output != f"bend {version}":
+              raise SystemExit("Downloaded compiler does not match its release version.")
+          PY3
+          echo "$RUNNER_TEMP/bend/bin" >> "$GITHUB_PATH"
+      - name: Run Node tests
+        if: ${{ !cancelled() && steps.compiler.outcome == 'success' }}
+        run: npm test
+      - name: Run Bend checks
+        if: ${{ !cancelled() && steps.compiler.outcome == 'success' }}
+        run: |
+          bend checks/checks.bend
+          bend checks/benchmark_checks.bend
+          bend checks/study_checks.bend
+          bend agents/sarsa/checks.bend
+          bend agents/n_step/checks.bend
+          bend agents/td_lambda/checks.bend
+          bend agents/reinforce/checks.bend
+          bend agents/linear/checks.bend
+          bend agents/clipped_pg/checks.bend
+          bend laws/PROOF.bend
+
+      - name: Verify proofs with BendTT
+        if: ${{ !cancelled() && steps.compiler.outcome == 'success' }}
+        run: |
+          bend laws/PROOF.bend --verdict
+          bend agents/sarsa/proof.bend --verdict
+          bend agents/n_step/proof.bend --verdict
+          bend agents/td_lambda/proof.bend --verdict
+          bend agents/reinforce/proof.bend --verdict
+          bend agents/linear/proof.bend --verdict
+          bend agents/clipped_pg/proof.bend --verdict
+      - name: Check representative compiled archive backend hashes
+        if: ${{ !cancelled() && steps.compiler.outcome == 'success' }}
+        run: node tools/archive-gates.mjs check-backends
+
+  issue:
+    name: Report upgrade warning
+    needs: probe
+    if: always() && needs.probe.result == 'failure' && github.ref == format('refs/heads/{0}', github.event.repository.default_branch) && (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch')
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    permissions:
+      actions: read
+      issues: write
+    steps:
+      - name: Update the one Bend upgrade issue
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          python3 - <<'PY3'
+          import json
+          import os
+          import re
+          import subprocess
+
+          repo = os.environ["GITHUB_REPOSITORY"]
+          run_id = os.environ["GITHUB_RUN_ID"]
+          attempt = os.environ["GITHUB_RUN_ATTEMPT"]
+          if not re.fullmatch(r"[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+", repo):
+              raise SystemExit("Bad repository identity.")
+          if not run_id.isdecimal() or not attempt.isdecimal():
+              raise SystemExit("Bad workflow identity.")
+
+          def api(path, *args):
+              return json.loads(subprocess.check_output(
+                  ["gh", "api", f"repos/{repo}/{path}", *args]))
+
+          jobs = api(f"actions/runs/{run_id}/attempts/{attempt}/jobs?per_page=100")["jobs"]
+          matches = [j for j in jobs if j["name"] == "Latest Bend 2.x"
+                     and j["conclusion"] in {"failure", "timed_out"} and isinstance(j["id"], int)]
+          if len(matches) != 1:
+              raise SystemExit("Could not verify the failed job in GitHub metadata.")
+          job = matches[0]
+          # Names printed here are fixed by this workflow; only enum values come from the API.
+          stages = [
+              "Install Lean 4.34.0 for the independent proof check",
+              "Install latest official Bend 2.x",
+              "Run Node tests",
+              "Run Bend checks",
+              "Verify proofs with BendTT",
+              "Check representative compiled archive backend hashes",
+          ]
+          statuses = {"success", "failure", "cancelled", "skipped", "neutral", "timed_out"}
+          summary = []
+          for name in stages:
+              status = next((s.get("conclusion") for s in job["steps"] if s["name"] == name), None)
+              summary.append(f"- {name}: **{status if status in statuses else 'not reported'}**")
+
+          title = "Bend 2.x upgrade watch: investigation needed"
+          marker = "<!-- bend-upgrade-watch:v1 -->"
+          run_url = f"https://github.com/{repo}/actions/runs/{run_id}/attempts/{attempt}"
+          job_url = f"https://github.com/{repo}/actions/runs/{run_id}/job/{job['id']}"
+          body = "\n".join([
+              marker, "", "The advisory latest-Bend 2.x workflow failed. Required CI pins were not changed.",
+              f"[Workflow attempt]({run_url}) · [Job and logs]({job_url})", "",
+              *summary, "", "See docs/upgrading-bend.md for the upgrade and archive checklist.",
+          ])
+          # Workflow concurrency serializes query/update/create. Reopen the same bot-owned issue
+          # when necessary, rather than creating a new incident on every failed probe.
+          pages = api("issues?state=all&per_page=100", "--paginate", "--slurp")
+          matching = [issue for page in pages for issue in page
+                      if "pull_request" not in issue and issue.get("user", {}).get("login") == "github-actions[bot]"
+                      and (issue.get("body") or "").splitlines()[:1] == [marker]]
+          if len(matching) > 1:
+              raise SystemExit("Multiple existing watch issues; resolve duplicates manually.")
+          if matching:
+              number = matching[0]["number"]
+              result = api(f"issues/{number}", "--method", "PATCH", "-f", "state=open",
+                           "-f", f"title={title}", "-f", f"body={body}")
+          else:
+              result = api("issues", "--method", "POST", "-f", f"title={title}", "-f", f"body={body}")
+          print(f"Recorded upgrade watch result in issue #{result['number']}.")
+          PY3

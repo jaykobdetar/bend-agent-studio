@@ -8,7 +8,7 @@ Starting revision: [fc3c2d3](https://github.com/jaykobdetar/bend-agent-studio/co
 | N9.1 | Left on branch; [PR #31](https://github.com/jaykobdetar/bend-agent-studio/pull/31) | Local checksum-pinned binaries, isolated Python lock-file environments and MCP install; optional test extras cover cross-version Node and SVG. The additional Linux job builds the non-root devcontainer and runs its post-create command and zero-skip checks there, keeping the existing gate workflows intact. Next: verify clean provisioning, then all branch checks. |
 | N9.2 | Queued | Run and verify the eight-learner toy-text/probe study; publish outputs, uncertainty and a deterministic CI slice. |
 | N9.3 | Queued | Validate and queue training plans from experiments/; render layout metadata with text fallback and mobile coverage. |
-| N9.4 | Queued | Weekly non-blocking latest-Bend-2.x check and single failure issue; document the pin upgrade procedure. |
+| N9.4 | Left on upgrade branch | Weekly and manual latest-stable 2.x advisory. Uses a read-only compiler job and separate, serialized issue job; summaries contain fixed stage names and trusted status metadata only. Next: verify required CI; then dispatch on the default branch to exercise live asset discovery. No pin, baseline, gate, core or proof changes. |
 | N9.5 | Queued | Add safe agent/world/plan initialization and seeded sweeps with matching MCP tools. |
 | N9.6 | Queued | Estimate paired bootstrap precision and sign-test power from pilot exports, for planning only. |
 | N9.7 | Queued | Check finite lookups, logging mass and hook pause/resume; exercise validation, export and MCP boundaries. |

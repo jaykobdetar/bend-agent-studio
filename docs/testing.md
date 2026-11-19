@@ -38,6 +38,8 @@ Run commands from the repository root unless a different working directory is sp
 
 A green Windows job means the Node-only workflow passed. It does **not** mean Bend, Lean, the compiled backend hash checks, Gymnasium or Minari ran on Windows. For the quick local smoke test use `npm test`; for a change to archive layout, learner semantics or Python integration, run the matching row above as well.
 
+The [Bend upgrade watch](upgrading-bend.md) is a separate weekly/manual check against the latest official 2.x version. It does not replace any pinned job, and its results are never required for a merge.
+
 ### Running individual checks
 
 | Local command or guide | Coverage and CI step |
