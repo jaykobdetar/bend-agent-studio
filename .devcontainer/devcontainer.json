@@ -1,0 +1,6 @@
+{
+  "name": "Bend Agent Studio",
+  "build": { "dockerfile": "Dockerfile" },
+  "remoteUser": "studio",
+  "postCreateCommand": "bash scripts/setup.sh --with-test-extras"
+}

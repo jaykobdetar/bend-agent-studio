@@ -15,3 +15,4 @@ __pycache__/
 
 # Published verification artifacts, not local experiment exports.
 !studies/flagship-toy-text/*.csv
+.venv/bend-studio/

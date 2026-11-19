@@ -6,6 +6,8 @@ Train reinforcement-learning agents in Bend and watch how their decisions change
 
 ## Start Studio
 
+For development, [set up a machine with the pinned toolchain](docs/testing.md#set-up-a-machine).
+
 Install Node.js 24 or newer, open a terminal in the repository root, and run:
 
 ```sh
