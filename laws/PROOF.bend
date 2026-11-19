@@ -15,7 +15,7 @@ def Laws.training_uses_one_update(M, O, learn, model, event):
   {==}
 
 def Laws.rejection_preserves_progress(S, O, M, hooks, mode, remaining, state, observation,
-                                      model, action, seed, score, steps):
+                                      actions, model, action, seed, score, steps):
   {==}
 
 def Laws.terminal_view_stops(S, O, M, state, model, seed, score, steps, observation):
@@ -94,8 +94,8 @@ def count_recorded(-S:Data,-O:Data,-M:Data,inspect:S -> E.View<O>,learn:M -> E.T
       count_place(S,O,M,after,E.update(M,O,learn,mode,model,event),seed,F32.add(score,reward),1n+steps,view)
 
 def count_perform(-S:Data,-O:Data,-M:Data,hooks:E.Hooks<S,O,M>,mode:E.Mode,remaining:Nat,+state:S,
-    obs:O,model:M,+action:U32,+seed:U32,score:F32,steps:Nat) ->
-  {Laws.run_steps(S,O,M,E.turn_run(S,O,M,E.perform(S,O,M,hooks,mode,remaining,state,obs,model,action,seed,score,steps)))
+    obs:O,actions:List<&2,U32>,model:M,+action:U32,+seed:U32,score:F32,steps:Nat) ->
+  {Laws.run_steps(S,O,M,E.turn_run(S,O,M,E.perform(S,O,M,hooks,mode,remaining,state,obs,actions,model,action,seed,score,steps)))
     == 1n+steps : Nat}:
   match hooks:
     case E.Hooks{E.World{reset,inspect,step},act,learn}:
@@ -103,16 +103,16 @@ def count_perform(-S:Data,-O:Data,-M:Data,hooks:E.Hooks<S,O,M>,mode:E.Mode,remai
     case E.Finishing{E.World{reset,inspect,step},act,learn,finish}:
       count_recorded(S,O,M,inspect,learn,mode,remaining,obs,model,action,E.next_seed(seed),score,steps,step(state,action,seed))
 
-    case E.Contextual{E.World{reset,inspect,step},legal_at,act,learn,finish}:
-      count_recorded(S,O,M,inspect,m => ev => learn(m,legal_at(state),ev),mode,remaining,obs,model,action,E.next_seed(seed),score,steps,step(state,action,seed))
+    case E.Contextual{E.World{reset,inspect,step},act,learn,finish}:
+      count_recorded(S,O,M,inspect,m => ev => learn(m,actions,ev),mode,remaining,obs,model,action,E.next_seed(seed),score,steps,step(state,action,seed))
 
 def count_attempt(-S:Data,-O:Data,-M:Data,hooks:E.Hooks<S,O,M>,valid:Bool,mode:E.Mode,remaining:Nat,state:S,
-    obs:O,model:M,action:U32,seed:U32,score:F32,steps:Nat) ->
-  {Laws.run_steps(S,O,M,E.turn_run(S,O,M,E.attempt(S,O,M,hooks,valid,mode,remaining,state,obs,model,action,seed,score,steps)))
+    obs:O,actions:List<&2,U32>,model:M,action:U32,seed:U32,score:F32,steps:Nat) ->
+  {Laws.run_steps(S,O,M,E.turn_run(S,O,M,E.attempt(S,O,M,hooks,valid,mode,remaining,state,obs,actions,model,action,seed,score,steps)))
     == count_if(valid,steps) : Nat}:
   match valid:
     case False{}: {==}
-    case True{}: count_perform(S,O,M,hooks,mode,remaining,state,obs,model,action,seed,score,steps)
+    case True{}: count_perform(S,O,M,hooks,mode,remaining,state,obs,actions,model,action,seed,score,steps)
 
 def raise_bound(+end:Nat,a:Nat,b:Nat,e:{a == b : Nat},h:{Nat.is_le(end,a) == True{} : Bool}) ->
   {Nat.is_le(end,b) == True{} : Bool}:
@@ -135,9 +135,9 @@ def Laws.roll_steps_within_budget(S,O,M,hooks,fuel,mode,run):
     case 1n++rest E.Live{+state,+obs,+actions,+model,+seed,+score,+steps}:
       +action = E.get_policy(S,O,M,hooks)(model,obs,actions,mode,seed)
       +valid = List.contains(~U32,~U32.is_eq,actions,action)
-      +next = E.turn_run(S,O,M,E.attempt(S,O,M,hooks,valid,mode,rest,state,obs,model,action,E.next_seed(seed),score,steps))
+      +next = E.turn_run(S,O,M,E.attempt(S,O,M,hooks,valid,mode,rest,state,obs,actions,model,action,E.next_seed(seed),score,steps))
       +end = Laws.report_steps(M,E.roll(~S,~O,~M,~hooks,rest,mode,next))
-      eq = count_attempt(S,O,M,hooks,valid,mode,rest,state,obs,model,action,E.next_seed(seed),score,steps)
+      eq = count_attempt(S,O,M,hooks,valid,mode,rest,state,obs,actions,model,action,E.next_seed(seed),score,steps)
       lift = Equal.cong(Nat,Nat,n => Nat.add(rest,n),Laws.run_steps(S,O,M,next),count_if(valid,steps),eq)
       ih = Laws.roll_steps_within_budget(S,O,M,hooks,rest,mode,next)
       tick_bound(valid,rest,steps,end,raise_bound(end,Nat.add(rest,Laws.run_steps(S,O,M,next)),Nat.add(rest,count_if(valid,steps)),lift,ih))
@@ -200,7 +200,7 @@ def observer_invariant(~S: Data, ~O: Data, ~M: Data, ~hooks: E.Hooks<S,O,M>, ~A:
     case 1n++rest E.Live{state, +obs, +actions, +model, +seed, score, steps}:
       +action = E.get_policy(S,O,M,hooks)(model,obs,actions,mode,seed)
       valid = List.contains(~U32,~U32.is_eq,actions,action)
-      +turn = E.attempt(S,O,M,hooks,valid,mode,rest,state,obs,model,action,E.next_seed(seed),score,steps)
+      +turn = E.attempt(S,O,M,hooks,valid,mode,rest,state,obs,actions,model,action,E.next_seed(seed),score,steps)
       next = observe(record,obs,actions,action,E.turn_event(S,O,M,turn))
       observer_invariant(~S,~O,~M,~hooks,~A,~observe,rest,mode,E.turn_run(S,O,M,turn),next)
 
@@ -284,9 +284,9 @@ def recorded_account(~S:Data,~O:Data,~inspect:S -> E.View<O>,mode:E.Mode,remaini
 
 def attempted_account(~S:Data,~O:Data,~reset:U32 -> S,~inspect:S -> E.View<O>,~step:S -> U32 -> U32 -> Pair(S,F32),
                       ~act:Nat -> O -> List<&2,U32> -> E.Mode -> U32 -> U32,valid:Bool,+mode:E.Mode,
-                      remaining:Nat,state:S,obs:O,m:Nat,+action:U32,+seed:U32,score:F32,steps:Nat) ->
+                      remaining:Nat,state:S,obs:O,actions:List<&2,U32>,m:Nat,+action:U32,+seed:U32,score:F32,steps:Nat) ->
   {Laws.run_account(S,O,mode,E.turn_run(S,O,Nat,E.attempt(S,O,Nat,E.Hooks{E.World{reset,inspect,step},act,Laws.counting(O)},
-                                valid,mode,remaining,state,obs,m,action,seed,score,steps))) == Laws.accounting(mode,m,steps) : Pair(Nat,Nat)}:
+                                valid,mode,remaining,state,obs,actions,m,action,seed,score,steps))) == Laws.accounting(mode,m,steps) : Pair(Nat,Nat)}:
   match valid:
     case False{}: {==}
     case True{}:
@@ -304,12 +304,12 @@ def episode_account(~S:Data,~O:Data,~reset:U32 -> S,~inspect:S -> E.View<O>,~ste
       +valid = List.contains(~U32,~U32.is_eq,actions,action)
       +world_seed = E.next_seed(seed)
       +next = E.turn_run(S,O,Nat,E.attempt(S,O,Nat,E.Hooks{E.World{reset,inspect,step},act,Laws.counting(O)},
-                              valid,mode,rest,state,obs,m,action,world_seed,score,steps))
+                              valid,mode,rest,state,obs,actions,m,action,world_seed,score,steps))
       Equal.trans(Pair(Nat,Nat),
         Laws.report_account(mode,E.roll(~S,~O,~Nat,~E.Hooks{E.World{reset,inspect,step},act,Laws.counting(O)},rest,mode,next)),
         Laws.run_account(S,O,mode,next),Laws.accounting(mode,m,steps),
         episode_account(~S,~O,~reset,~inspect,~step,~act,rest,mode,next),
-        attempted_account(~S,~O,~reset,~inspect,~step,~act,valid,mode,rest,state,obs,m,action,world_seed,score,steps))
+        attempted_account(~S,~O,~reset,~inspect,~step,~act,valid,mode,rest,state,obs,actions,m,action,world_seed,score,steps))
 
 def Laws.evaluation_episode_freezes_counter(S,O,reset,inspect,step,act,fuel,run):
   episode_account(~S,~O,~reset,~inspect,~step,~act,fuel,E.Evaluate{},run)

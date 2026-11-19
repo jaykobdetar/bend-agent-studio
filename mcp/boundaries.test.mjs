@@ -71,6 +71,28 @@ test('nested plan/world/agent inputs must stay in the workspace; output parent m
   assert.match(await error('validate_plan', request), /outside workspace/i);
   assert.match(await error('start_run', {...request, out: 'plans'}), /already exists/i);
 });
+test('MCP plan validation reports built-in, finishing and contextual hook choices', async (t) => {
+  const {root, call, error} = await fixture(t);
+  const plan = JSON.parse(await fs.readFile(path.join(repo, 'experiments/bridge.json')));
+  const finish = 'def finish(m: U32) -> U32: m\n';
+  const context = 'def learn_context(m: U32) -> U32: m\n';
+  const write = (name, contents) => fs.writeFile(path.join(root, name), contents);
+  await write('world.json', await fs.readFile(path.join(repo, 'worlds/bridge.json')));
+  await write('finishing.bend', finish);
+  await write('contextual.bend', finish + context);
+  plan.games[0].file = 'world.json';
+  plan.arms = [{id:'q',method:'q_learning'}, {id:'f',method:'custom',agentFile:'finishing.bend'},
+    {id:'c',method:'custom',agentFile:'contextual.bend'}];
+  await write('plan.json', JSON.stringify(plan));
+  const checked = await call('validate_plan', {plan:'plan.json'});
+  assert.deepEqual(checked.armHooks, [
+    {arm:'q',hook:'Hooks'}, {arm:'f',hook:'Finishing'}, {arm:'c',hook:'Contextual'},
+  ]);
+  assert.ok(checked.plan.arms.every(arm => !Object.hasOwn(arm, 'hook')));
+  await write('contextual.bend', context);
+  assert.equal(await error('validate_plan', {plan:'plan.json'}), 'arm c: learn_context requires finish');
+});
+
 test('step-checkpoint inspection hides cursor state and rejects oversized opt-in models without breaking other calls', async (t) => {
   const {root, client, call, error} = await fixture(t),
     dir = path.join(root, 'run');

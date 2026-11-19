@@ -38,6 +38,26 @@ test('configuration checks overlaps across phases, replicates, stages and the U3
   assert.throws(()=>validate({...p,checkpoints:[0,3,3]}),/increase/);
 });
 
+test('validate reports the selected hook for each arm without changing the normalized plan',async t=>{
+  const dir=directory(t),file=path.join(dir,'plan.json');
+  const custom=(id,agentFile)=>({id,method:'custom',agentFile});
+  const finishing=path.join(dir,'finishing.bend');
+  const contextual=path.join(dir,'contextual.bend');
+  const dependency=path.join(dir,'dependency.bend');
+  const callback='def finish(m: U32) -> U32: m\n';
+  const context='def learn_context(m: U32) -> U32: m\n';
+  fs.writeFileSync(finishing,callback);
+  fs.writeFileSync(contextual,callback+context);
+  fs.writeFileSync(dependency,'import ./finishing.bend as F\n');
+  write(file,plan({arms:[{id:'q',method:'q_learning'},custom('f',finishing),
+    custom('c',contextual),custom('d',dependency)]}));
+  assert.deepEqual((await invoke('validate',file)).stdout.trimEnd().split(/\r?\n/),[
+    'Valid plan: integration, 8 trials.','  q: Hooks','  f: Finishing','  c: Contextual','  d: Hooks',
+  ]);
+  fs.writeFileSync(contextual,context);
+  await assert.rejects(invoke('validate',file),/arm c: learn_context requires finish/);
+});
+
 test('checkpoint representation preserves signed zero and rejects numeric divergence',()=>{
   assert.ok(Object.is(JSON.parse(canonical({x:-0})).x,-0));
   assert.throws(()=>canonical({x:NaN}),/non-finite/);

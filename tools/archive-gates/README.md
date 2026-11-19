@@ -39,6 +39,14 @@ files, hashes and reasons in the change summary and pass that file to both CI
 jobs. Exceptions cannot permit missing or added archive names, plan changes,
 Bend byte changes, bundle identity changes or backend drift.
 
+The separately reviewed [F8 transition](f8-transition.json) records the exact
+changes for new runs from the public contextual action boundary and the shared
+hook validator. After the M0 exception, the gate applies three common source
+hash transitions, two plan-specific generated study transitions, and eight
+compiler backend transitions. Neither historical baseline is overwritten, and
+no normalized plan, archive member names or bundle identities change. The
+pre-F8 archives and their compiler outputs remain sealed and replayable.
+
 ## Archive dependency boundary
 
 The archived entry is `runs/NAME/code/experiment.mjs`. Its transitive static local dependencies

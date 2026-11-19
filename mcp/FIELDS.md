@@ -1,5 +1,7 @@
 # Experiment inputs at a glance
 
+The `validate_plan` response includes `armHooks`, an array of `{arm, hook}` entries in plan order. Each hook is `Hooks`, `Finishing` or `Contextual`; see the [agent interface](../docs/agents.md).
+
 validate_plan/start_run also accept self-contained plan objects; validate_world/solve_world/evaluate_policy_exact/build_memory_world accept inline world objects. For inline plans use games[].definition for finite/grid worlds; custom source and file references require path-backed plans.
 
 All paths in a tool call are relative to the configured workspace (absolute paths inside it also work). References **inside a training plan** are relative to the plan file. Numbers used for counts, checkpoints and seeds are nonnegative integers; the underlying validators enforce U32 bounds, disjoint seeds, domains and model compatibility.

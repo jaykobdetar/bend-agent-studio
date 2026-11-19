@@ -1,0 +1,64 @@
+{
+  "commonSources": {
+    "cursor.bend": {
+      "before": "862dd46de47e361b5cb73fa98a1b9ae6ddfae6d84dceca1ae86490648bc2ba64",
+      "after": "e55ac234e1eadf19c6eed0b305fce647e33a99daed33f367df61cc187898cb4b"
+    },
+    "engine.bend": {
+      "before": "3161c13e65327a74b3d41b6de38128066465421bee84dc2cd3c3cbbe9b90c6b7",
+      "after": "3e362f23fbf0fc2f955bbc5deb6d4dbf15076fc61b2bf17b49d2c8acd4647af5"
+    },
+    "experiment.mjs": {
+      "before": "acf22b05c37252f13161e9923ca716a33909632c17a3a656e10a0116cd649456",
+      "after": "68902cc4319ad39b40ca0c288da1b6d94184904f19921649ece9e50c5a99e5b4"
+    }
+  },
+  "plans": {
+    "experiments/clipped-pg-orchard.json": {
+      "study.bend": {
+        "before": "653cab02c1e54b3fa5ef8247484a2c953a695eff1fa591cc030961088af59c1c",
+        "after": "41d65824117c5f09c4495b2207d92dfb2a574e3fd461d0d3254bf7f2cf47e6af"
+      }
+    },
+    "experiments/reinforce-orchard.json": {
+      "study.bend": {
+        "before": "6b60f8aaf92bcc93724d0a5c801880b63471616cbb97d7bbd20e017acc226bc2",
+        "after": "7ed451e496331391d00dc0884a2b854efd4bee07d020d2dd9c10f0247c37f434"
+      }
+    }
+  },
+  "backends": {
+    "authored-bend-arena": {
+      "before": "c80c2ab9951d1172301c8c54d95d6c6dfeb97e8e9e36fc38824e6590442f13be",
+      "after": "54d9025234c5c12b8eb22454e78e4315c56ff03cbdf84756d5972fad53bbf168"
+    },
+    "authored-bend-discrete": {
+      "before": "0071188ebb201f73236b7908bb114de5e65903a5020492993f93db1b111f460b",
+      "after": "8b413536e12e0e146b00c9658a06c2f6e3c5c0e1ec5df370395ba3ef78969478"
+    },
+    "authored-expanded-finite": {
+      "before": "1786cf9f8344b1207118e5e26274e441c8af416f44aef870d8c2d0146885cf00",
+      "after": "a629afe7e06b669190ddff7ad84ecf3755a194a81230087692c08e4cecb94a75"
+    },
+    "authored-expanded-grid": {
+      "before": "cdbe7b52f57cfd53dbbb3a7fbb12530d7fa2dd2ed70b48f5bc9c523d2e9146f3",
+      "after": "df518f2946eb45750c7ba751152eaa21f16a0beeb8a5c19001a6bfc2bbd9cbec"
+    },
+    "authored-packed-finite": {
+      "before": "8d8036f809632b4811a87357ba60dd6193fbf6101ae00ba8e2b2e2b59b844bad",
+      "after": "e30d99a1a3c22921a5e376b3f815c97096365505fdf08c5e93afb5c311221493"
+    },
+    "built-in-cartpole": {
+      "before": "8b9b2b8bb2563551a93d75d1b77a52baeedeeb423c1f12816489ab52a06a9893",
+      "after": "288038cfb91a9ffd1869ea0e4ab33e768904d8f0d0275ad19a824b3be20176ec"
+    },
+    "built-in-discrete-custom-agent": {
+      "before": "a21e1502212af25e794a67b14b6171cd9f6f1837f85fdcfd8ab1b6de83081d65",
+      "after": "72dc3be8b4e7eaa36bc4ff33180c8ee1b4f0864ce52d4899a1a9dd5b551e5afe"
+    },
+    "built-in-mountain-car": {
+      "before": "0410a60e2f1e022f7e4e973b051b896424dbb0b86f16a62e5f8f6403e0851796",
+      "after": "3ec5a976b2de7ca964e03476d5787536d9bd550521d38b3471fab70659cc6b90"
+    }
+  }
+}

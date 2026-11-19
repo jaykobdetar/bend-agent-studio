@@ -3,7 +3,7 @@ import os from 'node:os';
 import path from 'node:path';
 import {repo} from './context.mjs';
 import {choice, horizon, str, tool, planInput, worldInput} from './schema.mjs';
-import {readPlanSource} from '../core/experiment.mjs';
+import {armHooks, readPlanSource} from '../core/experiment.mjs';
 import {validate} from '../core/experiment_config.mjs';
 import {worldDefinition, oracle, reactiveOracle, numberPreservingJson} from '../core/finite_world.mjs';
 import {beliefOracle, clockOracle, policyOracle} from '../core/public_oracle.mjs';
@@ -75,6 +75,7 @@ export function compute(name, a, ctx) {
     };
     return {
       plan: p,
+      armHooks: armHooks(p),
       trialCount: p.games.length * p.arms.length * p.replicates,
       seedBlocks: Object.entries(counts)
         .filter(([, n]) => n)
@@ -145,7 +146,7 @@ const make = (name, desc, props, required, ro = true) =>
 export const authoring = {
   validate_plan: make(
     'validate_plan',
-    'Normalize a training plan and describe its trial count and seed blocks.',
+    'Normalize a training plan and describe its trial count, seed blocks and selected arm hooks.',
     {plan: planInput},
     ['plan'],
   ),

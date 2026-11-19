@@ -312,7 +312,7 @@ Update this table in the same PR as each item.
 | O7.4 | Verified: compiler campaign includes positive-exponent F32 rewards | [Campaign](checks/world_campaign.mjs) |
 | O7.5 | Implemented: optional Holm-adjusted paired sign tests across arms | [Method](docs/analysis.md#multiple-arms-versus-one-reference) |
 | Repository reorganization | Completed: flat runtime, grouped learners, compatible entry points, task guides and archive gates | [Implementation record and original plan](docs/history/reorganization.md) |
-| F8.1 | Planned | |
-| F8.2 | Planned | |
+| F8.1 | Implemented: contextual learn shares the source view’s ordered actions with the policy | [Rule coverage](docs/laws.md) |
+| F8.2 | Implemented: CLI and MCP validation report the selected hook for each arm | [Agent interface](docs/agents.md) |
 | F8.3 | Planned | |
 | F8.4 | Planned | |

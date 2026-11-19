@@ -42,12 +42,13 @@ law rejection_preserves_progress:
   for remaining: Nat
   for state: S
   for observation: O
+  for actions: List<&2,U32>
   for model: M
   for action: U32
   for seed: U32
   for score: F32
   for steps: Nat
-  {E.attempt(S, O, M, hooks, False{}, mode, remaining, state, observation, model, action, seed, score, steps)
+  {E.attempt(S, O, M, hooks, False{}, mode, remaining, state, observation, actions, model, action, seed, score, steps)
     == E.Turn{E.Stopped{E.Report{model, score, steps, E.Illegal{action}}}, None{}} : E.Turn<S, O, M>}
 
 law terminal_view_stops:

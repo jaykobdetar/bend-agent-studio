@@ -155,6 +155,21 @@ function sourceFiles(plan) {
   return files;
 }
 
+// Only top-level declarations in the bundle entry module count. Validation
+// and adapter generation must report and use the same constructor.
+function hookType(arm) {
+  if(arm.method!=='custom')return 'Hooks';
+  const source=arm.agent.files[arm.agent.entry+'.bend'];
+  const finish=/^def[ \t]+finish[ \t]*\(/m.test(source);
+  const context=/^def[ \t]+learn_context[ \t]*\(/m.test(source);
+  if(context&&!finish)throw Error('arm '+arm.id+': learn_context requires finish');
+  return context?'Contextual':finish?'Finishing':'Hooks';
+}
+
+export function armHooks(plan) {
+  return plan.arms.map(arm=>({arm:arm.id,hook:hookType(arm)}));
+}
+
 function bridgeFunctions(plan) {
   const builtins={doors:['Doors.Hall','Doors'],orchard:['Bool','Orchard'],cliff:['U32','Cliff'],
     ferry:['Ferry.Stage','Ferry'],key_maze:['Maze.State','Maze'],noisy_fork:['Fork.State','Fork'],
@@ -181,13 +196,9 @@ function bridgeFunctions(plan) {
       const [s,module]=builtins[game.id]; state=s; world=module+'.world()';
     }
     const module=arm.method==='custom'?'A'+arm.agent.entry+'.':car?'Tile.':pole?'AC.':'';
-    // Only a top-level declaration in the entry module opts in. Old bundles
-    // and built-ins keep their original Hooks constructor and cursor encoding.
-    const finish=arm.method==='custom' && /^def[ \t]+finish[ \t]*\(/m.test(arm.agent.files[arm.agent.entry+'.bend']);
-    const context=arm.method==='custom' && /^def[ \t]+learn_context[ \t]*\(/m.test(arm.agent.files[arm.agent.entry+'.bend']);
-    if(context&&!finish)throw Error('learn_context requires finish');
-    const hooks='~'+state+', ~'+obs+', ~'+model+', ~E.'+(context?'Contextual':finish?'Finishing':'Hooks')+
-      '{'+world+', '+(context?'s => E.legal_at('+state+','+obs+','+world+',s), ':'')+module+'act, '+module+(context?'learn_context':'learn')+(finish?', '+module+'finish':'')+'}';
+    const hook=hookType(arm), context=hook==='Contextual', finish=hook!=='Hooks';
+    const hooks='~'+state+', ~'+obs+', ~'+model+', ~E.'+hook+
+      '{'+world+', '+module+'act, '+module+(context?'learn_context':'learn')+(finish?', '+module+'finish':'')+'}';
     const types=state+','+obs+','+model;
     if (game.definition || game.world || arm.method==='custom') {
       code+='\ndef '+name+'(mode: E.Mode, model: '+model+', seed: U32, limit: Nat) -> E.Report<'+model+'>:\n'+
@@ -600,7 +611,10 @@ function report({name,finished,created}) { console.log(name+': '+finished+' tria
 export async function main(argv) {
   const [cmd,arg,...rest]=argv;
   if (cmd==='validate'&&arg&&rest.length===0) {
-    const p=readPlan(arg); console.log('Valid plan: '+p.name+', '+p.games.length*p.arms.length*p.replicates+' trials.'); return;
+    const p=readPlan(arg), hooks=armHooks(p);
+    console.log('Valid plan: '+p.name+', '+p.games.length*p.arms.length*p.replicates+' trials.');
+    for (const {arm,hook} of hooks) console.log('  '+arm+': '+hook);
+    return;
   }
   if(cmd==='oracle'&&arg&&rest[0]==='--discount'){
     if(!(rest.length===2 || rest.length===4&&rest[2]==='--tolerance')) throw Error('expected --discount G [--tolerance E]');

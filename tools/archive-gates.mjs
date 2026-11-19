@@ -125,11 +125,25 @@ async function captureSources(tmp, plans) {
   return {schema:1,commonSources,plans:sortMap(entries)};
 }
 
-function compareSources(saved, actual, allow) {
+function transitioned(before, change, label) {
+  assert(change && typeof change==='object',label+' must have an exact digest pair');
+  assert.deepEqual(Object.keys(change).sort(),['after','before'],label+' must have an exact digest pair');
+  assert(before===change.before && sha.test(change.after) && before!==change.after,label+' digest transition mismatch');
+  return change.after;
+}
+
+function compareSources(saved, actual, allow, transition) {
   assert.equal(saved.schema,actual.schema);
   assert.deepEqual(Object.keys(saved.plans),Object.keys(actual.plans),'training plan inventory changed');
   assert(allow && typeof allow==='object' && !Array.isArray(allow),'M0 hash exceptions must be an object');
   const used=new Set();
+  for (const name of Object.keys(transition.commonSources))
+    assert(Object.hasOwn(saved.commonSources,name),'Unused F8 common source transition: '+name);
+  for (const [key,entries] of Object.entries(transition.plans)) {
+    assert(Object.hasOwn(saved.plans,key),'Unknown F8 training plan: '+key);
+    for (const name of Object.keys(entries))
+      assert(Object.hasOwn(saved.plans[key].sources,name),'Unused F8 plan source transition: '+key+' '+name);
+  }
   for (const [name,change] of Object.entries(allow)) {
     assert(flat.test(name) && name.endsWith('.mjs') && name!=='backend.mjs','M0 exception must name a flat runner .mjs: '+name);
     assert.deepEqual(Object.keys(change).sort(),['after','before'],'M0 exception requires exact before/after digest: '+name);
@@ -142,13 +156,14 @@ function compareSources(saved, actual, allow) {
     const before={...saved.commonSources,...previous.sources}, after={...actual.commonSources,...sources};
     assert.deepEqual(Object.keys(before).sort(),Object.keys(after).sort(),key+' G2 archive names changed');
     for (const [name,hash] of Object.entries(before)) {
+      let expected=hash;
       if (Object.hasOwn(allow,name)) {
-        const exception=allow[name];
-        assert(exception.before===hash && exception.after===after[name],key+' G2 M0 exception mismatch for '+name);
+        expected=transitioned(expected,allow[name],key+' G2 M0 '+name);
         used.add(name);
-      } else {
-        assert.equal(after[name],hash,key+' G2 archive source changed: '+name);
       }
+      const change=transition.commonSources[name]??transition.plans[key]?.[name];
+      if (change) expected=transitioned(expected,change,key+' G2 F8 '+name);
+      assert.equal(after[name],expected,key+' G2 archive source changed: '+name);
     }
   }
   assert.deepEqual([...used].sort(),Object.keys(allow).sort(),'Unused M0 archive hash exception');
@@ -190,6 +205,7 @@ async function captureBackends(tmp, plans) {
 
 const usage='Usage: node tools/archive-gates.mjs capture | check [M0_HASH_EXCEPTIONS.json] | capture-backends | check-backends';
 const [mode,exceptions]=process.argv.slice(2);
+const transition=json(path.join(fixtures,'f8-transition.json'));
 assert(['capture','check','capture-backends','check-backends'].includes(mode) &&
   process.argv.length<=(mode==='check'?4:3),usage);
 const tmp=fs.mkdtempSync(path.join(os.tmpdir(),'bend-archive-gates-'));
@@ -199,14 +215,17 @@ try {
     const report=await captureBackends(tmp,plans);
     if (mode==='capture-backends') console.log(JSON.stringify(report,null,2));
     else {
-      assert.deepEqual(report,json(path.join(fixtures,'backends.json')),'Representative backend SHA-256 changed');
+      const expected=json(path.join(fixtures,'backends.json'));
+      for (const [name,change] of Object.entries(transition.backends))
+        expected.backends[name]=transitioned(expected.backends[name],change,'G2 F8 backend '+name);
+      assert.deepEqual(report,expected,'Representative backend SHA-256 changed');
       console.log('G2 backends: '+Object.keys(report.backends).length+' representative compiler hashes match '+report.bend);
     }
   } else {
     const report=await captureSources(tmp,plans);
     if (mode==='capture') console.log(JSON.stringify(report,null,2));
     else {
-      compareSources(json(path.join(fixtures,'sources.json')),report,exceptions?json(exceptions):{});
+      compareSources(json(path.join(fixtures,'sources.json')),report,exceptions?json(exceptions):{},transition);
       console.log('G2/G3: '+Object.keys(report.plans).length+' training plan archive source maps and bundle identities match');
     }
   }
