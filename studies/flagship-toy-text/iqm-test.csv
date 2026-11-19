@@ -1,0 +1,9 @@
+budget,budget_unit,arm,reference,phase,metric,statistic,threshold,games,replicates_per_game,score_orientation,replicate_blocks,draws,estimate,ci_low,ci_high
+128,episodes,double_q,,test,return,iqm,,5,10,anchors,within-game,2000,0.5409676370630103,0.4549672746423113,0.614685585780959
+128,episodes,dyna_q,,test,return,iqm,,5,10,anchors,within-game,2000,0.6147836656508632,0.5052655812566642,0.7275340645211822
+128,episodes,expected_sarsa,,test,return,iqm,,5,10,anchors,within-game,2000,0.5649256339492309,0.47128362241644856,0.6416844548999645
+128,episodes,n_step,,test,return,iqm,,5,10,anchors,within-game,2000,0.5681833258335266,0.4692482920285296,0.6449421467842602
+128,episodes,q_learning,,test,return,iqm,,5,10,anchors,within-game,2000,0.5757784017694847,0.48274955561563854,0.6527014786925616
+128,episodes,random,,test,return,iqm,,5,10,anchors,within-game,2000,-0.0014883981547486479,-0.016661045904520482,0.029021006174829323
+128,episodes,sarsa,,test,return,iqm,,5,10,anchors,within-game,2000,0.5614073267141915,0.46587666298996894,0.6387333771107392
+128,episodes,td_lambda,,test,return,iqm,,5,10,anchors,within-game,2000,0.5477808669467373,0.45485593868644664,0.6249054306065496

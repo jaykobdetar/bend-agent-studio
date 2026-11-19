@@ -225,7 +225,18 @@ try {
     const report=await captureSources(tmp,plans);
     if (mode==='capture') console.log(JSON.stringify(report,null,2));
     else {
-      compareSources(json(path.join(fixtures,'sources.json')),report,exceptions?json(exceptions):{},transition);
+      const historical=json(path.join(fixtures,'sources.json'));
+      const added=json(path.join(fixtures,'n9-flagship-plan.json'));
+      const expected=[...Object.keys(historical.plans),...Object.keys(added)].sort();
+      assert.deepEqual(Object.keys(report.plans),expected,'training plan inventory changed');
+      const original={...report,plans:{...report.plans}};
+      for (const [key,entry] of Object.entries(added)) {
+        const actual=report.plans[key];
+        assert.deepEqual({...actual,sources:sortMap(Object.entries({...report.commonSources,...actual.sources}))},
+          entry,key+' additional G2/G3 archive identity changed');
+        delete original.plans[key];
+      }
+      compareSources(historical,original,exceptions?json(exceptions):{},transition);
       console.log('G2/G3: '+Object.keys(report.plans).length+' training plan archive source maps and bundle identities match');
     }
   }
