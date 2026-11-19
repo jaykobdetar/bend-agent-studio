@@ -332,7 +332,7 @@ Work in ID order, on one branch per item. Merge only after the full Linux and Wi
 | N9.6 | Replicate planning | Estimate paired bootstrap precision and sign-test power from pilot exports, for planning only. | Implemented on planning branch; pinned CI pending |
 | N9.7 | Laws and generated cases | Check finite lookups, logging mass and hook pause/resume; exercise validation, export and MCP boundaries. | Implemented on item branch; pending CI |
 | N9.8 | Formatter | Pin an isolated formatter outside archive inputs; separate formatting-only commit from CI enforcement. | Implemented; [scope and commands](docs/testing.md#formatting-javascript) |
-| N9.9 | More environments | Add tested Acrobot dynamics and simultaneous zero-sum games with exact values and exploitability. | Queued |
+| N9.9 | More environments | Add tested Acrobot dynamics and simultaneous zero-sum games with exact values and exploitability. | Implemented on item branch; pending CI |
 | N9.10 | MLflow export | Isolated optional tracking exporter with checkpoint curves checked against the plotting data. | Queued |
 | N9.11 | MCP environment tools | Expose bounded seeded finite-world sessions and check public frames against replay. | Queued |
 

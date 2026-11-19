@@ -99,15 +99,15 @@ python3 analysis/analyze.py runs/ledge-assessment/assessment.csv --reference cal
 
 ## Choose a manifest or specification
 
-The <!-- count:experiment-files -->40<!-- /count --> names below refer to JSON files in [experiments](../experiments). A training manifest contains `games` and `arms`. The other commands take specifications that refer to an existing run or dataset.
+The <!-- count:experiment-files -->42<!-- /count --> names below refer to JSON files in [experiments](../experiments). A training manifest contains `games` and `arms`. The other commands take specifications that refer to an existing run or dataset.
 
 | Command | Files |
 | --- | --- |
 | `experiment.mjs run` — finite games and learners | `bridge`, `cliff-exploration`, `cue-memory`, `custom-bandit`, `inventory`, `maximization-bias`, `planning-budget`, `reward-memory`, `tiger` |
-| `experiment.mjs run` — control and screening | `cartpole`, `mountain-car`, `car-screen`, `pole-screen` |
+| `experiment.mjs run` — control and screening | `acrobot`, `cartpole`, `mountain-car`, `car-screen`, `pole-screen` |
 | `experiment.mjs run` — source runs, transfer and arenas | `dispatch-source`, `ledge-transfer`, `self-play`, `self-play-long` |
 | `experiment.mjs run` — additional learners | `cliff-linear`, `cliff-n-step`, `cliff-sarsa`, `cliff-td-lambda`, `clipped-pg-orchard`, `reinforce-orchard` |
-| `experiment.mjs run` — benchmark worlds and games | `flagship-toy-text`, `probe-bandit`, `probe-catch`, `probe-deep-sea`, `probe-discount`, `probe-memory`, `probe-umbrella`, `toy-text`, `two-pile-nim` |
+| `experiment.mjs run` — benchmark worlds and games | `flagship-toy-text`, `matrix-games`, `probe-bandit`, `probe-catch`, `probe-deep-sea`, `probe-discount`, `probe-memory`, `probe-umbrella`, `toy-text`, `two-pile-nim` |
 | `experiment.mjs select` | `car-confirmation`, `pole-confirmation` |
 | `experiment.mjs assess` | `ledge-assessment`, `pole-checkpoint-assessment` |
 | `batch.mjs collect` | `dispatch-exploring`, `dispatch-narrow` |
