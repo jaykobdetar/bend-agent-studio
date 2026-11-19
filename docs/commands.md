@@ -72,8 +72,8 @@ For `analysis/sequential.mjs`, a minimal input shape is `{"design":{"lower":-1,"
 | Export a verified logged dataset locally with the optional Minari environment active. | `python3 integrations/minari/export_minari.py runs/data runs/minari-fit --split fit` |
 | Check that generated diagnostic probe worlds/plans match the checked-in files. | `node worlds/benchmarks/probes/generate.mjs --check` |
 | Compare toy-text transition/oracle references; see the adapter guide for pinned Gymnasium regeneration. | `node integrations/gymnasium/toy_text/oracles.mjs` |
-| Reproduce or extend the finite-world, manifest, memory, POMDP and path properties. | `node checks/seeded_properties.mjs --seed 23 --cases 1000` |
 | Verify the real Studio browser flow. | In `tools/studio-smoke`, install the pinned browser harness and run `npm test` as described in [Testing](testing.md#studio-browser-smoke). |
+| Reproduce or extend the finite-world, manifest, memory, POMDP and path properties. | `node checks/seeded_properties.mjs --seed 23 --cases 1000` |
 | Check tracked JavaScript with the isolated formatter. | `npm --prefix tools/format run check`; see [setup and write mode](testing.md#formatting-javascript). |
 | Run the normal Node suite; compiler-backed checks require Bend. | `npm test` |
 | Reproduce two exact checkpoint byte hashes from the flagship study. | `node checks/flagship_slice.mjs` |
