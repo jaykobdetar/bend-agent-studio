@@ -38,6 +38,8 @@ Run commands from the repository root unless a different working directory is sp
 
 A green Windows job means the Node-only workflow passed. It does **not** mean Bend, Lean, the compiled backend hash checks, Gymnasium or Minari ran on Windows. For the quick local smoke test use `npm test`; for a change to archive layout, learner semantics or Python integration, run the matching row above as well.
 
+The [Bend upgrade watch](upgrading-bend.md) is a separate weekly/manual check against the latest official 2.x version. It does not replace any pinned job, and its results are never required for a merge.
+
 ### Running individual checks
 
 The Linux workflow also runs `node checks/flagship_slice.mjs` to reproduce two original first-checkpoint files from the [flagship study](../studies/flagship-toy-text/README.md). This checks the exact byte hashes under the pinned runner, not training quality or reproduction of every row. For G2/G3, the [additive fixture](../tools/archive-gates/n9-flagship-plan.json) also pins the new manifest and full source/bundle identities without replacing the historical baselines.
