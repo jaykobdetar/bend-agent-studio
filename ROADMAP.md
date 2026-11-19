@@ -324,7 +324,7 @@ Work in ID order, on one branch per item. Merge only after the full Linux and Wi
 | ID | Work | Acceptance target | Status |
 | --- | --- | --- | --- |
 | N9.0 | Housekeeping | Remove the named pre-rewrite remote branch and record Phase 9. | Implemented; see [PR #30](https://github.com/jaykobdetar/bend-agent-studio/pull/30) for merge status |
-| N9.1 | One-command setup | Idempotent pinned Linux/macOS setup, devcontainer and clean-runner verification. | Implemented on setup branch; verification pending |
+| N9.1 | One-command setup | Idempotent pinned Linux/macOS setup, devcontainer and clean-runner verification. | Implemented; see [PR #31](https://github.com/jaykobdetar/bend-agent-studio/pull/31) for merge status |
 | N9.2 | Flagship study | Run and verify the eight-learner toy-text/probe study; publish outputs, uncertainty and a deterministic CI slice. | Queued |
 | N9.3 | Studio manifests and grid rendering | Validate and queue training plans from experiments/; render layout metadata with text fallback and mobile coverage. | Queued |
 | N9.4 | Upgrade warning | Weekly non-blocking latest-Bend-2.x check and single failure issue; document the pin upgrade procedure. | Queued |
