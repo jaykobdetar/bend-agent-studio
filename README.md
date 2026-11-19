@@ -56,6 +56,8 @@ On this CliffWalking run, Dyna-Q reached a mean validation return of −13 by 64
 
 A separate [Gymnasium adapter](integrations/gymnasium/README.md) lets Python agents play the same JSON finite and grid worlds without changing Studio or its dependencies. Seven [toy-text benchmark worlds](docs/worlds.md#benchmark-worlds) include FrozenLake, Taxi, CliffWalking and Blackjack. See [large-world compile measurements and replay checks](tools/finite-layout/README.md).
 
+For a harder test, try the [three complex challenges](studies/complex-worlds/README.md): route a courier, recall a surprise query, or trade under a reserve deadline. Each comes with a reference solution and a matched-seed study.
+
 ### Agent access over MCP
 
 The [local MCP server](mcp/README.md) exposes typed authoring, training jobs, replay and analysis. Its [field reference](mcp/FIELDS.md) describes plans and specifications; the adapter has its own dependencies.

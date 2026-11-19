@@ -70,6 +70,28 @@ test('memory composition, exact policy, examples, and sequential inference', asy
   });
   assert.equal((await call('sequential_test', {file: 'design.json'})).meanDifference, 1);
 });
+test('example discovery appends only training-plan world references, without duplicates', async (t) => {
+  const {call} = fixture(t);
+  const {examples} = await call('list_examples', {});
+  const nested = examples.filter((x) => /^worlds\/[^/]+\//.test(x.path));
+  for (const source of [
+    'worlds/benchmarks/probes/deep-sea-3.json',
+    'worlds/benchmarks/matrix-games/world.bend',
+    'worlds/challenges/storm-reserve/reserve-2x2.json',
+  ])
+    assert.ok(
+      nested.some((x) => x.path === source && x.kind === 'world'),
+      source,
+    );
+  assert.ok(!nested.some((x) => /(?:baselines\.json|\/checks\.mjs|\/README\.md)$/.test(x.path)));
+  assert.equal(examples.filter((x) => x.path === 'worlds/bridge.json').length, 1);
+  assert.equal(new Set(examples.map((x) => x.path)).size, examples.length);
+  assert.deepEqual(examples.slice(-nested.length), nested);
+  assert.deepEqual(
+    nested.map((x) => x.path),
+    nested.map((x) => x.path).sort(),
+  );
+});
 test(
   'real Bend: check, train, resume, reproduce, verify, inspect, curves, assess, select, collect/fit/score',
   {...compilerTest, timeout: 120000},

@@ -54,7 +54,7 @@ new plan directly, and applies the historical baseline and existing reviewed
 transitions unchanged to the original plans. Do not recapture the historical
 file when adding a plan. The [N9.9 environment entries](n9-environment-plans.json)
 independently pin the two new study plans, with no changes to any earlier
-plan or backend fingerprint.
+plan or backend fingerprint. The [complex-world entries](complex-world-plans.json) likewise pin only the added Courier, Switchboard and Storm Reserve plans; no historical fingerprint is replaced.
 
 ## Archive dependency boundary
 

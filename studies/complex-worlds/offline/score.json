@@ -1,0 +1,9 @@
+{
+  "schema": 1,
+  "name": "sample-score",
+  "episodes": 512,
+  "seeds": {
+    "start": 811000000,
+    "stride": 20000
+  }
+}

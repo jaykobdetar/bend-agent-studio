@@ -361,7 +361,11 @@ try {
     else {
       const historical = json(path.join(fixtures, 'sources.json'));
       const added = {};
-      for (const file of ['n9-flagship-plan.json', 'n9-environment-plans.json']) {
+      for (const file of [
+        'n9-flagship-plan.json',
+        'n9-environment-plans.json',
+        'complex-world-plans.json',
+      ]) {
         for (const [key, entry] of Object.entries(json(path.join(fixtures, file)))) {
           assert(
             !Object.hasOwn(historical.plans, key) && !Object.hasOwn(added, key),

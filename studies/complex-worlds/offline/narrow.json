@@ -1,0 +1,15 @@
+{
+  "schema": 1,
+  "name": "sample-narrow",
+  "game": "reserve-12x4",
+  "arm": "dyna-5",
+  "checkpoint": 1024,
+  "epsilon": 0,
+  "fitEpisodes": 256,
+  "holdoutEpisodes": 512,
+  "seeds": {
+    "fit": 610000000,
+    "holdout": 711000000,
+    "stride": 20000
+  }
+}

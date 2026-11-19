@@ -1,0 +1,54 @@
+{
+  "schema": 1,
+  "name": "locksmith-courier",
+  "games": [
+    {
+      "id": "locksmith-3",
+      "file": "../worlds/challenges/locksmith/locksmith-3.json",
+      "limit": 37
+    },
+    {
+      "id": "locksmith-8",
+      "file": "../worlds/challenges/locksmith/locksmith-8.json",
+      "limit": 155
+    }
+  ],
+  "arms": [
+    {
+      "id": "random",
+      "method": "random"
+    },
+    {
+      "id": "q",
+      "method": "q_learning",
+      "alpha": 0.25,
+      "gamma": 0.98,
+      "epsilon": 0.25
+    },
+    {
+      "id": "dyna",
+      "method": "dyna_q",
+      "alpha": 0.25,
+      "gamma": 0.98,
+      "epsilon": 0.25,
+      "planningSteps": 5
+    }
+  ],
+  "replicates": 8,
+  "budgetUnit": "steps",
+  "maxTrainEpisodes": 16000,
+  "checkpoints": [
+    0,
+    512,
+    2048,
+    8192
+  ],
+  "validationEpisodes": 16,
+  "testEpisodes": 32,
+  "seeds": {
+    "train": 710000000,
+    "validation": 1710000000,
+    "test": 2710000000,
+    "stride": 20000
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "schema": 1,
+  "name": "storm-reserve",
+  "games": [
+    {"id": "reserve-2x2", "file": "../worlds/challenges/storm-reserve/reserve-2x2.json", "limit": 2},
+    {"id": "reserve-12x4", "file": "../worlds/challenges/storm-reserve/reserve-12x4.json", "limit": 12}
+  ],
+  "arms": [
+    {"id": "uniform", "method": "random"},
+    {"id": "q", "method": "q_learning", "alpha": 0.125, "epsilon": 0.25, "gamma": 1},
+    {"id": "dyna-5", "method": "dyna_q", "planningSteps": 5, "alpha": 0.125, "epsilon": 0.25, "gamma": 1}
+  ],
+  "replicates": 8,
+  "checkpoints": [0, 64, 256, 1024],
+  "validationEpisodes": 32,
+  "testEpisodes": 256,
+  "seeds": {"train": 348000000, "validation": 1648000000, "test": 2948000000, "stride": 10000}
+}

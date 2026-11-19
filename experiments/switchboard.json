@@ -1,0 +1,46 @@
+{
+  "schema": 1,
+  "name": "switchboard-2",
+  "games": [
+    {
+      "id": "switchboard-2-raw",
+      "file": "../worlds/challenges/switchboard/switchboard-2-raw.json",
+      "limit": 5
+    },
+    {
+      "id": "switchboard-2-latest",
+      "file": "../worlds/challenges/switchboard/switchboard-2-latest.json",
+      "limit": 5
+    },
+    {
+      "id": "switchboard-2-full",
+      "file": "../worlds/challenges/switchboard/switchboard-2-full.json",
+      "limit": 5
+    }
+  ],
+  "arms": [
+    {
+      "id": "q",
+      "method": "q_learning",
+      "epsilon": 0.125,
+      "alpha": 0.25,
+      "gamma": 1
+    }
+  ],
+  "replicates": 16,
+  "checkpoints": [
+    0,
+    32,
+    128,
+    512,
+    2048
+  ],
+  "validationEpisodes": 128,
+  "testEpisodes": 512,
+  "seeds": {
+    "train": 451000000,
+    "validation": 1487000000,
+    "test": 2479000000,
+    "stride": 80000
+  }
+}

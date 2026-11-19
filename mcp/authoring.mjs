@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import {repo} from './context.mjs';
+import {context, repo} from './context.mjs';
 import {choice, horizon, str, tool, planInput, worldInput} from './schema.mjs';
 import {armHooks, readPlanSource} from '../core/experiment.mjs';
 import {validate} from '../core/experiment_config.mjs';
@@ -24,6 +24,31 @@ const table = {
     ],
   },
 };
+function shippedWorldSources(plan, bundled) {
+  const files = [];
+  for (const games of [plan.games, plan.evaluationGames]) {
+    if (!Array.isArray(games)) continue;
+    for (const game of games) {
+      const source = game?.worldFile ?? game?.file;
+      const extension = game?.worldFile === undefined ? '.json' : '.bend';
+      if (
+        typeof source !== 'string' ||
+        path.extname(source) !== extension ||
+        path.isAbsolute(source)
+      )
+        continue;
+      const full = path.resolve(repo, 'experiments', source);
+      const relative = path.relative(repo, full).split(path.sep).join('/');
+      if (!relative.startsWith('worlds/')) continue;
+      try {
+        if (fs.statSync(bundled.input(full)).isFile()) files.push(relative);
+      } catch {
+        // A missing or unbundled source is not a shipped example.
+      }
+    }
+  }
+  return files;
+}
 export function assertBundledImports(source) {
   for (const line of source.split(/\r?\n/)) {
     if (line.trimStart().startsWith('#')) continue;
@@ -227,7 +252,9 @@ export const authoring = {
     [],
     true,
     () => {
-      const examples = [];
+      const examples = [],
+        worldSources = new Set();
+      const bundled = context(repo);
       for (const dir of ['experiments', 'worlds', 'agents'])
         for (const file of fs.readdirSync(path.join(repo, dir)).sort()) {
           let rel = dir + '/' + file;
@@ -240,7 +267,7 @@ export const authoring = {
           let kind = dir === 'agents' ? 'agent' : 'world';
           if (file.endsWith('.json')) {
             const x = JSON.parse(fs.readFileSync(path.join(repo, rel)));
-            if (dir === 'experiments')
+            if (dir === 'experiments') {
               kind = x.games
                 ? 'training plan'
                 : x.targets
@@ -252,10 +279,15 @@ export const authoring = {
                       : x.arms
                         ? 'fit spec'
                         : 'score spec';
-            else if (x.rules) kind = 'memory rules';
+              if (kind === 'training plan')
+                for (const source of shippedWorldSources(x, bundled)) worldSources.add(source);
+            } else if (x.rules) kind = 'memory rules';
           }
           examples.push({path: rel, kind});
         }
+      const listed = new Set(examples.map(({path}) => path));
+      for (const path of [...worldSources].sort())
+        if (!listed.has(path)) examples.push({path, kind: 'world'});
       return {examples};
     },
   ),

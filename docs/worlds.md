@@ -37,6 +37,14 @@ For the six diagnostic families, slash-separated values follow their two sizes i
 
 The Lakes and Taxi use their registered episode limits; *Gymnasium registers no limit for CliffWalking or Blackjack, so these are explicit study budgets.* Authored tabular rows preserve the intended rational probabilities; sampling uses the existing one-word approximation for non-dyadic probabilities, not Gym's RNG. See [generation, numerical precision and Blackjack checks](../integrations/gymnasium/toy_text/README.md) and [full-precision baselines](../integrations/gymnasium/toy_text/baselines.json). Run the [example plan](../experiments/toy-text.json) with `node experiment.mjs run experiments/toy-text.json runs/toy-text`.
 
+## Three complex challenges
+
+* [Locksmith Courier](../worlds/challenges/locksmith/README.md): carry keys and ration bypass charges across increasingly costly detours.
+* [Switchboard](../worlds/challenges/switchboard/README.md): receive a stream of bits, then learn which bit you must report. Compare raw, latest-cue and full-memory observations with the same events.
+* [Storm Reserve](../worlds/challenges/storm-reserve/README.md): trade energy in a persistent three-state market while facing an inventory deadline. A profitable next move need not be the right one.
+
+All three ship playable finite JSON, reference controls, generation checks and independent-replicate training plans. See the [measured study and replay commands](../studies/complex-worlds/README.md).
+
 ## Regenerate the Tiger worlds
 
 The Tiger experiment reads three generated JSON files. Each starts from the same seven-state world and uses a different rule file to determine what the agent can observe after listening. Sound exposes the latest sound. Clock adds the number of listens. Evidence exposes a memory state encoding the listen count and the difference between the two sound counts. See the [base Tiger world](../worlds/tiger.json) and [experiment manifest](../experiments/tiger.json).
