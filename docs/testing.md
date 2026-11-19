@@ -90,3 +90,17 @@ bend laws/PROOF.bend
 `npm test` runs the Node checks, including public-policy oracles and generated memory worlds. If the Bend executable is absent, compiler-backed tests are marked skipped. With Bend installed, they exercise training, replay, checkpoint persistence, and offline evaluation.
 
 For an independent proof verdict, install Lean 4.34.0 (for example, `elan toolchain install leanprover/lean4:v4.34.0`) and run `bend laws/PROOF.bend --verdict`. Bend 2.0.40 builds and caches its bundled BendTT kernel on first use. You can also set `BENDTT` to a kernel built from the same release.
+
+
+## Studio browser smoke
+
+With the normal pinned Node and Bend tools on PATH, run this isolated Playwright harness:
+
+```sh
+cd tools/studio-smoke
+npm ci --ignore-scripts
+PLAYWRIGHT_BROWSERS_PATH=0 npx --no-install playwright install --no-shell chromium
+PLAYWRIGHT_BROWSERS_PATH=0 npm test
+```
+
+The Linux job installs browser prerequisites on its fresh runner. The smoke test starts a loopback Studio with a temporary home, selects and trains a multi-world manifest, verifies the planned hook types, dismisses and reopens the replay picker, checks the expected rendered grid colors, and fails on console or script errors or page overflow at 390 px. Studio's root Node tests separately cover manifest/source confinement, FIFO crash recovery, and generated sidecar identity.
