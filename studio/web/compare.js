@@ -51,7 +51,7 @@ function chart({game,gameSpecHash,unit,lines}) {
 export function comparisonUI(container,api) {
   const selected=new Set(), form=E('fieldset'), legend=E('legend','Runs and agents'), go=E('button','Compare validation'), output=E('div');
   const limit=8;let runs=[],generation=0,lastList;
-  output.setAttribute('aria-live','polite');go.className='secondary';form.append(legend);container.append(form,go,output);
+  output.setAttribute('aria-live','polite');go.className='secondary';go.disabled=true;form.append(legend);container.append(form,go,output);
   go.onclick=async()=>{
     const epoch=++generation;go.disabled=true;
     output.replaceChildren(E('p','Reading validation checkpoints…'));
@@ -72,7 +72,12 @@ export function comparisonUI(container,api) {
     runs=all.filter(r=>r.status==='ready');
     const list=JSON.stringify(runs.map(r=>[r.id,r.name,r.arms,r.algorithm,r.seed,r.episodes]));if(list===lastList)return;lastList=list;
     const valid=new Set(runs.flatMap(r=>r.arms.map(a=>JSON.stringify([r.id,a]))));
+    const before=selected.size;
     for(const k of selected)if(!valid.has(k))selected.delete(k);
+    if(selected.size!==before) {
+      // A result (or pending read) for a removed selection no longer represents the chooser.
+      generation++;output.replaceChildren();go.disabled=!selected.size;
+    }
     const entries=[];
     for(const r of runs)for(const a of r.arms){
       const k=JSON.stringify([r.id,a]),label=E('label'),input=E('input');input.type='checkbox';input.checked=selected.has(k);
@@ -80,6 +85,5 @@ export function comparisonUI(container,api) {
       label.append(input,document.createTextNode(' '+seriesLabel(r,a)));entries.push(label);
     }
     form.replaceChildren(legend,...(entries.length?entries:[E('p','No ready runs to compare.')]));
-    go.disabled=!selected.size;
   };
 }

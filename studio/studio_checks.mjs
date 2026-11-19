@@ -629,7 +629,9 @@ test('comparison UI builds a line and interval per selected series, preserves he
   t.after(()=>{if(previous)Object.defineProperty(globalThis,'document',previous);else delete globalThis.document;});
   const {comparisonUI}=await import('./web/compare.js');
   const panel=new Element('div');
+  let pending;
   const refresh=comparisonUI(panel,async url=>{
+    if(pending)await pending.promise;
     if(url.includes('/bad/'))throw Error('damaged');
     return {budgetUnit:'episodes',series:['a','b'].map(arm=>({arm,game:'cliff',gameSpecHash:'f'.repeat(64),
       points:[{budget:0,mean:-1,interval:[-2,0],replicates:2},{budget:4,mean:1,interval:[0,2],replicates:2}]}))};
@@ -642,12 +644,30 @@ test('comparison UI builds a line and interval per selected series, preserves he
   assert.match(panel.text(),/Skipped Broken: damaged/);assert.match(panel.text(),/<Run 1>/);
 
   // Two native runs of one preset have the same display name, not the same identity.
-  refresh([['first',4,0],['second',16,3141]].map(([id,episodes,seed])=>({
-    id,name:'Cliff Walk · Q-learning',status:'ready',arms:['a'],algorithm:'a',episodes,seed})));
+  const native=[['first',4,0],['second',16,3141]].map(([id,episodes,seed])=>({
+    id,name:'Cliff Walk · Q-learning',status:'ready',arms:['a'],algorithm:'a',episodes,seed}));
+  refresh(native);
   const labels=panel.all('label').map(el=>el.text().trim());
   assert.match(labels[0],/4 episodes · seed 0/);assert.match(labels[1],/16 episodes · seed 3141/);
   for(const checkbox of panel.all('input')){checkbox.checked=true;checkbox.onchange();}
   await panel.all('button')[0].onclick();
   assert.deepEqual(panel.all('li').map(el=>el.text()),labels.map(label=>label+' · 2 replicate(s)'));
 
+  const go=panel.all('button')[0], chart=panel.all('svg')[0], extra={...native[0],id:'extra'};
+  refresh([...native,extra]); // An unrelated completion must not discard the current chart.
+  assert.equal(panel.all('svg')[0],chart);
+  refresh([{...native[0],status:'unavailable'},native[1],extra]);
+  assert.equal(panel.all('svg').length,0);
+  assert.deepEqual(panel.all('input').map(el=>el.checked),[true,false]);
+  assert.equal(go.disabled,false); // Remaining selection can be compared immediately.
+
+  pending=Promise.withResolvers();
+  const reading=go.onclick();
+  refresh([native[1]]); // Unrelated removal must not re-enable an in-flight comparison.
+  assert.equal(go.disabled,true);
+  refresh([{...native[1],status:'unavailable'}]);
+  assert.doesNotMatch(panel.text(),/Reading validation/);
+  pending.reject(Error('old response'));await reading;
+  assert.doesNotMatch(panel.text(),/Skipped|old response/);
+  assert.equal(go.disabled,true);
 });
