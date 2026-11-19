@@ -686,3 +686,123 @@ def Laws.completed_cursor_never_finishes_twice(S,O,M,world,act,learn,finish,budg
     == C.Segment{C.Finalized{report},E.get_model(M,report),C.steps(S,O,M,C.Finalized{report}),C.score(S,O,M,C.Finalized{report}),Some{report}} : C.Segment<S,O,M>}
   {==}
 def Laws.episode_applies_finish_at_boundary(S,O,M,world,act,learn,finish,mode,model,seed,limit): {==}
+
+# An open cursor is unchanged by finalization. A stopped cursor cannot take
+# another transition, so applying the finalization early gives the same report.
+def absorb_finishing(~S: Data,~O: Data,~M: Data,~world:E.World<S,O>,
+    ~act: M -> O -> List<&2,U32> -> E.Mode -> U32 -> U32,~learn: M -> E.Transition<O> -> M,
+    ~finish: M -> E.Stop -> M,+mode: E.Mode,budget: Nat,+c: C.Cursor<S,O,M>) ->
+  {C.segment(~S,~O,~M,~E.Finishing{world,act,learn,finish},mode,budget,c)
+    == C.segment(~S,~O,~M,~E.Finishing{world,act,learn,finish},mode,budget,C.finalize(S,O,M,E.Finishing{world,act,learn,finish},mode,c)) : C.Segment<S,O,M>}:
+  match budget c:
+    case n C.Finalized{r}: {==}
+    case 0n C.Cursor{left,E.Stopped{r}}: {==}
+    case 1n+p C.Cursor{left,E.Stopped{r}}: {==}
+    case 0n C.Cursor{0n,E.Live{s,o,as,m,word,score,steps}}: {==}
+    case 1n+p C.Cursor{0n,E.Live{s,o,as,m,word,score,steps}}: {==}
+    case n C.Cursor{1n+left,E.Live{s,o,as,m,word,score,steps}}: {==}
+
+def Laws.paused_finishing_segments_equal_unsplit(S,O,M,world,act,learn,finish,mode,first,second,cursor):
+  +half = C.advance(~S,~O,~M,~E.Finishing{world,act,learn,finish},first,mode,cursor)
+  +whole = C.advance(~S,~O,~M,~E.Finishing{world,act,learn,finish},Nat.add(first,second),mode,cursor)
+  +two = C.advance(~S,~O,~M,~E.Finishing{world,act,learn,finish},second,mode,half)
+  Equal.trans(C.Segment<S,O,M>,
+    C.segment(~S,~O,~M,~E.Finishing{world,act,learn,finish},mode,0n,whole),
+    C.segment(~S,~O,~M,~E.Finishing{world,act,learn,finish},mode,0n,two),
+    C.segment(~S,~O,~M,~E.Finishing{world,act,learn,finish},mode,second,C.finalize(S,O,M,E.Finishing{world,act,learn,finish},mode,half)),
+    Equal.cong(C.Cursor<S,O,M>,C.Segment<S,O,M>,c => C.segment(~S,~O,~M,~E.Finishing{world,act,learn,finish},mode,0n,c),whole,two,
+      split_budget(~S,~O,~M,~E.Finishing{world,act,learn,finish},first,second,mode,cursor)),
+    absorb_finishing(~S,~O,~M,~world,~act,~learn,~finish,mode,second,half))
+
+# An open cursor is unchanged by finalization. A stopped cursor cannot take
+# another transition, so applying the finalization early gives the same report.
+def absorb_contextual(~S: Data,~O: Data,~M: Data,~world:E.World<S,O>,
+    ~act: M -> O -> List<&2,U32> -> E.Mode -> U32 -> U32,~learn: M -> List<&2,U32> -> E.Transition<O> -> M,
+    ~finish: M -> E.Stop -> M,+mode: E.Mode,budget: Nat,+c: C.Cursor<S,O,M>) ->
+  {C.segment(~S,~O,~M,~E.Contextual{world,act,learn,finish},mode,budget,c)
+    == C.segment(~S,~O,~M,~E.Contextual{world,act,learn,finish},mode,budget,C.finalize(S,O,M,E.Contextual{world,act,learn,finish},mode,c)) : C.Segment<S,O,M>}:
+  match budget c:
+    case n C.Finalized{r}: {==}
+    case 0n C.Cursor{left,E.Stopped{r}}: {==}
+    case 1n+p C.Cursor{left,E.Stopped{r}}: {==}
+    case 0n C.Cursor{0n,E.Live{s,o,as,m,word,score,steps}}: {==}
+    case 1n+p C.Cursor{0n,E.Live{s,o,as,m,word,score,steps}}: {==}
+    case n C.Cursor{1n+left,E.Live{s,o,as,m,word,score,steps}}: {==}
+
+def Laws.paused_contextual_segments_equal_unsplit(S,O,M,world,act,learn,finish,mode,first,second,cursor):
+  +half = C.advance(~S,~O,~M,~E.Contextual{world,act,learn,finish},first,mode,cursor)
+  +whole = C.advance(~S,~O,~M,~E.Contextual{world,act,learn,finish},Nat.add(first,second),mode,cursor)
+  +two = C.advance(~S,~O,~M,~E.Contextual{world,act,learn,finish},second,mode,half)
+  Equal.trans(C.Segment<S,O,M>,
+    C.segment(~S,~O,~M,~E.Contextual{world,act,learn,finish},mode,0n,whole),
+    C.segment(~S,~O,~M,~E.Contextual{world,act,learn,finish},mode,0n,two),
+    C.segment(~S,~O,~M,~E.Contextual{world,act,learn,finish},mode,second,C.finalize(S,O,M,E.Contextual{world,act,learn,finish},mode,half)),
+    Equal.cong(C.Cursor<S,O,M>,C.Segment<S,O,M>,c => C.segment(~S,~O,~M,~E.Contextual{world,act,learn,finish},mode,0n,c),whole,two,
+      split_budget(~S,~O,~M,~E.Contextual{world,act,learn,finish},first,second,mode,cursor)),
+    absorb_contextual(~S,~O,~M,~world,~act,~learn,~finish,mode,second,half))
+
+def completed_finishing(~S: Data,~O: Data,~M: Data,~world:E.World<S,O>,
+    ~act: M -> O -> List<&2,U32> -> E.Mode -> U32 -> U32,~learn: M -> E.Transition<O> -> M,
+    ~finish: M -> E.Stop -> M,+fuel: Nat,+mode: E.Mode,+run:E.Run<S,O,M>) ->
+  {Laws.segment_report(S,O,M,C.segment(~S,~O,~M,~E.Finishing{world,act,learn,finish},mode,fuel,C.Cursor{fuel,run})) ==
+    Some{E.finish_report(S,O,M,E.Finishing{world,act,learn,finish},mode,E.roll(~S,~O,~M,~E.mixed_hooks(S,O,M,E.Finishing{world,act,learn,finish}),fuel,mode,run))}
+    : Maybe<&2,E.Report<M>>}:
+  match fuel run:
+    case 0n E.Stopped{report}: {==}
+    case 0n E.Live{state,obs,actions,model,word,score,steps}: {==}
+    case 1n+left E.Stopped{report}: {==}
+    case 1n++left E.Live{state,obs,actions,model,word,score,steps}:
+      choice=E.decide(~S,~O,~M,~E.mixed_hooks(S,O,M,E.Finishing{world,act,learn,finish}),mode,left,state,obs,actions,model,word,score,steps)
+      next=E.turn_run(S,O,M,E.decision_turn(S,O,M,choice))
+      completed_finishing(~S,~O,~M,~world,~act,~learn,~finish,left,mode,next)
+
+def mixed_finish_finishing(~S: Data,~O: Data,~M: Data,~reset: U32 -> S,~inspect: S -> E.View<O>,
+    ~step: S -> U32 -> U32 -> Pair(S,F32),~act: M -> O -> List<&2,U32> -> E.Mode -> U32 -> U32,
+    ~learn: M -> E.Transition<O> -> M,~finish: M -> E.Stop -> M,mode: E.Mode,report: E.Report<M>) ->
+  {Some{E.finish_report(S,O,M,E.Finishing{E.World{reset,inspect,step},act,learn,finish},mode,report)} ==
+   Some{E.finish_report(S,O,M,E.mixed_hooks(S,O,M,E.Finishing{E.World{reset,inspect,step},act,learn,finish}),mode,report)} : Maybe<&2,E.Report<M>>}:
+  match report:
+    case E.Report{model,score,steps,reason}: {==}
+
+def Laws.finishing_segment_matches_episode(S,O,M,reset,inspect,step,act,learn,finish,mode,model,seed,limit):
+  +run = E.reset_run(S,O,M,E.World{reset,inspect,step},model,seed)
+  +raw = E.roll(~S,~O,~M,~E.mixed_hooks(S,O,M,E.Finishing{E.World{reset,inspect,step},act,learn,finish}),limit,mode,run)
+  Equal.trans(Maybe<&2,E.Report<M>>,
+    Laws.segment_report(S,O,M,C.segment(~S,~O,~M,~E.Finishing{E.World{reset,inspect,step},act,learn,finish},mode,limit,C.Cursor{limit,run})),
+    Some{E.finish_report(S,O,M,E.Finishing{E.World{reset,inspect,step},act,learn,finish},mode,raw)},
+    Some{E.finish_report(S,O,M,E.mixed_hooks(S,O,M,E.Finishing{E.World{reset,inspect,step},act,learn,finish}),mode,raw)},
+    completed_finishing(~S,~O,~M,~E.World{reset,inspect,step},~act,~learn,~finish,limit,mode,run),
+    mixed_finish_finishing(~S,~O,~M,~reset,~inspect,~step,~act,~learn,~finish,mode,raw))
+
+def completed_contextual(~S: Data,~O: Data,~M: Data,~world:E.World<S,O>,
+    ~act: M -> O -> List<&2,U32> -> E.Mode -> U32 -> U32,~learn: M -> List<&2,U32> -> E.Transition<O> -> M,
+    ~finish: M -> E.Stop -> M,+fuel: Nat,+mode: E.Mode,+run:E.Run<S,O,M>) ->
+  {Laws.segment_report(S,O,M,C.segment(~S,~O,~M,~E.Contextual{world,act,learn,finish},mode,fuel,C.Cursor{fuel,run})) ==
+    Some{E.finish_report(S,O,M,E.Contextual{world,act,learn,finish},mode,E.roll(~S,~O,~M,~E.mixed_hooks(S,O,M,E.Contextual{world,act,learn,finish}),fuel,mode,run))}
+    : Maybe<&2,E.Report<M>>}:
+  match fuel run:
+    case 0n E.Stopped{report}: {==}
+    case 0n E.Live{state,obs,actions,model,word,score,steps}: {==}
+    case 1n+left E.Stopped{report}: {==}
+    case 1n++left E.Live{state,obs,actions,model,word,score,steps}:
+      choice=E.decide(~S,~O,~M,~E.mixed_hooks(S,O,M,E.Contextual{world,act,learn,finish}),mode,left,state,obs,actions,model,word,score,steps)
+      next=E.turn_run(S,O,M,E.decision_turn(S,O,M,choice))
+      completed_contextual(~S,~O,~M,~world,~act,~learn,~finish,left,mode,next)
+
+def mixed_finish_contextual(~S: Data,~O: Data,~M: Data,~reset: U32 -> S,~inspect: S -> E.View<O>,
+    ~step: S -> U32 -> U32 -> Pair(S,F32),~act: M -> O -> List<&2,U32> -> E.Mode -> U32 -> U32,
+    ~learn: M -> List<&2,U32> -> E.Transition<O> -> M,~finish: M -> E.Stop -> M,mode: E.Mode,report: E.Report<M>) ->
+  {Some{E.finish_report(S,O,M,E.Contextual{E.World{reset,inspect,step},act,learn,finish},mode,report)} ==
+   Some{E.finish_report(S,O,M,E.mixed_hooks(S,O,M,E.Contextual{E.World{reset,inspect,step},act,learn,finish}),mode,report)} : Maybe<&2,E.Report<M>>}:
+  match report:
+    case E.Report{model,score,steps,reason}: {==}
+
+def Laws.contextual_segment_matches_episode(S,O,M,reset,inspect,step,act,learn,finish,mode,model,seed,limit):
+  +run = E.reset_run(S,O,M,E.World{reset,inspect,step},model,seed)
+  +raw = E.roll(~S,~O,~M,~E.mixed_hooks(S,O,M,E.Contextual{E.World{reset,inspect,step},act,learn,finish}),limit,mode,run)
+  Equal.trans(Maybe<&2,E.Report<M>>,
+    Laws.segment_report(S,O,M,C.segment(~S,~O,~M,~E.Contextual{E.World{reset,inspect,step},act,learn,finish},mode,limit,C.Cursor{limit,run})),
+    Some{E.finish_report(S,O,M,E.Contextual{E.World{reset,inspect,step},act,learn,finish},mode,raw)},
+    Some{E.finish_report(S,O,M,E.mixed_hooks(S,O,M,E.Contextual{E.World{reset,inspect,step},act,learn,finish}),mode,raw)},
+    completed_contextual(~S,~O,~M,~E.World{reset,inspect,step},~act,~learn,~finish,limit,mode,run),
+    mixed_finish_contextual(~S,~O,~M,~reset,~inspect,~step,~act,~learn,~finish,mode,raw))

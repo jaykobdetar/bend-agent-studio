@@ -511,3 +511,81 @@ law episode_applies_finish_at_boundary:
     == E.finish_report(S,O,M,E.Finishing{world,act,learn,finish},mode,
       E.roll(~S,~O,~M,~E.Finishing{world,act,learn,finish},limit,mode,
         E.reset_run(S,O,M,world,model,seed))) : E.Report<M>}
+
+# Interpret the second chunk from the cursor actually returned by the first
+# segment. This law includes Finishing and Contextual, not just raw advance.
+def segment_cursor(-S: Data,-O: Data,-M: Data,segment: C.Segment<S,O,M>) -> C.Cursor<S,O,M>:
+  match segment:
+    case C.Segment{cursor,m,steps,score,finished}: cursor
+
+law paused_finishing_segments_equal_unsplit:
+  for ~S: Data
+  for ~O: Data
+  for ~M: Data
+  for ~world: E.World<S,O>
+  for ~act: M -> O -> List<&2,U32> -> E.Mode -> U32 -> U32
+  for ~learn: M -> E.Transition<O> -> M
+  for ~finish: M -> E.Stop -> M
+  for +mode: E.Mode
+  for +first: Nat
+  for +second: Nat
+  for +cursor: C.Cursor<S,O,M>
+  {C.segment(~S,~O,~M,~E.Finishing{world,act,learn,finish},mode,Nat.add(first,second),cursor)
+    == C.segment(~S,~O,~M,~E.Finishing{world,act,learn,finish},mode,second,
+      segment_cursor(S,O,M,C.segment(~S,~O,~M,~E.Finishing{world,act,learn,finish},mode,first,cursor))) : C.Segment<S,O,M>}
+
+law paused_contextual_segments_equal_unsplit:
+  for ~S: Data
+  for ~O: Data
+  for ~M: Data
+  for ~world: E.World<S,O>
+  for ~act: M -> O -> List<&2,U32> -> E.Mode -> U32 -> U32
+  for ~learn: M -> List<&2,U32> -> E.Transition<O> -> M
+  for ~finish: M -> E.Stop -> M
+  for +mode: E.Mode
+  for +first: Nat
+  for +second: Nat
+  for +cursor: C.Cursor<S,O,M>
+  {C.segment(~S,~O,~M,~E.Contextual{world,act,learn,finish},mode,Nat.add(first,second),cursor)
+    == C.segment(~S,~O,~M,~E.Contextual{world,act,learn,finish},mode,second,
+      segment_cursor(S,O,M,C.segment(~S,~O,~M,~E.Contextual{world,act,learn,finish},mode,first,cursor))) : C.Segment<S,O,M>}
+
+def segment_report(-S: Data,-O: Data,-M: Data,segment: C.Segment<S,O,M>) -> Maybe<&2,E.Report<M>>:
+  match segment:
+    case C.Segment{c,m,n,r,report}: report
+
+law finishing_segment_matches_episode:
+  for ~S: Data
+  for ~O: Data
+  for ~M: Data
+  for ~reset: U32 -> S
+  for ~inspect: S -> E.View<O>
+  for ~step: S -> U32 -> U32 -> Pair(S,F32)
+  for ~act: M -> O -> List<&2,U32> -> E.Mode -> U32 -> U32
+  for ~learn: M -> E.Transition<O> -> M
+  for ~finish: M -> E.Stop -> M
+  for +mode: E.Mode
+  for +model: M
+  for +seed: U32
+  for +limit: Nat
+  {segment_report(S,O,M,C.segment(~S,~O,~M,~E.Finishing{E.World{reset,inspect,step},act,learn,finish},mode,limit,
+    C.start(~S,~O,~M,~E.Finishing{E.World{reset,inspect,step},act,learn,finish},model,seed,limit))) ==
+    Some{E.episode(~S,~O,~M,~E.Finishing{E.World{reset,inspect,step},act,learn,finish},mode,model,seed,limit)} : Maybe<&2,E.Report<M>>}
+
+law contextual_segment_matches_episode:
+  for ~S: Data
+  for ~O: Data
+  for ~M: Data
+  for ~reset: U32 -> S
+  for ~inspect: S -> E.View<O>
+  for ~step: S -> U32 -> U32 -> Pair(S,F32)
+  for ~act: M -> O -> List<&2,U32> -> E.Mode -> U32 -> U32
+  for ~learn: M -> List<&2,U32> -> E.Transition<O> -> M
+  for ~finish: M -> E.Stop -> M
+  for +mode: E.Mode
+  for +model: M
+  for +seed: U32
+  for +limit: Nat
+  {segment_report(S,O,M,C.segment(~S,~O,~M,~E.Contextual{E.World{reset,inspect,step},act,learn,finish},mode,limit,
+    C.start(~S,~O,~M,~E.Contextual{E.World{reset,inspect,step},act,learn,finish},model,seed,limit))) ==
+    Some{E.episode(~S,~O,~M,~E.Contextual{E.World{reset,inspect,step},act,learn,finish},mode,model,seed,limit)} : Maybe<&2,E.Report<M>>}
