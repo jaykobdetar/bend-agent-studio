@@ -1,12 +1,15 @@
 #!/usr/bin/env bash
 # Hosted Linux: existing checks.yml Node 24.22.3, verified Bend 2.0.40 and MCP dependencies.
 # Run from candidate checkout with full history. Pass absolute path to g4-hosted.mjs.
-set -eu
+set -euo pipefail
 test "$(node -p process.versions.node)" = 24.22.3
 test "$(bend version)" = 'bend 2.0.40'
 repo=$PWD; scratch=$(mktemp -d); old=$scratch/old; runs=$scratch/runs
 mkdir "$old" "$runs"
-git archive dd4c5439a241d6b4ebefa6f73a16875907686977 | tar -x -C "$old"
+# The author-history correction changed the commit ID, not its fixture content.
+fixture=43f9b4593926ac936a8ad0e66e7032bc6bc3f357
+test "$(git rev-parse "$fixture^{tree}")" = e32ada6b73783afadcd63e9bc21d2990f4f652d8
+git archive "$fixture" | tar -x -C "$old"
 for pair in 'bridge bridge' 'custom cliff-sarsa'; do
  read -r name plan <<< "$pair"; run=$runs/$name
  node "$old/experiment.mjs" run "$old/experiments/$plan.json" "$run" --until 32

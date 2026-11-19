@@ -1,8 +1,10 @@
 # Archive source and backend gates
 
 These baselines were captured from the clean runner, experiments and inputs at
-`dd4c5439a241d6b4ebefa6f73a16875907686977` (Linux, Node 24.22.3; Bend 2.0.40
-for the real backends), before the repository layout move. No existing archive
+`43f9b4593926ac936a8ad0e66e7032bc6bc3f357` (originally `dd4c5439`, before the
+author-attribution correction; the tree is unchanged). This was before the
+repository layout move, on Linux with Node 24.22.3 and Bend 2.0.40 for the
+real backends. No existing archive
 is used as an input to either gate.
 
 - `node tools/archive-gates.mjs check` checks 31 training manifests. For each,

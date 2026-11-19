@@ -1,4 +1,4 @@
-// Captured from the pre-M5 entry points at de45a7e with Bend 2.0.40.
+// Captured from the pre-M5 entry points at 51c9cb8 with Bend 2.0.40.
 // These fixed programs are small; never substitute the configurable study runner.
 import test from 'node:test';
 import assert from 'node:assert/strict';
