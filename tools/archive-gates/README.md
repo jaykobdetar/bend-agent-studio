@@ -47,6 +47,13 @@ compiler backend transitions. Neither historical baseline is overwritten, and
 no normalized plan, archive member names or bundle identities change. The
 pre-F8 archives and their compiler outputs remain sealed and replayable.
 
+The [N9.2 plan entry](n9-flagship-plan.json) is additive: it pins the new
+flagship plan, complete flat source map and bundle identities. The gate demands
+exact inventory equality with the union of historical and new plans, checks the
+new plan directly, and applies the historical baseline and existing reviewed
+transitions unchanged to the original plans. Do not recapture the historical
+file when adding a plan.
+
 ## Archive dependency boundary
 
 The archived entry is `runs/NAME/code/experiment.mjs`. Its transitive static local dependencies

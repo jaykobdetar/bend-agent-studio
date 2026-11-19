@@ -34,6 +34,8 @@ npm start -- --run runs/bridge
 
 The [experiment guide](docs/experiments.md) explains seed blocks, validation, checkpoints, confirmation and archives. Open only trusted local runs: replay executes their archived code with the recorded Node version.
 
+Try the [flagship toy-text study](studies/flagship-toy-text/README.md) for a worked example with five worlds, eight learners, verified checkpoint exports, uncertainty tables and learning curves.
+
 ## Guides
 
 | Guide | Find |

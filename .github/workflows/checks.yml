@@ -45,6 +45,8 @@ jobs:
         run: node tools/archive-gates.mjs check-backends
       - name: Run Node tests
         run: npm test
+      - name: Reproduce two flagship checkpoint byte hashes
+        run: node checks/flagship_slice.mjs
       - name: Check statistical comparisons and positive-exponent Bend literals
         run: |
           python3 -m unittest checks.test_multiple_comparisons checks.test_suite_stats
