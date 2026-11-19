@@ -4,12 +4,15 @@ import assert from 'node:assert/strict';
 import { spawn, spawnSync } from 'node:child_process';
 import { once } from 'node:events';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import { mkdir, mkdtemp, readFile, readdir, rm, writeFile } from 'node:fs/promises';
+import { mkdir, mkdtemp, readFile, readdir, rm, symlink, writeFile } from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 import { setTimeout as delay } from 'node:timers/promises';
 import { worlds } from './catalog.mjs';
-import { boardStates, cumulativeReturns, observation, replayChoice, replaySelection } from './web/scene.js';
+import { manifestPicker, readPlanSnapshot, savePlanSnapshot } from './manifests.mjs';
+import { knownGridLayouts } from './grid-layouts.mjs';
+import { symbol } from '../core/finite_world.mjs';
+import { boardStates, cumulativeReturns, gridMarkers, observation, replayChoice, replaySelection } from './web/scene.js';
 import { replayFilename, timeline } from './web/exporter.js';
 import { Gif } from './web/gif.js';
 import { seal } from '../core/experiment.mjs';
@@ -356,7 +359,7 @@ for (const cpuBound of [false, true]) {
       assert.equal(response.status, 201);
       job = await response.json();
       oldPid = await waitForRunner(home, 'compiler');
-      queued = await (await post(first.url, {...tinyRun,seed:1})).json();
+      queued = await (await post(first.url, cpuBound ? {manifest:'cliff-sarsa.json'} : {...tinyRun,seed:1})).json();
       const cancelled = await (await post(first.url, {...tinyRun,seed:2})).json();
       tail = await (await post(first.url, {...tinyRun,seed:3})).json();
       assert.deepEqual([queued.position,cancelled.position,tail.position],[1,2,3]);
@@ -383,7 +386,11 @@ for (const cpuBound of [false, true]) {
       for(let i=0;i<150&&(await lookup(queued.id)).status==='queued';i++)await delay(30);
       assert.equal((await lookup(queued.id)).status,'training');
       assert.equal((await lookup(tail.id)).position,1);
-      assert.equal(JSON.parse(await readFile(path.join(home,queued.id,'plan.json'))).seeds.train,1);
+      const saved=JSON.parse(await readFile(path.join(home,queued.id,'plan.json')));
+      if (cpuBound) {
+        assert.equal(saved.name,'cliff-sarsa');
+        assert.ok(saved.arms[0].agent?.files, 'relative agent source must survive the restart');
+      } else assert.equal(saved.seeds.train,1);
       const cancel=async id=>(await (await fetch(second.url+'/api/runs/'+id+'/cancel',{method:'POST'})).json()).status;
       assert.equal(await cancel(queued.id),'cancelled');
       assert.equal((await lookup(tail.id)).status,'training');
@@ -724,4 +731,106 @@ test('comparison UI builds a line and interval per selected series, preserves he
   pending.reject(Error('old response'));await reading;
   assert.doesNotMatch(panel.text(),/Skipped|old response/);
   assert.equal(go.disabled,true);
+});
+
+test('manifest selection validates CLI hooks and confines names and resolved sources', async t=>{
+  const home=await mkdtemp(path.join(os.tmpdir(),'studio-manifest-'));
+  t.after(()=>rm(home,{recursive:true,force:true}));
+  const server=await start(home);
+  try {
+    const files=await (await fetch(server.url+'/api/manifests')).json();
+    assert.ok(files.includes('cliff-sarsa.json'));
+    const inspect=file=>fetch(server.url+'/api/manifest?file='+encodeURIComponent(file));
+    const response=await inspect('cliff-sarsa.json');
+    assert.equal(response.status,200);
+    assert.deepEqual((await response.json()).hooks,[{arm:'sarsa',hook:'Finishing'},{arm:'q-learning',hook:'Hooks'}]);
+    assert.equal((await inspect('../package.json')).status,400);
+    assert.equal((await post(server.url,{manifest:path.resolve('/experiments/bridge.json')})).status,400);
+    assert.equal((await post(server.url,{manifest:'missing.json'})).status,400);
+  } finally { await server.close(); }
+
+  const checkout=path.join(home,'repository');
+  await mkdir(path.join(checkout,'experiments','nested'),{recursive:true});
+  const sample={schema:1,name:'layout',games:[{id:'authored',limit:4,file:'../../grid.json'}],
+    arms:[{id:'r',method:'random'}],replicates:1,checkpoints:[0],validationEpisodes:1,testEpisodes:0,
+    seeds:{train:0,validation:100,test:200,stride:10}};
+  const grid={schema:1,grid:['S.','PG']};
+  await writeFile(path.join(checkout,'grid.json'),JSON.stringify(grid));
+  const manifest=path.join(checkout,'experiments','nested','a plan.json');
+  await writeFile(manifest,JSON.stringify(sample));
+  const picker=manifestPicker(checkout);
+  assert.deepEqual(picker.list(),['nested/a plan.json']);
+  const {snapshot}=picker.load('nested/a plan.json');
+  const pinned=savePlanSnapshot(home,snapshot);
+  assert.deepEqual(readPlanSnapshot(home,pinned).layouts[symbol(grid)],{rows:grid.grid});
+
+  await writeFile(path.join(home,'outside.json'),JSON.stringify(sample));
+  if (process.platform!=='win32') {
+    await symlink(path.join(home,'outside.json'),path.join(checkout,'experiments','linked.json'));
+    assert.throws(()=>picker.load('linked.json'),/files inside the checkout/);
+  }
+  sample.games[0].file='../../../outside.json';
+  await writeFile(manifest,JSON.stringify(sample));
+  assert.throws(()=>picker.load('nested/a plan.json'),/files inside the checkout/);
+  await writeFile(path.join(home,'manifest-snapshot.json'),'{}');
+  assert.throws(()=>readPlanSnapshot(home,pinned),/checksum/);
+});
+
+test('generated grid layouts are matched by world definition, not game names',async()=>{
+  const checkout=fileURLToPath(new URL('../',import.meta.url));
+  const layouts=knownGridLayouts(checkout);
+  const get=async name=>{
+    const world=JSON.parse(await readFile(path.join(checkout,'worlds/benchmarks',name+'.json'),'utf8'));
+    return layouts.get(symbol(world));
+  };
+  assert.deepEqual((await get('toy-text/lake4-slip')).rows,['S...','.P.P','...P','P..G']);
+  assert.deepEqual((await get('toy-text/cliff4x12')).rows.at(-1),'SPPPPPPPPPPG');
+  assert.deepEqual(gridMarkers(await get('toy-text/taxi'),16),[[0,0,'destination'],[0,0,'occupied']]);
+  assert.deepEqual(gridMarkers(await get('probes/deep-sea-3'),1),[[0,0,'agent']]);
+  assert.deepEqual(gridMarkers(await get('probes/catch-4'),1),[[0,0,'ball'],[2,2,'paddle']]);
+  assert.equal(await get('probes/memory-3'),undefined);
+});
+
+test('generated layout fingerprints tolerate checkout EOLs but reject altered world data',async t=>{
+  const root=await mkdtemp(path.join(os.tmpdir(),'studio-layout-eol-'));
+  t.after(()=>rm(root,{recursive:true,force:true}));
+  const dir=path.join(root,'worlds','benchmarks','toy-text');
+  await mkdir(dir,{recursive:true});
+  const source=new URL('../worlds/benchmarks/toy-text/',import.meta.url);
+  const layoutText=(await readFile(new URL('layouts.json',source),'utf8')).replaceAll('\r\n','\n');
+  const name='lake4-slip.json', target=path.join(dir,name);
+  const lf=(await readFile(new URL(name,source),'utf8')).replaceAll('\r\n','\n');
+  const crlf=text=>text.replaceAll('\n','\r\n');
+  const key=symbol(JSON.parse(lf));
+  await writeFile(path.join(dir,'layouts.json'),crlf(layoutText));
+  for (const text of [lf,crlf(lf)]) {
+    await writeFile(target,text);
+    assert.deepEqual(knownGridLayouts(root).get(key)?.rows,['S...','.P.P','...P','P..G']);
+  }
+  await writeFile(target,crlf(lf.replace('"reward":0','"reward":1')));
+  assert.equal(knownGridLayouts(root).size,0);
+});
+
+test('Studio trains a manifest with checkout-relative worlds and returns grid replay metadata',compilerTest,async t=>{
+  const home=await mkdtemp(path.join(os.tmpdir(),'studio-finite-grid-'));
+  t.after(()=>rm(home,{recursive:true,force:true}));
+  const server=await start(home);
+  try {
+    const response=await post(server.url,{manifest:'toy-text.json'});
+    assert.equal(response.status,201);
+    const job=await response.json();
+    let completed;
+    for(let i=0;i<200;i++) {
+      completed=(await (await fetch(server.url+'/api/runs')).json()).find(run=>run.id===job.id);
+      if (!['queued','training'].includes(completed.status)) break;
+      await delay(50);
+    }
+    assert.equal(completed.status,'ready',completed.error);
+    const query=new URLSearchParams({game:'dry',arm:'random',rep:'0',point:'0',phase:'validation',episode:'0'});
+    const replay=await fetch(server.url+'/api/runs/'+job.id+'/replay?'+query);
+    assert.equal(replay.status,200);
+    const trace=await replay.json();
+    assert.deepEqual(trace.gridLayout.rows,['S...','.P.P','...P','P..G']);
+    assert.deepEqual(gridMarkers(trace.gridLayout,trace.frames[0].observation),[[0,0,'agent']]);
+  } finally { await server.close(); }
 });

@@ -89,6 +89,10 @@
             <h2>Run settings</h2>
           </div>
           <form id="train">
+            <label for="manifest">Training plan</label>
+            <select id="manifest"><option value="">Use an environment preset</option></select>
+            <p class="form-note" id="manifest-info" role="status" hidden></p>
+            <fieldset id="preset-fields">
             <label for="agent">Learning algorithm</label
             ><select id="agent"></select
             ><label for="budget">Training episodes</label
@@ -106,6 +110,7 @@
                 ⚄
               </button>
             </div>
+            </fieldset>
             <button class="primary" id="train-btn" type="submit">
               <span class="play-shape"></span><span>Train agent</span>
             </button>

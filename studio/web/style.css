@@ -867,3 +867,29 @@ dialog::backdrop {
 .comparison table { font-size: .85rem; border-spacing: .5rem; text-align: left; }
 .comparison details { overflow-x: auto; }
 .run-notes { white-space: pre-wrap; overflow-wrap: anywhere; }
+
+#preset-fields {
+  border: 0;
+  padding: 0;
+  margin: 0;
+  min-width: 0;
+}
+#manifest {
+  max-width: 100%;
+  min-width: 0;
+}
+#manifest-info {
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 500px) {
+  #manifest-info, #preset-fields {
+    grid-column: 1 / -1;
+  }
+  #preset-fields:not([hidden]) {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    align-items: center;
+    gap: 8px 12px;
+  }
+}
