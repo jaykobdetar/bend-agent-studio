@@ -42,9 +42,6 @@ The [Bend upgrade watch](upgrading-bend.md) is a separate weekly/manual check ag
 
 ### Running individual checks
 
-The Linux CI job checks Prettier formatting of authored, tracked JavaScript.
-See [formatter setup and scope](#formatting-javascript).
-
 Run `node --test checks/scaffold_checks.mjs` for starter validity, no-clobber
 behavior, seeded sweep determinism, compiled multi-arm screening, halving and held-out-data rejection. With
 pinned Lean available, `BEND_CHECK_SCAFFOLD_VERDICT=1 node --test checks/scaffold_checks.mjs`
@@ -105,18 +102,6 @@ bend laws/PROOF.bend
 For an independent proof verdict, install Lean 4.34.0 (for example, `elan toolchain install leanprover/lean4:v4.34.0`) and run `bend laws/PROOF.bend --verdict`. Bend 2.0.40 builds and caches its bundled BendTT kernel on first use. You can also set `BENDTT` to a kernel built from the same release.
 
 
-## Generated properties and boundary checks
-
-Root `npm test` runs 64 reproducible cases per domain for manifest validation, finite-world normalization including authored grids, memory-world product rules, Cassandra sparse POMDP export/reparse, and MCP workspace path confinement. The path cases use only owned temporary test fixtures and check both allowed destinations and rejected sibling paths. The direct CLI prints the seed and the failing case, and can run larger campaigns.
-
-```sh
-node checks/seeded_properties.mjs --seed 23 --cases 1000
-node --test checks/layout_logging_checks.mjs
-bend laws/PROOF.bend --verdict
-```
-
-With Bend installed, the second command compiles literal and packed versions of the same generated worlds, checks every 16-bit draw for sampled logging policies, and compares chunked and direct episode reports for both completion hook types. These cases complement the independent proof verdict, which the pinned workflow and advisory Bend watch both run. See [the proof boundaries](laws.md#phase-9-proof-boundaries) for what is formal and what is empirical.
-
 ## Studio browser smoke
 
 With the normal pinned Node and Bend tools on PATH, run this isolated Playwright harness:
@@ -129,6 +114,18 @@ PLAYWRIGHT_BROWSERS_PATH=0 npm test
 ```
 
 The Linux job installs browser prerequisites on its fresh runner. The smoke test starts a loopback Studio with a temporary home, selects and trains a multi-world manifest, verifies the planned hook types, dismisses and reopens the replay picker, checks the expected rendered grid colors, and fails on console or script errors or page overflow at 390 px. Studio's root Node tests separately cover manifest/source confinement, FIFO crash recovery, and generated sidecar identity.
+
+## Generated properties and boundary checks
+
+Root `npm test` runs 64 reproducible cases per domain for manifest validation, finite-world normalization including authored grids, memory-world product rules, Cassandra sparse POMDP export/reparse, and MCP workspace path confinement. The path cases use only owned temporary test fixtures and check both allowed destinations and rejected sibling paths. The direct CLI prints the seed and the failing case, and can run larger campaigns.
+
+```sh
+node checks/seeded_properties.mjs --seed 23 --cases 1000
+node --test checks/layout_logging_checks.mjs
+bend laws/PROOF.bend --verdict
+```
+
+With Bend installed, the second command compiles literal and packed versions of the same generated worlds, checks every 16-bit draw for sampled logging policies, and compares chunked and direct episode reports for both completion hook types. These cases complement the independent proof verdict, which the pinned workflow and advisory Bend watch both run. See [the proof boundaries](laws.md#phase-9-proof-boundaries) for what is formal and what is empirical.
 
 ## Formatting JavaScript
 
@@ -148,3 +145,14 @@ dependency directories, vendored/generated sources and documentation checker
 fixtures. Python, Bend, third-party data, core, agents and worlds are not
 formatted. To compare syntax trees and formatter idempotence, run
 `npm --prefix tools/format run audit`. The Linux CI check never rewrites files.
+
+## Acrobot and matrix games
+
+```sh
+node --test checks/acrobot.test.mjs checks/matrix_solver.test.mjs checks/matrix_world.test.mjs
+node tools/matrix-games/generate.mjs --check
+```
+
+The root suite checks 21 Acrobot reference steps with independently written double-precision dynamics, wrapping/clamps, seeded reset and terminal rewards. To add the independent upstream implementation as a cross-check, set `BEND_ACROBOT_GYM_PYTHON` to the existing pinned Gymnasium virtual environment's Python and rerun the Acrobot case. The mobile Studio smoke checks pixels from a real trained Acrobot replay as well as the finite grid.
+
+Matrix tests check exact closed forms, reconstruct the generated files, verify the live Bend run, and confirm that both seats see an identical precommitment observation independent of the private action. They check the revealed pair, payoff and empirical exploitability on archived validation rolls. The archive gates separately pin the new plan identities without changing older fingerprints.

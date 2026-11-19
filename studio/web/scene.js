@@ -9,12 +9,14 @@ const colors = {
 const labels = {
   mountain_car: ['Push left', 'Coast', 'Push right'],
   cartpole: ['Push left', 'Push right'],
+  acrobot: ['Torque −1', 'No torque', 'Torque +1'],
   cliff: {10: 'West', 20: 'East', 30: 'North', 40: 'South'},
 };
 export const gameName = (id) =>
   ({
     mountain_car: 'Mountain Car',
     cartpole: 'CartPole',
+    acrobot: 'Acrobot',
     cliff: 'Cliff Walk',
     'tic-tac-toe': 'Tic-Tac-Toe',
     'raw-board': 'Tic-Tac-Toe',
@@ -42,7 +44,7 @@ export function actionName(game, id) {
   return labels[game]?.[id] ?? (isBoard(game) ? 'Place mark' : String(id));
 }
 const isBoard = (g) => g === 'tic-tac-toe' || g === 'raw-board';
-export const tickRate = (g) => (g === 'mountain_car' || g === 'cartpole' ? 24 : 2);
+export const tickRate = (g) => (['mountain_car', 'cartpole', 'acrobot'].includes(g) ? 24 : 2);
 function rotate(i) {
   return 3 * (i % 3) + 2 - Math.floor(i / 3);
 }
@@ -332,6 +334,43 @@ function board(c, state) {
     }
   }
 }
+// Angles are measured from the downward vertical. The second link's
+// absolute angle is the sum of both public joint angles.
+export function acrobotPose(observation) {
+  const {theta1 = 0, theta2 = 0} = observation ?? {};
+  const joint = [Math.sin(theta1), Math.cos(theta1)];
+  const tip = [joint[0] + Math.sin(theta1 + theta2), joint[1] + Math.cos(theta1 + theta2)];
+  return {joint, tip, reached: tip[1] < -1};
+}
+function acrobot(canvas, observation) {
+  const {joint, tip, reached} = acrobotPose(observation);
+  const x = 256,
+    y = 113,
+    size = 44;
+  const [jx, jy] = joint.map((value, i) => (i ? y : x) + value * size);
+  const [tx, ty] = tip.map((value, i) => (i ? y : x) + value * size);
+  grid(canvas);
+  canvas.save();
+  canvas.setLineDash([5, 5]);
+  line(canvas, reached ? colors.mint : colors.muted, 70, y - size, 442, y - size, 1);
+  canvas.restore();
+  canvas.fillStyle = colors.light;
+  canvas.font = '10px monospace';
+  canvas.textAlign = 'left';
+  canvas.fillText('Target height', 74, y - size - 8);
+  line(canvas, colors.light, x, y, jx, jy, 6);
+  line(canvas, colors.mint, jx, jy, tx, ty, 6);
+  for (const [cx, cy, color] of [
+    [x, y, colors.coral],
+    [jx, jy, colors.light],
+    [tx, ty, colors.mint],
+  ]) {
+    canvas.beginPath();
+    canvas.fillStyle = color;
+    canvas.arc(cx, cy, 5, 0, TAU);
+    canvas.fill();
+  }
+}
 function unknown(c, s) {
   grid(c);
   c.fillStyle = colors.light;
@@ -440,6 +479,7 @@ export function draw(canvas, game, obs, boardState, layout) {
   if (layout?.rows?.[0]?.length) drawFiniteGrid(c, layout, obs);
   else if (game === 'mountain_car') mountain(c, obs);
   else if (game === 'cartpole') pole(c, obs);
+  else if (game === 'acrobot') acrobot(c, obs);
   else if (game === 'cliff') cliff(c, obs);
   else if (isBoard(game)) board(c, boardState ?? [17, 66]);
   else unknown(c, obs);
@@ -456,8 +496,13 @@ export function channels(game) {
           ['Cart position', 'x'],
           ['Pole angle', 'angle'],
         ]
-      : [
-          ['Reward', 'reward'],
-          ['Episode return', 'total'],
-        ];
+      : game === 'acrobot'
+        ? [
+            ['Base angle', 'theta1'],
+            ['Elbow angle', 'theta2'],
+          ]
+        : [
+            ['Reward', 'reward'],
+            ['Episode return', 'total'],
+          ];
 }

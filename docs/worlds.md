@@ -75,3 +75,11 @@ before choosing their first action. Results can therefore differ for partially
 observable games. For a deterministic initial state and fully observable model,
 `python tools/check_pomdp_lp.py bridge.pomdp` optionally checks the discounted
 value using SciPy's HiGHS linear-program solver, independent of the JS oracle.
+
+## Acrobot and simultaneous matrix games
+
+[Acrobot](../worlds/acrobot.bend) uses the standard book equations, two unit links and masses, half-link centers of mass, gravity 9.8 and a fourth-order Runge–Kutta update every 0.2 s. Public observations are the two angles and angular velocities, in radians and radians per second. Actions 0, 1 and 2 apply torques −1, 0 and +1 to the second joint. Reset jitters all four coordinates deterministically in [−0.1, 0.1). The update wraps angles, caps angular velocities at 4π and 9π, and uses the standard tip-height terminal condition. The reward is −1 per nonterminal step and zero on success; the plan stops at 500 steps. The authored `acrobot` domain uses two offset coarse tilings and a bias with the existing [sparse linear learner](../agents/linear/README.md). The [plan](../experiments/acrobot.json) demonstrates training and replay, not a solved-criterion result.
+
+The [matrix catalog](../worlds/benchmarks/matrix-games/games.json) has RPS, weighted RPS, Matching Pennies, a rectangular game and a degenerately tied negative saddle. Each integer entry is a row payoff; the column payoff is its negative. The [generated Bend world](../worlds/benchmarks/matrix-games/world.bend) commits the other seat to a private salted draw at reset. The learning seat sees only a constant observation and the fixed legal actions for its own seat. It then commits without seeing the other action. The one terminal transition reveals the pair and settles from the correct seat's perspective. Neither decision is conditioned on the other. The fixed opponent uses a U32 modulo draw (at most one word of imbalance per action); the exact analysis uses the payoff matrix without this sampling approximation.
+
+The [matrix plan](../experiments/matrix-games.json) trains the two seats separately against the private random opponent. It does not present the game as alternating-play self-play. See [matrix analysis](analysis.md#matrix-game-values-and-exploitability) for measuring the resulting seat policies together.

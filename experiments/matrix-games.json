@@ -1,0 +1,133 @@
+{
+  "schema": 1,
+  "name": "matrix-games",
+  "games": [
+    {
+      "id": "matching-pennies-row",
+      "domain": "discrete",
+      "worldFile": "../worlds/benchmarks/matrix-games/world.bend",
+      "limit": 1,
+      "parameters": {
+        "game": 0,
+        "seat": 0
+      }
+    },
+    {
+      "id": "matching-pennies-column",
+      "domain": "discrete",
+      "worldFile": "../worlds/benchmarks/matrix-games/world.bend",
+      "limit": 1,
+      "parameters": {
+        "game": 0,
+        "seat": 1
+      }
+    },
+    {
+      "id": "negative-saddle-row",
+      "domain": "discrete",
+      "worldFile": "../worlds/benchmarks/matrix-games/world.bend",
+      "limit": 1,
+      "parameters": {
+        "game": 1,
+        "seat": 0
+      }
+    },
+    {
+      "id": "negative-saddle-column",
+      "domain": "discrete",
+      "worldFile": "../worlds/benchmarks/matrix-games/world.bend",
+      "limit": 1,
+      "parameters": {
+        "game": 1,
+        "seat": 1
+      }
+    },
+    {
+      "id": "rectangular-row",
+      "domain": "discrete",
+      "worldFile": "../worlds/benchmarks/matrix-games/world.bend",
+      "limit": 1,
+      "parameters": {
+        "game": 2,
+        "seat": 0
+      }
+    },
+    {
+      "id": "rectangular-column",
+      "domain": "discrete",
+      "worldFile": "../worlds/benchmarks/matrix-games/world.bend",
+      "limit": 1,
+      "parameters": {
+        "game": 2,
+        "seat": 1
+      }
+    },
+    {
+      "id": "rps-row",
+      "domain": "discrete",
+      "worldFile": "../worlds/benchmarks/matrix-games/world.bend",
+      "limit": 1,
+      "parameters": {
+        "game": 3,
+        "seat": 0
+      }
+    },
+    {
+      "id": "rps-column",
+      "domain": "discrete",
+      "worldFile": "../worlds/benchmarks/matrix-games/world.bend",
+      "limit": 1,
+      "parameters": {
+        "game": 3,
+        "seat": 1
+      }
+    },
+    {
+      "id": "weighted-rps-row",
+      "domain": "discrete",
+      "worldFile": "../worlds/benchmarks/matrix-games/world.bend",
+      "limit": 1,
+      "parameters": {
+        "game": 4,
+        "seat": 0
+      }
+    },
+    {
+      "id": "weighted-rps-column",
+      "domain": "discrete",
+      "worldFile": "../worlds/benchmarks/matrix-games/world.bend",
+      "limit": 1,
+      "parameters": {
+        "game": 4,
+        "seat": 1
+      }
+    }
+  ],
+  "arms": [
+    {
+      "id": "uniform",
+      "method": "random"
+    },
+    {
+      "id": "q-learning",
+      "method": "q_learning",
+      "epsilon": 0.25,
+      "alpha": 0.125,
+      "gamma": 0
+    }
+  ],
+  "replicates": 4,
+  "checkpoints": [
+    0,
+    16,
+    64
+  ],
+  "validationEpisodes": 4,
+  "testEpisodes": 4,
+  "seeds": {
+    "train": 223000000,
+    "validation": 1223000000,
+    "test": 2223000000,
+    "stride": 10000
+  }
+}
