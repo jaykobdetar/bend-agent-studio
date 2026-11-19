@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import {pathToFileURL} from 'node:url';
-import {worldDefinition} from './finite_world.mjs';
+import {worldDefinition} from './core/finite_world.mjs';
 
 // Build the product of a finite world and a memory machine over public events.
 // Outcome order is significant because the Bend compiler partitions U32 draws by it.

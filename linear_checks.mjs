@@ -5,7 +5,7 @@ import os from 'node:os';
 import path from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {compilerTest} from './bend_test_support.mjs';
-import {execute} from './process_output.mjs';
+import {execute} from './core/process_output.mjs';
 const here=path.dirname(fileURLToPath(import.meta.url));
 const bend=process.env.BEND??'bend';
 test('general sparse linear arithmetic and structural laws',compilerTest,async()=>{

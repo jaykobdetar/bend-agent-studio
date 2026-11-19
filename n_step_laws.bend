@@ -1,7 +1,7 @@
 import Base
 import ./agents/n_step.bend as N
-import ./tabular.bend as T
-import ./engine.bend as E
+import ./core/tabular.bend as T
+import ./core/engine.bend as E
 
 law terminal_flush:
   for s: U32

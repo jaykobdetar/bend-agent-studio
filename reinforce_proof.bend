@@ -1,6 +1,6 @@
 import Base
 import ./agents/reinforce.bend as R
-import ./tabular.bend as T
+import ./core/tabular.bend as T
 import ./reinforce_laws.bend as Law
 
 def emptied(h: R.History,q: T.Table,b: T.Table,c: R.Config,g: F32) ->

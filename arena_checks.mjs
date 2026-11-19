@@ -2,8 +2,8 @@
 import assert from 'node:assert/strict';
 import path from 'node:path';
 import {pathToFileURL} from 'node:url';
-import {parameterList} from './agent_source.mjs';
-import {checkedSnapshot,manifestPath,unpack,unseal} from './experiment.mjs';
+import {parameterList} from './core/agent_source.mjs';
+import {checkedSnapshot,manifestPath,unpack,unseal} from './core/experiment.mjs';
 import {gameGraph,matchup} from './arena_tournament.mjs';
 
 const root=process.argv[2];

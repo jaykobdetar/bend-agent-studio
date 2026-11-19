@@ -3,7 +3,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import {context} from './context.mjs';
-import {status, unseal} from '../experiment.mjs';
+import {status, unseal} from '../core/experiment.mjs';
 try {
   const [root, out, op, encoded] = process.argv.slice(2),
     ctx = context(root),

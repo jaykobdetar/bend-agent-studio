@@ -4,14 +4,14 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import {fileURLToPath,pathToFileURL} from 'node:url';
-import {execute} from './process_output.mjs';
-import {canonical,checkSeedBlocks,digest} from './experiment_config.mjs';
-import {policyOracle} from './public_oracle.mjs';
-import {stepEstimates,fitQEvaluation} from './ope.mjs';
-import {existing,adapterName,immutable,json,record,seal,stats,unseal} from './experiment.mjs';
+import {execute} from './core/process_output.mjs';
+import {canonical,checkSeedBlocks,digest} from './core/experiment_config.mjs';
+import {policyOracle} from './core/public_oracle.mjs';
+import {stepEstimates,fitQEvaluation} from './core/ope.mjs';
+import {existing,adapterName,immutable,json,record,seal,stats,unseal} from './core/experiment.mjs';
 import {actionBuckets,archive,collect,fields,id,openDataset,seedAllocation,uint} from './dataset.mjs';
 
-const bendLibraryDir=path.dirname(fileURLToPath(import.meta.url));
+const bendLibraryDir=fileURLToPath(new URL('./core/',import.meta.url));
 const methods={behavior_cloning:'Clone',fitted_q:'Fitted',supported_fitted_q:'Supported'};
 const evaluation={$:'Evaluate'};
 function list(xs) {

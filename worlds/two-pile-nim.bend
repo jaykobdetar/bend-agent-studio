@@ -1,7 +1,7 @@
 import Base
-import ../arena.bend as A
-import ../engine.bend as E
-import ../parameters.bend as P
+import ../core/arena.bend as A
+import ../core/engine.bend as E
+import ../core/parameters.bend as P
 
 # Normal-play two-pile Nim. An action removes 1..3 from exactly one
 # pile. Left removals are 1..3; right removals are 5..7.

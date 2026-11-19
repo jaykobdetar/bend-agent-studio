@@ -1,8 +1,8 @@
 import Base
-import ../../engine.bend as E
-import ../../actor_critic.bend as AC
-import ../../tabular.bend as T
-import ../../study.bend as S
+import ../../core/engine.bend as E
+import ../../core/actor_critic.bend as AC
+import ../../core/tabular.bend as T
+import ../../core/study.bend as S
 
 # Compare raw F32 words, not formatted decimal strings or aggregate scores.
 def stop(reason: E.Stop, tail: List<&2,U32>) -> List<&2,U32>:

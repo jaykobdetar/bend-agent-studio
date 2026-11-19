@@ -1,8 +1,8 @@
 import Base
-import ./tabular.bend as T
+import ./core/tabular.bend as T
 import ./agents/lib/linear.bend as L
-import ./weights.bend as W
-import ./engine.bend as E
+import ./core/weights.bend as W
+import ./core/engine.bend as E
 
 law scalar_read_after_write:
   for tree: W.Tree

@@ -1,5 +1,5 @@
-import {numberPreservingJson} from '../finite_world.mjs';
-import {publicTraceFrames} from '../public_oracle.mjs';
+import {numberPreservingJson} from '../core/finite_world.mjs';
+import {publicTraceFrames} from '../core/public_oracle.mjs';
 import path from 'node:path';
 import os from 'node:os';
 import fs from 'node:fs/promises';

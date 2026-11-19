@@ -6,8 +6,8 @@ import path from 'node:path';
 import test from 'node:test';
 import {fileURLToPath,pathToFileURL} from 'node:url';
 import {compilerTest} from '../../bend_test_support.mjs';
-import {bendSource,buckets,usesPackedWorld,worldDefinition} from '../../finite_world.mjs';
-import {packedSource} from '../../packed_world.mjs';
+import {bendSource,buckets,usesPackedWorld,worldDefinition} from '../../core/finite_world.mjs';
+import {packedSource} from '../../core/packed_world.mjs';
 
 const bend=process.env.BEND??'bend';
 const root=fileURLToPath(new URL('../../',import.meta.url));
@@ -34,7 +34,7 @@ test('packed layout matches independent integer cutpoints and literal fallback s
   const dir=fs.mkdtempSync(path.join(os.tmpdir(),'bend-packed-check-'));
   try {
     for(const f of ['packed_world.bend','finite.bend','engine.bend','history.bend'])
-      fs.copyFileSync(path.join(root,f),path.join(dir,f));
+      fs.copyFileSync(path.join(root,'core',f),path.join(dir,f));
     for(const [name,raw] of [['edge',single],...['taxi','blackjack'].map(k=>[k,JSON.parse(fs.readFileSync(path.join(root,'worlds/benchmarks/toy-text',k+'.json')))])]) {
       const w=worldDefinition(raw);
       assert.equal(usesPackedWorld(w), name!=='edge');

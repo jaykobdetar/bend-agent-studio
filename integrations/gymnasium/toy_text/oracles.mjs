@@ -1,7 +1,7 @@
 // Uses the actual quantized Bend kernel, not the ideal rational probabilities.
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
-import {oracle, worldDefinition} from '../../../finite_world.mjs';
+import {oracle, worldDefinition} from '../../../core/finite_world.mjs';
 const dir=new URL('../../../worlds/benchmarks/toy-text/',import.meta.url);
 const headings={'lake4-dry':100,'lake4-slip':100,'lake8-dry':200,'lake8-slip':200,taxi:200,cliff4x12:200,blackjack:32};
 const results={};

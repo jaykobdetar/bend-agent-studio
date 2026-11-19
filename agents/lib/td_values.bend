@@ -1,5 +1,5 @@
 import Base
-import ../../tabular.bend as T
+import ../../core/tabular.bend as T
 
 def unit(x: F32) -> F32: F32.max(0.0,F32.min(1.0,x))
 

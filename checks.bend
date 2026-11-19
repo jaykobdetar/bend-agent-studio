@@ -1,7 +1,7 @@
 import Base
-import ./engine.bend as E
-import ./doors.bend as Doors
-import ./history.bend as H
+import ./core/engine.bend as E
+import ./core/doors.bend as Doors
+import ./core/history.bend as H
 import ./main.bend as Demo
 import ./bandit.bend as Bandit
 

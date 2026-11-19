@@ -85,7 +85,7 @@ class ExportTests(unittest.TestCase):
         # canonicalization, so failures exercise semantic rather than hash checks.
         script = r"""
 import fs from 'node:fs';import path from 'node:path';
-import {seal} from './experiment.mjs';import {canonical,digest} from './experiment_config.mjs';
+import {seal} from './core/experiment.mjs';import {canonical,digest} from './core/experiment_config.mjs';
 const [out,mode]=process.argv.slice(1);fs.mkdirSync(out);
 let frames=[];
 if(mode!=='zero') {

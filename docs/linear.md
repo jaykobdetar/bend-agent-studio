@@ -38,7 +38,7 @@ random-action helper and mixed word. Evaluation always chooses the first
 maximum in the supplied legal-action order, never an unlisted action. The
 training epsilon is not a claim of independent randomness from every world.
 
-Weights reuse the existing immutable `weights.bend` tree. A full 32-bit action
+Weights reuse the existing immutable [weight tree](../core/weights.bend). A full 32-bit action
 path followed by a 32-bit feature path addresses a scalar in the row's left
 slot; other slots are unused. This avoids aliasing arbitrary action IDs or
 prefix collisions but costs up to 64 path nodes per touched pair before

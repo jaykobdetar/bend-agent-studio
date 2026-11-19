@@ -1,7 +1,7 @@
 import Base
 import ./agents/sarsa.bend as S
-import ./tabular.bend as T
-import ./engine.bend as E
+import ./core/tabular.bend as T
+import ./core/engine.bend as E
 
 law terminal_clears:
   for s: U32

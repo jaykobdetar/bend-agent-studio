@@ -9,9 +9,10 @@ import {Worker,isMainThread,parentPort,workerData} from 'node:worker_threads';
 import {promisify} from 'node:util';
 import {createHash} from 'node:crypto';
 import assert from 'node:assert/strict';
-import {bendSource,worldDefinition} from './finite_world.mjs';
+import {bendSource,worldDefinition} from './core/finite_world.mjs';
 
 const exec=promisify(execFile), here=path.dirname(fileURLToPath(import.meta.url));
+const coreDir=path.join(here,'core');
 const modulus=1n<<32n;
 function mix(w) {
   w=Math.imul(w^(w>>>16),2246822507);
@@ -193,8 +194,10 @@ let current=config.seed;
 try {
   const hashes={};
   for (const name of ['engine.bend','cursor.bend','tabular.bend','finite.bend','history.bend','finite_world.mjs','packed_world.mjs','packed_world.bend','world_campaign.mjs']) {
-    const data=fs.readFileSync(path.join(here,name));hashes[name]=createHash('sha256').update(data).digest('hex');
-    fs.writeFileSync(path.join(dir,name),data);
+    const data=fs.readFileSync(path.join(name==='world_campaign.mjs'?here:coreDir,name));hashes[name]=createHash('sha256').update(data).digest('hex');
+    const destination=path.join(dir,name.endsWith('.mjs')&&name!=='world_campaign.mjs'?'core':'',name);
+    fs.mkdirSync(path.dirname(destination),{recursive:true});
+    fs.writeFileSync(destination,data);
   }
   fs.writeFileSync(path.join(dir,'probe.bend'),probe);
   console.log(JSON.stringify({type:'start',seed:current,hashes,compiler:(await exec(config.bend,['version'])).stdout.trim()}));

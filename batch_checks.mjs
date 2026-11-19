@@ -5,10 +5,10 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import {fileURLToPath} from 'node:url';
-import {execute} from './process_output.mjs';
+import {execute} from './core/process_output.mjs';
 import {offPolicy} from './batch.mjs';
-import {seal} from './experiment.mjs';
-import {digest} from './experiment_config.mjs';
+import {seal} from './core/experiment.mjs';
+import {digest} from './core/experiment_config.mjs';
 import {actionBuckets,checkEpisode,openDataset} from './dataset.mjs';
 
 const here=path.dirname(fileURLToPath(import.meta.url));
@@ -105,7 +105,7 @@ test('fit uses only logged training rows, independently checks held-out data and
 });
 
 test('prefix weights, absorbing padding, held-out residuals and missing support',async()=>{
-  const {stepEstimates,fitQEvaluation}=await import('./ope.mjs'),act=()=>0;
+  const {stepEstimates,fitQEvaluation}=await import('./core/ope.mjs'),act=()=>0;
   const frame=(reward,end,action=0)=>({observation:1,legal:[0,1],action,preferred:0,propensityBuckets:32768,reward,terminal:end,truncated:false,nextObservation:1,nextLegal:end?[]:[0,1]});
   const logs=[{frames:[frame(1,true)]},{frames:[frame(1,false),frame(3,true)]},{frames:[frame(0,false,1),frame(8,true)]}];
   const q=fitQEvaluation([{frames:[frame(8,true,1)]}],act);

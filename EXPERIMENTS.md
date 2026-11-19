@@ -215,7 +215,7 @@ The <!-- count:experiment-files -->39<!-- /count --> names below refer to JSON f
 | How do archived self-play policies perform in each seat? | `node arena_tournament.mjs runs/self-play runs/tournament` scores a completed self-play run and writes `ratings.csv` and `crossplay.csv`. |
 | Do the board encodings, oracles and memory worlds match their independent checks? | `node arena_checks.mjs runs/self-play` uses the compiled self-play snapshot. `node oracle_checks.mjs` and `node memory_checks.mjs` run directly and are included in `npm test`. |
 
-The fixed benchmark helpers `tabular.q_learning` and `tabular.expected_sarsa` use a learning rate of 0.25 and a discount of 0.9. Their benchmark policy explores on one quarter of training draws. For configurable built-in learners, set `alpha`, `gamma`, and `epsilon` on the manifest arm. [Benchmark helpers](tabular.bend) · [Study settings](study.bend)
+The fixed benchmark helpers `tabular.q_learning` and `tabular.expected_sarsa` use a learning rate of 0.25 and a discount of 0.9. Their benchmark policy explores on one quarter of training draws. For configurable built-in learners, set `alpha`, `gamma`, and `epsilon` on the manifest arm. [Benchmark helpers](core/tabular.bend) · [Study settings](core/study.bend)
 
 ## Test the implementation
 

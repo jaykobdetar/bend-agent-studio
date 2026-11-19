@@ -1,7 +1,7 @@
 import Base
 import ./agents/td_lambda.bend as L
-import ./tabular.bend as T
-import ./engine.bend as E
+import ./core/tabular.bend as T
+import ./core/engine.bend as E
 
 def val(m: L.Model,s: U32,a: U32) -> F32:
   L.Agent{w,t,L.Config{linear,alpha,gamma,l}}=m

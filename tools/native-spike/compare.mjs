@@ -6,7 +6,7 @@ import path from 'node:path';
 import {pathToFileURL} from 'node:url';
 import {performance} from 'node:perf_hooks';
 import {spawnSync} from 'node:child_process';
-import {validate, settings, seedOf} from '../../experiment_config.mjs';
+import {validate, settings, seedOf} from '../../core/experiment_config.mjs';
 const [studyFile,probeFile,nativeFile]=process.argv.slice(2);
 const moduleAt=async p=>(await import(pathToFileURL(path.resolve(p)).href)).default;
 const study=await moduleAt(studyFile), probe=await moduleAt(probeFile);

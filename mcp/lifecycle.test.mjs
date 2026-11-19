@@ -5,7 +5,7 @@ import os from 'node:os';
 import path from 'node:path';
 import {setTimeout as wait} from 'node:timers/promises';
 import {context, exec} from './context.mjs';
-import {seal} from '../experiment.mjs';
+import {seal} from '../core/experiment.mjs';
 
 test('Node mapping requires the exact archived version and absolute owner-configured executable', async (t) => {
   const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'bend-map-'));

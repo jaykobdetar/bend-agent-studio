@@ -1,7 +1,7 @@
 import Base
-import ../arena.bend as A
-import ../engine.bend as E
-import ../parameters.bend as P
+import ../core/arena.bend as A
+import ../core/engine.bend as E
+import ../core/parameters.bend as P
 
 type State is Data:
   Board{x: U32, o: U32, second: Bool, symmetry: Bool}

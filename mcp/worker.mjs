@@ -1,4 +1,4 @@
-import {numberPreservingJson} from '../finite_world.mjs';
+import {numberPreservingJson} from '../core/finite_world.mjs';
 import fs from 'node:fs';
 import {context} from './context.mjs';
 import {compute} from './authoring.mjs';

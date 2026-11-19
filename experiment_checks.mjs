@@ -5,10 +5,10 @@ import * as fs from 'node:fs';
 import * as os from 'node:os';
 import path from 'node:path';
 import {fileURLToPath} from 'node:url';
-import {execute} from './process_output.mjs';
-import {canonical,checkSeedBlocks,validate} from './experiment_config.mjs';
-import {buckets,numberPreservingJson,worldDefinition,oracle,reactiveOracle,symbol} from './finite_world.mjs';
-import {bundleAgent} from './agent_source.mjs';
+import {execute} from './core/process_output.mjs';
+import {canonical,checkSeedBlocks,validate} from './core/experiment_config.mjs';
+import {buckets,numberPreservingJson,worldDefinition,oracle,reactiveOracle,symbol} from './core/finite_world.mjs';
+import {bundleAgent} from './core/agent_source.mjs';
 
 const here=path.dirname(fileURLToPath(import.meta.url));
 const cli=path.join(here,'experiment.mjs');
@@ -71,12 +71,12 @@ test('source graph follows local agent helpers and changes identity when a helpe
   const d=directory(t), entry=path.join(d,'agent.bend'), helper=path.join(d,'helper.bend');
   fs.writeFileSync(entry,'import ./helper.bend as H\nimport ./engine.bend as E\n');
   fs.writeFileSync(helper,'import Base\ndef zero() -> U32: 0\n');
-  const first=bundleAgent(entry,here);
+  const first=bundleAgent(entry,path.join(here,'core'));
   assert.equal(Object.keys(first.files).length,2);
   fs.appendFileSync(helper,'# revision\n');
-  assert.notEqual(bundleAgent(entry,here).entry,first.entry);
+  assert.notEqual(bundleAgent(entry,path.join(here,'core')).entry,first.entry);
   fs.writeFileSync(helper,'import ./agent.bend as A\n');
-  assert.throws(()=>bundleAgent(entry,here),/cyclic/);
+  assert.throws(()=>bundleAgent(entry,path.join(here,'core')),/cyclic/);
 });
 
 test('interruption, concurrent resume, independent rerun and checksum rejection',compilerTest,async t=>{
@@ -181,7 +181,7 @@ test('transfer targets receive frozen models and validation ties choose the earl
 });
 
 test('optional run annotations reject oversize, malformed and linked files',async t=>{
-  const {readRunNotes}=await import('./run_notes.mjs'),dir=directory(t),file=path.join(dir,'notes.json');
+  const {readRunNotes}=await import('./core/run_notes.mjs'),dir=directory(t),file=path.join(dir,'notes.json');
   assert.deepEqual(readRunNotes(dir),{});
   for(const content of ['not json','x'.repeat(17000),'{"tags":[""]}','{"notes":null}']){
     fs.writeFileSync(file,content);assert.ok(readRunNotes(dir).annotationWarning);
@@ -246,7 +246,7 @@ test('invalid local worker counts and explicit shard combinations fail before co
 test('a failed local worker cancels its live peer before the supervisor returns',async t=>{
   const dir=directory(t),code=path.join(dir,'code'),ready=path.join(dir,'ready');
   fs.mkdirSync(code);
-  fs.copyFileSync(path.join(here,'parallel_trials.mjs'),path.join(code,'parallel_trials.mjs'));
+  fs.copyFileSync(path.join(here,'core','parallel_trials.mjs'),path.join(code,'parallel_trials.mjs'));
   fs.writeFileSync(path.join(code,'experiment.mjs'),`
     import fs from 'node:fs';
     const ready=process.argv[3]+'/ready';
@@ -256,7 +256,7 @@ test('a failed local worker cancels its live peer before the supervisor returns'
       const timer=setInterval(()=>{if(fs.existsSync(ready)){clearInterval(timer);process.exit(7)}},10);
     }
   `);
-  const {launchShards}=await import('./parallel_trials.mjs');
+  const {launchShards}=await import('./core/parallel_trials.mjs');
   await assert.rejects(launchShards(dir,2,Infinity,'fixture',2),/shard 0\/2 failed/);
   const peer=Number(fs.readFileSync(ready,'utf8'));
   assert.throws(()=>process.kill(peer,0),{code:'ESRCH'});
@@ -291,7 +291,7 @@ def finish(m: Model,stop: E.Stop) -> Model:
     return {id,limit:3,definition};
   };
   const games=[game('terminal',0,1),game('limit',0,0),game('illegal',9,0),game('initially_terminal',0,1,1)];
-  const bundle=bundleAgent(file,here);
+  const bundle=bundleAgent(file,path.join(here,'core'));
   // Build the step adapter, but do not ask the host to consume a nonzero step
   // budget in a world which can finish without accepting a step.
   write(cfg,plan({games,arms:[{id:'counter',method:'custom',agentFile:file}],

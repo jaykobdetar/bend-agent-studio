@@ -3,10 +3,10 @@ import os from 'node:os';
 import path from 'node:path';
 import {repo} from './context.mjs';
 import {choice, horizon, str, tool, planInput, worldInput} from './schema.mjs';
-import {readPlanSource} from '../experiment.mjs';
-import {validate} from '../experiment_config.mjs';
-import {worldDefinition, oracle, reactiveOracle, numberPreservingJson} from '../finite_world.mjs';
-import {beliefOracle, clockOracle, policyOracle} from '../public_oracle.mjs';
+import {readPlanSource} from '../core/experiment.mjs';
+import {validate} from '../core/experiment_config.mjs';
+import {worldDefinition, oracle, reactiveOracle, numberPreservingJson} from '../core/finite_world.mjs';
+import {beliefOracle, clockOracle, policyOracle} from '../core/public_oracle.mjs';
 import {memoryWorld} from '../memory_world.mjs';
 const table = {
   type: 'object',

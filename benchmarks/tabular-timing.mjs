@@ -4,7 +4,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
 import {pathToFileURL} from 'node:url';
-import {symbol} from '../finite_world.mjs';
+import {symbol} from '../core/finite_world.mjs';
 
 const runs=process.argv.slice(2);
 if (runs.length!==2) throw Error('provide list and tree planning-budget run directories');

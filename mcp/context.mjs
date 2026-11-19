@@ -3,7 +3,7 @@ import path from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {spawn, execFileSync} from 'node:child_process';
 import {createHash} from 'node:crypto';
-import {unseal} from '../experiment.mjs';
+import {unseal} from '../core/experiment.mjs';
 export const repo = fileURLToPath(new URL('../', import.meta.url));
 const children = new Set();
 

@@ -1,7 +1,7 @@
 import Base
-import ../engine.bend as E
-import ../history.bend as H
-import ../parameters.bend as P
+import ../core/engine.bend as E
+import ../core/history.bend as H
+import ../core/parameters.bend as P
 
 # The clue is the first reward. Both hidden cases have the same public
 # observation and legal action list at each decision.

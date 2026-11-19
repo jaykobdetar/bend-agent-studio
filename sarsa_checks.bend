@@ -1,7 +1,7 @@
 import Base
 import ./agents/sarsa.bend as S
-import ./tabular.bend as T
-import ./engine.bend as E
+import ./core/tabular.bend as T
+import ./core/engine.bend as E
 
 def val(m: S.Model,s: U32,a: U32) -> F32:
   S.Agent{q,p,alpha,gamma}=m

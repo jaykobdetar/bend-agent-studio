@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
-import {beliefOracle,clockOracle,explainDecisions,policyOracle} from './public_oracle.mjs';
-import {worldDefinition} from './finite_world.mjs';
+import {beliefOracle,clockOracle,explainDecisions,policyOracle} from './core/public_oracle.mjs';
+import {worldDefinition} from './core/finite_world.mjs';
 
 const load=name=>worldDefinition(JSON.parse(fs.readFileSync(new URL('./worlds/'+name+'.json',import.meta.url),'utf8')));
 const clue=load('reward-cue');
@@ -39,7 +39,7 @@ assert.equal(policyOracle(switches,2,()=>0).expectedReturn,0);
 assert.equal(policyOracle(switches,2,()=>1).expectedReturn,0);
 console.log('Public-history planning, decision auditing and importance-weight moments passed.');
 
-const {discountedOracle,oracle}=await import('./finite_world.mjs');
+const {discountedOracle,oracle}=await import('./core/finite_world.mjs');
 const bridge=load('bridge'),detour=load('detour');
 for(const solution of ['valueIteration','policyIteration']){
   assert.equal(discountedOracle(bridge,1)[solution].optimalFullStateReturn,oracle(bridge,100).optimalFullStateReturn);

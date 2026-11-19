@@ -1,8 +1,8 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import {pathToFileURL} from 'node:url';
-import {canonical,checkSeedBlocks,digest} from './experiment_config.mjs';
-import {adapterName,checkedSnapshot,existing,frameData,immutable,json,manifestPath,seal,unpack,unseal} from './experiment.mjs';
+import {canonical,checkSeedBlocks,digest} from './core/experiment_config.mjs';
+import {adapterName,checkedSnapshot,existing,frameData,immutable,json,manifestPath,seal,unpack,unseal} from './core/experiment.mjs';
 
 export const uint=x=>Number.isSafeInteger(x) && x>=0 && x<=0xffffffff;
 export const id=x=>typeof x==='string' && /^[a-z][a-z0-9_-]{0,79}$/.test(x);

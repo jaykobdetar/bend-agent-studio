@@ -1,11 +1,11 @@
-import {numberPreservingJson} from '../finite_world.mjs';
+import {numberPreservingJson} from '../core/finite_world.mjs';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import {randomUUID} from 'node:crypto';
 import {killGroup, launch} from './context.mjs';
 import {choice, str, uint, tool, planInput} from './schema.mjs';
-import {unseal} from '../experiment.mjs';
+import {unseal} from '../core/experiment.mjs';
 const history = new Map();
 let active;
 const shard = {type: 'string', pattern: '^[0-9]{1,9}/[1-9][0-9]{0,8}$'};

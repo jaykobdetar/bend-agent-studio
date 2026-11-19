@@ -1,7 +1,7 @@
 import Base
-import ../engine.bend as E
-import ../parameters.bend as P
-import ../tabular.bend as T
+import ../core/engine.bend as E
+import ../core/parameters.bend as P
+import ../core/tabular.bend as T
 
 type Pending is Data:
   Clear{}

@@ -1,7 +1,7 @@
 import Base
 import ./agents/clipped_pg.bend as P
-import ./engine.bend as E
-import ./tabular.bend as T
+import ./core/engine.bend as E
+import ./core/tabular.bend as T
 
 def count(m: P.Model) -> U32:
   P.Agent{net,critic,t,b,n,pw,c}=m

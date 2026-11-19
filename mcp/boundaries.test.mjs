@@ -5,8 +5,8 @@ import path from 'node:path';
 import os from 'node:os';
 import {fileURLToPath} from 'node:url';
 import {Client} from './wire-client.test-helper.mjs';
-import {seal, stats} from '../experiment.mjs';
-import {digest} from '../experiment_config.mjs';
+import {seal, stats} from '../core/experiment.mjs';
+import {digest} from '../core/experiment_config.mjs';
 import {compilerTest} from '../bend_test_support.mjs';
 
 const repo = fileURLToPath(new URL('../', import.meta.url));

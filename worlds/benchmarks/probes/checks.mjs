@@ -3,7 +3,7 @@ import {execFileSync} from 'node:child_process';
 import {readFileSync} from 'node:fs';
 import test from 'node:test';
 import {fileURLToPath} from 'node:url';
-import {oracle,reactiveOracle,worldDefinition} from '../../../finite_world.mjs';
+import {oracle,reactiveOracle,worldDefinition} from '../../../core/finite_world.mjs';
 import {memoryWorld} from '../../../memory_world.mjs';
 import {cueMemory,probe,rightAction,sizes} from './probes.mjs';
 

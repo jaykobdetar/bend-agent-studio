@@ -7,6 +7,7 @@ import {execute} from './process_output.mjs';
 import {checkedSnapshot,exportCsv,status,unseal,manifestPath} from './experiment.mjs';
 import {oracle} from './finite_world.mjs';
 import {explainDecisions,publicTraceFrames} from './public_oracle.mjs';
+const ANALYZE_SCRIPT=fileURLToPath(new URL('../analyze.py',import.meta.url));
 const esc=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]);
 function table(head,rows){return '<table><thead><tr>'+head.map(x=>'<th>'+esc(x)+'</th>').join('')+'</tr></thead><tbody>'+rows.map(r=>'<tr>'+r.map(x=>'<td>'+esc(x)+'</td>').join('')+'</tr>').join('')+'</tbody></table>';}
 function chart(rows){
@@ -38,7 +39,7 @@ export async function writeReport(root,out){
       }
       body.push(validation?'<p>Validation scores can guide screening or checkpoint selection. They are not held-out results.</p>'
         :'<p>Held-out test episodes use a separate seed block and are evaluated only at the final checkpoint.</p>');
-      const {stdout}=await execute(process.env.PYTHON??(process.platform==='win32'?'python':'python3'),[fileURLToPath(new URL('./analyze.py',import.meta.url)),csv,'--phase',phase]);
+      const {stdout}=await execute(process.env.PYTHON??(process.platform==='win32'?'python':'python3'),[ANALYZE_SCRIPT,csv,'--phase',phase]);
       // Analysis dimensions are validated identifier tokens; all other CSV fields
       // for this unpaired invocation are numeric or empty (never quoted commas).
       const [header,...data]=stdout.trimEnd().split(/\r?\n/).map(l=>l.split(','));

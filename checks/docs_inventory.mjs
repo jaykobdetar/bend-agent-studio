@@ -9,8 +9,8 @@ export function inventory(root) {
   const experiments=files(root,'experiments').filter(n=>n.endsWith('.json'));
   const benchmarkFiles=fs.readdirSync(path.join(root,'worlds/benchmarks'),{recursive:true})
     .filter(n=>n.endsWith('.json'));
-  const usage=read(root,'experiment.mjs').match(/usage: node experiment\.mjs ([^'\n]+)/)?.[1];
-  if(!usage)throw Error('experiment.mjs: cannot locate CLI usage');
+  const usage=read(root,'core/experiment.mjs').match(/usage: node experiment\.mjs ([^'\n]+)/)?.[1];
+  if(!usage)throw Error('core/experiment.mjs: cannot locate CLI usage');
   const commands=[...usage.matchAll(/(?:^| \| )([a-z]+)\s+[A-Z]/g)].map(m=>m[1]);
   return {experiments,commands,counts:{
     'core-laws':laws(read(root,'LAWS.bend')),

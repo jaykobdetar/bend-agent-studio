@@ -2,7 +2,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import {pathToFileURL} from 'node:url';
-import {worldDefinition,buckets} from '../finite_world.mjs';
+import {worldDefinition,buckets} from '../core/finite_world.mjs';
 
 export function exportPomdp(input,{discount=.95,illegalPenalty=-1000000}={}) {
   if(!Number.isFinite(discount)||discount<0||discount>1)throw Error('discount must be in [0,1]');

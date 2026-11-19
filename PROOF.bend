@@ -1,12 +1,12 @@
 import Base
 import ./LAWS.bend as Laws
-import ./engine.bend as E
-import ./study.bend as Study
-import ./weights.bend as W
-import ./cursor.bend as C
-import ./dyna.bend as Dyna
-import ./tabular.bend as T
-import ./double_q.bend as DQ
+import ./core/engine.bend as E
+import ./core/study.bend as Study
+import ./core/weights.bend as W
+import ./core/cursor.bend as C
+import ./core/dyna.bend as Dyna
+import ./core/tabular.bend as T
+import ./core/double_q.bend as DQ
 
 def Laws.evaluation_freezes_model(M, O, learn, model, event):
   {==}

@@ -8,7 +8,7 @@ is used as an input to either gate.
 - `node tools/archive-gates.mjs check` checks 31 training manifests. For each,
   reconstruct the exact flat `toolchain.sources` map by adding its `sources`
   to `commonSources` in [sources.json](sources.json). This is the runner's final
-  compile input, including generated `study.bend` and world adapters, not a
+  compile input, including generated `runs/NAME/code/study.bend` and world adapters, not a
   guessed dependency list. The runner receives an inert compiler through its
   existing test seam, saves a temporary archive and selects an empty shard.
   The gate must not publish a trial, call Bend, or retain the stub backend.
@@ -40,9 +40,9 @@ Bend byte changes, bundle identity changes or backend drift.
 ## Archive dependency boundary
 
 The archived entry is `runs/NAME/code/experiment.mjs`. Its transitive static local dependencies
-are `experiment_config.mjs`, `agent_source.mjs`, `finite_world.mjs`,
-`packed_world.mjs`, and `process_output.mjs`. The archived assessment path
-imports `assessment.mjs`, which imports the shared entry and config and reads
+are `runs/NAME/code/experiment_config.mjs`, `runs/NAME/code/agent_source.mjs`, `runs/NAME/code/finite_world.mjs`,
+`runs/NAME/code/packed_world.mjs`, and `runs/NAME/code/process_output.mjs`. The archived assessment path
+imports `runs/NAME/code/assessment.mjs`, which imports the shared entry and config and reads
 the sealed `runs/NAME/code/backend.mjs`. Resume/replay/rerun also load that backend.
 Parallel resume imports `runs/NAME/code/parallel_trials.mjs`, which forks itself to
 supervise and forks `runs/NAME/code/experiment.mjs` for workers. The generated files and
@@ -53,7 +53,7 @@ actual staged file hashes. The dynamic archived paths listed here are
 additional runtime contracts, not a claim that a static matcher proves
 arbitrary JavaScript call graphs.
 
-`report` is a **live checkout** command. Its dynamic `html_report.mjs` plus
+`report` is a **live checkout** command. Its dynamic `core/html_report.mjs` plus
 `analyze.py`, public-oracle and presentation helpers are not archived; the
 checkout report deliberately reads the sealed runner, config, and backend via
 absolute paths. The compiler path that imports the generated study ES module before sealing

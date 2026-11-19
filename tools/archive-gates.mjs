@@ -4,8 +4,8 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import {fileURLToPath} from 'node:url';
-import {readPlan, run, unseal} from '../experiment.mjs';
-import {canonical, digest} from '../experiment_config.mjs';
+import {readPlan, run, unseal} from '../core/experiment.mjs';
+import {canonical, digest} from '../core/experiment_config.mjs';
 
 const root = fileURLToPath(new URL('../', import.meta.url));
 const fixtures = fileURLToPath(new URL('./archive-gates/', import.meta.url));

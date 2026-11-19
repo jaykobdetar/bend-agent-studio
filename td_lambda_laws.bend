@@ -1,7 +1,7 @@
 import Base
 import ./agents/td_lambda.bend as L
-import ./engine.bend as E
-import ./tabular.bend as T
+import ./core/engine.bend as E
+import ./core/tabular.bend as T
 
 law finish_reset:
   for m: L.Model

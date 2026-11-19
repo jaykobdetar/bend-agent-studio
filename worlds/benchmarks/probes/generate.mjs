@@ -1,5 +1,5 @@
 import fs from 'node:fs';
-import {oracle,worldDefinition} from '../../../finite_world.mjs';
+import {oracle,worldDefinition} from '../../../core/finite_world.mjs';
 import {probe,sizes} from './probes.mjs';
 
 const mode=process.argv[2]??'--check';

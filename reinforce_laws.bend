@@ -1,6 +1,6 @@
 import Base
 import ./agents/reinforce.bend as R
-import ./engine.bend as E
+import ./core/engine.bend as E
 
 law episode_buffer_empty:
   for m: R.Model

@@ -25,7 +25,7 @@ Effort: **S** is under a day, **M** is a few days, **L** is a week or more.
 | P0.1 | Crash recovery for Studio training | [#2](https://github.com/jaykobdetar/bend-agent-studio/pull/2) | Force-killing Studio (`kill -9`) during training leaves no runner or `bend` process. A restart cannot start a second concurrent training. |
 | P0.2 | MCP server | [#3](https://github.com/jaykobdetar/bend-agent-studio/pull/3) | See *MCP design reference* below. Tools return JSON without writing to the server's stdout. Long work runs in child processes. Paths are confined to a workspace root. |
 | P0.3 | rliable-style statistics in `analyze.py` | [#7](https://github.com/jaykobdetar/bend-agent-studio/pull/7) | Adds IQM, the stratified bootstrap over replicates, and probability of improvement. Optional performance-profile data. Stays standard-library only, or uses an optional export in rliable's input layout. Docs state when each interval is appropriate. |
-| P0.4 | Gymnasium wrapper for JSON finite worlds | [#4](https://github.com/jaykobdetar/bend-agent-studio/pull/4) | Exposes any `worldDefinition` as a Gymnasium environment with identical transition probabilities (same bucket arithmetic as `finite_world.mjs` `buckets`). An oracle-optimal policy reaches the oracle value within sampling error. Lives in its own folder with its own requirements. |
+| P0.4 | Gymnasium wrapper for JSON finite worlds | [#4](https://github.com/jaykobdetar/bend-agent-studio/pull/4) | Exposes any `worldDefinition` as a Gymnasium environment with identical transition probabilities (same bucket arithmetic as `core/finite_world.mjs` `buckets`). An oracle-optimal policy reaches the oracle value within sampling error. Lives in its own folder with its own requirements. |
 
 See [Studio crash recovery](README.md#if-studio-stops-during-training) for supervisor and compiler limits, and the [MCP trust boundary](mcp/README.md) before using archived runs.
 
@@ -40,7 +40,7 @@ If Bend's `law` syntax cannot express a hypothesis (for example "for a key diffe
 ### Changes to existing laws
 
 **L1. Restate `rejection_preserves_progress` on the path the engine uses (S).**
-`E.accept` is called only from `LAWS.bend`. The engine goes `E.decide` → `E.attempt`. Restate the law on `E.attempt` with `valid = False{}`: the turn's run is `Stopped{Report{model, score, steps, Illegal{action}}}` and its event is `None{}`. Then delete the unused `E.accept`, `E.take_step`, and `E.record_step` from `engine.bend`. Confirm with `git grep` that nothing else uses them.
+`E.accept` is called only from `LAWS.bend`. The engine goes `E.decide` → `E.attempt`. Restate the law on `E.attempt` with `valid = False{}`: the turn's run is `Stopped{Report{model, score, steps, Illegal{action}}}` and its event is `None{}`. Then delete the unused `E.accept`, `E.take_step`, and `E.record_step` from `core/engine.bend`. Confirm with `git grep` that nothing else uses them.
 
 **L2. Make the evaluation and one-update laws cover whole episodes (M).**
 The current `evaluation_freezes_model` and `training_uses_one_update` cover only the `E.update` helper. Keep them as lemmas. Add episode-level laws over any world and policy, using a counting learner (`M = Nat`, `learn = m => e => 1n+m`):
@@ -62,11 +62,11 @@ The nonempty condition matters: with no choices, `evaluate_best` returns 0.0 rat
 **L5. A paused episode finishes the same as an unpaused one (M).** Highest value.
 For any hooks, model, seed, mode and limit:
 `C.finished(C.advance(limit, mode, C.start(hooks, model, seed, limit))) == Some{E.episode(hooks, mode, model, seed, limit)}`.
-Why: step-budget training runs episodes in cursor segments, but `replay` in `experiment.mjs` rebuilds earlier training episodes with `runner.episode`. Today only `world_campaign.mjs` checks that equivalence, and only on finite worlds. Both paths apply `E.mixed_hooks` to the policy and step, and both reset through the unmixed world. Check that this holds when writing the proof.
+Why: step-budget training runs episodes in cursor segments, but `replay` in `core/experiment.mjs` rebuilds earlier training episodes with `runner.episode`. Today only `world_campaign.mjs` checks that equivalence, and only on finite worlds. Both paths apply `E.mixed_hooks` to the policy and step, and both reset through the unmixed world. Check that this holds when writing the proof.
 
 **L6. Truncation happens only at the horizon (S).** `E.truncated(O, 1n+n, view) == False{}`.
 
-**L7. Steps never exceed the remaining limit (M).** A report from `E.drive` or `E.roll` has steps at most the starting steps plus `fuel` (`Nat.le` or an equivalent). `verifyBody` in `experiment.mjs` checks this on the host side.
+**L7. Steps never exceed the remaining limit (M).** A report from `E.drive` or `E.roll` has steps at most the starting steps plus `fuel` (`Nat.le` or an equivalent). `verifyBody` in `core/experiment.mjs` checks this on the host side.
 
 **L8. A table update changes exactly one entry (M). Required before T2.2.**
 - Read-after-write: `T.lookup(T.adjust(t, s, a, rule, target), s, a) == value of T.revised(rule, s, a, U32.add(T.visits(t, s, a), 1), T.lookup(t, s, a), target)`. This single form covers both new and existing keys, because absent keys read as 0 visits and value 0.0.
@@ -101,13 +101,13 @@ The bucket-count formula stays host-tested, because `actionBuckets` in `dataset.
 - Docs: the "Resume, reproduce, and inspect" section of EXPERIMENTS.md.
 
 **T2.2. Key-addressed value tables (M). Depends on L8.**
-- `T.Table` in `tabular.bend` is a `List<Entry>`, so every lookup is linear. Replace it with a tree keyed by (observation, action), for example a 32-bit observation path to an action path. Reuse the pattern and proofs of `weights.bend`, whose read-after-write is already proven.
-- Check everything that touches tables: `study.bend`, `double_q.bend`, `dyna.bend` (values only; `Dyna.Model` stays a list because planning samples it by index), `offline.bend`, `agents/ucb.bend` (`total` sums visits for one observation, so give the tree an equivalent), and `arena_table.bend`.
+- `T.Table` in `core/tabular.bend` is a `List<Entry>`, so every lookup is linear. Replace it with a tree keyed by (observation, action), for example a 32-bit observation path to an action path. Reuse the pattern and proofs of `core/weights.bend`, whose read-after-write is already proven.
+- Check everything that touches tables: `core/study.bend`, `core/double_q.bend`, `core/dyna.bend` (values only; `Dyna.Model` stays a list because planning samples it by index), `core/offline.bend`, `agents/ucb.bend` (`total` sums visits for one observation, so give the tree an equivalent), and `core/arena_table.bend`.
 - Behavior must not change: greedy ties are decided by legal-list order, not table order, so action choices are unaffected. The model's JSON form and hash will change for new runs only.
 - Acceptance: all L8 laws hold for the new implementation. `benchmark_checks.bend` and `study_checks.bend` pass unchanged. On a fixed plan such as `experiments/planning-budget.json`, train/validation/test metrics match the list version exactly. Report the speedup on one tabular plan.
 
 **T2.3. Native or parallel Bend runtime spike (timeboxed to one day).**
-- Find out whether Bend 2.0.40 can build `study.bend` for its native or parallel runtime (BendRT) in a form the Node host can call. The backend is currently the JavaScript module from `bend study.bend -o study.mjs`.
+- Find out whether Bend 2.0.40 can build `core/study.bend` for its native or parallel runtime (BendRT) in a form the Node host can call. The backend is currently the JavaScript module from compiling the generated study entry to an ES module.
 - Adoption bar: episode reports and models must be **bit-identical** to the JS backend on the shipped plans. Watch `F32.cos`, `F32.tanh`, `F32.sqrt` and `F32.log`, which may differ between backends. Anything less breaks replay.
 - Deliverable: a short findings note in the PR, with timings. Do not adopt unless the bar is met.
 
@@ -118,7 +118,7 @@ The bucket-count formula stays host-tested, because `actionBuckets` in `dataset.
 Put generators in one script, where practical, that writes JSON worlds into `worlds/benchmarks/`. Commit the generated files, and add a check that regenerates and compares them, as `memory_checks.mjs` does for the Tiger worlds. Record each world's oracle values in that check.
 
 **B3.1. Gymnasium toy-text ports (M). Depends on P0.4 for acceptance.**
-- FrozenLake 4×4 and 8×8, slippery and not. Taxi. CliffWalking 4×12 (the current `cliff.bend` is a smaller 5×3 variant, so its numbers are not comparable to published ones). Blackjack, with the dealer drawing to 17 and Gymnasium's default flags.
+- FrozenLake 4×4 and 8×8, slippery and not. Taxi. CliffWalking 4×12 (the current `core/cliff.bend` is a smaller 5×3 variant, so its numbers are not comparable to published ones). Blackjack, with the dealer drawing to 17 and Gymnasium's default flags.
 - These need the general state-machine format, not the `grid` shorthand. Gymnasium keeps every action legal and moves into a wall leave the agent in place, while the grid shorthand makes such moves illegal.
 - Take step limits from Gymnasium's registered specs (`gymnasium.spec(id).max_episode_steps`). Do not hard-code them from memory.
 - Acceptance: for FrozenLake, Taxi and CliffWalking, transition probabilities and rewards match Gymnasium's `env.unwrapped.P` exactly, compared as rationals. Blackjack matches a Monte Carlo estimate of the optimal-policy value within sampling error.
@@ -134,7 +134,7 @@ Put generators in one script, where practical, that writes JSON worlds into `wor
 ## Phase 4: solvers and off-policy evaluation
 
 **S4.1. Infinite-horizon discounted solvers (S).**
-- `oracle` in `finite_world.mjs` is finite-horizon only. Add discounted value iteration (tolerance-based stop) and policy iteration, available as `node experiment.mjs oracle WORLD --discount G [--tolerance E]`.
+- `oracle` in `core/finite_world.mjs` is finite-horizon only. Add discounted value iteration (tolerance-based stop) and policy iteration, available as `node experiment.mjs oracle WORLD --discount G [--tolerance E]`.
 - Acceptance: on Bridge and Detour, value iteration agrees with the finite-horizon oracle as the horizon grows, with discount 1 where terminal. Add a test in `oracle_checks.mjs`.
 
 **S4.2. Export to Cassandra `.pomdp` format (S–M).**
@@ -149,7 +149,7 @@ Put generators in one script, where practical, that writes JSON worlds into `wor
   - per-decision importance sampling and its weighted version;
   - fitted Q evaluation, which backs up the **target** policy's action rather than the maximum (add an `Offline.Method` variant or a host-side implementation);
   - per-decision doubly robust estimates using the fitted Q evaluation values.
-- Truth harness: for authored finite worlds, compute the target policy's exact value with `policyOracle` in `public_oracle.mjs`, using the fitted policy turned into data and the logging policy as `behavior`. Report each estimator's error.
+- Truth harness: for authored finite worlds, compute the target policy's exact value with `policyOracle` in `core/public_oracle.mjs`, using the fitted policy turned into data and the logging policy as `behavior`. Report each estimator's error.
 - Acceptance: on the dispatch study, the scores CSV gains columns for each estimator and for the exact value. Over many independent datasets, the mean of each unbiased estimator lies within its confidence interval of the exact value.
 - Docs: the "Fit from logs" section and the scoring description in EXPERIMENTS.md.
 
@@ -164,14 +164,14 @@ Put generators in one script, where practical, that writes JSON worlds into `wor
 Finding: when an episode ends because of an illegal action, the engine produces no transition (`E.attempt` returns `None{}`), so `learn` is never told the episode ended. Learners that buffer within an episode would carry that buffer into the next episode. That includes pending SARSA updates, n-step buffers, eligibility traces, REINFORCE trajectories, and Monte Carlo histories. Episodes that end normally or at the limit are fine: their last transition has an `End` view or `truncated = True`.
 
 Options:
-- **(a) Recommended.** Add a `finish: M -> E.Stop -> M` hook, called once at every episode end. Provide a default that leaves the model unchanged, so existing agents need only a mechanical update. This changes the `E.Hooks` type and the generated adapter code in `experiment.mjs` (`bridgeFunctions`). Add a law: `finish` is called exactly once per report.
+- **(a) Recommended.** Add a `finish: M -> E.Stop -> M` hook, called once at every episode end. Provide a default that leaves the model unchanged, so existing agents need only a mechanical update. This changes the `E.Hooks` type and the generated adapter code in `core/experiment.mjs` (`bridgeFunctions`). Add a law: `finish` is called exactly once per report.
 - (b) Document that buffering learners require worlds and policies that never produce illegal actions, and assert that in the host. Weaker.
 
 Decision: implement the optional finish hook (a). Evaluation skips it; only completed training reports finalize. See [the lifecycle contract](EXPERIMENTS.md#learner-episode-completion).
 
 ### Learners
 
-Implement each first as a **custom agent** in `agents/`, selected with `"method": "custom"` and `agentFile`. That avoids the string-built code generator in `experiment.mjs`. Promote to a built-in method only if needed. Each learner needs: a Bend unit check, a law where one fits, an example plan in `experiments/`, and a row in the README's algorithm list once in Studio.
+Implement each first as a **custom agent** in `agents/`, selected with `"method": "custom"` and `agentFile`. That avoids the string-built code generator in `core/experiment.mjs`. Promote to a built-in method only if needed. Each learner needs: a Bend unit check, a law where one fits, an example plan in `experiments/`, and a row in the README's algorithm list once in Studio.
 
 | ID | Learner | Notes | Laws to add |
 | --- | --- | --- | --- |
@@ -179,8 +179,8 @@ Implement each first as a **custom agent** in `agents/`, selected with `"method"
 | A5.2 | n-step TD | Buffer of n transitions. Flush on `End` (no bootstrap) and on truncation (bootstrap). | Buffer empty after episode end; terminal targets have no bootstrap |
 | A5.3 | TD(λ) with traces, tabular and linear | Traces live in the model. | Traces reset at episode end; `λ = 0` reduces to one-step TD on the same transition |
 | A5.4 | REINFORCE with a baseline | Uses the episode buffer and needs A5.0's end signal. | Buffer cleared after the update |
-| A5.5 | General linear function approximation | A feature function from observation to features. Reuse the `weights.bend` tree. | Read-after-write is already covered by the weight laws |
-| A5.6 | Small clipped policy gradient (PPO-style, tiny networks) | Batches several episodes in the model. Keep the network small, as in `actor_critic.bend`. | Policy unchanged in `Evaluate` (covered by L2) |
+| A5.5 | General linear function approximation | A feature function from observation to features. Reuse the `core/weights.bend` tree. | Read-after-write is already covered by the weight laws |
+| A5.6 | Small clipped policy gradient (PPO-style, tiny networks) | Batches several episodes in the model. Keep the network small, as in `core/actor_critic.bend`. | Policy unchanged in `Evaluate` (covered by L2) |
 
 Do not implement DQN-style deep networks or image observations. Use the P0.4 bridge to hand those experiments to Stable-Baselines3 or CleanRL.
 
@@ -218,8 +218,8 @@ Acceptance: covered by `studio/studio_checks.mjs`, including a damaged run in th
 | --- | --- | --- | --- |
 | O7.1 | MCP tools `env_reset` and `env_step` for playing a world interactively | S | Session state keyed per world. Same seeding as the engine, so a played episode can be compared with a replay. |
 | O7.2 | More perfect-information arena games | S each | For example 4×4 connect-three, Nim variants, small dots-and-boxes. Each needs a `gameGraph` height check and exploitability results from `arena_tournament.mjs`. |
-| O7.3 | Hidden-information arena, Kuhn poker, and counterfactual regret minimization (CFR) | L | Needs information sets in `arena.bend`. OpenSpiel stays far ahead. Do this only for a specific research question. |
-| O7.4 | Exponent literals | S | `floatLiteral` in `finite_world.mjs` can emit `e+21`. Check that Bend 2.0.40 parses it by adding a reward of at least 1e21 to `world_campaign.mjs`'s reward pool, or emit literals without `+`. |
+| O7.3 | Hidden-information arena, Kuhn poker, and counterfactual regret minimization (CFR) | L | Needs information sets in `core/arena.bend`. OpenSpiel stays far ahead. Do this only for a specific research question. |
+| O7.4 | Exponent literals | S | `floatLiteral` in `core/finite_world.mjs` can emit `e+21`. Check that Bend 2.0.40 parses it by adding a reward of at least 1e21 to `world_campaign.mjs`'s reward pool, or emit literals without `+`. |
 | O7.5 | Multiple-comparison handling across many arms | S | Apply `sequential.mjs`'s `comparisons` parameter, or a Holm correction, in `analyze.py` when several arms are compared to one reference. |
 
 ## Non-goals

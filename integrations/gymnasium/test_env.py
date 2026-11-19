@@ -74,8 +74,8 @@ class Contracts(unittest.TestCase):
         mean=sum(returns)/len(returns)
         # For the oracle-optimal Bridge path: 3 w.p. 3/4, -1 w.p. 1/4.
         self.assertLess(abs(mean-exact["optimalFullStateReturn"]),5*math.sqrt(3/len(returns)))
-        command = """import fs from 'node:fs';import {worldDefinition} from './finite_world.mjs';
-import {policyOracle} from './public_oracle.mjs';
+        command = """import fs from 'node:fs';import {worldDefinition} from './core/finite_world.mjs';
+import {policyOracle} from './core/public_oracle.mjs';
 const w=worldDefinition(JSON.parse(fs.readFileSync('worlds/bridge.json')));
 console.log(policyOracle(w,2,obs=>obs===0?7:9,{discount:0.5}).expectedReturn);"""
         discounted_truth = float(subprocess.check_output(["node","--input-type=module","-e",command],cwd=ROOT,text=True))

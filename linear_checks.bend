@@ -1,8 +1,8 @@
 import Base
 import ./agents/lib/linear.bend as L
-import ./engine.bend as E
-import ./weights.bend as W
-import ./tabular.bend as T
+import ./core/engine.bend as E
+import ./core/weights.bend as W
+import ./core/tabular.bend as T
 
 def real_features(x: F32) -> L.Features:
   [L.Feature{0,1.0},L.Feature{4294967295,x}]

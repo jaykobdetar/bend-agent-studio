@@ -1,7 +1,7 @@
 import Base
 import ./linear_laws.bend as Laws
 import ./agents/lib/linear.bend as L
-import ./weights.bend as W
+import ./core/weights.bend as W
 
 def read_put(path: W.Path,tree: W.Tree,row: W.Row) ->
   {W.read(path,W.put(path,tree,row)) == row : W.Row}:

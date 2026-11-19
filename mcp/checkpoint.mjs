@@ -1,5 +1,5 @@
-import {unseal, existing} from '../experiment.mjs';
-import {canonical, digest} from '../experiment_config.mjs';
+import {unseal, existing} from '../core/experiment.mjs';
+import {canonical, digest} from '../core/experiment_config.mjs';
 import path from 'node:path';
 try {
   const [run, g, a, r, n, full] = process.argv.slice(2),

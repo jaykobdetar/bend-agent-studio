@@ -7,7 +7,7 @@ import path from 'node:path';
 import {execFile} from 'node:child_process';
 import {promisify} from 'node:util';
 import {inspection} from './inspection.mjs';
-import {seal, stats} from '../experiment.mjs';
+import {seal, stats} from '../core/experiment.mjs';
 
 const repo = fileURLToPath(new URL('../', import.meta.url));
 const run = promisify(execFile);

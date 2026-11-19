@@ -1,8 +1,8 @@
-import {numberPreservingJson} from '../finite_world.mjs';
+import {numberPreservingJson} from '../core/finite_world.mjs';
 import fs from 'node:fs';
 import path from 'node:path';
-import {validate} from '../experiment_config.mjs';
-import {runExperiment} from '../experiment.mjs';
+import {validate} from '../core/experiment_config.mjs';
+import {runExperiment} from '../core/experiment.mjs';
 import {guardedSource} from './authoring.mjs';
 import {context} from './context.mjs';
 try {

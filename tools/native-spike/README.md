@@ -32,14 +32,6 @@ Runs were on a shared machine, ES received one warm-up, and native thread-count 
 
 These commands document the original flat-table experiment. They do **not** reproduce the tabular comparison on current main: the shipped Q arm now produces indexed tables, while the Bend probe and its JavaScript reference reader only encode flat entries. The results above are historical, not a parity check of the current model format. Production training and replay do not use this probe.
 
-From the repository root, use Bend 2.0.40, Node 24.22.3 and a working Clang native toolchain; the release's `bend guide` documents its native and ES targets. On the test host the Clang bundled with Lean required adding its own `include/clang` directory to `CPATH`; a normal complete Clang installation need not do this.
-
-```sh
-out=$(mktemp -d)
-bend study.bend -o "$out/study.mjs"
-bend tools/native-spike/probe.bend -o "$out/probe.mjs"
-bend tools/native-spike/probe.bend -o "$out/probe"
-node tools/native-spike/compare.mjs "$out/study.mjs" "$out/probe.mjs" "$out/probe"
-```
+Use a separate checkout at `e40acba039b86623dd702f9f07f56cdca1ed0d8b`, then follow the [original commands and toolchain notes](https://github.com/jaykobdetar/bend-agent-studio/blob/e40acba039b86623dd702f9f07f56cdca1ed0d8b/tools/native-spike/README.md#reproduce) from that checkout’s root. The flat source paths in those commands belong to that revision.
 
 The JSON output separates primitive stress cases from the report comparisons and retains the first differing word, if any. This optional spike is not part of npm test and adds no dependencies.

@@ -6,11 +6,11 @@ experiments/probe-*.json text eol=lf
 # Exact source bytes are included in sealed run archives and bundle IDs.
 # Other checkout files keep their existing end-of-line settings.
 *.bend text eol=lf
-agent_source.mjs text eol=lf
-assessment.mjs text eol=lf
-experiment.mjs text eol=lf
-experiment_config.mjs text eol=lf
-finite_world.mjs text eol=lf
-packed_world.mjs text eol=lf
-parallel_trials.mjs text eol=lf
-process_output.mjs text eol=lf
+core/agent_source.mjs text eol=lf
+core/assessment.mjs text eol=lf
+core/experiment.mjs text eol=lf
+core/experiment_config.mjs text eol=lf
+core/finite_world.mjs text eol=lf
+core/packed_world.mjs text eol=lf
+core/parallel_trials.mjs text eol=lf
+core/process_output.mjs text eol=lf

@@ -1,6 +1,6 @@
 // Undiscounted, finite-horizon deterministic targets. Fit only on training
 // episodes. Missing empirical cells receive zero, not a maximized continuation.
-import {actionBuckets} from './dataset.mjs';
+import {actionBuckets} from '../dataset.mjs';
 const key=(f,a)=>JSON.stringify([f.observation,f.legal,a]);
 export function fitQEvaluation(training,act){
   const cells=[];

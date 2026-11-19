@@ -1,7 +1,7 @@
 import Base
 import ./agents/reinforce.bend as R
-import ./engine.bend as E
-import ./tabular.bend as T
+import ./core/engine.bend as E
+import ./core/tabular.bend as T
 
 def pref(m: R.Model,s: U32,a: U32) -> F32:
   R.Agent{q,b,h,p,c}=m

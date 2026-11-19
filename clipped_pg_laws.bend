@@ -1,5 +1,5 @@
 import Base
-import ./engine.bend as E
+import ./core/engine.bend as E
 import ./agents/clipped_pg.bend as P
 
 law evaluating_preserves_policy_and_pending_batch:

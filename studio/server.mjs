@@ -1,4 +1,4 @@
-import {readRunNotes} from '../run_notes.mjs';
+import {readRunNotes} from '../core/run_notes.mjs';
 import http from 'node:http';
 import path from 'node:path';
 import fs from 'node:fs';
@@ -9,7 +9,7 @@ import { promisify } from 'node:util';
 import { openTrainingHost } from './training-client.mjs';
 import { worlds } from './catalog.mjs';
 import { readSummary } from './summary-reader.mjs';
-import { unseal, checkedSnapshot } from '../experiment.mjs';
+import { unseal, checkedSnapshot } from '../core/experiment.mjs';
 
 const exec = promisify(execFile);
 const root = fileURLToPath(new URL('../', import.meta.url)),

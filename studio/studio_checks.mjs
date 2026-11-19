@@ -12,8 +12,8 @@ import { worlds } from './catalog.mjs';
 import { boardStates, cumulativeReturns, observation, replayChoice, replaySelection } from './web/scene.js';
 import { replayFilename, timeline } from './web/exporter.js';
 import { Gif } from './web/gif.js';
-import { seal } from '../experiment.mjs';
-import { digest } from '../experiment_config.mjs';
+import { seal } from '../core/experiment.mjs';
+import { digest } from '../core/experiment_config.mjs';
 
 async function demo(id) {
   return JSON.parse(await readFile(new URL('./web/demos/' + id + '.json', import.meta.url), 'utf8'));

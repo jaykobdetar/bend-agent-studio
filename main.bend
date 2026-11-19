@@ -1,6 +1,6 @@
 import Base
-import ./engine.bend as E
-import ./doors.bend as Doors
+import ./core/engine.bend as E
+import ./core/doors.bend as Doors
 import ./bandit.bend as Bandit
 
 def hooks() -> E.Hooks<Doors.Hall, U32, Bandit.Model>:

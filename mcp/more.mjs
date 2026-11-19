@@ -1,11 +1,11 @@
-import {readRunNotes} from '../run_notes.mjs';
+import {readRunNotes} from '../core/run_notes.mjs';
 import fs from 'node:fs';
 import {assertBundledImports} from './authoring.mjs';
 import path from 'node:path';
 import os from 'node:os';
 import {tool, choice, str, uint} from './schema.mjs';
-import {bundleAgent} from '../agent_source.mjs';
-import {unseal} from '../experiment.mjs';
+import {bundleAgent} from '../core/agent_source.mjs';
+import {unseal} from '../core/experiment.mjs';
 const script = (c, f) => path.join(c.repo, f),
   py = process.platform === 'win32' ? 'python' : 'python3';
 const phase = choice('train', 'validation', 'test'),
@@ -201,7 +201,8 @@ export const more = {
       scratch(async (d) => {
         const file = c.input(a.file);
         if (!file.endsWith('.bend')) throw Error('expected .bend input');
-        const bundle = bundleAgent(file, c.repo, (n) => {
+        const stock = path.join(c.repo, 'core');
+        const bundle = bundleAgent(file, stock, (n) => {
           const p = c.input(n);
           if (fs.statSync(p).size > 2 ** 20) throw Error('source exceeds size limit');
           return p;
@@ -210,9 +211,9 @@ export const more = {
           assertBundledImports(source);
           fs.writeFileSync(path.join(d, name), source, {flag: 'wx'});
         }
-        for (const e of fs.readdirSync(c.repo, {withFileTypes: true}))
+        for (const e of fs.readdirSync(stock, {withFileTypes: true}))
           if (e.isFile() && e.name.endsWith('.bend'))
-            fs.copyFileSync(script(c, e.name), path.join(d, e.name), fs.constants.COPYFILE_EXCL);
+            fs.copyFileSync(path.join(stock, e.name), path.join(d, e.name), fs.constants.COPYFILE_EXCL);
         await c.exec(
           process.env.BEND ?? 'bend',
           [path.join(d, bundle.entry + '.bend'), '--check-only'],

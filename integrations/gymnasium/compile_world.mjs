@@ -1,6 +1,6 @@
 // Normalize just once: do not duplicate grids, F32 rounding, or U32 bucket division in Python.
 import fs from 'node:fs';
-import {worldDefinition, buckets} from '../../finite_world.mjs';
+import {worldDefinition, buckets} from '../../core/finite_world.mjs';
 try {
   const w=worldDefinition(JSON.parse(fs.readFileSync(0,'utf8')));
   const endpoints=xs=>buckets(xs).map(({probability,...entry})=>entry);

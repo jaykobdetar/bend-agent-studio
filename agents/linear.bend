@@ -1,6 +1,6 @@
 import Base
-import ../engine.bend as E
-import ../parameters.bend as P
+import ../core/engine.bend as E
+import ../core/parameters.bend as P
 import ./lib/linear.bend as L
 
 # Example feature map: shared bias plus an explicitly hashed state indicator.

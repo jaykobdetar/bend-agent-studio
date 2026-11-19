@@ -1,8 +1,8 @@
 // Read checkpoint data only. Never import a run's executable backend or replay it.
 import fs from 'node:fs';
 import path from 'node:path';
-import {existing,unseal} from '../experiment.mjs';
-import {canonical,digest} from '../experiment_config.mjs';
+import {existing,unseal} from '../core/experiment.mjs';
+import {canonical,digest} from '../core/experiment_config.mjs';
 
 const MAX_ROWS=8192, MAX_BYTES=64*1024*1024;
 const goodId=x=>typeof x==='string' && /^[A-Za-z0-9_-]{1,128}$/.test(x);

@@ -1,20 +1,20 @@
 import Base
-import ./logged.bend as Logged
-import ./engine.bend as E
-import ./study.bend as Study
-import ./double_q.bend as DQ
-import ./weights.bend as W
-import ./history.bend as H
-import ./cursor.bend as C
-import ./dyna.bend as Dyna
-import ./tile_control.bend as Tile
-import ./mountain_car.bend as Car
-import ./tabular.bend as T
-import ./actor_critic.bend as AC
-import ./cartpole.bend as Pole
-import ./offline.bend as Offline
-import ./arena.bend as Arena
-import ./arena_table.bend as ArenaTable
+import ./core/logged.bend as Logged
+import ./core/engine.bend as E
+import ./core/study.bend as Study
+import ./core/double_q.bend as DQ
+import ./core/weights.bend as W
+import ./core/history.bend as H
+import ./core/cursor.bend as C
+import ./core/dyna.bend as Dyna
+import ./core/tile_control.bend as Tile
+import ./core/mountain_car.bend as Car
+import ./core/tabular.bend as T
+import ./core/actor_critic.bend as AC
+import ./core/cartpole.bend as Pole
+import ./core/offline.bend as Offline
+import ./core/arena.bend as Arena
+import ./core/arena_table.bend as ArenaTable
 import ./agents/self_play.bend as Player
 
 law evaluation_freezes_model:

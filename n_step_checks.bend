@@ -1,7 +1,7 @@
 import Base
 import ./agents/n_step.bend as N
-import ./engine.bend as E
-import ./tabular.bend as T
+import ./core/engine.bend as E
+import ./core/tabular.bend as T
 
 def value(m: N.Model,s: U32,a: U32) -> F32:
   N.Agent{q,b,c}=m

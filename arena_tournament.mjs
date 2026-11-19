@@ -2,11 +2,12 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import {fileURLToPath,pathToFileURL} from 'node:url';
-import {bundleAgent,parameterList} from './agent_source.mjs';
-import {canonical,digest} from './experiment_config.mjs';
-import {checkedSnapshot,existing,immutable,manifestPath,seal,unpack,unseal} from './experiment.mjs';
+import {bundleAgent,parameterList} from './core/agent_source.mjs';
+import {canonical,digest} from './core/experiment_config.mjs';
+import {checkedSnapshot,existing,immutable,manifestPath,seal,unpack,unseal} from './core/experiment.mjs';
 
 const here=path.dirname(fileURLToPath(import.meta.url));
+const bendLibraryDir=path.join(here,'core');
 const words=2**32;
 
 // Children precede parents. Each edge keeps the actual first-seat reward from Bend.
@@ -86,8 +87,8 @@ async function tournament(root,out) {
   if(toolchain.node!==process.versions.node) throw Error('this study used Node '+toolchain.node);
   checkedSnapshot(root,manifest);
   const api=(await import(pathToFileURL(path.join(root,'code','backend.mjs')).href)).default;
-  const player=bundleAgent(path.join(here,'agents/self_play.bend'),here).entry;
-  const supported=['tictactoe','takeaway','two-pile-nim'].map(name=>bundleAgent(path.join(here,'worlds',name+'.bend'),here).entry);
+  const player=bundleAgent(path.join(here,'agents/self_play.bend'),bendLibraryDir).entry;
+  const supported=['tictactoe','takeaway','two-pile-nim'].map(name=>bundleAgent(path.join(here,'worlds',name+'.bend'),bendLibraryDir).entry);
   if(plan.arms.some(a=>a.agent?.entry!==player) || plan.games.some(g=>!supported.includes(g.world?.entry)))
     throw Error('this exact tournament supports the shipped self-play agent and deterministic arena games');
   const single=['game,arm,replicate,budget,checkpoint_hash,minimax_first,worst_first,worst_second,exploitability,self_play_first'];

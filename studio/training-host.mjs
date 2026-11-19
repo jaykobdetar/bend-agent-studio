@@ -6,8 +6,8 @@ import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
 import { once } from 'node:events';
 import { Worker, isMainThread, parentPort, workerData } from 'node:worker_threads';
-import { run } from '../experiment.mjs';
-import { execute } from '../process_output.mjs';
+import { run } from '../core/experiment.mjs';
+import { execute } from '../core/process_output.mjs';
 
 if (!isMainThread) {
   const { dir, bend } = workerData;
