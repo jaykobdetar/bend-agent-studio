@@ -18,12 +18,10 @@ The [devcontainer](../.devcontainer/devcontainer.json) runs setup with the test 
 
 ```sh
 bash scripts/setup.sh --with-test-extras
-source .venv/bend-studio/env.sh
-npm test
-PATH="$(dirname "$BEND_MCP_TEST_PYTHON"):$PATH" npm --prefix mcp test
+bash scripts/check-setup.sh
 ```
 
-The extras install Node 24.22.1 alongside, not in place of, 24.22.3 for the cross-version archive fixture, and a separate locked Python environment for the MCP SVG fixture. The fresh setup job requires zero skips in both Node suites and tests the two adapter environments made by setup. The original Linux and Windows jobs still run, including archive gates and proofs as before.
+The extras install Node 24.22.1 alongside, not in place of, 24.22.3 for the cross-version archive fixture, and a separate locked Python environment for the MCP SVG fixture. The fresh setup job builds the same developer image and runs its post-create command in a clean container before checking for zero skips in both Node suites and testing the two adapter environments. The original Linux and Windows jobs still run, including archive gates and proofs as before.
 
 ## Which checks run where?
 

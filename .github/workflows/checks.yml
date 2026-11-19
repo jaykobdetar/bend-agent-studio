@@ -108,39 +108,25 @@ jobs:
           bend agents/clipped_pg/proof.bend --verdict
 
   fresh-setup:
-    name: Fresh setup and zero-skip tests
+    name: Fresh devcontainer and zero-skip tests
     runs-on: ubuntu-24.04
     timeout-minutes: 25
     steps:
       - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
         with:
           persist-credentials: false
-      - name: Set up pinned tools and isolated packages
-        run: bash scripts/setup.sh --with-test-extras
-      - name: Run root and MCP tests with no skipped cases
+      - name: Build the developer image
+        run: docker build -f .devcontainer/Dockerfile -t bend-studio-dev .devcontainer
+      - name: Run post-create setup and tests as the developer user
         shell: bash
-        env:
-          NODE_OPTIONS: --test-reporter=tap
         run: |
-          source .venv/bend-studio/env.sh
-          npm test | tee "$RUNNER_TEMP/setup-root.tap"
-          PATH="$(dirname "$BEND_MCP_TEST_PYTHON"):$PATH" npm --prefix mcp test | tee "$RUNNER_TEMP/setup-mcp.tap"
-          require_zero_skips() {
-            if ! awk -v expected="$2" '
-              /^# skipped [0-9]+$/ { summaries++; skipped += $3 }
-              END { exit !(summaries == expected && skipped == 0) }
-            ' "$1"; then
-              echo "Expected $2 zero-skip test summaries in $1" >&2
-              return 1
-            fi
-          }
-          require_zero_skips "$RUNNER_TEMP/setup-root.tap" 3
-          require_zero_skips "$RUNNER_TEMP/setup-mcp.tap" 1
-      - name: Check the environments created by setup
-        run: |
-          source .venv/bend-studio/env.sh
-          (cd integrations/gymnasium && "$BEND_GYM_PYTHON" -m unittest -v)
-          "$BEND_MINARI_PYTHON" -m unittest discover -s integrations/minari -v
+          git archive HEAD | docker run --rm -i bend-studio-dev bash -e -o pipefail -c '
+            mkdir "$HOME/checkout"
+            cd "$HOME/checkout"
+            tar -xf -
+            python3.12 -c "import json, subprocess; command = json.load(open(\".devcontainer/devcontainer.json\"))[\"postCreateCommand\"]; subprocess.run([\"bash\", \"-c\", command], check=True)"
+            exec bash scripts/check-setup.sh
+          '
 
   windows:
     name: Node-only checks on Windows
