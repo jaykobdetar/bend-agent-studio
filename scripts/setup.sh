@@ -12,7 +12,7 @@ fi
 [ "$#" -eq 0 ] || die 'usage: scripts/setup.sh [--with-test-extras]'
 root=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd -P)
 cd "$root"
-prefix="$root/.bend-setup"
+prefix="$root/.venv/bend-studio"
 mkdir -p "$prefix"
 work=$(mktemp -d "$prefix/.install.XXXXXXXX")
 trap 'rm -rf -- "$work"' EXIT

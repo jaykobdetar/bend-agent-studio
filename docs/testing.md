@@ -8,7 +8,7 @@ From the repository root:
 
 ```sh
 bash scripts/setup.sh
-source .bend-setup/env.sh
+source .venv/bend-studio/env.sh
 npm test
 ```
 
@@ -18,7 +18,7 @@ The [devcontainer](../.devcontainer/devcontainer.json) runs setup with the test 
 
 ```sh
 bash scripts/setup.sh --with-test-extras
-source .bend-setup/env.sh
+source .venv/bend-studio/env.sh
 npm test
 PATH="$(dirname "$BEND_MCP_TEST_PYTHON"):$PATH" npm --prefix mcp test
 ```
