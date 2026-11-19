@@ -16,7 +16,7 @@
     {
       "id": "ucb",
       "method": "custom",
-      "agentFile": "../agents/ucb.bend",
+      "agentFile": "../agents/ucb/agent.bend",
       "parameters": {
         "scale": 1.41421356
       }

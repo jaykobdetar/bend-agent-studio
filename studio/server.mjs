@@ -190,7 +190,7 @@ function makePlan({w,a,n,seed}) {
         id: method,
         method: 'custom',
         domain: 'arena',
-        agentFile: path.join(root, 'agents/self_play.bend'),
+        agentFile: path.join(root, 'agents/self_play/agent.bend'),
         parameters: { ...params, alpha: 0.25, gamma: 1, epsilon: 0.25 }
       }
     : { id: method, method, ...params };

@@ -11,7 +11,7 @@
     {
       "id": "tabular-trace",
       "method": "custom",
-      "agentFile": "../agents/td_lambda.bend",
+      "agentFile": "../agents/td_lambda/agent.bend",
       "parameters": {
         "linear": 0,
         "alpha": 0.125,
@@ -22,7 +22,7 @@
     {
       "id": "linear-trace",
       "method": "custom",
-      "agentFile": "../agents/td_lambda.bend",
+      "agentFile": "../agents/td_lambda/agent.bend",
       "parameters": {
         "linear": 1,
         "alpha": 0.125,

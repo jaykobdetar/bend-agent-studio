@@ -11,10 +11,12 @@ export function inventory(root) {
     .filter(n=>n.endsWith('.json'));
   const usage=read(root,'core/experiment.mjs').match(/usage: node experiment\.mjs ([^'\n]+)/)?.[1];
   if(!usage)throw Error('core/experiment.mjs: cannot locate CLI usage');
+  const learners=fs.readdirSync(path.join(root,'agents'),{withFileTypes:true})
+    .filter(e=>e.isDirectory() && files(root,path.join('agents',e.name)).includes('laws.bend'));
   const commands=[...usage.matchAll(/(?:^| \| )([a-z]+)\s+[A-Z]/g)].map(m=>m[1]);
   return {experiments,commands,counts:{
     'core-laws':laws(read(root,'laws/LAWS.bend')),
-    'learner-laws':files(root).filter(n=>n.endsWith('_laws.bend')).reduce((n,f)=>n+laws(read(root,f)),0),
+    'learner-laws':learners.reduce((n,e)=>n+laws(read(root,path.join('agents',e.name,'laws.bend'))),0),
     'experiment-files':experiments.length,
     'benchmark-worlds':benchmarkFiles.filter(n=>Array.isArray(JSON.parse(read(root,path.join('worlds/benchmarks',n))).states)).length
   }};
@@ -29,7 +31,11 @@ export function checkInventory({experiments,commands,counts},documents,linkedDoc
       if(!Object.hasOwn(counts,m[1])||m[2]!==String(counts[m[1]]))
         errors.push(name+': stale or unknown count '+m[1]+' (expected '+(counts[m[1]]??'known marker')+')');
     }
-    if(/^docs\/[^/]+\.md$/.test(name)&&!linkedDocs.has(name))errors.push(name+': no inbound documentation link');
+    // Compatibility stubs preserve external bookmarks even when all internal links use the new guide.
+    const moved=src.match(/^<!-- moved-to: (agents\/[a-z_]+\/README\.md) -->$/m)?.[1];
+    const stub=/^docs\/[^/]+\.md$/.test(name) && moved && documents.has(moved) && src.includes('](../'+moved+')');
+    if((/^docs\/[^/]+\.md$/.test(name)||/^agents\/[^/]+\/README\.md$/.test(name))&&!stub&&!linkedDocs.has(name))
+      errors.push(name+': no inbound documentation link');
   }
   for(const key of Object.keys(counts))if(!seen.has(key))errors.push('missing count marker: '+key);
   const table=(documents.get('EXPERIMENTS.md')??'').split(/^## Choose a manifest or specification\s*$/m)[1]?.split(/^## /m)[0]??'';

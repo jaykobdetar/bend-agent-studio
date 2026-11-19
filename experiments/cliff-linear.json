@@ -11,7 +11,7 @@
     {
       "id": "linear",
       "method": "custom",
-      "agentFile": "../agents/linear.bend",
+      "agentFile": "../agents/linear/agent.bend",
       "parameters": {
         "alpha": 0.05,
         "gamma": 0.9,

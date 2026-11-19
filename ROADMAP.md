@@ -102,7 +102,7 @@ The bucket-count formula stays host-tested, because `actionBuckets` in `offline/
 
 **T2.2. Key-addressed value tables (M). Depends on L8.**
 - `T.Table` in `core/tabular.bend` is a `List<Entry>`, so every lookup is linear. Replace it with a tree keyed by (observation, action), for example a 32-bit observation path to an action path. Reuse the pattern and proofs of `core/weights.bend`, whose read-after-write is already proven.
-- Check everything that touches tables: `core/study.bend`, `core/double_q.bend`, `core/dyna.bend` (values only; `Dyna.Model` stays a list because planning samples it by index), `core/offline.bend`, `agents/ucb.bend` (`total` sums visits for one observation, so give the tree an equivalent), and `core/arena_table.bend`.
+- Check everything that touches tables: `core/study.bend`, `core/double_q.bend`, `core/dyna.bend` (values only; `Dyna.Model` stays a list because planning samples it by index), `core/offline.bend`, `agents/ucb/agent.bend` (`total` sums visits for one observation, so give the tree an equivalent), and `core/arena_table.bend`.
 - Behavior must not change: greedy ties are decided by legal-list order, not table order, so action choices are unaffected. The model's JSON form and hash will change for new runs only.
 - Acceptance: all L8 laws hold for the new implementation. `checks/benchmark_checks.bend` and `checks/study_checks.bend` pass unchanged. On a fixed plan such as `experiments/planning-budget.json`, train/validation/test metrics match the list version exactly. Report the speedup on one tabular plan.
 
@@ -282,12 +282,12 @@ Update this table in the same PR as each item.
 | S4.3 | Implemented: additional off-policy estimators, exact finite-world scoring and dispatch diagnostics | [#21](https://github.com/jaykobdetar/bend-agent-studio/pull/21) |
 | S4.4 | Implemented: verified local Minari HDF5 export with split isolation | [Guide and limits](integrations/minari/README.md) |
 | A5.0 | Implemented: optional train-only episode completion hook and exactly-once laws | |
-| A5.1 | Implemented: sampled SARSA(0), finish integration and three buffer laws | [Notes](docs/sarsa.md) |
-| A5.2 | Implemented: bounded n-step expected TD and three flush laws | [Notes](docs/n-step.md) |
-| A5.3 | Implemented: tabular and linear expected TD(λ) | [Notes](docs/td-lambda.md) |
-| A5.4 | Implemented: softmax REINFORCE with frozen state baseline | [Notes](docs/reinforce.md) |
-| A5.5 | Implemented: typed sparse feature maps and action-specific linear weights | [Notes and measured limitations](docs/linear.md) |
-| A5.6 | Implemented: tiny clipped-ratio policy gradient with frozen batches | [Notes](docs/clipped-policy-gradient.md) |
+| A5.1 | Implemented: sampled SARSA(0), finish integration and three buffer laws | [Notes](agents/sarsa/README.md) |
+| A5.2 | Implemented: bounded n-step expected TD and three flush laws | [Notes](agents/n_step/README.md) |
+| A5.3 | Implemented: tabular and linear expected TD(λ) | [Notes](agents/td_lambda/README.md) |
+| A5.4 | Implemented: softmax REINFORCE with frozen state baseline | [Notes](agents/reinforce/README.md) |
+| A5.5 | Implemented: typed sparse feature maps and action-specific linear weights | [Notes and measured limitations](agents/linear/README.md) |
+| A5.6 | Implemented: tiny clipped-ratio policy gradient with frozen batches | [Notes](agents/clipped_pg/README.md) |
 | V6.1 | Not started; optional MLflow exporter | |
 | V6.2 | Implemented: unsealed notes and tags in Studio and MCP | [#23](https://github.com/jaykobdetar/bend-agent-studio/pull/23) |
 | V6.3 | Implemented: self-contained offline reports | [#25](https://github.com/jaykobdetar/bend-agent-studio/pull/25) |

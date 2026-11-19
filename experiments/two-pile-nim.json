@@ -18,7 +18,7 @@
       "id": "uniform",
       "method": "custom",
       "domain": "arena",
-      "agentFile": "../agents/self_play.bend",
+      "agentFile": "../agents/self_play/agent.bend",
       "parameters": {
         "rule": 0,
         "alpha": 0.25,
@@ -30,7 +30,7 @@
       "id": "negamax-q",
       "method": "custom",
       "domain": "arena",
-      "agentFile": "../agents/self_play.bend",
+      "agentFile": "../agents/self_play/agent.bend",
       "parameters": {
         "rule": 1,
         "alpha": 0.25,

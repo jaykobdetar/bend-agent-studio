@@ -78,12 +78,12 @@ jobs:
           bend checks/checks.bend
           bend checks/benchmark_checks.bend
           bend checks/study_checks.bend
-          bend sarsa_checks.bend
-          bend n_step_checks.bend
-          bend td_lambda_checks.bend
-          bend reinforce_checks.bend
-          bend linear_checks.bend
-          bend clipped_pg_checks.bend
+          bend agents/sarsa/checks.bend
+          bend agents/n_step/checks.bend
+          bend agents/td_lambda/checks.bend
+          bend agents/reinforce/checks.bend
+          bend agents/linear/checks.bend
+          bend agents/clipped_pg/checks.bend
           bend laws/PROOF.bend
 
       - name: Install Lean 4.34.0 for the independent proof check
@@ -96,12 +96,12 @@ jobs:
       - name: Verify proofs with BendTT
         run: |
           bend laws/PROOF.bend --verdict
-          bend sarsa_proof.bend --verdict
-          bend n_step_proof.bend --verdict
-          bend td_lambda_proof.bend --verdict
-          bend reinforce_proof.bend --verdict
-          bend linear_proof.bend --verdict
-          bend clipped_pg_proof.bend --verdict
+          bend agents/sarsa/proof.bend --verdict
+          bend agents/n_step/proof.bend --verdict
+          bend agents/td_lambda/proof.bend --verdict
+          bend agents/reinforce/proof.bend --verdict
+          bend agents/linear/proof.bend --verdict
+          bend agents/clipped_pg/proof.bend --verdict
 
   windows:
     name: Node-only checks on Windows

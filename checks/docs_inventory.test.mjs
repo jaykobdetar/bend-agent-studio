@@ -22,3 +22,13 @@ test('count, manifest, doc-link, and CLI coverage fail independently',()=>{
   }
   assert.match(checkInventory(facts,docs,new Set()).join('\n'),/no inbound/);
 });
+
+test('legacy learner bookmarks link to a present canonical guide; current guides remain discoverable',()=>{
+  const facts={experiments:[],commands:[],counts:{}},old='docs/linear.md',guide='agents/linear/README.md';
+  const stub='<!-- moved-to: '+guide+' -->\n[New guide](../'+guide+')';
+  const docs=new Map([[old,stub],[guide,'# Linear']]),incoming=new Set([guide]);
+  assert.deepEqual(checkInventory(facts,docs,incoming),[]);
+  assert.match(checkInventory(facts,new Map([[old,stub]]),incoming).join('\n'),/no inbound/);
+  assert.match(checkInventory(facts,new Map(docs).set(old,'<!-- moved-to: '+guide+' -->'),incoming).join('\n'),/no inbound/);
+  assert.match(checkInventory(facts,docs,new Set()).join('\n'),/agents\/linear\/README/);
+});

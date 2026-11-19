@@ -11,7 +11,7 @@
     {
       "id": "clipped-pg",
       "method": "custom",
-      "agentFile": "../agents/clipped_pg.bend",
+      "agentFile": "../agents/clipped_pg/agent.bend",
       "parameters": {
         "alpha": 0.025,
         "beta": 0.1,

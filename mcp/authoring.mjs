@@ -183,7 +183,12 @@ export const authoring = {
       const examples = [];
       for (const dir of ['experiments', 'worlds', 'agents'])
         for (const file of fs.readdirSync(path.join(repo, dir)).sort()) {
-          const rel = dir + '/' + file;
+          let rel = dir + '/' + file;
+          const entry = fs.lstatSync(path.join(repo, rel));
+          if (dir === 'agents' && entry.isDirectory()) {
+            rel += '/agent.bend';
+            if (!fs.existsSync(path.join(repo, rel))) continue;
+          }
           if (!fs.lstatSync(path.join(repo, rel)).isFile()) continue;
           let kind = dir === 'agents' ? 'agent' : 'world';
           if (file.endsWith('.json')) {

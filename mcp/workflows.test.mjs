@@ -8,6 +8,7 @@ import {jobs} from './jobs.mjs';
 import {more} from './more.mjs';
 import {authoring} from './authoring.mjs';
 import {compilerTest} from '../checks/support.mjs';
+import {bundleAgent} from '../core/agent_source.mjs';
 const read = (f) => JSON.parse(fs.readFileSync(f)),
   sample = (n) => read(path.join(repo, 'experiments', n + '.json'));
 function fixture(t, repoMode = false) {
@@ -50,7 +51,13 @@ test('memory composition, exact policy, examples, and sequential inference', asy
   assert.equal(res.expectedReturn, 1);
   const {examples} = await call('list_examples', {});
   assert.ok(examples.some((x) => x.path === 'experiments/bridge.json' && x.kind === 'training plan'));
-  for (const x of examples) assert.ok(fs.lstatSync(path.join(repo, x.path)).isFile(), x.path);
+  for (const stem of ['sarsa', 'n_step', 'td_lambda', 'reinforce', 'linear', 'clipped_pg'])
+    assert.ok(examples.some(x => x.kind === 'agent' && x.path === 'agents/' + stem + '/agent.bend'), stem);
+  assert.ok(!examples.some(x => x.kind === 'agent' && /(?:checks|laws|proof|lib)/.test(x.path)));
+  for (const x of examples) {
+    assert.ok(fs.lstatSync(path.join(repo, x.path)).isFile(), x.path);
+    if (x.kind === 'agent') assert.ok(bundleAgent(path.join(repo, x.path), path.join(repo, 'core')).entry);
+  }
   write('design.json', {
     design: {lower: -1, upper: 1},
     rows: [{replicate: 0, candidate: 1, reference: 0}],
@@ -62,7 +69,7 @@ test(
   {...compilerTest, timeout: 120000},
   async (t) => {
     const {root, call, run, write} = fixture(t);
-    fs.copyFileSync(path.join(repo, 'agents/ucb.bend'), path.join(root, 'ucb.bend'));
+    fs.copyFileSync(path.join(repo, 'agents/ucb/agent.bend'), path.join(root, 'ucb.bend'));
     fs.appendFileSync(path.join(root, 'ucb.bend'), '\n# import helpers above.\n');
     assert.equal((await call('check_bend', {file: 'ucb.bend'})).valid, true);
     const plan = sample('dispatch-source');
@@ -134,7 +141,7 @@ test(
     p.validationEpisodes = 1;
     p.testEpisodes = 1;
     p.games[0].worldFile = path.join(repo, 'worlds/takeaway.bend');
-    p.arms[0].agentFile = path.join(repo, 'agents/self_play.bend');
+    p.arms[0].agentFile = path.join(repo, 'agents/self_play/agent.bend');
     const out = path.join(root, 'arena');
     write('self-play.json', p);
     await run('start_run', {plan: path.join(root, 'self-play.json'), out});

@@ -9,6 +9,6 @@
   },
   "scripts": {
     "start": "node studio/server.mjs",
-    "test": "node checks/docs_check.mjs && node --test checks/docs*.test.mjs && node --test checks/experiment_checks.mjs checks/batch_checks.mjs studio/studio_checks.mjs checks/oracle_checks.mjs checks/memory_checks.mjs checks/statistics_checks.mjs linear_checks.mjs && node --test worlds/benchmarks/probes/checks.mjs tools/finite-layout/packed-checks.mjs"
+    "test": "node checks/docs_check.mjs && node --test checks/docs*.test.mjs && node --test checks/experiment_checks.mjs checks/batch_checks.mjs studio/studio_checks.mjs checks/oracle_checks.mjs checks/memory_checks.mjs checks/statistics_checks.mjs agents/linear/checks.mjs && node --test worlds/benchmarks/probes/checks.mjs tools/finite-layout/packed-checks.mjs"
   }
 }

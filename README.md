@@ -25,7 +25,7 @@ For training, install [Bend 2.0.40](https://github.com/bendlang/bend/releases/ta
 | Cliff Walk | A fall costs 100 reward and returns the walker to the start. | Q-learning, Expected SARSA, Dyna-Q, random |
 | Tic-Tac-Toe | A policy plays both seats on the same physical board. | Negamax Q-learning, Expected TD, Monte Carlo, random |
 
-Six more discrete learners are available through CLI experiment plans: [sampled SARSA(0)](docs/sarsa.md), [n-step expected TD](docs/n-step.md), [expected TD(λ)](docs/td-lambda.md), [REINFORCE with a state baseline](docs/reinforce.md), [sparse linear Q-learning](docs/linear.md), and [tiny clipped policy gradient](docs/clipped-policy-gradient.md).
+Six more discrete learners are available through CLI experiment plans: [sampled SARSA(0)](agents/sarsa/README.md), [n-step expected TD](agents/n_step/README.md), [expected TD(λ)](agents/td_lambda/README.md), [REINFORCE with a state baseline](agents/reinforce/README.md), [sparse linear Q-learning](agents/linear/README.md), and [tiny clipped policy gradient](agents/clipped_pg/README.md).
 
 1. **Watch an example.** Choose a world and press **Play**. Use the timeline, step buttons, or speed selector to inspect the episode. Telemetry follows the selected step.
 2. **Train an agent.** Pick a learning algorithm, episode budget, and seed. Select **Train agent**. If you stay in the simulator without changing the replay, the completed run opens on a held-out test episode. Otherwise, open it from **Experiments**. To stop early, open **Experiments** and choose **Cancel training** on that run.
@@ -75,7 +75,7 @@ If the path passed to `--replay-node` is missing or cannot run, correct it befor
 
 Studio runs up to two replay processes at once. A third request receives HTTP 429 and can be retried when a slot opens. Closing the replay dialog or disconnecting the client cancels its pending replay. Each runner has 30 seconds to return a trace before Studio stops it and responds with HTTP 504. Set `BEND_STUDIO_REPLAY_TIMEOUT_MS` to a positive number of milliseconds at startup for longer studies.
 
-Start with [worlds/bridge.json](worlds/bridge.json) for a finite game, [worlds/inventory.bend](worlds/inventory.bend) for a custom Bend world, or [agents/ucb.bend](agents/ucb.bend) for a learning algorithm. The [experiment guide](EXPERIMENTS.md) covers authoring, offline learning, evaluation, and resuming studies. It also explains how to [regenerate the three Tiger worlds](EXPERIMENTS.md#regenerate-the-tiger-worlds).
+Start with [worlds/bridge.json](worlds/bridge.json) for a finite game, [worlds/inventory.bend](worlds/inventory.bend) for a custom Bend world, or [agents/ucb/agent.bend](agents/ucb/agent.bend) for a learning algorithm. The [experiment guide](EXPERIMENTS.md) covers authoring, offline learning, evaluation, and resuming studies. It also explains how to [regenerate the three Tiger worlds](EXPERIMENTS.md#regenerate-the-tiger-worlds).
 
 ## Formal Properties
 
@@ -83,12 +83,12 @@ The <!-- count:core-laws -->46<!-- /count --> core laws are stated in [laws/LAWS
 
 | Learner | Statements | Proofs |
 | --- | --- | --- |
-| SARSA | [Laws](sarsa_laws.bend) | [Proofs](sarsa_proof.bend) |
-| n-step TD | [Laws](n_step_laws.bend) | [Proofs](n_step_proof.bend) |
-| TD(λ) | [Laws](td_lambda_laws.bend) | [Proofs](td_lambda_proof.bend) |
-| REINFORCE | [Laws](reinforce_laws.bend) | [Proofs](reinforce_proof.bend) |
-| Sparse linear Q-learning | [Laws](linear_laws.bend) | [Proofs](linear_proof.bend) |
-| Clipped policy gradient | [Laws](clipped_pg_laws.bend) | [Proofs](clipped_pg_proof.bend) |
+| SARSA | [Laws](agents/sarsa/laws.bend) | [Proofs](agents/sarsa/proof.bend) |
+| n-step TD | [Laws](agents/n_step/laws.bend) | [Proofs](agents/n_step/proof.bend) |
+| TD(λ) | [Laws](agents/td_lambda/laws.bend) | [Proofs](agents/td_lambda/proof.bend) |
+| REINFORCE | [Laws](agents/reinforce/laws.bend) | [Proofs](agents/reinforce/proof.bend) |
+| Sparse linear Q-learning | [Laws](agents/linear/laws.bend) | [Proofs](agents/linear/proof.bend) |
+| Clipped policy gradient | [Laws](agents/clipped_pg/laws.bend) | [Proofs](agents/clipped_pg/proof.bend) |
 
 - **Learning.** The engine applies the learner once per training transition and preserves the model during evaluation. The whole-rollout counting-learner laws prove evaluation freezes the counter and training changes it by exactly the accepted-step delta; the proof preserves the signed difference from an arbitrary starting counter. Updating one Double Q table preserves the other. With a nonempty legal-action list, Double Q selects the bootstrap action with the table being updated and values it with the other table. Dyna planning preserves recorded experience. Completing a Monte Carlo self-play episode clears its buffered decisions, not the learned table.
 - **Episode completion.** A training report applies the optional finish callback once, without changing its score, step count or reason. Evaluation skips it; reading a completed segment again cannot apply it twice.

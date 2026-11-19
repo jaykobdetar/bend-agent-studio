@@ -15,7 +15,7 @@ import ../core/cartpole.bend as Pole
 import ../core/offline.bend as Offline
 import ../core/arena.bend as Arena
 import ../core/arena_table.bend as ArenaTable
-import ../agents/self_play.bend as Player
+import ../agents/self_play/agent.bend as Player
 
 law evaluation_freezes_model:
   for -M: Data

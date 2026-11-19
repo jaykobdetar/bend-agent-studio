@@ -323,7 +323,7 @@ test('contextual learner sees the source legal actions and resumes its exact pol
   const edge=(id,to,reward)=>({id,outcomes:[{to,reward,weight:1}]});
   const game={id:'context',limit:2,definition:{schema:1,initial:[{to:10,weight:1}],states:[
     {id:10,actions:[edge(3,20,1),edge(7,20,1)]},{id:20,actions:[edge(9,30,4)]},{id:30,actions:[]}]}};
-  write(file,plan({budgetUnit:'steps',games:[game],arms:[{id:'rf',method:'custom',agentFile:path.join(here,'agents','reinforce.bend'),parameters:{alpha:1,beta:.5,gamma:.5}}],replicates:1,checkpoints:[0,1,2],validationEpisodes:1,testEpisodes:1}));
+  write(file,plan({budgetUnit:'steps',games:[game],arms:[{id:'rf',method:'custom',agentFile:path.join(here,'agents','reinforce','agent.bend'),parameters:{alpha:1,beta:.5,gamma:.5}}],replicates:1,checkpoints:[0,1,2],validationEpisodes:1,testEpisodes:1}));
   await invoke('run',file,paused,'--bend',bend,'--until','1');
   const cp=(root,n)=>read(path.join(root,'trials','context','rf','0',n+'.json')).body.model;
   const frozen=cp(paused,1),first=frozen.history.head;

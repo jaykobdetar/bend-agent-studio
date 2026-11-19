@@ -11,7 +11,7 @@
     {
       "id": "sarsa",
       "method": "custom",
-      "agentFile": "../agents/sarsa.bend",
+      "agentFile": "../agents/sarsa/agent.bend",
       "parameters": {
         "alpha": 0.25,
         "gamma": 0.9

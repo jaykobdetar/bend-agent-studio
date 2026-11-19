@@ -80,7 +80,7 @@ The Lakes and Taxi use their registered episode limits; *Gymnasium registers no 
 * **A finite state machine** can be written as JSON. Each state has a unique numeric ID, an optional public observation ID, and a list of legal actions. Each action lists possible destination IDs, positive integer weights, and finite rewards. An empty action list marks a terminal state. Start from `worlds/bridge.json`.
 * **A grid game** uses `S` for start, `G` for goal, `P` for pit, `#` for wall, and `.` for traversable space. A slip replaces the intended direction with a uniform legal direction. Multiple starts are sampled uniformly. See `worlds/detour.json`.
 * **A Bend world** exports `State`, `Observation`, and `world(parameters)`. Its world provides reset, a public view, and a transition. The inventory example keeps opening stock, days left, and costs in the world. Its agent sees just the observation and legal order sizes. See `worlds/inventory.bend` and `experiments/inventory.json`.
-* **A Bend agent** exports `Model`, `initial(seed, parameters)`, `act(model, observation, legal, mode, word)`, and `learn(model, transition)`. An experiment arm selects it with `"method": "custom"` and `agentFile`. The UCB1 example implements exploration in its policy and updates reward estimates in its learner. See `agents/ucb.bend` and `experiments/custom-bandit.json`.
+* **A Bend agent** exports `Model`, `initial(seed, parameters)`, `act(model, observation, legal, mode, word)`, and `learn(model, transition)`. An experiment arm selects it with `"method": "custom"` and `agentFile`. The UCB1 example implements exploration in its policy and updates reward estimates in its learner. See `agents/ucb/agent.bend` and `experiments/custom-bandit.json`.
 
 A manifest binds a game file using `file` for JSON or `worldFile` for Bend. Paths are relative to the manifest. Set the same observation domain on a custom game and agent when using a custom observation type. Local Bend dependencies and parameter values are included in the saved source identity. A game can also be assembled directly with `E.Hooks{world, act, learn}`.
 
@@ -357,15 +357,15 @@ A custom agent may add a top-level `def finish(model: Model, reason: E.Stop) -> 
 
 In training, an accepted action calls `learn` first; a completed episode then calls `finish` exactly once. Reasons are `E.Terminal{}`, `E.Limit{}`, or `E.Illegal{action}`. An illegal action has no transition: clear or flush pending state in `finish`, not by inventing a terminal sample. Initially terminal worlds and zero-step open horizons also finish. A mid-episode segment or checkpoint does not finish; resuming it preserves any pending buffer. Evaluation and replay do not call either learner callback. Archived studies continue to use their sealed original backend. For direct Bend callers, use `E.episode`, `E.fold_episode`/`E.trace`, or `C.segment` as completion boundaries. The lower-level `E.drive`, `E.roll`, and `C.advance` return raw state and do not call `finish`.
 
-For two complete discrete custom-agent examples, run the [sampled SARSA(0) plan](experiments/cliff-sarsa.json) or [n-step expected TD plan](experiments/cliff-n-step.json). Their [SARSA notes](docs/sarsa.md) and [n-step notes](docs/n-step.md) describe the different targets at truncation.
+For two complete discrete custom-agent examples, run the [sampled SARSA(0) plan](experiments/cliff-sarsa.json) or [n-step expected TD plan](experiments/cliff-n-step.json). Their [SARSA notes](agents/sarsa/README.md) and [n-step notes](agents/n_step/README.md) describe the different targets at truncation.
 
-The [TD(λ) study](experiments/cliff-td-lambda.json) compares tabular and sparse linear accumulating traces. See [update and reset semantics](docs/td-lambda.md).
+The [TD(λ) study](experiments/cliff-td-lambda.json) compares tabular and sparse linear accumulating traces. See [update and reset semantics](agents/td_lambda/README.md).
 
-[REINFORCE with a state baseline](docs/reinforce.md) uses `learn_context(model,legal,event)` with `finish` to record the ordered public action set at each accepted decision. Try the [Orchard experiment](experiments/reinforce-orchard.json).
+[REINFORCE with a state baseline](agents/reinforce/README.md) uses `learn_context(model,legal,event)` with `finish` to record the ordered public action set at each accepted decision. Try the [Orchard experiment](experiments/reinforce-orchard.json).
 
-The [sparse linear study](experiments/cliff-linear.json) compares a typed authored feature map with tabular Q-learning. The [feature API and results](docs/linear.md) document duplicate coefficients, signed weights and the untuned baseline’s limitations.
+The [sparse linear study](experiments/cliff-linear.json) compares a typed authored feature map with tabular Q-learning. The [feature API and results](agents/linear/README.md) document duplicate coefficients, signed weights and the untuned baseline’s limitations.
 
-The [tiny clipped policy-gradient plan](experiments/clipped-pg-orchard.json) demonstrates frozen behavior probabilities across a multi-episode batch. See the [objective, limits, and replay notes](docs/clipped-policy-gradient.md).
+The [tiny clipped policy-gradient plan](experiments/clipped-pg-orchard.json) demonstrates frozen behavior probabilities across a multi-episode batch. See the [objective, limits, and replay notes](agents/clipped_pg/README.md).
 
 ### Multiple arms versus one reference
 
