@@ -7,7 +7,7 @@ Starting revision: [fc3c2d3](https://github.com/jaykobdetar/bend-agent-studio/co
 | N9.0 | [PR #30](https://github.com/jaykobdetar/bend-agent-studio/pull/30) | Roadmap captured. Removed the stale pre-rewrite branch after preserving its tip; verified the ref is absent. The original plan survives byte-for-byte in docs/history/reorganization-plan.txt and the roadmap records all four F8 items. Merge requires green CI. |
 | N9.1 | Queued | Idempotent pinned Linux/macOS setup, devcontainer and clean-runner verification. |
 | N9.2 | Queued | Run and verify the eight-learner toy-text/probe study; publish outputs, uncertainty and a deterministic CI slice. |
-| N9.3 | Queued | Validate and queue training plans from experiments/; render layout metadata with text fallback and mobile coverage. |
+| N9.3 | Left on branch | Studio validates checkout manifests, snapshots dependencies, and uses optional public grid metadata. Sidecars keep existing archive world inputs byte-identical. Review the 390 px browser flow and require full CI before merge. |
 | N9.4 | Queued | Weekly non-blocking latest-Bend-2.x check and single failure issue; document the pin upgrade procedure. |
 | N9.5 | Queued | Add safe agent/world/plan initialization and seeded sweeps with matching MCP tools. |
 | N9.6 | Queued | Estimate paired bootstrap precision and sign-test power from pilot exports, for planning only. |

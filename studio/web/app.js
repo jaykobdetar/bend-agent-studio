@@ -209,7 +209,7 @@ function render() {
   const i = state.frame,
     n = t.frames.length,
     f = t.frames[i - 1];
-  draw($('scene'), t.game, observation(t, i), state.boards[i]);
+  draw($('scene'), t.game, observation(t, i), state.boards[i], t.gridLayout);
   $('scrub').value = i;
   $('scrub').style.setProperty('--progress', (n ? (i / n) * 100 : 0) + '%');
   $('counter').textContent = i + ' / ' + n;
@@ -310,15 +310,18 @@ function empty(title, hint) {
 const refreshCompare = comparisonUI($('comparison'),api);
 function syncForm() {
   const busy = state.runs.some((r) => r.status === 'training' || r.status === 'queued');
-  $('train-btn').disabled = !state.selected || state.submitting;
-  $('train-btn').lastElementChild.textContent = state.submitting ? 'Submitting…' : busy ? 'Queue training' : 'Train agent';
+  const usingManifest=Boolean($('manifest').value);
+  $('preset-fields').hidden=usingManifest;
+  $('preset-fields').disabled=usingManifest;
+  $('train-btn').disabled = !(usingManifest ? state.manifestInfo : state.selected) || state.submitting;
+  $('train-btn').lastElementChild.textContent = state.submitting ? 'Submitting…' : busy ? 'Queue training' : usingManifest ? 'Train plan' : 'Train agent';
   $('job-status').textContent =
     state.message ||
     (busy
       ? 'One run trains at a time. Queued jobs can be cancelled in Experiments.'
-      : state.selected
+      : (state.selected || state.manifestInfo)
         ? 'New runs are saved in Experiments.'
-        : 'Choose an environment to start a new run.');
+        : 'Choose an environment or training plan to start a new run.');
 }
 let renderedRuns;
 function showRuns() {
@@ -338,6 +341,7 @@ function showRuns() {
       run.status === 'ready' ? 'Ready' : run.status === 'queued' ? 'Queued · position '+run.position : run.status,
       run.created ? new Date(run.created).toLocaleString() : 'Attached run'
     ];
+    if (run.manifest) description.push(run.manifest);
     if (run.episodes) description.push(number(run.episodes) + ' episodes', 'seed ' + run.seed);
     info.append(element('p', description.join(' · '), 'meta'));
     if (run.annotations?.notes) info.append(element('p', run.annotations.notes, 'run-notes'));
@@ -389,7 +393,7 @@ async function refreshRuns() {
         finished.status === 'ready' ? 'Training complete. Run saved in Experiments.' : finished.error;
       syncForm();
       if (
-        finished.status === 'ready' &&
+        finished.status === 'ready' && !finished.manifest &&
         state.page === 'simulator' &&
         state.generation === state.watchGeneration
       )
@@ -412,10 +416,30 @@ async function refreshRuns() {
       watchTimer = setTimeout(() => refreshRuns().catch((e) => notify(e.message)), 900);
   }
 }
+$('manifest').onchange = async () => {
+  const seq=(state.manifestSequence??0)+1, file=$('manifest').value;
+  state.manifestSequence=seq;
+  state.manifestInfo=null;
+  state.message='';
+  const info=$('manifest-info');
+  info.hidden=!file;
+  info.textContent=file?'Validating plan…':'';
+  syncForm();
+  if (!file) return;
+  try {
+    const plan=await api('/api/manifest?file='+encodeURIComponent(file));
+    if (seq!==state.manifestSequence) return;
+    state.manifestInfo=plan;
+    info.textContent=plan.name+' · '+plan.replicates+' replicate(s) · '+plan.hooks.map(({arm,hook})=>arm+': '+hook).join(', ');
+  } catch (err) {
+    if (seq===state.manifestSequence) info.textContent=err.message;
+  }
+  syncForm();
+};
 $('train').onsubmit = async (e) => {
   e.preventDefault();
   const generation = state.generation;
-  const body = {
+  const body = state.manifestInfo ? {manifest:state.manifestInfo.file} : {
     world: state.selected,
     algorithm: $('agent').value,
     episodes: Number($('budget').value),
@@ -718,6 +742,8 @@ for (const el of document.querySelectorAll('[data-nav],[data-go]'))
 window.onhashchange = () => navigate(location.hash.slice(1), true);
 try {
   state.worlds = await api('/api/catalog');
+  const manifests=await api('/api/manifests');
+  choices($('manifest'), [['','Use an environment preset'], ...manifests.map(file=>[file,file])]);
   showWorlds();
   await chooseWorld(state.worlds[0]);
   navigate(location.hash.slice(1), true);

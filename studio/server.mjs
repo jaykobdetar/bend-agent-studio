@@ -10,10 +10,15 @@ import { openTrainingHost } from './training-client.mjs';
 import { worlds } from './catalog.mjs';
 import { readSummary } from './summary-reader.mjs';
 import { unseal, checkedSnapshot } from '../core/experiment.mjs';
+import { numberPreservingJson, symbol } from '../core/finite_world.mjs';
+import { manifestPicker, readPlanSnapshot, savePlanSnapshot } from './manifests.mjs';
+import { knownGridLayouts } from './grid-layouts.mjs';
 
 const exec = promisify(execFile);
 const root = fileURLToPath(new URL('../', import.meta.url)),
   web = path.join(root, 'studio/web');
+const picker = manifestPicker(root);
+const layouts = knownGridLayouts(root);
 const args = process.argv.slice(2);
 let port = Number(process.env.PORT ?? 4173),
   base = path.resolve(process.env.BEND_STUDIO_HOME ?? path.join(root, '.bend-studio'));
@@ -93,7 +98,8 @@ for (const entry of fs.readdirSync(base, { withFileTypes: true })) {
         throw Error('Invalid Studio metadata.');
       if (job.status === 'queued') {
         if (!Number.isSafeInteger(job.queueOrder) || job.queueOrder < 1) throw Error('Invalid queue position.');
-        checkSpec(job);
+        if (job.manifest) readPlanSnapshot(jobPath(job.id),job.manifestHash);
+        else checkSpec(job);
       }
       if (Number.isSafeInteger(job.queueOrder) && job.queueOrder > 0)
         nextOrder = Math.max(nextOrder, job.queueOrder + 1);
@@ -147,6 +153,10 @@ function describe(id) {
     test: p.testEpisodes,
     budgetUnit: p.budgetUnit ?? 'episodes'
   };
+}
+function browseManifest(file) {
+  try { return picker.load(file); }
+  catch (err) { fail(err.message); }
 }
 function checkSpec(input) {
   if (!input || typeof input !== 'object' || Array.isArray(input)) fail('Expected a JSON object.');
@@ -219,7 +229,8 @@ function makePlan({w,a,n,seed}) {
 async function create(input) {
   if (!training && fs.existsSync(trainingMarker))
     fail('Previous training needs review. Verify its processes have stopped, then remove training-active.json from the Studio home.', 409);
-  const {w,a,n,seed} = checkSpec(input);
+  const manifest = input && Object.hasOwn(input,'manifest') ? browseManifest(input.manifest) : null;
+  const preset = manifest ? null : checkSpec(input);
   await checkVersion();
   if (shuttingDown) fail('Studio is stopping.', 503);
   if (pendingJobs().length >= QUEUE_LIMIT) fail('Training queue is full.', 429);
@@ -229,11 +240,13 @@ async function create(input) {
 
   const job = {
     id,
-    name: w.name + ' · ' + a.name,
-    world: w.id,
-    algorithm: a.id,
-    episodes: n,
-    seed,
+    ...(manifest ? {
+      name:manifest.info.name, manifest:manifest.info.file, hooks:manifest.info.hooks,
+      manifestHash:savePlanSnapshot(dir,manifest.snapshot)
+    } : {
+      name:preset.w.name + ' · ' + preset.a.name,
+      world:preset.w.id, algorithm:preset.a.id, episodes:preset.n, seed:preset.seed
+    }),
     created: iso(),
     status: 'queued',
     queueOrder: nextOrder++,
@@ -249,9 +262,10 @@ function pump() {
   if (!queued) return;
   const id = queued.id, dir = jobPath(id), job = { ...queued, status: 'training', started: iso() };
   try {
-    // Reconstruct the catalog-only plan; never execute a stored, edited plan.json on restart.
+    // Reconstruct from the catalog or the checked self-contained plan snapshot.
+    const source=job.manifest ? readPlanSnapshot(dir,job.manifestHash).source : makePlan(checkSpec(job));
     const tmp = path.join(dir, 'plan-'+randomUUID()+'.tmp');
-    fs.writeFileSync(tmp, JSON.stringify(makePlan(checkSpec(job)), null, 2), {flag:'wx'});
+    fs.writeFileSync(tmp, numberPreservingJson(source,2), {flag:'wx'});
     fs.renameSync(tmp, path.join(dir, 'plan.json'));
     save(job);
   } catch (err) {
@@ -341,8 +355,16 @@ async function replay(id, input, res) {
     res.off('close', stop);
     activeReplays.delete(child);
   }
+  const definition=unseal(path.join(dir,'run.json')).body.plan.games.find(g=>g.id===game)?.definition;
+  const key=definition && symbol(definition), job=jobs.get(id);
+  let gridLayout=key && layouts.get(key);
+  if (key && !gridLayout && job?.manifest) {
+    try { gridLayout=readPlanSnapshot(jobPath(id),job.manifestHash).layouts[key]; }
+    catch { /* Optional display metadata must not block verified replay. */ }
+  }
   return {
     ...trace,
+    gridLayout,
     symmetry: info.games.find((g) => g.id === game).symmetry,
     trainingBudget: point,
     budgetUnit: info.budgetUnit
@@ -384,6 +406,9 @@ const server = http.createServer(async (req, res) => {
       res.end(JSON.stringify(v));
     };
     if (req.method === 'GET' && u.pathname === '/api/catalog') return json(worlds);
+    if (req.method === 'GET' && u.pathname === '/api/manifests') return json(picker.list());
+    if (req.method === 'GET' && u.pathname === '/api/manifest')
+      return json(browseManifest(u.searchParams.get('file')).info);
     if (req.method === 'GET' && u.pathname === '/api/runs')
       return json([...jobs.keys(), ...mounted.keys(), ...unavailableMounts.keys()].map((id) => {
         try {
