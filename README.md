@@ -6,6 +6,8 @@ Train reinforcement-learning agents in Bend and watch how their decisions change
 
 ## Start Studio
 
+For development, [set up a machine with the pinned toolchain](docs/testing.md#set-up-a-machine).
+
 Install Node.js 24 or newer, open a terminal in the repository root, and run:
 
 ```sh
@@ -33,6 +35,8 @@ npm start -- --run runs/bridge
 ```
 
 The [experiment guide](docs/experiments.md) explains seed blocks, validation, checkpoints, confirmation and archives. Open only trusted local runs: replay executes their archived code with the recorded Node version.
+
+Try the [flagship toy-text study](studies/flagship-toy-text/README.md) for a worked example with five worlds, eight learners, verified checkpoint exports, uncertainty tables and learning curves.
 
 ## Guides
 

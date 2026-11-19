@@ -1,0 +1,8 @@
+budget,budget_unit,arm,reference,phase,metric,statistic,threshold,games,replicates_per_game,score_orientation,replicate_blocks,draws,estimate,ci_low,ci_high
+128,episodes,double_q,q_learning,test,return,probability-of-improvement,,5,10,higher,within-game,2000,0.4,0.4,0.4
+128,episodes,dyna_q,q_learning,test,return,probability-of-improvement,,5,10,higher,within-game,2000,0.51,0.5,0.53
+128,episodes,expected_sarsa,q_learning,test,return,probability-of-improvement,,5,10,higher,within-game,2000,0.4,0.4,0.4
+128,episodes,n_step,q_learning,test,return,probability-of-improvement,,5,10,higher,within-game,2000,0.4,0.4,0.4
+128,episodes,random,q_learning,test,return,probability-of-improvement,,5,10,higher,within-game,2000,0.27999999999999997,0.23400000000000004,0.3200249999999999
+128,episodes,sarsa,q_learning,test,return,probability-of-improvement,,5,10,higher,within-game,2000,0.4,0.4,0.4
+128,episodes,td_lambda,q_learning,test,return,probability-of-improvement,,5,10,higher,within-game,2000,0.4,0.4,0.4

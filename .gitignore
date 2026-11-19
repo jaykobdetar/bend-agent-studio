@@ -12,3 +12,7 @@ __pycache__/
 .DS_Store
 .env
 .env.*
+
+# Published verification artifacts, not local experiment exports.
+!studies/flagship-toy-text/*.csv
+.venv/bend-studio/

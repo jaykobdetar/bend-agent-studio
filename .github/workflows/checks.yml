@@ -45,6 +45,8 @@ jobs:
         run: node tools/archive-gates.mjs check-backends
       - name: Run Node tests
         run: npm test
+      - name: Reproduce two flagship checkpoint byte hashes
+        run: node checks/flagship_slice.mjs
       - name: Exercise Studio manifest replay at 390 px
         working-directory: tools/studio-smoke
         env:
@@ -114,6 +116,27 @@ jobs:
           bend agents/reinforce/proof.bend --verdict
           bend agents/linear/proof.bend --verdict
           bend agents/clipped_pg/proof.bend --verdict
+
+  fresh-setup:
+    name: Fresh devcontainer and zero-skip tests
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+      - name: Build the developer image
+        run: docker build -f .devcontainer/Dockerfile -t bend-studio-dev .devcontainer
+      - name: Run post-create setup and tests as the developer user
+        shell: bash
+        run: |
+          git archive HEAD | docker run --rm -i bend-studio-dev bash -e -o pipefail -c '
+            mkdir "$HOME/checkout"
+            cd "$HOME/checkout"
+            tar -xf -
+            python3.12 -c "import json, subprocess; command = json.load(open(\".devcontainer/devcontainer.json\"))[\"postCreateCommand\"]; subprocess.run([\"bash\", \"-c\", command], check=True)"
+            exec bash scripts/check-setup.sh
+          '
 
   windows:
     name: Node-only checks on Windows
