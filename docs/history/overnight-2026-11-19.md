@@ -4,7 +4,7 @@ Starting revision: [fc3c2d3](https://github.com/jaykobdetar/bend-agent-studio/co
 
 | Item | Current disposition | Change / next step |
 | --- | --- | --- |
-| N9.0 | Left on branch | Roadmap captured; verify stale-ref disposition and require green CI. |
+| N9.0 | [PR #30](https://github.com/jaykobdetar/bend-agent-studio/pull/30) | Roadmap captured. Removed the stale pre-rewrite branch after preserving its tip; verified the ref is absent. The original plan survives byte-for-byte in docs/history/reorganization-plan.txt and the roadmap records all four F8 items. Merge requires green CI. |
 | N9.1 | Queued | Idempotent pinned Linux/macOS setup, devcontainer and clean-runner verification. |
 | N9.2 | Queued | Run and verify the eight-learner toy-text/probe study; publish outputs, uncertainty and a deterministic CI slice. |
 | N9.3 | Queued | Validate and queue training plans from experiments/; render layout metadata with text fallback and mobile coverage. |
