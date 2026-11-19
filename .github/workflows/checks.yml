@@ -116,6 +116,7 @@ jobs:
           bend agents/reinforce/proof.bend --verdict
           bend agents/linear/proof.bend --verdict
           bend agents/clipped_pg/proof.bend --verdict
+          BEND_CHECK_SCAFFOLD_VERDICT=1 node --test checks/scaffold_checks.mjs
 
   fresh-setup:
     name: Fresh devcontainer and zero-skip tests

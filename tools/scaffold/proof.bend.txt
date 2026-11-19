@@ -1,0 +1,4 @@
+import Base
+import ./laws.bend as L
+
+def L.keeps_model(model,event): {==}

@@ -1,0 +1,8 @@
+import Base
+import ./agent.bend as A
+import @CORE@/engine.bend as E
+
+law keeps_model:
+  for model: A.Model
+  for event: E.Transition<U32>
+  {A.learn(model,event) == model : A.Model}
