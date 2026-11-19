@@ -69,6 +69,7 @@ For `analysis/sequential.mjs`, a minimal input shape is `{"design":{"lower":-1,"
 | Bootstrap the pinned toolchain and isolated packages. Add `--with-test-extras` for the zero-skip test setup. | `bash scripts/setup.sh` |
 | Verify the test-ready bootstrap: root and MCP tests with no skips, plus Gymnasium and Minari. | `bash scripts/check-setup.sh` |
 | Start the local MCP server after installing its isolated dependencies. Use a directory you control. | `node mcp/server.mjs --workspace /absolute/path/to/workspace` |
+| Export a complete verified study to a new local MLflow store. Use the [isolated MLflow environment](../integrations/mlflow/README.md). | `python3 integrations/mlflow/export_mlflow.py runs/bridge runs/bridge-mlflow` |
 | Export a verified logged dataset locally with the optional Minari environment active. | `python3 integrations/minari/export_minari.py runs/data runs/minari-fit --split fit` |
 | Check that generated diagnostic probe worlds/plans match the checked-in files. | `node worlds/benchmarks/probes/generate.mjs --check` |
 | Compare toy-text transition/oracle references; see the adapter guide for pinned Gymnasium regeneration. | `node integrations/gymnasium/toy_text/oracles.mjs` |
