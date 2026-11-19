@@ -38,9 +38,9 @@ export function checkInventory({experiments,commands,counts},documents,linkedDoc
       errors.push(name+': no inbound documentation link');
   }
   for(const key of Object.keys(counts))if(!seen.has(key))errors.push('missing count marker: '+key);
-  const table=(documents.get('EXPERIMENTS.md')??'').split(/^## Choose a manifest or specification\s*$/m)[1]?.split(/^## /m)[0]??'';
+  const table=(documents.get('docs/experiments.md')??'').split(/^## Choose a manifest or specification\s*$/m)[1]?.split(/^## /m)[0]??'';
   const tokens=new Set([...table.split('\n').filter(line=>line.startsWith('|')).join('\n').matchAll(/`([\w-]+)(?:\.json)?`/g)].map(m=>m[1]));
-  for(const name of experiments)if(!tokens.has(name.slice(0,-5)))errors.push('EXPERIMENTS.md: manifest table missing '+name);
+  for(const name of experiments)if(!tokens.has(name.slice(0,-5)))errors.push('docs/experiments.md: manifest table missing '+name);
   const cmdDoc=documents.get('docs/commands.md')??'';
   for(const cmd of commands)if(!new RegExp('\\bexperiment\\.mjs\\s+'+cmd+'\\b').test(cmdDoc))errors.push('docs/commands.md: undocumented command '+cmd);
   return errors;
