@@ -1,0 +1,31 @@
+{
+  "schema": "bend-tanh-midpoint-diagnostic-v1",
+  "scope": "targeted CPU-only correctness evidence, not exhaustive",
+  "candidateBendSha256": "b7464e0489b67a5b812d5f0e76ad23db2b6cdcb14086db6dca9ff413d0bd620c",
+  "candidateStagesFractionBitsAndDegree": [[44, 14], [56, 20]],
+  "selection": {
+    "mpfrVersion": "4.2.1",
+    "directedPrecisionBits": 256,
+    "positiveRawStart": "39800001",
+    "positiveRawEndExclusive": "41200000",
+    "equalWidthStrata": 8192,
+    "xorshift32Seed": "477fab2d",
+    "rawPoolWordsIncludingMirrors": 16384,
+    "positivePoolSha256": "207855d17247dd1f856d21a26a7736c66076c6be80fb2b591a55c63d5ff1eb6c",
+    "selectedMagnitudes": 64,
+    "selectedRawWords": 128,
+    "frozenSelectionSha256": "be65458a18828c68b6c959b7bf65dcd1b5b66b9305a2b27913fe3eeef74c599a",
+    "largestSelectedUpperUlp": "3.250665007223e-03",
+    "smallestExcludedLowerUlp": "3.256786552538e-03"
+  },
+  "exactNumericMatches": 126,
+  "undecided": 2,
+  "incorrectNumericOutputs": 0,
+  "testBackends": ["emitted JS", "native CPU"],
+  "candidateOutputSha256BothBackends": "c40c0c445c5e06c36c4bc68c5faa0ca3987b8986605cb7feaba48c9a49dd6909",
+  "referenceOutputSha256BothMethods": "48755ab344821208de592e37774d797202b1136b56f0239170d977158bf43aa2",
+  "undecidedWords": [
+    {"inputU32Hex": "39b89da4", "referenceU32Hex": "39b89da3", "js": "None", "nativeCpu": "None"},
+    {"inputU32Hex": "b9b89da4", "referenceU32Hex": "b9b89da3", "js": "None", "nativeCpu": "None"}
+  ]
+}

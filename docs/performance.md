@@ -309,6 +309,12 @@ execution. Neither sample is a speed measurement, and the prototype was not
 adopted.
 
 
+A later [MPFR-selected midpoint test](../tools/bend-tanh-diagnostic/README.md)
+found two actual undecided center inputs. The candidate correctly refused to
+guess on both; the other 126 words matched. This disproves complete coverage
+by the current precision stages. It does not contradict the earlier exact
+sample or qualify a replacement.
+
 ## P11.6: stock population diagnostic
 
 A [bounded slippery-lake diagnostic](../tools/bend-parallel-spike/README.md)

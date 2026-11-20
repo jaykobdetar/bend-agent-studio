@@ -132,13 +132,68 @@ child; if needed, import the trace offline and require positive-duration
 `bend_dev` events before interpreting the words. The heap is not a
 system-wide memory cap. Keep raw traces and executable files out of the repo.
 
+## Adversarial midpoint diagnostic (CPU only)
+
+The unchanged p44/p56 candidate does **not** decide every center word.
+On a separate [MPFR-ranked sample](midpoint-evidence.json), emitted JS
+and native CPU were byte-identical: **126 exact, two intentional
+fail-closed refusals, zero incorrect numeric outputs**. Both MPFR
+reference methods gave the following expected numeric words:
+
+| Raw input | Both MPFR words | JS and native CPU |
+| --- | --- | --- |
+| `0x39b89da4` | `0x39b89da3` | `None` |
+| `0xb9b89da4` | `0xb9b89da3` | `None` |
+
+These are a magnitude and its sign mirror, not independent failure
+modes. No candidate outputs were used in selection, and no degrees
+or precision stages were changed. This shows an incompleteness in the
+current bounded implementation. It does not disprove the enclosure
+argument or show any incorrect returned numeric word. It does not identify
+the internal refusal condition or qualify p56 for production.
+
+To reconstruct the selection, split the positive raw center
+`[0x39800001,0x41200000)` into 8,192 strata, with boundary i at
+`lo + floor((hi-lo)*i/8192)`. Starting at xorshift32 state
+`0x477fab2d`, update once per stratum (XOR with left shift 13, unsigned
+right shift 17, left shift 5, in that order, modulo 2³²), then offset
+from the stratum's lower boundary by state modulo width. Directed
+MPFR at 256 bits bounds tanh of each positive magnitude. Require
+both endpoints to give the same adjacent binary32 bracket and the
+same side of its exact midpoint. Score the distance from that midpoint
+divided by the bracket's width; both distance bounds are directed.
+Rank by the lower score, breaking ties by raw word. The top 64 are
+certified only if the largest chosen upper score is below the
+smallest excluded lower score. Here the cutoff bounds were 0.003250665007223
+and 0.003256786552538 local ULPs, respectively. Mirror each chosen magnitude
+with its sign bit, positive first per rank. Serialize eight lowercase
+hex digits plus LF per raw word; freeze this list's digest before CPU
+evaluation. The result concerns this pool, not the global hardest cases.
+
+To check just the refusal pair, use the same private output directory
+after the JS and native stages in **Reproduce the fixed diagnostic**:
+
+```sh
+printf '%s\n' 39b89da4 b9b89da4 | "$out/mpfr-interval"
+printf '%s\n' 39b89da4 b9b89da4 | "$out/mpfr-target"
+"$out/native/tanh_native" +RTS --threads 1 --gpu off -RTS "$((16#39b89da4))" "$((16#b9b89da4))"
+node --input-type=module - "$out/tanh_portable.mjs" <<'JS'
+import {pathToFileURL} from 'node:url';
+const {default: api} = await import(pathToFileURL(process.argv[2]).href);
+for (const raw of [0x39b89da4, 0xb9b89da4]) {
+  const got = api.tanh_portable(raw);
+  console.log(raw.toString(16), got.$ === 'None' ? 'None' : got.value.toString(16));
+}
+JS
+```
+
 ## What is still unknown
 
-The sample does not establish that p56 suffices on all center words.
-The composed `None` path was not exercised by this sample. There
-are no native-target proofs or full-corpus CUDA results for this candidate,
-no independent all-2³²-word reference sweep, no archived-study
-transition and no throughput claim. Deliberate unresolved/cap
-controls, broader proof and backend checks, exact sharded coverage,
+The fixed 5,692-word sample did not exercise `None`; the midpoint diagnostic
+demonstrated it on two words. There are no native-target proofs
+or full-corpus CUDA results for this candidate, no independent
+all-2³²-word reference sweep, no archived-study transition and no
+throughput claim. Wider-precision or other correctly enclosed
+fallbacks, broader proof and backend checks, exact sharded coverage,
 and machine-local adoption benchmarks are separate work. Keep this
 diagnostic out of production.
