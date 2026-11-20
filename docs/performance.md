@@ -235,3 +235,16 @@ A live compile-cache prototype passed unit tests for corrupt entries and
 ownership rejection, but the real compiler dependency audit and
 warm/cold measurements are incomplete. Cross-plan raw checkpoint reuse
 does not satisfy the current manifest-linked seal. Neither cache is enabled.
+
+
+## P11.7: a verified CUDA rounding counterexample
+
+A [bounded diagnostic](../tools/bend-f32-sentinel/README.md) found that
+stock Bend 2.0.40 on the RTX 3060 Ti rounds `sin(1e6)` differently from its
+emitted JS and native CPU backends. The independent MPFR result agreed
+with JS and CPU. The test recorded 105 actual `bend_dev` kernel events;
+the negative control recorded none. Ten sampled CUDA fields differed by
+one ULP, representing seven distinct operation/input combinations. This
+is evidence against replacing the sealed engine with stock transcendental
+operations on CUDA, not a full numerical or checkpoint test. No engine
+source, archive format, or default changed.

@@ -1,0 +1,22 @@
+# x word   y word   purpose
+49742400 3f800000 upstream_sin_1e6
+00000000 80000000 add_pos_and_neg_zero
+80000000 00000000 negative_zero_unary
+80000000 80000000 add_two_negative_zero
+00000001 40000000 min_subnormal_underflow_tie
+80000001 40000000 negative_subnormal_underflow_tie
+007fffff 00800000 largest_subnormal_and_smallest_normal
+00800000 3f000000 exact_underflow_stays_subnormal
+3f800000 33800000 add_half_ulp_even_lower
+3f800001 33800000 add_half_ulp_even_upper
+3f800001 3f7fffff mul_then_subtract_fma_trap
+3f800000 bf800000 exact_cancellation
+7f7fffff 40000000 overflow_finite_max
+7f800000 ff800000 infinity_opposites
+ff800000 3f800000 negative_infinity
+7fc01234 3f800000 quiet_nan_payload
+7f801234 3f800000 signaling_nan_payload
+42b17218 3f800000 exp_near_overflow
+c2cff1b5 3f800000 exp_near_underflow
+bf800000 00000000 negative_domain_and_div_zero
+3f800000 00000000 finite_div_zero

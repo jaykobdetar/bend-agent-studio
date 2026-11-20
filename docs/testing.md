@@ -207,3 +207,7 @@ pinned optional NumPy installed. It checks bit-exact bootstrap draws, RNG state,
 and fallback behavior. The standard-library statistical tests run separately.
 
 See the [automatic shard verification gap](performance.md#p112-hard-limits-before-automatic-shards) before interpreting sampled group memory as a hard limit.
+
+A separate [F32 sentinel](../tools/bend-f32-sentinel/README.md) checks exact
+words against MPFR on selected inputs. It is not a substitute for exhaustive
+operation or sealed-checkpoint parity. Normal CI does not use the local GPU.
