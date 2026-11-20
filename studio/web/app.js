@@ -1,4 +1,4 @@
-import {kartCaption} from './kart-scene.js';
+import {kartTelemetry} from './kart-scene.js';
 import {comparisonUI} from './compare.js';
 import {
   actionName,
@@ -54,6 +54,34 @@ function button(text, click, className) {
 function choices(select, entries) {
   select.replaceChildren(...entries.map(([value, name]) => new Option(name, value)));
 }
+// Keep visible names friendly while retaining the exact plan path as the value.
+const featuredPlans = new Map([
+  ['apex-kart.json', 'Apex Kart · two time trials'],
+  ['locksmith-courier.json', 'Locksmith Courier · route planning'],
+  ['switchboard.json', 'Switchboard · memory'],
+  ['storm-reserve.json', 'Storm Reserve · resource planning'],
+]);
+function showTrainingPlans(files) {
+  const available = new Set(files);
+  const groups = [
+    ['Featured challenges', [...featuredPlans].filter(([file]) => available.has(file))],
+    [
+      'Other training plans',
+      files.filter((file) => !featuredPlans.has(file)).map((file) => [file, file]),
+    ],
+  ];
+  $('manifest').replaceChildren(
+    new Option('Use the selected demo environment', ''),
+    ...groups
+      .filter(([, entries]) => entries.length)
+      .map(([label, entries]) => {
+        const group = element('optgroup');
+        group.label = label;
+        group.append(...entries.map(([file, name]) => new Option(name, file)));
+        return group;
+      }),
+  );
+}
 async function api(url, options) {
   const response = await fetch(url, options);
   const body = await response.json();
@@ -80,6 +108,7 @@ function reason(t) {
   const why = t.reason?.$ ?? t.reason;
   if (why === 'Limit') return 'Step limit';
   if (why === 'Illegal') return 'Illegal action';
+  if (why === 'Terminal' && t.gridLayout?.renderer === 'apex-kart') return 'Finish line crossed';
   if (why === 'Terminal' && ['cliff', 'mountain_car', 'acrobot'].includes(t.game))
     return 'Goal reached';
   if (why === 'Terminal' && ['tic-tac-toe', 'raw-board'].includes(t.game))
@@ -116,7 +145,18 @@ async function chooseWorld(world) {
 function showWorlds() {
   $('world-list').replaceChildren(
     ...state.worlds.map((world) => {
-      const el = button('', () => chooseWorld(world), 'world');
+      const el = button(
+        '',
+        () => {
+          const picker = $('manifest');
+          if (picker.value) {
+            picker.value = '';
+            picker.dispatchEvent(new Event('change'));
+          }
+          chooseWorld(world);
+        },
+        'world',
+      );
       el.dataset.world = world.id;
       el.title = world.description;
       const thumb = element('canvas');
@@ -140,7 +180,19 @@ function showTrace(trace, source) {
   state.totals = totals;
   const courier = trace.gridLayout?.renderer === 'courier';
   const kart = trace.gridLayout?.renderer === 'apex-kart';
+  state.kart = kart;
   $('scene').parentElement.classList.toggle('kart-hud', kart);
+  $('scene').closest('.viewer').classList.toggle('kart-replay', kart);
+  $('kart-replay-keys').hidden = !kart;
+  $('replay-announce').textContent = '';
+  for (const [id, key] of [
+    ['play', 'Space'],
+    ['back', 'ArrowLeft'],
+    ['next', 'ArrowRight'],
+  ]) {
+    if (kart) $(id).setAttribute('aria-keyshortcuts', key);
+    else $(id).removeAttribute('aria-keyshortcuts');
+  }
   $('game-name').textContent = kart
     ? trace.gridLayout.title
     : courier
@@ -229,34 +281,70 @@ function graph(signal, index) {
   c.fill();
   signal.value.textContent = number(data[index]);
 }
-function render() {
+function render(announce = false) {
   const t = state.trace;
   if (!t) return;
   const i = state.frame,
     n = t.frames.length,
     f = t.frames[i - 1];
   const obs = observation(t, i);
-  draw($('scene'), t.game, obs, state.boards[i], t.gridLayout);
-  const caption = kartCaption(t.gridLayout, obs) ?? courierCaption(t.gridLayout, obs);
+  draw($('scene'), t.game, obs, state.boards[i], t.gridLayout, {kartDashboard: false});
+  const telemetry = kartTelemetry(t.gridLayout, obs);
+  const caption = telemetry?.caption ?? courierCaption(t.gridLayout, obs);
   if (['apex-kart', 'courier'].includes(t.gridLayout?.renderer))
     $('scene').setAttribute('aria-label', caption ?? gameName(t.game) + ' agent replay');
   $('scrub').value = i;
   $('scrub').style.setProperty('--progress', (n ? (i / n) * 100 : 0) + '%');
-  $('counter').textContent = i + ' / ' + n;
+  const action = actionName(t.game, f?.action, t.gridLayout);
+  $('kart-readout').hidden = !telemetry;
+  if (telemetry) {
+    const {distance, length, lane, speed, next} = telemetry;
+    $('kart-progress').textContent = distance + ' / ' + length + ' cells';
+    $('kart-speed').textContent = speed === null ? '—' : speed + ' / 3';
+    $('kart-lane').textContent = lane ?? '—';
+    $('kart-next').textContent = next;
+    const gravel = f?.accepted && f.reward < 0;
+    $('kart-event').hidden = !gravel;
+    $('kart-event').textContent = gravel ? 'Gravel on this step · 4-point penalty' : '';
+    const step = 'Step ' + i + ' of ' + n;
+    const narration =
+      step +
+      '. ' +
+      (f ? 'Action: ' + action + '. ' : '') +
+      caption +
+      (gravel ? ' Gravel penalty.' : '');
+    $('scrub').setAttribute('aria-valuetext', narration);
+    if (announce && document.activeElement !== $('scrub'))
+      $('replay-announce').textContent = narration;
+  } else $('scrub').removeAttribute('aria-valuetext');
+  $('counter').textContent = state.kart ? 'Step ' + i + ' of ' + n : i + ' / ' + n;
   $('stage-step').textContent = 'STEP ' + String(i).padStart(3, '0');
-  $('back').disabled = i === 0;
-  $('next').disabled = i === n;
+  for (const [id, atEdge] of [
+    ['back', i === 0],
+    ['next', i === n],
+  ]) {
+    // Keep keyboard focus on a step button at the boundary of a kart replay.
+    $(id).disabled = !state.kart && atEdge;
+    if (state.kart) $(id).setAttribute('aria-disabled', atEdge);
+    else $(id).removeAttribute('aria-disabled');
+  }
   $('play').disabled = !n;
   state.metrics[0].value.textContent = number(state.totals[i]);
-  state.metrics[1].value.textContent = actionName(t.game, f?.action, t.gridLayout);
+  state.metrics[1].value.textContent = action;
   state.metrics[2].value.textContent = number(f?.reward);
   for (const s of state.signals) graph(s, i);
+  playLabel();
 }
 function pause() {
   clearInterval(state.timer);
   state.playing = false;
-  $('play-text').textContent = 'Play';
-  $('play').firstElementChild.className = 'play-shape';
+  playLabel();
+}
+function playLabel() {
+  const ending =
+    state.kart && state.trace?.frames.length > 0 && state.frame === state.trace.frames.length;
+  $('play-text').textContent = state.playing ? 'Pause' : ending ? 'Replay' : 'Play';
+  $('play').firstElementChild.className = state.playing ? 'pause-shape' : 'play-shape';
 }
 function play() {
   if (!state.trace?.frames.length) return;
@@ -266,13 +354,14 @@ function play() {
     render();
   }
   state.playing = true;
-  $('play-text').textContent = 'Pause';
-  $('play').firstElementChild.className = 'pause-shape';
+  $('replay-announce').textContent = '';
+  playLabel();
   state.timer = setInterval(
     () => {
       state.frame++;
-      render();
-      if (state.frame === state.trace.frames.length) pause();
+      const atEnd = state.frame === state.trace.frames.length;
+      render(atEnd);
+      if (atEnd) pause();
     },
     1000 / (tickRate(state.trace.game) * Number($('speed').value)),
   );
@@ -281,11 +370,15 @@ function seek(index) {
   if (!state.trace) return;
   pause();
   state.frame = Math.max(0, Math.min(index, state.trace.frames.length));
-  render();
+  render(true);
 }
 $('play').onclick = play;
-$('back').onclick = () => seek(state.frame - 1);
-$('next').onclick = () => seek(state.frame + 1);
+$('back').onclick = () => {
+  if (state.frame > 0) seek(state.frame - 1);
+};
+$('next').onclick = () => {
+  if (state.frame < state.trace?.frames.length) seek(state.frame + 1);
+};
 $('scrub').oninput = (e) => seek(Number(e.target.value));
 $('speed').onchange = () => {
   if (state.playing) {
@@ -295,22 +388,29 @@ $('speed').onchange = () => {
 };
 document.addEventListener('keydown', (e) => {
   if (
+    e.defaultPrevented ||
+    e.altKey ||
+    e.ctrlKey ||
+    e.metaKey ||
+    e.shiftKey ||
     state.page !== 'simulator' ||
-    $('run-dialog').open ||
-    e.target.closest('input,select,button,a,textarea')
+    $('run-dialog').open
   )
     return;
-  if (e.key === ' ') {
+  // Sliders, select boxes, and text inputs retain their native keyboard
+  // behavior. For kart, the focused play/step buttons also accept steppers.
+  const control = e.target.closest?.('input,select,button,a,textarea,[contenteditable]');
+  const kartStepper = state.kart && ['play', 'back', 'next'].includes(control?.id);
+  if (control && !kartStepper) return;
+  if (e.key === ' ' && !control) {
     e.preventDefault();
-    play();
-  }
-  if (e.key === 'ArrowLeft') {
+    if (!e.repeat) play();
+  } else if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
     e.preventDefault();
-    seek(state.frame - 1);
-  }
-  if (e.key === 'ArrowRight') {
+    seek(state.frame + (e.key === 'ArrowLeft' ? -1 : 1));
+  } else if (state.kart && (e.key === 'Home' || e.key === 'End')) {
     e.preventDefault();
-    seek(state.frame + 1);
+    seek(e.key === 'Home' ? 0 : state.trace.frames.length);
   }
 });
 function download(blob, name) {
@@ -489,12 +589,24 @@ $('manifest').onchange = async () => {
     const plan = await api('/api/manifest?file=' + encodeURIComponent(file));
     if (seq !== state.manifestSequence) return;
     state.manifestInfo = plan;
-    info.textContent =
-      plan.name +
-      ' · ' +
-      plan.replicates +
-      ' replicate(s) · ' +
-      plan.hooks.map(({arm, hook}) => arm + ': ' + hook).join(', ');
+    const count = (n, label) => n + ' ' + label + (n === 1 ? '' : 's');
+    const trials = plan.games.length * plan.hooks.length * plan.replicates;
+    const budget = number(plan.checkpoints.at(-1)) + ' ' + plan.budgetUnit;
+    info.replaceChildren(
+      element('strong', count(trials, 'training trial') + ' · up to ' + budget + ' each'),
+      element(
+        'span',
+        [
+          count(plan.games.length, 'world'),
+          count(plan.hooks.length, 'agent'),
+          count(plan.replicates, 'replicate') + ' per world and agent',
+        ].join(' · '),
+      ),
+      element(
+        'span',
+        file + ' · Hooks: ' + plan.hooks.map(({arm, hook}) => arm + ': ' + hook).join(', '),
+      ),
+    );
   } catch (err) {
     if (seq === state.manifestSequence) info.textContent = err.message;
   }
@@ -502,9 +614,12 @@ $('manifest').onchange = async () => {
 };
 $('train').onsubmit = async (e) => {
   e.preventDefault();
+  const manifest = $('manifest').value;
+  if (state.submitting || (manifest ? state.manifestInfo?.file !== manifest : !state.selected))
+    return;
   const generation = state.generation;
-  const body = state.manifestInfo
-    ? {manifest: state.manifestInfo.file}
+  const body = manifest
+    ? {manifest}
     : {
         world: state.selected,
         algorithm: $('agent').value,
@@ -639,6 +754,11 @@ function openDialog(run) {
       if (!loaded || !$('run-dialog').open) return;
       $('run-dialog').close();
       navigate('simulator');
+      if (state.kart) {
+        const heading = $('game-name');
+        heading.closest('.viewer').scrollIntoView({block: 'start'});
+        heading.focus({preventScroll: true});
+      }
     } catch (err) {
       note.textContent = err.message;
     } finally {
@@ -702,7 +822,10 @@ async function record() {
     try {
       await saveClip({
         id: crypto.randomUUID(),
-        title: gameName(trace.game),
+        title:
+          trace.gridLayout?.renderer === 'apex-kart'
+            ? trace.gridLayout.title
+            : gameName(trace.game),
         agent: algoName(trace.game, trace.arm),
         steps: trace.frames.length,
         speed,
@@ -818,10 +941,7 @@ window.onhashchange = () => navigate(location.hash.slice(1), true);
 try {
   state.worlds = await api('/api/catalog');
   const manifests = await api('/api/manifests');
-  choices($('manifest'), [
-    ['', 'Use an environment preset'],
-    ...manifests.map((file) => [file, file]),
-  ]);
+  showTrainingPlans(manifests);
   showWorlds();
   await chooseWorld(state.worlds[0]);
   navigate(location.hash.slice(1), true);

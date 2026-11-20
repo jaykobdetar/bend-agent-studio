@@ -63,7 +63,17 @@ export function manifestPicker(root) {
       for (const entry of fs.readdirSync(dir, {withFileTypes: true})) {
         const name = prefix + entry.name;
         if (entry.isDirectory()) walk(path.join(dir, entry.name), name + '/');
-        else if (entry.isFile() && manifestName(name)) out.push(name);
+        else if (entry.isFile() && manifestName(name)) {
+          // The directory also contains offline, assessment and selection specs.
+          // Identify plan candidates without opening or validating their source files.
+          try {
+            const spec = JSON.parse(fs.readFileSync(path.join(dir, entry.name), 'utf8'));
+            if (spec?.schema === 1 && Array.isArray(spec.games) && Array.isArray(spec.arms))
+              out.push(name);
+          } catch {
+            // An unreadable file should not prevent other plans from appearing.
+          }
+        }
       }
     }
     if (fs.existsSync(experiments) && !fs.lstatSync(experiments).isSymbolicLink())

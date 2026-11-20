@@ -129,6 +129,57 @@ test('CLI records deliberate actions only, no output before save; invalid action
   assert.equal(fs.readFileSync(out, 'utf8'), bytes);
 });
 
+test('friendly driving inputs do not change episode bytes or consume a turn on help', (t) => {
+  const p = work(t);
+  const course = path.join(root, 'worlds/challenges/apex-kart/kart-sprint.json');
+  const play = (destination, input) =>
+    ok(run(cliFile, ['play', course, p(destination), '--seed', '1', '--limit', '2'], input));
+  const friendly = play('words.json', 'help\nfly\nTHROTTLE\nSteer LEFT\nreview\nsave\n');
+  play('numbers.json', '1\n3\nsave\n');
+  assert.match(friendly, /Enter its number or name/);
+  assert.match(friendly, /left hairpin after 3 straight cells/);
+  assert.match(friendly, /No move recorded.*1 throttle/);
+  assert.match(friendly, /Turn 1\/2 \| played 1 throttle/);
+  assert.match(friendly, /Turn limit reached/);
+  assert.match(friendly, /Accepted actions: \[1, 3\]/);
+  assert.equal(
+    fs.readFileSync(p('words.json'), 'utf8'),
+    fs.readFileSync(p('numbers.json'), 'utf8'),
+  );
+  const gravel = play('discarded.json', 'throttle\nthrottle\nquit\n');
+  assert.match(gravel, /Ran onto gravel/);
+  assert.equal(fs.existsSync(p('discarded.json')), false);
+});
+
+test('failed saves preserve the completed drive, and an alternate mixed-case path can be saved', (t) => {
+  const p = work(t);
+  fs.writeFileSync(p('blocked'), 'not a directory');
+  fs.writeFileSync(p('existing.json'), 'keep me');
+  const args = ['play', bridge, p('blocked/drive.json'), '--limit', '2'];
+  const recovered = p('Recovered Drive.json');
+  const result = run(
+    cliFile,
+    args,
+    '0\nsave\nsave ' + p('existing.json') + '\nreview\nSave ' + recovered + '\n',
+  );
+  const output = ok(result);
+  assert.match(result.stderr, /Could not save/);
+  assert.match(result.stderr, /Output already exists/);
+  assert.match(output, /Your completed episode is still in memory/);
+  assert.match(output, /Accepted actions: \[0\]/);
+  assert.equal(fs.readFileSync(p('existing.json'), 'utf8'), 'keep me');
+  assert.equal(fs.readFileSync(p('blocked'), 'utf8'), 'not a directory');
+  assert.match(ok(run(cliFile, ['verify', bridge, recovered])), /Replay verified/);
+  assert.deepEqual(fs.readdirSync(p('.')).sort(), [
+    'Recovered Drive.json',
+    'blocked',
+    'existing.json',
+  ]);
+  const failed = run(cliFile, args, '0\nsave\n');
+  assert.equal(failed.status, 1);
+  assert.match(failed.stdout, /Discarded; no file written/);
+});
+
 test('display shows grid coordinates or hash-selected kart cues, never hidden state', () => {
   assert.match(
     display({grid: ['S.G']}, null, {observation: 1, legal: [1, 3]}),
@@ -137,7 +188,7 @@ test('display shows grid coordinates or hash-selected kart cues, never hidden st
   const layout = {renderer: 'apex-kart', title: 'Tiny test', road: '..Lr'};
   assert.match(
     display({}, layout, {observation: 4, legal: [0, 1, 2, 3, 4]}),
-    /0\/4 \| lane center \| speed 1[\s\S]*Next track: \.\.Lr[\s\S]*4 steer right/,
+    /0\/4 cells \| lane center \| speed 1\/3[\s\S]*Next track: \.\.Lr[\s\S]*left hairpin after 2 straight cells[\s\S]*4 steer right/,
   );
   assert.doesNotMatch(display({}, null, {observation: 4, legal: [3]}), /lane|steer/);
 });
@@ -280,6 +331,7 @@ test(
       [2, '7'],
       [3, '7'],
       [4, 'skip'],
+      [5, 'same'],
     ]) {
       const out = p('label-' + seed + '.json');
       const cli = ['label', bridge, p('fit.json'), out, '--seed', String(seed)];
@@ -287,7 +339,12 @@ test(
         assert.match(ok(run(cliFile, cli, '7\nquit\n')), /Discarded/);
         assert.equal(fs.existsSync(out), false);
       }
-      assert.match(ok(run(cliFile, cli, '99\n' + label + '\nreview\nsave\n')), /Clone will play 0/);
+      const coaching = ok(run(cliFile, cli, '99\n' + label + '\nreview\nsave\n'));
+      assert.match(coaching, /Clone will play 0/);
+      assert.match(coaching, /No label or turn recorded/);
+      const expected = label === 'skip' ? 'skipped' : label === 'same' ? '0' : '7';
+      assert.ok(coaching.includes('clone played 0 | your label: ' + expected));
+
       const record = JSON.parse(fs.readFileSync(out));
       const ep = verify(w, record);
       assert.equal(ep.frames.length, 1);
@@ -296,9 +353,9 @@ test(
       assert.deepEqual(ep.annotations[0], {
         proposedAction: 0,
         appliedAction: 0,
-        teacherLabel: label === 'skip' ? null : 7,
+        teacherLabel: label === 'skip' ? null : label === 'same' ? 0 : 7,
       });
-      files[seed] = record;
+      if (label !== 'same') files[seed] = record;
     }
     await assert.rejects(train(w, [files[2]], 1000, 32), /original training/);
     const editedFit = structuredClone(first);

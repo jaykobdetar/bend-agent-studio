@@ -26,24 +26,48 @@ function read(layout, obs) {
     next: ahead < 0 ? 'Finish' : turns[layout.road[distance + ahead]],
   };
 }
-export function kartCaption(layout, obs) {
+export function kartTelemetry(layout, obs) {
   const s = read(layout, obs);
   if (!s) return;
-  if (s.finish) return layout.title + ': finished all ' + s.distance + ' cells.';
-  return (
-    layout.title +
-    ': ' +
-    s.distance +
-    '/' +
-    layout.road.length +
-    ' cells. ' +
-    lanes[s.lane] +
-    ' lane, speed ' +
-    s.speed +
-    '/3. ' +
-    (s.ahead === -1 ? 'Straight to finish.' : s.next + ' in ' + (s.ahead + 1) + ' cells.')
-  );
+  const {distance} = s,
+    length = layout.road.length;
+  if (s.finish) {
+    return {
+      distance,
+      length,
+      lane: null,
+      speed: null,
+      next: 'Finish line crossed',
+      caption: layout.title + ': finished all ' + distance + ' cells.',
+    };
+  }
+  const lane = lanes[s.lane];
+  const next =
+    s.ahead < 0
+      ? 'Straight to the finish'
+      : s.next + (s.ahead === 0 ? ' now' : ' · ' + (s.ahead + 1) + ' cells ahead');
+  return {
+    distance,
+    length,
+    lane,
+    speed: s.speed,
+    next,
+    caption:
+      layout.title +
+      ': ' +
+      distance +
+      '/' +
+      length +
+      ' cells. ' +
+      lane +
+      ' lane, speed ' +
+      s.speed +
+      '/3. ' +
+      next.replace(' · ', ' ') +
+      '.',
+  };
 }
+export const kartCaption = (layout, obs) => kartTelemetry(layout, obs)?.caption;
 function poly(c, color, points) {
   c.fillStyle = color;
   c.beginPath();
@@ -187,11 +211,21 @@ function kart(c, x) {
   rect(c, '#90d9c0', 2, -17, 4, 2);
   c.restore();
 }
-export function drawKart(c, layout, obs) {
+export function drawKart(c, layout, obs, dashboard = true) {
   const s = read(layout, obs);
   if (!s) return false;
+  c.save();
+  // The interactive viewer has real, resizable dashboard text beneath the
+  // artwork. The standalone GIF still carries the screen-printed HUD.
+  if (!dashboard) c.scale(1, 220 / 194);
   landscape(c, layout.road, s);
   if (!s.finish) kart(c, 256 + (s.lane - 1) * 99);
+  c.restore();
+  if (s.finish) {
+    rect(c, '#24323e', 147, 101, 218, 46);
+    label(c, 'FINISH', 256, 132, 28, '#ffe5aa', 'center');
+  }
+  if (!dashboard) return true;
   rect(c, '#24323e', 0, 0, 512, 22);
   rect(c, '#e59b71', 0, 20, 512, 2);
   label(c, 'APEX / ' + layout.title.toUpperCase(), 10, 15, 12);
@@ -200,8 +234,6 @@ export function drawKart(c, layout, obs) {
   rect(c, '#65837f', 0, 194, 512, 2);
   rect(c, '#a1e5ca', 0, 194, (512 * s.distance) / layout.road.length, 2);
   if (s.finish) {
-    rect(c, '#24323e', 147, 101, 218, 46);
-    label(c, 'FINISH', 256, 132, 28, '#ffe5aa', 'center');
     label(c, 'TIME TRIAL COMPLETE', 256, 212, 13, '#a1e5ca', 'center');
   } else {
     label(c, 'SPEED ' + s.speed + '/3', 10, 212, 12);

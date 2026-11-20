@@ -545,13 +545,13 @@ function drawFiniteGrid(c, layout, obs) {
     c.fillText(glyph, left + (x + 0.55) * size, top + (y + 0.58) * size);
   }
 }
-export function draw(canvas, game, obs, boardState, layout) {
+export function draw(canvas, game, obs, boardState, layout, {kartDashboard = true} = {}) {
   const c = canvas.getContext('2d');
   c.save();
   c.setTransform(canvas.width / 512, 0, 0, canvas.height / 220, 0, 0);
   c.imageSmoothingEnabled = false;
   if (layout?.renderer === 'apex-kart') {
-    if (!drawKart(c, layout, obs)) unknown(c, obs);
+    if (!drawKart(c, layout, obs, kartDashboard)) unknown(c, obs);
   } else if (layout?.renderer === 'courier' && layout.locations?.[obs])
     drawCourier(c, layout, layout.locations[obs]);
   else if (layout?.rows?.[0]?.length) drawFiniteGrid(c, layout, obs);

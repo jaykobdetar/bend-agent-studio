@@ -31,6 +31,58 @@ try {
     }),
   ]);
   browser = await chromium.launch({channel: 'chromium'});
+  for (const width of [1366, 390]) {
+    const discovery = await browser.newPage({viewport: {width, height: 900}});
+    try {
+      await discovery.goto(address);
+      const plans = discovery.getByLabel('Training plan');
+      const apex = plans.locator(
+        'optgroup[label="Featured challenges"] option[value="apex-kart.json"]',
+      );
+      await apex.waitFor({state: 'attached'});
+      assert.match(await apex.textContent(), /Apex Kart/);
+      assert.equal(await plans.locator('option[value="dispatch-fit.json"]').count(), 0);
+      await discovery.getByRole('heading', {name: 'Mountain Car'}).waitFor();
+      await plans.selectOption('apex-kart.json');
+      await discovery
+        .getByText(/36 training trials.*8192 steps|36 training trials.*8,192 steps/)
+        .waitFor();
+      await discovery.getByRole('heading', {name: 'Mountain Car'}).waitFor();
+      await discovery.locator('#world-list button').filter({hasText: 'Cliff Walk'}).click();
+      assert.equal(await plans.inputValue(), '');
+      await discovery.getByLabel('Learning algorithm').waitFor();
+
+      let finish;
+      const gate = new Promise((resolve) => {
+        finish = resolve;
+      });
+      await discovery.route('**/api/manifest?file=apex-kart.json', async (route) => {
+        await gate;
+        await route.continue();
+      });
+      const pending = discovery.waitForResponse('**/api/manifest?file=apex-kart.json');
+      await plans.selectOption('apex-kart.json');
+      assert.equal(await discovery.locator('#train-btn').isDisabled(), true);
+      let submitted = false;
+      await discovery.route('**/api/runs', async (route) => {
+        if (route.request().method() !== 'POST') return route.continue();
+        submitted = true;
+        return route.abort();
+      });
+      await discovery.locator('#train').dispatchEvent('submit', {cancelable: true});
+      await discovery.locator('#world-list button').filter({hasText: 'Mountain Car'}).click();
+      finish();
+      await pending;
+      assert.equal(submitted, false, 'pending plan must not fall back to a preset submission');
+      await discovery.getByLabel('Learning algorithm').waitFor();
+      assert.equal(await plans.inputValue(), '');
+      assert.equal(await discovery.locator('#manifest-info').isHidden(), true);
+      assert.match(await discovery.locator('#train-btn').innerText(), /Train agent/);
+      assert.ok(await discovery.evaluate(() => document.documentElement.scrollWidth <= innerWidth));
+    } finally {
+      await discovery.close();
+    }
+  }
   const page = await browser.newPage({
     viewport: {width: 390, height: 844},
     isMobile: true,

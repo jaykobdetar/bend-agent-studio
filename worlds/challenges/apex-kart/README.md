@@ -51,7 +51,9 @@ npm start -- --run runs/kart
 
 The [reference export](results.csv) has 144 checkpoint rows (two worlds, three arms, six replicates, four budgets). For exact frozen-policy values on both start lanes use `node studies/complex-worlds/frozen-values.mjs runs/kart`. On one CPU core the example study, including compilation and evaluation, took about 24 s and peaked around 1.42 GiB sampled group PSS; these are machine-specific measurements.
 
-In Studio choose **Experiments → Open replay → kart-ridge / dyna-5 / 8192 / Test / Episode 1**, then use Next, Previous, the scrubber or Record GIF. Replicate 0's first held-out lap scores **15 in 13 ticks with no gravel**. Both tracks render only for a matching definition with the original observations; modified geometry or history-encoded observations retain generic replay. Four matched MCP protocol rollouts (both courses, both Dyna-Q and random) matched their compiled Bend replays frame for frame.
+In Studio choose **Experiments → Open replay → kart-ridge / dyna-5 / 8192 / Test / Episode 1**, then use Next, Previous, the scrubber or Record GIF. The live dashboard shows track cells covered, speed, lane and the next corner; the scrubber counts decisions, not cells. A gravel penalty appears on the step that caused it. Use **Space** to play or pause, **← / →** to step, and **Home / End** to jump to either end of the replay. The exported GIF includes its own dashboard. Replicate 0's first held-out lap scores **15 in 13 ticks with no gravel**. Both tracks render only for a matching definition with the original observations; modified geometry or history-encoded observations retain generic replay. Four matched MCP protocol rollouts (both courses, both Dyna-Q and random) matched their compiled Bend replays frame for frame.
 
 For an opt-in learner that shares features across tracks, see the
 [held-out layout study](../../../studies/complex-worlds/kart-transfer/README.md).
+
+For browser regression checks, install the [Studio smoke harness](../../../docs/testing.md#studio-browser-smoke) and run `node tools/studio-smoke/kart.mjs runs/kart` from the root with this trusted run.

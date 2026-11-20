@@ -11,6 +11,7 @@ import {setTimeout as delay} from 'node:timers/promises';
 import {worlds} from './catalog.mjs';
 import {manifestPicker, readPlanSnapshot, savePlanSnapshot} from './manifests.mjs';
 import {knownGridLayouts} from './grid-layouts.mjs';
+import {kartTelemetry} from './web/kart-scene.js';
 import {symbol} from '../core/finite_world.mjs';
 import {
   acrobotPose,
@@ -28,6 +29,22 @@ import {Gif} from './web/gif.js';
 import {seal} from '../core/experiment.mjs';
 import {digest} from '../core/experiment_config.mjs';
 import {comparisonBudgetTicks} from './web/compare.js';
+
+test('kart dashboard distinguishes the next turn from finish and never invents finish speed or lane', () => {
+  const layout = {renderer: 'apex-kart', title: 'Test sprint', road: '.L'};
+  const start = kartTelemetry(layout, 4);
+  assert.equal(start.speed, 1);
+  assert.equal(start.lane, 'Center');
+  assert.equal(start.next, 'Left hairpin · 2 cells ahead');
+  assert.match(start.caption, /0\/2 cells/);
+  assert.equal(kartTelemetry(layout, 13).next, 'Left hairpin now');
+  const finish = kartTelemetry(layout, 0);
+  assert.equal(finish.distance, 2);
+  assert.equal(finish.speed, null);
+  assert.equal(finish.lane, null);
+  assert.equal(finish.next, 'Finish line crossed');
+  assert.equal(kartTelemetry(layout, 19), undefined);
+});
 
 test('comparison ticks mark actual checkpoint budgets and align to both plot ends', () => {
   const ticks = comparisonBudgetTicks([32, 0, 8, 8, 16, 64, 128]);
@@ -1040,6 +1057,10 @@ test('manifest selection validates CLI hooks and confines names and resolved sou
   try {
     const files = await (await fetch(server.url + '/api/manifests')).json();
     assert.ok(files.includes('cliff-sarsa.json'));
+    assert.ok(files.includes('apex-kart.json'));
+    for (const nonPlan of ['car-confirmation.json', 'dispatch-fit.json', 'ledge-assessment.json'])
+      assert.ok(!files.includes(nonPlan), nonPlan);
+
     const inspect = (file) => fetch(server.url + '/api/manifest?file=' + encodeURIComponent(file));
     const response = await inspect('cliff-sarsa.json');
     assert.equal(response.status, 200);
@@ -1075,6 +1096,16 @@ test('manifest selection validates CLI hooks and confines names and resolved sou
   const manifest = path.join(checkout, 'experiments', 'nested', 'a plan.json');
   await writeFile(manifest, JSON.stringify(sample));
   const picker = manifestPicker(checkout);
+  await writeFile(
+    path.join(checkout, 'experiments', 'assessment.json'),
+    JSON.stringify({
+      schema: 1,
+      name: 'assessment',
+      comparisons: [],
+      targets: [],
+    }),
+  );
+  await writeFile(path.join(checkout, 'experiments', 'broken.json'), '{');
   assert.deepEqual(picker.list(), ['nested/a plan.json']);
   const {snapshot} = picker.load('nested/a plan.json');
   const pinned = savePlanSnapshot(home, snapshot);

@@ -338,14 +338,135 @@ main {
   bottom: 12px;
   right: 14px;
 }
-/* Kart embeds its speed and progress strips in recordings too. Keep Studio's
-   live-only labels over sky instead of printing them on the dashboard. */
+/* The live dashboard is HTML so its telemetry scales independently of the
+   canvas. GIFs carry their own on-canvas dashboard. */
 .kart-hud .scene-info,
 .kart-hud .stage-step {
-  top: 13%;
+  top: 9px;
   bottom: auto;
-  padding: 2px 4px;
-  background: #24323ed9;
+  padding: 3px 5px;
+  background: #24323ef0;
+}
+.kart-readout {
+  background: #222b32;
+  border-bottom: 1px solid #45424b;
+  padding: 12px 19px;
+}
+.kart-readout dl {
+  display: grid;
+  grid-template-columns: max-content max-content max-content minmax(0, 1fr);
+  gap: 10px clamp(14px, 2.5vw, 30px);
+  margin: 0;
+}
+.kart-readout dt {
+  color: #b7c6cb;
+  font-size: 11px;
+  line-height: 1.25;
+  margin-bottom: 4px;
+}
+.kart-readout dd {
+  margin: 0;
+  color: #f9f1e2;
+  font-size: 14px;
+  font-weight: 650;
+  line-height: 1.25;
+}
+.kart-readout .kart-corner dd {
+  color: #ffe5aa;
+}
+.kart-event {
+  margin: 8px 0 0;
+  color: #ffcaa8;
+  font-size: 12px;
+}
+.kart-replay .transport {
+  padding-top: 7px;
+}
+.kart-replay .transport-row {
+  margin-top: 5px;
+  flex-wrap: wrap;
+}
+.kart-replay input[type='range'] {
+  height: 38px;
+  margin: 0;
+  background: transparent;
+}
+.kart-replay input[type='range']::-webkit-slider-runnable-track {
+  height: 4px;
+  border-radius: 2px;
+  background: linear-gradient(to right, var(--accent) var(--progress, 0%), #55535e 0);
+}
+.kart-replay input[type='range']::-webkit-slider-thumb {
+  margin-top: -7px;
+  width: 18px;
+  height: 18px;
+}
+.kart-replay input[type='range']::-moz-range-track {
+  height: 4px;
+  border-radius: 2px;
+  background: linear-gradient(to right, var(--accent) var(--progress, 0%), #55535e 0);
+}
+.kart-replay input[type='range']::-moz-range-thumb {
+  width: 18px;
+  height: 18px;
+}
+.kart-replay .play,
+.kart-replay .record,
+.kart-replay .iconbtn,
+.kart-replay .buttons select {
+  min-height: 44px;
+}
+.kart-replay .play {
+  min-width: 83px;
+}
+.kart-replay .iconbtn {
+  min-width: 44px;
+  color: var(--text);
+}
+.kart-replay .iconbtn[aria-disabled='true'] {
+  cursor: default;
+  opacity: 0.46;
+}
+.kart-replay .buttons select {
+  min-width: 45px;
+  padding-inline: 4px;
+}
+.replay-keys {
+  margin: 11px 0 0;
+  color: var(--dim);
+  font-size: 11px;
+}
+.replay-keys kbd {
+  padding: 0 2px;
+  color: var(--text);
+}
+@media (max-width: 620px) {
+  .kart-replay .viewer-head {
+    position: relative;
+    display: block;
+  }
+  .kart-replay .viewer-head .tag {
+    position: absolute;
+    inset: 14px 15px auto auto;
+  }
+  .kart-replay .viewer-head .eyebrow {
+    padding-right: 126px;
+  }
+  .kart-readout {
+    padding-inline: 12px;
+  }
+  .kart-readout dl {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    column-gap: 8px;
+  }
+  .kart-readout .kart-corner {
+    grid-column: 1 / -1;
+  }
+}
+@media (hover: none) {
+  .replay-keys {
+    display: none;
+  }
 }
 .transport {
   padding: 14px 19px 16px;
@@ -890,9 +1011,18 @@ dialog::backdrop {
 #manifest-info {
   overflow-wrap: anywhere;
 }
+#manifest-info strong, #manifest-info span {
+  display: block;
+}
+#manifest-info strong {
+  color: var(--text);
+}
+#manifest-info span {
+  margin-top: 3px;
+}
 
 @media (max-width: 500px) {
-  #manifest-info, #preset-fields {
+  #manifest-hint, #manifest-info, #preset-fields {
     grid-column: 1 / -1;
   }
   #preset-fields:not([hidden]) {

@@ -34,7 +34,7 @@
         <aside class="worlds panel">
           <div class="panel-head">
             <span class="section-mark"></span>
-            <h2>Environments</h2>
+            <h2>Demo environments</h2>
           </div>
           <div id="world-list"></div>
         </aside>
@@ -42,7 +42,7 @@
           <div class="viewer-head">
             <div>
               <div class="eyebrow">Environment viewer</div>
-              <h2 id="game-name">Mountain Car</h2>
+              <h2 id="game-name" tabindex="-1">Mountain Car</h2>
               <p id="world-description"></p>
             </div>
             <span id="source" class="tag">Example replay</span>
@@ -59,6 +59,15 @@
               <span class="viewfinder"></span><span id="stage-label">REPLAY VIEW</span>
             </div>
             <div class="stage-step" id="stage-step">STEP 000</div>
+          </div>
+          <div id="kart-readout" class="kart-readout" hidden>
+            <dl aria-label="Kart dashboard">
+              <div><dt>Progress</dt><dd id="kart-progress"></dd></div>
+              <div><dt>Speed</dt><dd id="kart-speed"></dd></div>
+              <div><dt>Lane</dt><dd id="kart-lane"></dd></div>
+              <div class="kart-corner"><dt>Up next</dt><dd id="kart-next"></dd></div>
+            </dl>
+            <p id="kart-event" class="kart-event" hidden></p>
           </div>
           <div class="transport">
             <div class="timeline">
@@ -81,6 +90,11 @@
               </div>
               <button id="record" class="record"><i></i><span>Record GIF</span></button>
             </div>
+            <p class="replay-keys" id="kart-replay-keys" hidden>
+              <kbd>Space</kbd> play or pause · <kbd>←</kbd> <kbd>→</kbd> step ·
+              <kbd>Home</kbd> <kbd>End</kbd> jump
+            </p>
+            <div id="replay-announce" class="sr" role="status" aria-atomic="true"></div>
           </div>
         </section>
         <aside class="config panel">
@@ -90,7 +104,8 @@
           </div>
           <form id="train">
             <label for="manifest">Training plan</label>
-            <select id="manifest"><option value="">Use an environment preset</option></select>
+            <select id="manifest" aria-describedby="manifest-hint"><option value="">Use the selected demo environment</option></select>
+            <p class="form-note" id="manifest-hint">Choose a featured challenge to train it. The viewer keeps its current replay. Select a demo environment to switch back to preset training.</p>
             <p class="form-note" id="manifest-info" role="status" hidden></p>
             <fieldset id="preset-fields">
             <label for="agent">Learning algorithm</label

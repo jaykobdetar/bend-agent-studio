@@ -1,8 +1,8 @@
 # Bend Agent Studio
 
-Train reinforcement-learning agents in Bend and watch how their decisions change. The local Studio opens with a playable episode. Scrub through each move, inspect rewards, change learners, and keep a recording of a trained policy.
+Train reinforcement-learning agents in Bend and watch how their decisions change. In the local Studio, step through an episode, inspect rewards, compare learners, and record a trained policy.
 
-![Bend Studio showing step 44 of the included Mountain Car replay, with playback controls and episode telemetry.](docs/studio-simulator.png)
+![A Juniper Ridge test lap in Bend Studio, paused before a left hairpin. The replay shows progress, speed, lane, and the distance to the next corner.](worlds/challenges/apex-kart/studio.png)
 
 ## Start Studio
 
@@ -15,6 +15,12 @@ npm start
 ```
 
 Open **http://127.0.0.1:4173**. Four included replays work immediately, without a compiler or package installation. Training requires [Bend 2.0.40](https://github.com/bendlang/bend/releases/tag/v2.0.40). The [Studio guide](docs/studio.md) covers training, recordings, comparisons, attached runs, runtime versions and configuration.
+
+### Try a challenge
+
+- **Train a race.** Under **Run settings → Training plan → Featured challenges**, choose **Apex Kart**. Studio shows the number of trials and the budget before you queue it. Open a finished lap from **Experiments → Open replay**. The [Apex Kart guide](worlds/challenges/apex-kart/README.md) has a screenshot and a specific held-out lap to try.
+- **Drive and teach.** Studio's **Play** button replays a recorded lap. To drive turn by turn, follow the [three-command terminal walkthrough](integrations/demonstrations/README.md). You decide whether to save your lap.
+- **Stress-test a learner.** The same menu has **Locksmith Courier**, **Switchboard**, and **Storm Reserve**. See the [complex-world studies](studies/complex-worlds/README.md) for what each challenge measures and where the learners fell short.
 
 ### If Studio stops during training
 
@@ -55,10 +61,6 @@ On this CliffWalking run, Dyna-Q reached a mean validation return of −13 by 64
 | [Command reference](docs/commands.md) | CLI purposes, arguments and examples |
 
 A separate [Gymnasium adapter](integrations/gymnasium/README.md) lets Python agents play the same JSON finite and grid worlds without changing Studio or its dependencies. Seven [toy-text benchmark worlds](docs/worlds.md#benchmark-worlds) include FrozenLake, Taxi, CliffWalking and Blackjack. See [large-world compile measurements and replay checks](tools/finite-layout/README.md).
-
-For a harder test, try the [three complex challenges](studies/complex-worlds/README.md): route a courier, recall a surprise query, or trade under a reserve deadline. Each comes with a reference solution and a matched-seed study.
-
-For a racing example, [watch a trained driver in Apex Kart](worlds/challenges/apex-kart/README.md) or [drive a course in the terminal and train a policy from your examples](integrations/demonstrations/README.md).
 
 ### Agent access over MCP
 
