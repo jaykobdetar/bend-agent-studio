@@ -237,6 +237,33 @@ warm/cold measurements are incomplete. Cross-plan raw checkpoint reuse
 does not satisfy the current manifest-linked seal. Neither cache is enabled.
 
 
+## P11.5: episode batching was not adopted
+
+A diagnostic called the same compiled Bend advancement function once per
+episode or once per checkpoint interval. It used the two fixed slippery-lake
+arms from the [population fixture](../tools/bend-parallel-spike/README.md),
+on one logical CPU of the [reference machine](../tools/perf/machine.json).
+Both arms had 1,024 episode calls or 24 interval calls. The model snapshots
+and the ordered score/step/stop reports agreed with the stock archived
+JavaScript output at all 64 model and 2,048 report coordinates.
+
+After equal warming, five interleaved pairs measured advancement plus the
+same host-side report consumption. The clock did not include compilation,
+checkpoint model encoding, or output serialization.
+
+| Arm | Per-episode median | Batched median | Batched vs. per-episode |
+| --- | ---: | ---: | ---: |
+| Q-learning | 34.427 ms | 33.463 ms | 2.8% less; ranges overlap |
+| Dyna-Q | 257.093 ms | 264.950 ms | 3.1% more; slower in all five pairs |
+
+Cold compilation for the common diagnostic module took 3.624 seconds in
+its one observed setup; that is not a five-run timing or an estimate of
+end-to-end saved time. Traversal and encoding were checked separately,
+not subtracted to infer a pure call-overhead percentage. Since batching
+regressed one arm, it was not adopted. This was not a P11.0 workload,
+a step-budget test, or a sealed archive parity test. The original runner
+and its archive digests remain unchanged.
+
 ## P11.7: a verified CUDA rounding counterexample
 
 A [bounded diagnostic](../tools/bend-f32-sentinel/README.md) found that

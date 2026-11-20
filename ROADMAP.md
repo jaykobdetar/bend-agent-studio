@@ -375,7 +375,7 @@ local gates pass; fix any hosted failure before publishing another item.
 | P11.2 | Resource-aware shards and parallel evaluation | Sealed-byte parity, bounded memory and measured benefit | Deferred: live memory enforcement not verified; no scheduler or evaluation change |
 | P11.3 | Exact evaluation, sequential extension and reuse | Separate exact metrics and a prespecified stopping rule; verified reusable bytes | Partial: validation-only stopping implemented; exact annotation and cache drafts not adopted |
 | P11.4 | Warm engine prototype | Local Unix socket, parity and direct fallback; measurable benefit | Pending |
-| P11.5 | Fewer JavaScript–Bend calls | Episode and step checkpoints byte-identical, benchmark improvement | Pending |
+| P11.5 | Fewer JavaScript–Bend calls | Episode and step checkpoints byte-identical, benchmark improvement | Not adopted: bounded episode benchmark regressed Dyna-Q; step budgets not tested |
 | P11.6 | Bend parallel and CUDA population spike | Adopt only if exact and faster than the best comparable path | Bounded CPU diagnostic complete; CUDA case capped; not adopted |
 | P11.7 | Cross-backend F32 operations | Correct rounding evidence and reviewed archive transition | Stock device mismatch reproduced; correctly rounded replacements and exhaustive validation pending |
 | P11.8 | Native twin for eligible finite environments | Local and generic builds match all eligible sealed checkpoints | Five-arm scalar witness: 196/196 per target on 14 fixtures; not a production backend |
