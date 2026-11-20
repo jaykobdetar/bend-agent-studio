@@ -356,4 +356,4 @@ item; after three unsuccessful attempts, revert that item without rewriting hist
 | R10.3 | Run a preregistered flagship v2 with fresh seeds, preserving v1. | Implemented; [400-trial report and reproduction](studies/flagship-toy-text-v2/README.md) |
 | R10.4 | Rerun the primary challenge and Kart transfer studies without overwriting their evidence. | Implemented; [paired before/after results and reproduction](studies/complex-worlds/tie-breaking-fix/README.md); optional Storm factorial and Kart ablation not rerun |
 | R10.5 | Check deterministic tie behavior in exact-evaluation tools against rollouts. | Implemented; [tied-policy checks](docs/testing.md#tied-policy-evaluation) |
-| R10.6 | Verify and remove merged Phase 9 branches; summarize Phase 10. | Pending |
+| R10.6 | Verify and remove merged Phase 9 branches; summarize Phase 10. | Complete; [Phase 10 handoff](docs/history/phase-10.md) |
