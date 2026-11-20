@@ -1,0 +1,21 @@
+{
+  "schema": 1,
+  "parentManifest": "a5b41470bbe999d26d9919087156c5b62078ecae52c634757addd29e5ea36a43",
+  "normalizedPlanSha256": "50e1d22b0dcd52e98117fc541765cb08f049b5d752d8f13d06f6ef74e029d59e",
+  "experiment": "flagship-toy-text-v2",
+  "parentReplicates": 10,
+  "parentCheckpointFiles": 3600,
+  "cells": [
+    { "game": "lake4-slip", "arm": "q_learning" },
+    { "game": "lake4-slip", "arm": "dyna_q" }
+  ],
+  "ranges": [
+    { "start": 0, "count": 8 },
+    { "start": 8, "count": 2 }
+  ],
+  "horizon": 100,
+  "checkpoints": [0, 8, 16, 32, 64, 128, 256, 512, 1024],
+  "validationEpisodes": 8,
+  "testEpisodes": 16,
+  "seeds": { "train": 150500000, "validation": 1905000000, "test": 2945000000, "stride": 10000 }
+}

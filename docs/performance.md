@@ -357,3 +357,17 @@ producer as an end-to-end comparator. The same frozen training, validation
 and test phases were checked, not tuned. Native and stock endpoints both
 leave archives untouched. This does not establish a production speedup
 or the effect on all P11.0 workloads.
+
+
+### Original flagship archive checks
+
+The [parent-bound witness](../twin/scalar-q-spike/README.md#select-a-bounded-cell-range-without-changing-the-parent-seal)
+also matched 270 distinct checkpoint files from the original flagship v2
+archive, using its actual run seal, coordinates and predecessor links rather
+than sealing a reduced plan. The three cells were Dry Lake/Double Q and
+Slippery Lake/Q-learning and Dyna-Q. Each covered ten replicas split into
+two bounded batches. Both compiler targets at 1, 2 and 4 workers matched all
+files, for 1,620 comparisons. Every original file was unchanged.
+This was a correctness check without timing or native archive writes. It
+does not qualify other flagship cells, any complete shipped plan, or
+historical replay and resume via a native integration.

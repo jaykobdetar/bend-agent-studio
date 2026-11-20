@@ -309,6 +309,113 @@ time ceilings, and neither hosted CI nor performance measurements.
 
 ## Beyond this reference
 
+### Select a bounded cell range without changing the parent seal
+
+The default `generate`/`check` still require a whole one-world/one-arm
+diagnostic plan. The read-only `generate-cell`/`check-cell` commands instead
+select explicit IDs and at most eight contiguous replicates in an existing,
+trusted mixed parent. Use `COUNT` for a prefix starting at zero, or
+`START:COUNT` for a zero-based range. They retain the parent's game, arm
+settings, original seed for each selected replicate and phase, checkpoint
+list, phase counts and all other applicable witness bounds. As before,
+step budgets, transfer worlds, history and other unsupported selections
+are refused.
+
+The numerical projection is an internal work descriptor only. Its wire
+identity includes the original manifest seal, both cell IDs, the ordered
+replicate IDs, and the exact numerical input. For each local slot the
+descriptor checks the stock `seedOf` result against the corresponding
+original replicate for training, validation and test. Native wire rows
+carry compact local slots; the verifier maps them to exact parent replicate
+IDs before composing any sealed checkpoint. The verifier first verifies
+the untouched stock archive. It derives each candidate chain from
+checkpoint zero by sealing complete candidate bodies in memory with
+the **original** manifest hash and preceding candidate link, and compares
+the complete bytes at their original paths. No projected manifest or
+archive is created. C output must be placed outside the parent archive.
+
+For the original stock flagship v2 archive, set
+`FLAGSHIP_ARCHIVE` to the trusted complete run with manifest seal
+`a5b41470bbe999d26d9919087156c5b62078ecae52c634757addd29e5ea36a43`.
+Use the pinned toolchain and C headers from the reproduction above:
+
+```sh
+spike=twin/scalar-q-spike
+scratch=$(mktemp -d)
+for range in 8 8:2; do
+  name="cell-${range//:/-}"
+  node "$spike/parity.mjs" generate-cell "$FLAGSHIP_ARCHIVE" \
+    lake4-dry double_q "$range" "$scratch/$name.c"
+  for arch in x86-64-v3 znver3; do # Use znver3 only on compatible hardware.
+    "$LEAN_CLANG" -std=c11 -O3 -Wall -Wextra -Werror -march="$arch" \
+      -ffp-contract=off -fno-fast-math -pthread "$scratch/$name.c" \
+      -lm -o "$scratch/$name-$arch"
+    for workers in 1 2 4; do
+      node "$spike/parity.mjs" check-cell "$FLAGSHIP_ARCHIVE" \
+        lake4-dry double_q "$range" "$scratch/$name-$arch" "$workers"
+    done
+  done
+done
+```
+
+On CPU 8, both targets matched 72 original checkpoint files at reps 0–7
+and 18 at reps 8–9 in each 1/2/4-worker configuration. The two disjoint
+ranges cover **90 distinct files of one Dry Lake Double Q cell** (540
+comparisons), not the remaining cells or the whole flagship. The frozen
+prefix C was unchanged, and all six runs within each range emitted the
+same wire bytes:
+
+| Archive replicates | Wire SHA-256 |
+| --- | --- |
+| 0–7 | `5e7994222835a31b2a2f2de59e2403872869936c3e0e83aaab7a93ce230fd80a` |
+| 8–9 | `a031c3201a0477294041d44fe8af20f5fd3421f83b4ea9f4fce2221e22882335` |
+
+An independent audit of emitted C verified the unchanged phase lengths,
+checkpoints, seed stride and these original phase seed bases:
+
+| Original replicate | Train | Validation | Test |
+| ---: | ---: | ---: | ---: |
+| 8 | 150580000 | 1905080000 | 2945080000 |
+| 9 | 150590000 | 1905090000 | 2945090000 |
+
+The original stock verifier passed all 3,600 archived checkpoint files;
+an independent relative-path, file-size and SHA-256 inventory showed
+that every file in the stock archive was unchanged by the check. The
+comparator rejected the previously compiled P11.0 binary from another
+seal, the wrong game ID, a nine-replicate request, a C destination inside
+the parent, and Courier's step-budget manifest. For the second range it
+also rejected a range beyond the parent, a wire submitted for a different
+range, and an altered training seed (replicate 8 checkpoint zero model).
+The original one-cell
+P11.0 generated source and its 27-file check were unchanged. This is
+correctness-only, not production archive, timing, replay or resume coverage.
+
+The [separate preregistered gate](flagship-v2-gate.json) also selected
+the original `q_learning` and `dyna_q` arms on `lake4-slip` under the
+same parent seal. Reuse the command above with that game ID and each of
+those arm IDs, with the same ranges and compiler flags.
+No numerical kernel, output limit or selection implementation changed.
+Each cell matched 90 distinct original files (72 plus 18) in each of six
+build/worker configurations. All original phase seeds, phase lengths
+and horizons were also checked against the generated C. Raw wires agreed
+within each batch across both builds and all worker modes:
+
+| Stock cell | Archive replicates | Wire SHA-256 |
+| --- | --- | --- |
+| lake4-slip / Q-learning | 0–7 | `ff00f68f2e6039990897f3c63592511f9e770dda23bfe64c6c9cd22457867d9d` |
+| lake4-slip / Q-learning | 8–9 | `89a8e13c6c1508a53937272015a0705323bbf341d0735299bc75a081fddcf9bb` |
+| lake4-slip / Dyna-Q | 0–7 | `5c9b1ff2f0fd624faa6716f37a7a8d400ebaf737b688ae254397435d6f16a821` |
+| lake4-slip / Dyna-Q | 8–9 | `3860d27d6a59114822ed81bf46e609796d8e175e21c8d0bd044cabb18eb0c1e0` |
+
+The full original archive inventory matched before and after both
+new cell checks. Together with Dry Lake Double Q, this proves exact
+checkpoint comparison for **three original cells**: 270 distinct files
+and 1,620 comparisons. The other flagship cells, native archive
+production, historical replay/resume and hosted native CI remain out
+of this result.
+
+### Remaining work
+
 * The bounded matrix covers all five specified built-ins, not the full
   shipped plan panel. For Dyna, a faster lookup may not alter the first-seen
   pair/sample order, duplicate identity or per-backup F32 right fold.

@@ -5,7 +5,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {buckets, numberPreservingJson, worldDefinition} from '../../core/finite_world.mjs';
-import {canonical, digest, settings, validate} from '../../core/experiment_config.mjs';
+import {canonical, digest, seedOf, settings, validate} from '../../core/experiment_config.mjs';
 import {checkedSnapshot, manifestPath, readPlan, record, seal, stats, status, unseal} from '../../core/experiment.mjs';
 
 const fixtureArms = {q_learning: 'q', expected_sarsa: 'expected', double_q: 'double', random: 'uniform', dyna_q: 'dyna'};
@@ -98,7 +98,7 @@ function requireEligible(plan) {
   assert.deepEqual(plan, validate({...plan, arms: [rawArm]}), 'plan is not the exact stock normalization');
 }
 
-function generated(plan) {
+function generated(plan, wireHash = digest(canonical(plan))) {
   requireEligible(plan);
   const w = plan.games[0].definition, arm = plan.arms[0], cols = [], states = [], outs = [];
   const fileIds = new Map(w.states.map((s, i) => [s.id, i]));
@@ -136,7 +136,7 @@ function generated(plan) {
   return Object.entries(constants).map(([k,v]) => '#define ' + k + ' ' + u(v)).concat(
     table('Outcome', 'outcomes', outs), table('Action', 'actions', cols), table('State', 'states', states),
     'static const uint32_t checkpoints[] = {' + plan.checkpoints.map(u).join(', ') + '};',
-    '#define PLAN_HASH ' + JSON.stringify(digest(canonical(plan))),
+    '#define PLAN_HASH ' + JSON.stringify(wireHash),
   ).join('\n');
 }
 
@@ -212,22 +212,24 @@ function accumulate(sum, reports, expected) {
   }
   return sum;
 }
-function compare(exe, dir, archived, workers) {
-  const p = archived.body.plan;
+function compare(exe, dir, archived, workers, selection) {
+  const p = selection?.plan ?? archived.body.plan;
   status(dir, true);
   const config = settings(p.arms[0],p.games[0]);
   const lines = execFileSync(path.resolve(exe), workers === undefined ? [] : [workers], {
     encoding: 'utf8', maxBuffer: 16 * 1024 * 1024, timeout: 30000,
   }).trim().split('\n');
-  assert.equal(lines.shift(), digest(canonical(p)), 'this executable was generated for another plan');
+  assert.equal(lines.shift(), selection?.wireHash ?? digest(canonical(p)),
+    'this executable was generated for another plan or parent-cell selection');
   assert.equal(lines.length, p.replicates * p.checkpoints.length);
   const game = p.games[0].id, arm = p.arms[0].id;
   let index = 0;
-  for (let rep = 0; rep < p.replicates; ++rep) {
+  for (let slot = 0; slot < p.replicates; ++slot) {
+    const rep = selection?.replicates[slot] ?? slot;
     let parent = null, done = 0, train = stats();
     for (const point of p.checkpoints) {
       const [r,n,tr,va,te,table] = JSON.parse(lines[index++]);
-      assert.deepEqual([r,n], [rep,point]);
+      assert.deepEqual([r,n], [slot,point]);
       const body = {
         experiment: archived.hash, parent, game, arm, rep, episodes: point,
         model: model(table,config,p.games[0].definition), train: accumulate(train,tr,point-done), partial: null, started: point,
@@ -243,10 +245,12 @@ function compare(exe, dir, archived, workers) {
           assert.deepEqual(body[key],exact.body[key], 'parity mismatch at '+rep+':'+point+' '+key);
         assert.fail('checkpoint bytes differ despite equal decoded fields at '+rep+':'+point);
       }
-      done = point; parent = exact.hash;
+      // A selected trial still derives its own chain from complete,
+      // checked candidate bytes within the original parent namespace.
+      done = point; parent = selection ? JSON.parse(candidate).hash : exact.hash;
     }
   }
-  for (const packed of p.arms[0].method === 'random' ? [] : [false, true]) {
+  for (const packed of selection || p.arms[0].method === 'random' ? [] : [false, true]) {
     if (canonical(readPlan(fixture(packed,p.arms[0].method))) !== canonical(p)) continue;
     const trace = JSON.parse(execFileSync(process.execPath, [
       path.join(dir, 'code/experiment.mjs'), 'replay', dir, game, arm, '0', '0', 'train', '0',
@@ -269,11 +273,54 @@ function compare(exe, dir, archived, workers) {
     console.log('The archived rare-tie replay and matching native tree visit action ID 3 first.');
   }
   console.log(index + ' complete checkpoint files matched the stock archived bytes. No native archive written.');
+  if (selection) console.log('Selected only ' + game + '/' + arm + ', original replicates ' +
+    selection.replicates.join(',') + ' of ' + archived.body.plan.replicates +
+    ' under parent manifest ' + archived.hash + '.');
 }
 
-function writeSource(pathname, plan) {
+function writeSource(pathname, plan, wireHash) {
   const source = fs.readFileSync(path.join(own, 'q.c'), 'utf8');
-  output(pathname, source.replace('/* GENERATED */', generated(plan)));
+  output(pathname, source.replace('/* GENERATED */', generated(plan,wireHash)));
+}
+
+function trustedArchive(root) {
+  const archive = unseal(manifestPath(root));
+  checkedSnapshot(root,archive);
+  assert.equal(archive.body.toolchain.node,process.versions.node);
+  assert.equal(archive.body.toolchain.bend,'bend 2.0.40');
+  return archive;
+}
+function selectRange(archive, gameId, armId, rangeArg) {
+  const p = archive.body.plan;
+  const match = /^(?:(0|[1-9]\d*):)?([1-8])$/.exec(rangeArg);
+  assert.ok(match, 'first-replicate count must be from 1 to 8, or specify START:COUNT');
+  const start = Number(match[1] ?? '0'), count = Number(match[2]);
+  assert.ok(Number.isSafeInteger(start) && start<=p.replicates-count, 'replicate range exceeds the parent plan');
+  const g=p.games.find(x=>x.id===gameId), a=p.arms.find(x=>x.id===armId);
+  assert.ok(g && a, 'unknown parent game or arm');
+  // A submission to the numerical kernel, not a new plan or archive.
+  // The kernel emits compact slots. Only the verifier maps them back to
+  // original coordinates, and each phase's seed is checked in both spaces.
+  const replicates=Array.from({length:count},(_,slot)=>start+slot);
+  const seeds={...p.seeds};
+  const phases=['train','validation','test'];
+  for (const phase of phases) seeds[phase]=seedOf(p,start,phase);
+  const plan={...p,games:[g],arms:[a],replicates:count,seeds};
+  requireEligible(plan);
+  for (const [slot,rep] of replicates.entries()) for (const phase of phases) {
+    const expected=seedOf(p,rep,phase);
+    assert.ok(Number.isInteger(expected) && expected>=0 && expected<=U32_MAX);
+    assert.equal(seedOf(plan,slot,phase),expected,'local slot must use the original phase seed');
+  }
+  const wireHash=digest(canonical({schema:1,parentManifest:archive.hash,gameId,armId,
+    replicates,numericInput:digest(canonical(plan))}));
+  return {plan,wireHash,replicates};
+}
+function requireOutsideArchive(file, root) {
+  const destination=path.join(fs.realpathSync(path.dirname(path.resolve(file))),path.basename(file));
+  const relative=path.relative(fs.realpathSync(root),destination);
+  assert.ok(relative==='..' || relative.startsWith('..'+path.sep) || path.isAbsolute(relative),
+    'place the generated C outside the parent archive');
 }
 
 const [mode, file, extra, fourth, ...rest] = process.argv.slice(2);
@@ -288,11 +335,22 @@ if (mode === 'fixture' && file && !rest.length && ['literal','packed'].includes(
   (mode === 'generate' && fourth === undefined) ||
   (mode === 'check' && (fourth === undefined || ['1','2','4'].includes(fourth)))
 )) {
-  const archive = unseal(manifestPath(file));
-  checkedSnapshot(file,archive);
-  assert.equal(archive.body.toolchain.node,process.versions.node);
-  assert.equal(archive.body.toolchain.bend,'bend 2.0.40');
+  const archive = trustedArchive(file);
   requireEligible(archive.body.plan);
   if (mode === 'generate') writeSource(extra, archive.body.plan);
   else compare(extra, file, archive, fourth);
-} else throw Error('usage: parity.mjs fixture NEW_PLAN literal|packed [' + methods.join('|') + '] | generate-plan PLAN NEW_C | generate TRUSTED_STOCK_RUN NEW_C | check TRUSTED_STOCK_RUN TRUSTED_NATIVE_EXE [1|2|4]');
+} else if (file && extra && fourth && (
+  (mode==='generate-cell' && rest.length===2) ||
+  (mode==='check-cell' && (rest.length===2 || (rest.length===3 && ['1','2','4'].includes(rest[2]))))
+)) {
+  const archive=trustedArchive(file);
+  const [range,destination,workers]=rest;
+  const selection=selectRange(archive,extra,fourth,range);
+  if (mode==='generate-cell') {
+    requireOutsideArchive(destination,file);
+    writeSource(destination,selection.plan,selection.wireHash);
+  } else compare(destination,file,archive,workers,selection);
+} else throw Error('usage: parity.mjs fixture NEW_PLAN literal|packed [' + methods.join('|') +
+  '] | generate-plan PLAN NEW_C | generate TRUSTED_STOCK_RUN NEW_C | check TRUSTED_STOCK_RUN TRUSTED_NATIVE_EXE [1|2|4]' +
+  ' | generate-cell TRUSTED_PARENT GAME ARM COUNT|START:COUNT NEW_C' +
+  ' | check-cell TRUSTED_PARENT GAME ARM COUNT|START:COUNT TRUSTED_NATIVE_EXE [1|2|4]');

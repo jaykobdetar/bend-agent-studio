@@ -378,7 +378,7 @@ local gates pass; fix any hosted failure before publishing another item.
 | P11.5 | Fewer JavaScript–Bend calls | Episode and step checkpoints byte-identical, benchmark improvement | Not adopted: bounded episode benchmark regressed Dyna-Q; step budgets not tested |
 | P11.6 | Bend parallel and CUDA population spike | Adopt only if exact and faster than the best comparable path | Bounded CPU diagnostic complete; CUDA case capped; not adopted |
 | P11.7 | Cross-backend F32 operations | Correct rounding evidence and reviewed archive transition | Stock device mismatch reproduced; correctly rounded replacements and exhaustive validation pending |
-| P11.8 | Native twin for eligible finite environments | Local and generic builds match all eligible sealed checkpoints | Five-arm witness, threaded/O3 parity and a bounded timing pilot; no production backend |
+| P11.8 | Native twin for eligible finite environments | Local and generic builds match all eligible sealed checkpoints | Five-arm witness, threaded/O3 timing pilot and three original flagship cells verified; no production backend |
 | P11.9 | Native compiler tuning | Retain exact parity and demonstrate additional speedup | Pending |
 | P11.10 | CUDA population kernel | Local GPU parity and measured CPU/GPU crossover | Pending |
 | P11.11 | JAX screening contingency | Use only if exact CUDA fails; outputs never sealed | Pending |
