@@ -10,7 +10,7 @@
   "scripts": {
     "start": "node studio/server.mjs",
     "teach": "node integrations/demonstrations/cli.mjs",
-    "test": "node checks/docs_check.mjs && node --test checks/docs*.test.mjs && node --test checks/legacy_examples.test.mjs checks/experiment_checks.mjs checks/batch_checks.mjs integrations/demonstrations/checks.mjs studio/studio_checks.mjs checks/oracle_checks.mjs checks/memory_checks.mjs checks/statistics_checks.mjs checks/acrobot.test.mjs checks/matrix_solver.test.mjs checks/matrix_world.test.mjs checks/seeded_properties.test.mjs checks/scaffold_checks.mjs agents/linear/checks.mjs && node --test worlds/benchmarks/probes/checks.mjs tools/finite-layout/packed-checks.mjs checks/layout_logging_checks.mjs worlds/challenges/locksmith/checks.mjs worlds/challenges/switchboard/checks.mjs worlds/challenges/storm-reserve/checks.mjs worlds/challenges/apex-kart/checks.mjs",
+    "test": "node checks/docs_check.mjs && node --test checks/docs*.test.mjs && node --test checks/legacy_examples.test.mjs checks/experiment_checks.mjs checks/exact_evaluation.test.mjs checks/batch_checks.mjs integrations/demonstrations/checks.mjs studio/studio_checks.mjs checks/oracle_checks.mjs checks/memory_checks.mjs checks/statistics_checks.mjs checks/acrobot.test.mjs checks/matrix_solver.test.mjs checks/matrix_world.test.mjs checks/seeded_properties.test.mjs checks/scaffold_checks.mjs agents/linear/checks.mjs && node --test worlds/benchmarks/probes/checks.mjs tools/finite-layout/packed-checks.mjs checks/layout_logging_checks.mjs worlds/challenges/locksmith/checks.mjs worlds/challenges/switchboard/checks.mjs worlds/challenges/storm-reserve/checks.mjs worlds/challenges/apex-kart/checks.mjs",
     "posttest": "node checks/test_root_clean.mjs"
   }
 }

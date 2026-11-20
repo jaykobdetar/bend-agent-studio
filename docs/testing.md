@@ -178,6 +178,14 @@ The root suite checks 21 Acrobot reference steps with independently written doub
 
 Matrix tests check exact closed forms, reconstruct the generated files, verify the live Bend run, and confirm that both seats see an identical precommitment observation independent of the private action. They check the revealed pair, payoff and empirical exploitability on archived validation rolls. The archive gates separately pin the new plan identities without changing older fingerprints.
 
+## Tied-policy evaluation
+
+The compiler-backed suite in [checks/exact_evaluation.test.mjs](../checks/exact_evaluation.test.mjs)
+compares actual Evaluate-mode rollouts with frozen values, decision explanations,
+preferred actions in trajectory logging, exact off-policy target scoring, and
+arena cross-play on tied values. It checks the ordered first-maximum contract
+rather than assuming that an oracle-optimal action is the learner's chosen action.
+
 ## MCP finite-world session parity
 
 Run `node --test mcp/environment.test.mjs` after installing the MCP package to
