@@ -175,3 +175,21 @@ installed in a Python environment, set `BEND_ANALYSIS_NUMPY=1` for the suite
 statistics command. The shortcut is limited to eligible balanced
 probability-of-improvement inputs. If NumPy is absent or the input is not
 eligible, it uses the original standard-library path.
+
+
+## P11.2: hard limits before automatic shards
+
+The reference PC exposes the cgroup v2 memory controller and its user
+systemd reports version 255. The benchmark's sampled PSS guard is useful
+for telemetry but does not prove a hard cap for concurrent workers. A
+transient scope's effective memory limit and OOM behavior were not verified,
+so `--jobs auto` is not available. Existing manual shard behavior is unchanged.
+
+Before adopting automatic sizing, verify effective limits from inside
+a dedicated transient scope, measure a representative shard, observe a
+scope-local memory failure, and demonstrate safe fallback on that failure
+without retrying unrelated errors. Compare sealed checkpoints and archive
+exports against serial runs, including interrupted resumes and partial
+episodes. Any separate evaluation pool must reduce in seed order with the
+existing statistics update and fit in the same memory budget. Neither
+change was adopted or timed against the reference.

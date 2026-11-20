@@ -372,7 +372,7 @@ local gates pass; fix any hosted failure before publishing another item.
 | --- | --- | --- | --- |
 | P11.0 | Baseline workloads, profiles and machine fingerprint | Fixed workload versions, repeat timing and explicit profiling limits | Baseline recorded; hardware counters unavailable on host |
 | P11.1 | Analysis acceleration, Linux scope and Studio replay limits | Analysis parity with measured benefit; regressions pass | Replay limits and optional same-seed superiority speedup; unchanged platform support and CI; broader bootstrap not adopted |
-| P11.2 | Resource-aware shards and parallel evaluation | Sealed-byte parity, bounded memory and measured benefit | Pending |
+| P11.2 | Resource-aware shards and parallel evaluation | Sealed-byte parity, bounded memory and measured benefit | Deferred: live memory enforcement not verified; no scheduler or evaluation change |
 | P11.3 | Exact evaluation, sequential extension and reuse | Separate exact metrics and a prespecified stopping rule; verified reusable bytes | Pending |
 | P11.4 | Warm engine prototype | Local Unix socket, parity and direct fallback; measurable benefit | Pending |
 | P11.5 | Fewer JavaScript–Bend calls | Episode and step checkpoints byte-identical, benchmark improvement | Pending |

@@ -204,3 +204,5 @@ drop-in acceleration.
 The Linux job runs `python3 -m unittest checks.test_bootstrap_numpy` with the
 pinned optional NumPy installed. It checks bit-exact bootstrap draws, RNG state,
 and fallback behavior. The standard-library statistical tests run separately.
+
+See the [automatic shard verification gap](performance.md#p112-hard-limits-before-automatic-shards) before interpreting sampled group memory as a hard limit.
