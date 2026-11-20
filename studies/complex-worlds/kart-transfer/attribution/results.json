@@ -1,0 +1,1147 @@
+{
+  "layouts": {
+    "diagnostic": {
+      "quarry": "...L..r..",
+      "quarry-mirror": "...R..l..",
+      "shifted-pair": "..r.L....",
+      "shifted-mirror": "..l.R...."
+    },
+    "reserved": {
+      "close-triple": "..Lr.l...",
+      "close-triple-mirror": "..Rl.r..."
+    }
+  },
+  "bounds": {
+    "quarry": {
+      "road": "...L..r..",
+      "group": "diagnostic",
+      "greedy": {
+        "value": 4,
+        "gravel": 0,
+        "ticks": 10,
+        "branchCount": 2
+      },
+      "upper": 4.5
+    },
+    "quarry-mirror": {
+      "road": "...R..l..",
+      "group": "diagnostic",
+      "greedy": {
+        "value": 4,
+        "gravel": 0,
+        "ticks": 10,
+        "branchCount": 2
+      },
+      "upper": 4.5
+    },
+    "shifted-pair": {
+      "road": "..r.L....",
+      "group": "diagnostic",
+      "greedy": {
+        "value": 4.5,
+        "gravel": 0,
+        "ticks": 9,
+        "branchCount": 2
+      },
+      "upper": 5
+    },
+    "shifted-mirror": {
+      "road": "..l.R....",
+      "group": "diagnostic",
+      "greedy": {
+        "value": 4.5,
+        "gravel": 0,
+        "ticks": 9,
+        "branchCount": 2
+      },
+      "upper": 5
+    },
+    "close-triple": {
+      "road": "..Lr.l...",
+      "group": "reserved",
+      "greedy": {
+        "value": 4.5,
+        "gravel": 0,
+        "ticks": 9,
+        "branchCount": 2
+      },
+      "upper": 4.5
+    },
+    "close-triple-mirror": {
+      "road": "..Rl.r...",
+      "group": "reserved",
+      "greedy": {
+        "value": 4.5,
+        "gravel": 0,
+        "ticks": 9,
+        "branchCount": 2
+      },
+      "upper": 4.5
+    }
+  },
+  "physicalParity": 3090,
+  "scriptPreviewParity": 3090,
+  "modelMirrorChecks": 5056,
+  "curves": {
+    "0": {
+      "diagnostic": {
+        "armMeans": {
+          "table-raw": 0,
+          "table-reflected": 0,
+          "linear-raw": 0,
+          "linear-reflected": 0
+        },
+        "contrasts": {
+          "poolingWithoutReflection": {
+            "estimate": 0,
+            "interval": [
+              0,
+              0
+            ],
+            "wins": 0,
+            "ties": 8
+          },
+          "poolingWithReflection": {
+            "estimate": 0,
+            "interval": [
+              0,
+              0
+            ],
+            "wins": 0,
+            "ties": 8
+          },
+          "reflectionForTabular": {
+            "estimate": 0,
+            "interval": [
+              0,
+              0
+            ],
+            "wins": 0,
+            "ties": 8
+          },
+          "reflectionForLinear": {
+            "estimate": 0,
+            "interval": [
+              0,
+              0
+            ],
+            "wins": 0,
+            "ties": 8
+          },
+          "interaction": {
+            "estimate": 0,
+            "interval": [
+              0,
+              0
+            ],
+            "wins": 0,
+            "ties": 8
+          },
+          "bundle": {
+            "estimate": 0,
+            "interval": [
+              0,
+              0
+            ],
+            "wins": 0,
+            "ties": 8
+          }
+        },
+        "gravel": {
+          "table-raw": 0,
+          "table-reflected": 0,
+          "linear-raw": 0,
+          "linear-reflected": 0
+        }
+      },
+      "reserved": {
+        "armMeans": {
+          "table-raw": 0,
+          "table-reflected": 0,
+          "linear-raw": 0,
+          "linear-reflected": 0
+        },
+        "contrasts": {
+          "poolingWithoutReflection": {
+            "estimate": 0,
+            "interval": [
+              0,
+              0
+            ],
+            "wins": 0,
+            "ties": 8
+          },
+          "poolingWithReflection": {
+            "estimate": 0,
+            "interval": [
+              0,
+              0
+            ],
+            "wins": 0,
+            "ties": 8
+          },
+          "reflectionForTabular": {
+            "estimate": 0,
+            "interval": [
+              0,
+              0
+            ],
+            "wins": 0,
+            "ties": 8
+          },
+          "reflectionForLinear": {
+            "estimate": 0,
+            "interval": [
+              0,
+              0
+            ],
+            "wins": 0,
+            "ties": 8
+          },
+          "interaction": {
+            "estimate": 0,
+            "interval": [
+              0,
+              0
+            ],
+            "wins": 0,
+            "ties": 8
+          },
+          "bundle": {
+            "estimate": 0,
+            "interval": [
+              0,
+              0
+            ],
+            "wins": 0,
+            "ties": 8
+          }
+        },
+        "gravel": {
+          "table-raw": 0,
+          "table-reflected": 0,
+          "linear-raw": 0,
+          "linear-reflected": 0
+        }
+      },
+      "practice": {
+        "armMeans": {
+          "table-raw": 0,
+          "table-reflected": 0,
+          "linear-raw": 0,
+          "linear-reflected": 0
+        },
+        "contrasts": {
+          "poolingWithoutReflection": {
+            "estimate": 0,
+            "interval": [
+              0,
+              0
+            ],
+            "wins": 0,
+            "ties": 8
+          },
+          "poolingWithReflection": {
+            "estimate": 0,
+            "interval": [
+              0,
+              0
+            ],
+            "wins": 0,
+            "ties": 8
+          },
+          "reflectionForTabular": {
+            "estimate": 0,
+            "interval": [
+              0,
+              0
+            ],
+            "wins": 0,
+            "ties": 8
+          },
+          "reflectionForLinear": {
+            "estimate": 0,
+            "interval": [
+              0,
+              0
+            ],
+            "wins": 0,
+            "ties": 8
+          },
+          "interaction": {
+            "estimate": 0,
+            "interval": [
+              0,
+              0
+            ],
+            "wins": 0,
+            "ties": 8
+          },
+          "bundle": {
+            "estimate": 0,
+            "interval": [
+              0,
+              0
+            ],
+            "wins": 0,
+            "ties": 8
+          }
+        },
+        "gravel": {
+          "table-raw": 0,
+          "table-reflected": 0,
+          "linear-raw": 0,
+          "linear-reflected": 0
+        }
+      }
+    },
+    "1024": {
+      "diagnostic": {
+        "armMeans": {
+          "table-raw": 1.359375,
+          "table-reflected": 1.671875,
+          "linear-raw": 2.625,
+          "linear-reflected": 2.625
+        },
+        "contrasts": {
+          "poolingWithoutReflection": {
+            "estimate": 1.265625,
+            "interval": [
+              0.777257928303777,
+              1.753992071696223
+            ],
+            "wins": 8,
+            "ties": 0
+          },
+          "poolingWithReflection": {
+            "estimate": 0.953125,
+            "interval": [
+              0.1772326676372452,
+              1.729017332362755
+            ],
+            "wins": 7,
+            "ties": 0
+          },
+          "reflectionForTabular": {
+            "estimate": 0.3125,
+            "interval": [
+              -0.14130064037489393,
+              0.766300640374894
+            ],
+            "wins": 5,
+            "ties": 1
+          },
+          "reflectionForLinear": {
+            "estimate": 0,
+            "interval": [
+              -0.8190536812151952,
+              0.8190536812151952
+            ],
+            "wins": 4,
+            "ties": 0
+          },
+          "interaction": {
+            "estimate": -0.3125,
+            "interval": [
+              -1.442178310825747,
+              0.8171783108257471
+            ],
+            "wins": 4,
+            "ties": 0
+          },
+          "bundle": {
+            "estimate": 1.265625,
+            "interval": [
+              0.777257928303777,
+              1.753992071696223
+            ],
+            "wins": 8,
+            "ties": 0
+          }
+        },
+        "gravel": {
+          "table-raw": 18,
+          "table-reflected": 20,
+          "linear-raw": 8,
+          "linear-reflected": 8
+        }
+      },
+      "reserved": {
+        "armMeans": {
+          "table-raw": 1.46875,
+          "table-reflected": 1.5,
+          "linear-raw": 2.21875,
+          "linear-reflected": 2.1875
+        },
+        "contrasts": {
+          "poolingWithoutReflection": {
+            "estimate": 0.75,
+            "interval": [
+              -0.02400497288449699,
+              1.524004972884497
+            ],
+            "wins": 5,
+            "ties": 1
+          },
+          "poolingWithReflection": {
+            "estimate": 0.6875,
+            "interval": [
+              0.17860031410617394,
+              1.1963996858938262
+            ],
+            "wins": 5,
+            "ties": 3
+          },
+          "reflectionForTabular": {
+            "estimate": 0.03125,
+            "interval": [
+              -0.29326145017986566,
+              0.35576145017986566
+            ],
+            "wins": 4,
+            "ties": 2
+          },
+          "reflectionForLinear": {
+            "estimate": -0.03125,
+            "interval": [
+              -1.1340231882692016,
+              1.0715231882692016
+            ],
+            "wins": 4,
+            "ties": 0
+          },
+          "interaction": {
+            "estimate": -0.0625,
+            "interval": [
+              -1.259239096733543,
+              1.134239096733543
+            ],
+            "wins": 4,
+            "ties": 0
+          },
+          "bundle": {
+            "estimate": 0.71875,
+            "interval": [
+              0.17789758303355718,
+              1.2596024169664428
+            ],
+            "wins": 6,
+            "ties": 1
+          }
+        },
+        "gravel": {
+          "table-raw": 0,
+          "table-reflected": 0,
+          "linear-raw": 3,
+          "linear-reflected": 2
+        }
+      },
+      "practice": {
+        "armMeans": {
+          "table-raw": 2.8046875,
+          "table-reflected": 3.28125,
+          "linear-raw": 2.8671875,
+          "linear-reflected": 3.0390625
+        },
+        "contrasts": {
+          "poolingWithoutReflection": {
+            "estimate": 0.0625,
+            "interval": [
+              -0.4524945101560355,
+              0.5774945101560355
+            ],
+            "wins": 7,
+            "ties": 0
+          },
+          "poolingWithReflection": {
+            "estimate": -0.2421875,
+            "interval": [
+              -0.8427934956421153,
+              0.35841849564211525
+            ],
+            "wins": 2,
+            "ties": 0
+          },
+          "reflectionForTabular": {
+            "estimate": 0.4765625,
+            "interval": [
+              0.13003687495441874,
+              0.8230881250455813
+            ],
+            "wins": 6,
+            "ties": 1
+          },
+          "reflectionForLinear": {
+            "estimate": 0.171875,
+            "interval": [
+              -0.6080284341553676,
+              0.9517784341553676
+            ],
+            "wins": 3,
+            "ties": 0
+          },
+          "interaction": {
+            "estimate": -0.3046875,
+            "interval": [
+              -1.2557012855244314,
+              0.6463262855244314
+            ],
+            "wins": 2,
+            "ties": 0
+          },
+          "bundle": {
+            "estimate": 0.234375,
+            "interval": [
+              -0.26660734209718817,
+              0.7353573420971882
+            ],
+            "wins": 4,
+            "ties": 1
+          }
+        },
+        "gravel": {
+          "table-raw": 7,
+          "table-reflected": 4,
+          "linear-raw": 6,
+          "linear-reflected": 6
+        }
+      }
+    },
+    "4096": {
+      "diagnostic": {
+        "armMeans": {
+          "table-raw": 1.59375,
+          "table-reflected": 1.8125,
+          "linear-raw": 3.421875,
+          "linear-reflected": 3.5
+        },
+        "contrasts": {
+          "poolingWithoutReflection": {
+            "estimate": 1.828125,
+            "interval": [
+              1.5224915371794572,
+              2.133758462820543
+            ],
+            "wins": 8,
+            "ties": 0
+          },
+          "poolingWithReflection": {
+            "estimate": 1.6875,
+            "interval": [
+              1.1317099930666297,
+              2.2432900069333703
+            ],
+            "wins": 8,
+            "ties": 0
+          },
+          "reflectionForTabular": {
+            "estimate": 0.21875,
+            "interval": [
+              -0.3610814610769095,
+              0.7985814610769095
+            ],
+            "wins": 3,
+            "ties": 1
+          },
+          "reflectionForLinear": {
+            "estimate": 0.078125,
+            "interval": [
+              -0.3650220683621951,
+              0.5212720683621951
+            ],
+            "wins": 4,
+            "ties": 1
+          },
+          "interaction": {
+            "estimate": -0.140625,
+            "interval": [
+              -0.9053783325538766,
+              0.6241283325538766
+            ],
+            "wins": 3,
+            "ties": 0
+          },
+          "bundle": {
+            "estimate": 1.90625,
+            "interval": [
+              1.4854496721008041,
+              2.327050327899196
+            ],
+            "wins": 8,
+            "ties": 0
+          }
+        },
+        "gravel": {
+          "table-raw": 21,
+          "table-reflected": 20,
+          "linear-raw": 0,
+          "linear-reflected": 0
+        }
+      },
+      "reserved": {
+        "armMeans": {
+          "table-raw": 1.65625,
+          "table-reflected": 1.8125,
+          "linear-raw": 2.625,
+          "linear-reflected": 2.8125
+        },
+        "contrasts": {
+          "poolingWithoutReflection": {
+            "estimate": 0.96875,
+            "interval": [
+              0.12206688943040167,
+              1.8154331105695984
+            ],
+            "wins": 7,
+            "ties": 0
+          },
+          "poolingWithReflection": {
+            "estimate": 1,
+            "interval": [
+              0.6294733287110865,
+              1.3705266712889135
+            ],
+            "wins": 8,
+            "ties": 0
+          },
+          "reflectionForTabular": {
+            "estimate": 0.15625,
+            "interval": [
+              -0.24558551111122628,
+              0.5580855111112263
+            ],
+            "wins": 6,
+            "ties": 0
+          },
+          "reflectionForLinear": {
+            "estimate": 0.1875,
+            "interval": [
+              -0.7783923597425374,
+              1.1533923597425373
+            ],
+            "wins": 3,
+            "ties": 2
+          },
+          "interaction": {
+            "estimate": 0.03125,
+            "interval": [
+              -0.9830946402110163,
+              1.0455946402110163
+            ],
+            "wins": 3,
+            "ties": 0
+          },
+          "bundle": {
+            "estimate": 1.15625,
+            "interval": [
+              0.6830942858104516,
+              1.6294057141895484
+            ],
+            "wins": 7,
+            "ties": 1
+          }
+        },
+        "gravel": {
+          "table-raw": 0,
+          "table-reflected": 0,
+          "linear-raw": 0,
+          "linear-reflected": 0
+        }
+      },
+      "practice": {
+        "armMeans": {
+          "table-raw": 3.5390625,
+          "table-reflected": 3.5625,
+          "linear-raw": 3.4609375,
+          "linear-reflected": 3.5234375
+        },
+        "contrasts": {
+          "poolingWithoutReflection": {
+            "estimate": -0.078125,
+            "interval": [
+              -0.5712606183730382,
+              0.41501061837303826
+            ],
+            "wins": 5,
+            "ties": 0
+          },
+          "poolingWithReflection": {
+            "estimate": -0.0390625,
+            "interval": [
+              -0.5791481658751313,
+              0.5010231658751313
+            ],
+            "wins": 6,
+            "ties": 0
+          },
+          "reflectionForTabular": {
+            "estimate": 0.0234375,
+            "interval": [
+              -0.10737724768121104,
+              0.15425224768121104
+            ],
+            "wins": 5,
+            "ties": 1
+          },
+          "reflectionForLinear": {
+            "estimate": 0.0625,
+            "interval": [
+              -0.5913128022449377,
+              0.7163128022449377
+            ],
+            "wins": 5,
+            "ties": 1
+          },
+          "interaction": {
+            "estimate": 0.0390625,
+            "interval": [
+              -0.6081173829843939,
+              0.6862423829843939
+            ],
+            "wins": 4,
+            "ties": 1
+          },
+          "bundle": {
+            "estimate": -0.015625,
+            "interval": [
+              -0.5431525334433001,
+              0.5119025334433001
+            ],
+            "wins": 5,
+            "ties": 0
+          }
+        },
+        "gravel": {
+          "table-raw": 2,
+          "table-reflected": 2,
+          "linear-raw": 0,
+          "linear-reflected": 0
+        }
+      }
+    },
+    "16384": {
+      "diagnostic": {
+        "armMeans": {
+          "table-raw": 1.953125,
+          "table-reflected": 2.3125,
+          "linear-raw": 3.484375,
+          "linear-reflected": 3.359375
+        },
+        "contrasts": {
+          "poolingWithoutReflection": {
+            "estimate": 1.53125,
+            "interval": [
+              1.0200562392806987,
+              2.0424437607193013
+            ],
+            "wins": 8,
+            "ties": 0
+          },
+          "poolingWithReflection": {
+            "estimate": 1.046875,
+            "interval": [
+              0.4480167871594888,
+              1.6457332128405113
+            ],
+            "wins": 8,
+            "ties": 0
+          },
+          "reflectionForTabular": {
+            "estimate": 0.359375,
+            "interval": [
+              -0.23029470628267468,
+              0.9490447062826747
+            ],
+            "wins": 5,
+            "ties": 0
+          },
+          "reflectionForLinear": {
+            "estimate": -0.125,
+            "interval": [
+              -0.5038541531044138,
+              0.2538541531044138
+            ],
+            "wins": 3,
+            "ties": 0
+          },
+          "interaction": {
+            "estimate": -0.484375,
+            "interval": [
+              -1.0606641848173497,
+              0.0919141848173497
+            ],
+            "wins": 2,
+            "ties": 1
+          },
+          "bundle": {
+            "estimate": 1.40625,
+            "interval": [
+              0.8157540782269331,
+              1.996745921773067
+            ],
+            "wins": 8,
+            "ties": 0
+          }
+        },
+        "gravel": {
+          "table-raw": 20,
+          "table-reflected": 19,
+          "linear-raw": 0,
+          "linear-reflected": 0
+        }
+      },
+      "reserved": {
+        "armMeans": {
+          "table-raw": 2.1875,
+          "table-reflected": 2.3125,
+          "linear-raw": 3.8125,
+          "linear-reflected": 3.34375
+        },
+        "contrasts": {
+          "poolingWithoutReflection": {
+            "estimate": 1.625,
+            "interval": [
+              1.0233801857442137,
+              2.2266198142557863
+            ],
+            "wins": 8,
+            "ties": 0
+          },
+          "poolingWithReflection": {
+            "estimate": 1.03125,
+            "interval": [
+              0.5387079252142188,
+              1.5237920747857812
+            ],
+            "wins": 7,
+            "ties": 1
+          },
+          "reflectionForTabular": {
+            "estimate": 0.125,
+            "interval": [
+              -0.3489793104859369,
+              0.5989793104859369
+            ],
+            "wins": 3,
+            "ties": 2
+          },
+          "reflectionForLinear": {
+            "estimate": -0.46875,
+            "interval": [
+              -0.7932614501798656,
+              -0.14423854982013434
+            ],
+            "wins": 1,
+            "ties": 0
+          },
+          "interaction": {
+            "estimate": -0.59375,
+            "interval": [
+              -1.2445732447345939,
+              0.057073244734593964
+            ],
+            "wins": 2,
+            "ties": 0
+          },
+          "bundle": {
+            "estimate": 1.15625,
+            "interval": [
+              0.5983587001014415,
+              1.7141412998985586
+            ],
+            "wins": 7,
+            "ties": 0
+          }
+        },
+        "gravel": {
+          "table-raw": 0,
+          "table-reflected": 0,
+          "linear-raw": 0,
+          "linear-reflected": 0
+        }
+      },
+      "practice": {
+        "armMeans": {
+          "table-raw": 3.984375,
+          "table-reflected": 4.3125,
+          "linear-raw": 3.8828125,
+          "linear-reflected": 3.9375
+        },
+        "contrasts": {
+          "poolingWithoutReflection": {
+            "estimate": -0.1015625,
+            "interval": [
+              -0.2666480471912414,
+              0.06352304719124141
+            ],
+            "wins": 2,
+            "ties": 0
+          },
+          "poolingWithReflection": {
+            "estimate": -0.375,
+            "interval": [
+              -0.7282833193916779,
+              -0.021716680608322103
+            ],
+            "wins": 1,
+            "ties": 0
+          },
+          "reflectionForTabular": {
+            "estimate": 0.328125,
+            "interval": [
+              0.1520362107047273,
+              0.5042137892952727
+            ],
+            "wins": 8,
+            "ties": 0
+          },
+          "reflectionForLinear": {
+            "estimate": 0.0546875,
+            "interval": [
+              -0.24926642564727886,
+              0.35864142564727886
+            ],
+            "wins": 4,
+            "ties": 1
+          },
+          "interaction": {
+            "estimate": -0.2734375,
+            "interval": [
+              -0.7271844202633858,
+              0.1803094202633858
+            ],
+            "wins": 3,
+            "ties": 1
+          },
+          "bundle": {
+            "estimate": -0.046875,
+            "interval": [
+              -0.2899579283630701,
+              0.1962079283630701
+            ],
+            "wins": 4,
+            "ties": 0
+          }
+        },
+        "gravel": {
+          "table-raw": 0,
+          "table-reflected": 0,
+          "linear-raw": 0,
+          "linear-reflected": 0
+        }
+      }
+    },
+    "65536": {
+      "diagnostic": {
+        "armMeans": {
+          "table-raw": 2.484375,
+          "table-reflected": 2.625,
+          "linear-raw": 3.8125,
+          "linear-reflected": 3.78125
+        },
+        "contrasts": {
+          "poolingWithoutReflection": {
+            "estimate": 1.328125,
+            "interval": [
+              0.7809990229158006,
+              1.8752509770841994
+            ],
+            "wins": 8,
+            "ties": 0
+          },
+          "poolingWithReflection": {
+            "estimate": 1.15625,
+            "interval": [
+              0.8222617719352079,
+              1.4902382280647921
+            ],
+            "wins": 8,
+            "ties": 0
+          },
+          "reflectionForTabular": {
+            "estimate": 0.140625,
+            "interval": [
+              -0.18717499659658532,
+              0.4684249965965853
+            ],
+            "wins": 5,
+            "ties": 1
+          },
+          "reflectionForLinear": {
+            "estimate": -0.03125,
+            "interval": [
+              -0.4737364760917909,
+              0.4112364760917909
+            ],
+            "wins": 3,
+            "ties": 0
+          },
+          "interaction": {
+            "estimate": -0.171875,
+            "interval": [
+              -0.7074736598417697,
+              0.3637236598417697
+            ],
+            "wins": 3,
+            "ties": 0
+          },
+          "bundle": {
+            "estimate": 1.296875,
+            "interval": [
+              0.9308493556554994,
+              1.6629006443445005
+            ],
+            "wins": 8,
+            "ties": 0
+          }
+        },
+        "gravel": {
+          "table-raw": 19,
+          "table-reflected": 18,
+          "linear-raw": 0,
+          "linear-reflected": 0
+        }
+      },
+      "reserved": {
+        "armMeans": {
+          "table-raw": 2.5,
+          "table-reflected": 2.75,
+          "linear-raw": 3.84375,
+          "linear-reflected": 3.5625
+        },
+        "contrasts": {
+          "poolingWithoutReflection": {
+            "estimate": 1.34375,
+            "interval": [
+              0.8977516713953502,
+              1.7897483286046498
+            ],
+            "wins": 8,
+            "ties": 0
+          },
+          "poolingWithReflection": {
+            "estimate": 0.8125,
+            "interval": [
+              0.5222481351683136,
+              1.1027518648316863
+            ],
+            "wins": 8,
+            "ties": 0
+          },
+          "reflectionForTabular": {
+            "estimate": 0.25,
+            "interval": [
+              0.026564010275513333,
+              0.47343598972448664
+            ],
+            "wins": 5,
+            "ties": 3
+          },
+          "reflectionForLinear": {
+            "estimate": -0.28125,
+            "interval": [
+              -0.7341903540270631,
+              0.17169035402706312
+            ],
+            "wins": 2,
+            "ties": 2
+          },
+          "interaction": {
+            "estimate": -0.53125,
+            "interval": [
+              -1.0485115549085031,
+              -0.013988445091496882
+            ],
+            "wins": 1,
+            "ties": 1
+          },
+          "bundle": {
+            "estimate": 1.0625,
+            "interval": [
+              0.7320337145935276,
+              1.3929662854064724
+            ],
+            "wins": 8,
+            "ties": 0
+          }
+        },
+        "gravel": {
+          "table-raw": 0,
+          "table-reflected": 0,
+          "linear-raw": 0,
+          "linear-reflected": 0
+        }
+      },
+      "practice": {
+        "armMeans": {
+          "table-raw": 4.6171875,
+          "table-reflected": 4.734375,
+          "linear-raw": 4.140625,
+          "linear-reflected": 4.2421875
+        },
+        "contrasts": {
+          "poolingWithoutReflection": {
+            "estimate": -0.4765625,
+            "interval": [
+              -0.6816827548822991,
+              -0.2714422451177009
+            ],
+            "wins": 0,
+            "ties": 0
+          },
+          "poolingWithReflection": {
+            "estimate": -0.4921875,
+            "interval": [
+              -0.698256292912053,
+              -0.2861187070879469
+            ],
+            "wins": 0,
+            "ties": 0
+          },
+          "reflectionForTabular": {
+            "estimate": 0.1171875,
+            "interval": [
+              0.05835296518323692,
+              0.1760220348167631
+            ],
+            "wins": 7,
+            "ties": 1
+          },
+          "reflectionForLinear": {
+            "estimate": 0.1015625,
+            "interval": [
+              -0.10732606541224174,
+              0.31045106541224177
+            ],
+            "wins": 5,
+            "ties": 0
+          },
+          "interaction": {
+            "estimate": -0.015625,
+            "interval": [
+              -0.21459205154121022,
+              0.18334205154121022
+            ],
+            "wins": 4,
+            "ties": 0
+          },
+          "bundle": {
+            "estimate": -0.375,
+            "interval": [
+              -0.6103381392670524,
+              -0.13966186073294767
+            ],
+            "wins": 0,
+            "ties": 2
+          }
+        },
+        "gravel": {
+          "table-raw": 0,
+          "table-reflected": 0,
+          "linear-raw": 0,
+          "linear-reflected": 0
+        }
+      }
+    }
+  }
+}

@@ -89,3 +89,6 @@ An initial attempt to compile all held-out scenes into the training archive
 stopped at a 1.45 GiB local compiler guard; the working training-only build
 does not need them. No stock multi-scene assessment result is claimed.
 Only load trusted archives.
+
+The separate [reflection ablation](attribution/README.md) repeats the comparison
+with all four table/linear and raw/reflected combinations.
