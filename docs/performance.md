@@ -423,3 +423,9 @@ or 72 distinct files, matched on both compiler targets at 1, 2 and 4 workers.
 The plan, validation and test settings were unchanged; no projected
 archive or native writer was used. This is one complete shipped plan,
 not the complete eligible matrix or a runtime measurement.
+
+## Bridge end-to-end diagnostic
+
+[Five repeated cold/warm comparisons](../twin/scalar-q-spike/bridge-workflow/README.md)
+include archive writes, stock verification and CSV export. The cold native
+regression keeps this diagnostic out of the default path.

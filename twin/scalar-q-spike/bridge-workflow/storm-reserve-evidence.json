@@ -1,0 +1,193 @@
+{
+  "workload": "original R10.4 post-fix Storm Reserve",
+  "stockParent": "0b5d31825703c7ac224488287e5d1396a3b9d8dc68f74d236055cb91452733ff",
+  "stockBackend": "4a8eba570985cd4e3aa04a40a9cd47526462b0d18e9592ec240d628e69efea79",
+  "diagnosticCommit": "00a941de0e591b785cc9e52914083bc456ae2414",
+  "uniqueCheckpointFiles": 192,
+  "comparisons": 1152,
+  "originalInventoryUnchanged": true,
+  "projectedPlanStillRefused": true,
+  "nativeArchiveWritten": false,
+  "cases": [
+    {
+      "case": "reserve-12x4-dyna-5-x86-64-v3",
+      "workers": [
+        1,
+        2,
+        4
+      ],
+      "checks": [
+        32,
+        32,
+        32
+      ],
+      "groupPSSKiB": 200694,
+      "hostSwapOutKiB": 400
+    },
+    {
+      "case": "reserve-12x4-dyna-5-znver3",
+      "workers": [
+        1,
+        2,
+        4
+      ],
+      "checks": [
+        32,
+        32,
+        32
+      ],
+      "groupPSSKiB": 185289,
+      "hostSwapOutKiB": 0
+    },
+    {
+      "case": "reserve-12x4-q-x86-64-v3",
+      "workers": [
+        1,
+        2,
+        4
+      ],
+      "checks": [
+        32,
+        32,
+        32
+      ],
+      "groupPSSKiB": 139464,
+      "hostSwapOutKiB": 0
+    },
+    {
+      "case": "reserve-12x4-q-znver3",
+      "workers": [
+        1,
+        2,
+        4
+      ],
+      "checks": [
+        32,
+        32,
+        32
+      ],
+      "groupPSSKiB": 138330,
+      "hostSwapOutKiB": 0
+    },
+    {
+      "case": "reserve-12x4-uniform-x86-64-v3",
+      "workers": [
+        1,
+        2,
+        4
+      ],
+      "checks": [
+        32,
+        32,
+        32
+      ],
+      "groupPSSKiB": 126884,
+      "hostSwapOutKiB": 0
+    },
+    {
+      "case": "reserve-12x4-uniform-znver3",
+      "workers": [
+        1,
+        2,
+        4
+      ],
+      "checks": [
+        32,
+        32,
+        32
+      ],
+      "groupPSSKiB": 126729,
+      "hostSwapOutKiB": 0
+    },
+    {
+      "case": "reserve-2x2-dyna-5-x86-64-v3",
+      "workers": [
+        1,
+        2,
+        4
+      ],
+      "checks": [
+        32,
+        32,
+        32
+      ],
+      "groupPSSKiB": 136765,
+      "hostSwapOutKiB": 0
+    },
+    {
+      "case": "reserve-2x2-dyna-5-znver3",
+      "workers": [
+        1,
+        2,
+        4
+      ],
+      "checks": [
+        32,
+        32,
+        32
+      ],
+      "groupPSSKiB": 135879,
+      "hostSwapOutKiB": 0
+    },
+    {
+      "case": "reserve-2x2-q-x86-64-v3",
+      "workers": [
+        1,
+        2,
+        4
+      ],
+      "checks": [
+        32,
+        32,
+        32
+      ],
+      "groupPSSKiB": 135609,
+      "hostSwapOutKiB": 0
+    },
+    {
+      "case": "reserve-2x2-q-znver3",
+      "workers": [
+        1,
+        2,
+        4
+      ],
+      "checks": [
+        32,
+        32,
+        32
+      ],
+      "groupPSSKiB": 123790,
+      "hostSwapOutKiB": 0
+    },
+    {
+      "case": "reserve-2x2-uniform-x86-64-v3",
+      "workers": [
+        1,
+        2,
+        4
+      ],
+      "checks": [
+        32,
+        32,
+        32
+      ],
+      "groupPSSKiB": 122328,
+      "hostSwapOutKiB": 0
+    },
+    {
+      "case": "reserve-2x2-uniform-znver3",
+      "workers": [
+        1,
+        2,
+        4
+      ],
+      "checks": [
+        32,
+        32,
+        32
+      ],
+      "groupPSSKiB": 118638,
+      "hostSwapOutKiB": 0
+    }
+  ]
+}

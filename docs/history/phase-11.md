@@ -51,6 +51,12 @@ guard settings, medians, and reproduction commands.
   This used a scratch handoff after complete byte equality, not a general
   native archive writer.
 
+- A separate [Bridge end-to-end diagnostic](../../twin/scalar-q-spike/bridge-workflow/README.md)
+  matched all 72 checkpoint files in each of 20 complete archive runs,
+  with identical verification, CSV and untimed replay. Native was 1.73×
+  as fast with prebuilt code, but took 17% longer cold. This is not
+  flagship performance or a qualified production runtime.
+
 ## Adoption priorities
 
 First expand the native witness to the eligible shipped plan matrix and

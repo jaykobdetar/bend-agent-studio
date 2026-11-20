@@ -1,0 +1,492 @@
+{
+  "protocol": {
+    "base": "3ae74f12f1d6a1138c51a06c57ad7dda3bd175dc",
+    "cpu": 6,
+    "siblings": "6,14",
+    "stockParent": "4e941a074db4c8615aafb6149b6285db50266fd97a3672eab492b0f4b3a12fcd",
+    "allCellCheckpointCount": 72,
+    "order": [
+      [
+        "stock-cold",
+        "native-cold",
+        "stock-warm",
+        "native-warm"
+      ],
+      [
+        "native-warm",
+        "stock-warm",
+        "native-cold",
+        "stock-cold"
+      ],
+      [
+        "native-cold",
+        "stock-warm",
+        "stock-cold",
+        "native-warm"
+      ],
+      [
+        "stock-warm",
+        "native-warm",
+        "stock-cold",
+        "native-cold"
+      ],
+      [
+        "stock-cold",
+        "native-warm",
+        "native-cold",
+        "stock-warm"
+      ]
+    ],
+    "scratchSourceSha256": {
+      "twin/scalar-q-spike/workflow-scratch/run.mjs": "4dd45f163713637287157cc3fec1cff76174d947879547496539c49deadd7062",
+      "twin/scalar-q-spike/workflow-scratch/measure.py": "385b8aa66068193869a93b68e91d79ea1d5b75aca5febeb9b9721fa0baaddf00",
+      "twin/scalar-q-spike/parity.mjs": "4e370cb7f33453d66ef4e813ca974d734df1e1f8b2d41709bc4c179035825c2f",
+      "twin/scalar-q-spike/q.c": "1042b03e300eedfa5bc524c725680083c6c31d0b66bdee84df11c9d2f95b014b",
+      "tools/perf/guard.py": "9ad34441fa2501dad02e7fbe4a5c2bdff0c1d27ad709c8d0eb8418e922334bb4"
+    },
+    "flags": "O3 znver3, no FMA/fast math, native worker count 1",
+    "cold": "both fresh; native needs stock code snapshot compile+three C compiles",
+    "warm": "same empty stock template copy inside both scopes; reusable native binaries",
+    "scope": "setup as specified, full training+evaluation, physical archive writes, archived verify and export"
+  },
+  "results": {
+    "rounds": [
+      {
+        "round": 1,
+        "modes": {
+          "stock-cold": {
+            "wallSeconds": 2.3224421909544617,
+            "processCpuSeconds": 2.3144649999999998,
+            "maxIndividualRssKiB": 294504,
+            "sampledGroupPssKiB": 355541,
+            "samples": 56,
+            "sampledGroupSwapPssKiB": 0,
+            "minHostAvailableKiB": 9420736,
+            "hostSwapInKiB": 0,
+            "hostSwapOutKiB": 0,
+            "returncode": 0,
+            "capReason": null,
+            "phasesMs": {
+              "stockCompileTrainArchive": 2186.461484,
+              "archivedVerifyExport": 96.85169799999994
+            }
+          },
+          "native-cold": {
+            "wallSeconds": 2.7258466409984976,
+            "processCpuSeconds": 2.704652,
+            "maxIndividualRssKiB": 311604,
+            "sampledGroupPssKiB": 372985,
+            "samples": 67,
+            "sampledGroupSwapPssKiB": 0,
+            "minHostAvailableKiB": 9413528,
+            "hostSwapInKiB": 0,
+            "hostSwapOutKiB": 0,
+            "returncode": 0,
+            "capReason": null,
+            "phasesMs": {
+              "emptyStockCompile": 2066.510864,
+              "nativeGenerateCompile": 483.75899100000015,
+              "nativeTrainArchive": 41.94743500000004,
+              "archivedVerifyExport": 91.86875599999985
+            }
+          },
+          "stock-warm": {
+            "wallSeconds": 0.31141739897429943,
+            "processCpuSeconds": 0.30901999999999996,
+            "maxIndividualRssKiB": 77228,
+            "sampledGroupPssKiB": 86756,
+            "samples": 9,
+            "sampledGroupSwapPssKiB": 0,
+            "minHostAvailableKiB": 9646128,
+            "hostSwapInKiB": 0,
+            "hostSwapOutKiB": 0,
+            "returncode": 0,
+            "capReason": null,
+            "phasesMs": {
+              "emptySnapshotStage": 1.4706119999999956,
+              "stockTrainArchive": 172.247725,
+              "archivedVerifyExport": 92.608893
+            }
+          },
+          "native-warm": {
+            "wallSeconds": 0.17918390897102654,
+            "processCpuSeconds": 0.177535,
+            "maxIndividualRssKiB": 68448,
+            "sampledGroupPssKiB": 76854,
+            "samples": 5,
+            "sampledGroupSwapPssKiB": 0,
+            "minHostAvailableKiB": 9657176,
+            "hostSwapInKiB": 0,
+            "hostSwapOutKiB": 0,
+            "returncode": 0,
+            "capReason": null,
+            "phasesMs": {
+              "emptySnapshotStage": 1.7455709999999982,
+              "nativeTrainArchive": 44.076313,
+              "archivedVerifyExport": 94.088955
+            }
+          }
+        }
+      },
+      {
+        "round": 2,
+        "modes": {
+          "native-warm": {
+            "wallSeconds": 0.17376820708159357,
+            "processCpuSeconds": 0.172391,
+            "maxIndividualRssKiB": 68372,
+            "sampledGroupPssKiB": 77148,
+            "samples": 5,
+            "sampledGroupSwapPssKiB": 0,
+            "minHostAvailableKiB": 9642428,
+            "hostSwapInKiB": 0,
+            "hostSwapOutKiB": 0,
+            "returncode": 0,
+            "capReason": null,
+            "phasesMs": {
+              "emptySnapshotStage": 1.458713000000003,
+              "nativeTrainArchive": 43.49387599999999,
+              "archivedVerifyExport": 90.686293
+            }
+          },
+          "stock-warm": {
+            "wallSeconds": 0.30388292006682605,
+            "processCpuSeconds": 0.299529,
+            "maxIndividualRssKiB": 74908,
+            "sampledGroupPssKiB": 84926,
+            "samples": 9,
+            "sampledGroupSwapPssKiB": 0,
+            "minHostAvailableKiB": 9633248,
+            "hostSwapInKiB": 0,
+            "hostSwapOutKiB": 0,
+            "returncode": 0,
+            "capReason": null,
+            "phasesMs": {
+              "emptySnapshotStage": 1.468522,
+              "stockTrainArchive": 168.27714699999999,
+              "archivedVerifyExport": 89.55458000000002
+            }
+          },
+          "native-cold": {
+            "wallSeconds": 2.596434917068109,
+            "processCpuSeconds": 2.579532,
+            "maxIndividualRssKiB": 300776,
+            "sampledGroupPssKiB": 353910,
+            "samples": 65,
+            "sampledGroupSwapPssKiB": 0,
+            "minHostAvailableKiB": 9398360,
+            "hostSwapInKiB": 0,
+            "hostSwapOutKiB": 0,
+            "returncode": 0,
+            "capReason": null,
+            "phasesMs": {
+              "emptyStockCompile": 1944.19084,
+              "nativeGenerateCompile": 476.680838,
+              "nativeTrainArchive": 40.52097300000014,
+              "archivedVerifyExport": 92.22423600000002
+            }
+          },
+          "stock-cold": {
+            "wallSeconds": 2.3645134599646553,
+            "processCpuSeconds": 2.338923,
+            "maxIndividualRssKiB": 314696,
+            "sampledGroupPssKiB": 372616,
+            "samples": 58,
+            "sampledGroupSwapPssKiB": 0,
+            "minHostAvailableKiB": 9372256,
+            "hostSwapInKiB": 0,
+            "hostSwapOutKiB": 0,
+            "returncode": 0,
+            "capReason": null,
+            "phasesMs": {
+              "stockCompileTrainArchive": 2237.803606,
+              "archivedVerifyExport": 87.39752400000043
+            }
+          }
+        }
+      },
+      {
+        "round": 3,
+        "modes": {
+          "native-cold": {
+            "wallSeconds": 2.8450500469189137,
+            "processCpuSeconds": 2.813837,
+            "maxIndividualRssKiB": 313028,
+            "sampledGroupPssKiB": 370160,
+            "samples": 70,
+            "sampledGroupSwapPssKiB": 0,
+            "minHostAvailableKiB": 9379780,
+            "hostSwapInKiB": 0,
+            "hostSwapOutKiB": 0,
+            "returncode": 0,
+            "capReason": null,
+            "phasesMs": {
+              "emptyStockCompile": 2168.660981,
+              "nativeGenerateCompile": 496.9557329999998,
+              "nativeTrainArchive": 43.228529999999864,
+              "archivedVerifyExport": 92.69980599999963
+            }
+          },
+          "stock-warm": {
+            "wallSeconds": 0.3096451599849388,
+            "processCpuSeconds": 0.30572299999999997,
+            "maxIndividualRssKiB": 77260,
+            "sampledGroupPssKiB": 87152,
+            "samples": 9,
+            "sampledGroupSwapPssKiB": 0,
+            "minHostAvailableKiB": 9605704,
+            "hostSwapInKiB": 0,
+            "hostSwapOutKiB": 0,
+            "returncode": 0,
+            "capReason": null,
+            "phasesMs": {
+              "emptySnapshotStage": 1.495080999999999,
+              "stockTrainArchive": 173.922003,
+              "archivedVerifyExport": 91.73029200000002
+            }
+          },
+          "stock-cold": {
+            "wallSeconds": 2.32893164397683,
+            "processCpuSeconds": 2.304921,
+            "maxIndividualRssKiB": 319732,
+            "sampledGroupPssKiB": 380204,
+            "samples": 57,
+            "sampledGroupSwapPssKiB": 0,
+            "minHostAvailableKiB": 9377620,
+            "hostSwapInKiB": 0,
+            "hostSwapOutKiB": 0,
+            "returncode": 0,
+            "capReason": null,
+            "phasesMs": {
+              "stockCompileTrainArchive": 2197.633041,
+              "archivedVerifyExport": 93.10306600000013
+            }
+          },
+          "native-warm": {
+            "wallSeconds": 0.1784787819487974,
+            "processCpuSeconds": 0.178112,
+            "maxIndividualRssKiB": 68692,
+            "sampledGroupPssKiB": 76875,
+            "samples": 5,
+            "sampledGroupSwapPssKiB": 0,
+            "minHostAvailableKiB": 9619420,
+            "hostSwapInKiB": 0,
+            "hostSwapOutKiB": 0,
+            "returncode": 0,
+            "capReason": null,
+            "phasesMs": {
+              "emptySnapshotStage": 1.4708230000000029,
+              "nativeTrainArchive": 43.533498,
+              "archivedVerifyExport": 93.15296599999999
+            }
+          }
+        }
+      },
+      {
+        "round": 4,
+        "modes": {
+          "stock-warm": {
+            "wallSeconds": 0.30802048405166715,
+            "processCpuSeconds": 0.303861,
+            "maxIndividualRssKiB": 76860,
+            "sampledGroupPssKiB": 86557,
+            "samples": 9,
+            "sampledGroupSwapPssKiB": 0,
+            "minHostAvailableKiB": 9617340,
+            "hostSwapInKiB": 0,
+            "hostSwapOutKiB": 0,
+            "returncode": 0,
+            "capReason": null,
+            "phasesMs": {
+              "emptySnapshotStage": 1.4638419999999996,
+              "stockTrainArchive": 171.994936,
+              "archivedVerifyExport": 91.82877200000001
+            }
+          },
+          "native-warm": {
+            "wallSeconds": 0.17731322906911373,
+            "processCpuSeconds": 0.174778,
+            "maxIndividualRssKiB": 68476,
+            "sampledGroupPssKiB": 77340,
+            "samples": 5,
+            "sampledGroupSwapPssKiB": 0,
+            "minHostAvailableKiB": 9615060,
+            "hostSwapInKiB": 0,
+            "hostSwapOutKiB": 0,
+            "returncode": 0,
+            "capReason": null,
+            "phasesMs": {
+              "emptySnapshotStage": 1.441633000000003,
+              "nativeTrainArchive": 43.021201,
+              "archivedVerifyExport": 93.78610200000001
+            }
+          },
+          "stock-cold": {
+            "wallSeconds": 2.3094999430468306,
+            "processCpuSeconds": 2.291334,
+            "maxIndividualRssKiB": 298512,
+            "sampledGroupPssKiB": 357548,
+            "samples": 57,
+            "sampledGroupSwapPssKiB": 0,
+            "minHostAvailableKiB": 9387552,
+            "hostSwapInKiB": 0,
+            "hostSwapOutKiB": 0,
+            "returncode": 0,
+            "capReason": null,
+            "phasesMs": {
+              "stockCompileTrainArchive": 2177.8112810000002,
+              "archivedVerifyExport": 92.31130099999973
+            }
+          },
+          "native-cold": {
+            "wallSeconds": 2.531610664911568,
+            "processCpuSeconds": 2.50361,
+            "maxIndividualRssKiB": 287340,
+            "sampledGroupPssKiB": 347057,
+            "samples": 60,
+            "sampledGroupSwapPssKiB": 0,
+            "minHostAvailableKiB": 9421020,
+            "hostSwapInKiB": 0,
+            "hostSwapOutKiB": 0,
+            "returncode": 0,
+            "capReason": null,
+            "phasesMs": {
+              "emptyStockCompile": 1879.015105,
+              "nativeGenerateCompile": 478.71478799999977,
+              "nativeTrainArchive": 41.500290999999834,
+              "archivedVerifyExport": 89.34322799999973
+            }
+          }
+        }
+      },
+      {
+        "round": 5,
+        "modes": {
+          "stock-cold": {
+            "wallSeconds": 2.427472564042546,
+            "processCpuSeconds": 2.405814,
+            "maxIndividualRssKiB": 309212,
+            "sampledGroupPssKiB": 366109,
+            "samples": 59,
+            "sampledGroupSwapPssKiB": 0,
+            "minHostAvailableKiB": 9418672,
+            "hostSwapInKiB": 0,
+            "hostSwapOutKiB": 0,
+            "returncode": 0,
+            "capReason": null,
+            "phasesMs": {
+              "stockCompileTrainArchive": 2288.352439,
+              "archivedVerifyExport": 99.74206300000014
+            }
+          },
+          "native-warm": {
+            "wallSeconds": 0.1797478620428592,
+            "processCpuSeconds": 0.177504,
+            "maxIndividualRssKiB": 67860,
+            "sampledGroupPssKiB": 76465,
+            "samples": 5,
+            "sampledGroupSwapPssKiB": 0,
+            "minHostAvailableKiB": 9612176,
+            "hostSwapInKiB": 0,
+            "hostSwapOutKiB": 0,
+            "returncode": 0,
+            "capReason": null,
+            "phasesMs": {
+              "emptySnapshotStage": 1.4777920000000009,
+              "nativeTrainArchive": 43.842749,
+              "archivedVerifyExport": 94.306983
+            }
+          },
+          "native-cold": {
+            "wallSeconds": 2.7909154549706727,
+            "processCpuSeconds": 2.76969,
+            "maxIndividualRssKiB": 293964,
+            "sampledGroupPssKiB": 353806,
+            "samples": 68,
+            "sampledGroupSwapPssKiB": 0,
+            "minHostAvailableKiB": 9386480,
+            "hostSwapInKiB": 0,
+            "hostSwapOutKiB": 0,
+            "returncode": 0,
+            "capReason": null,
+            "phasesMs": {
+              "emptyStockCompile": 2094.893457,
+              "nativeGenerateCompile": 516.9727399999997,
+              "nativeTrainArchive": 41.70491099999981,
+              "archivedVerifyExport": 92.85971100000006
+            }
+          },
+          "stock-warm": {
+            "wallSeconds": 0.30966607201844454,
+            "processCpuSeconds": 0.30788499999999996,
+            "maxIndividualRssKiB": 75308,
+            "sampledGroupPssKiB": 84581,
+            "samples": 9,
+            "sampledGroupSwapPssKiB": 0,
+            "minHostAvailableKiB": 9580572,
+            "hostSwapInKiB": 0,
+            "hostSwapOutKiB": 0,
+            "returncode": 0,
+            "capReason": null,
+            "phasesMs": {
+              "emptySnapshotStage": 1.465482999999999,
+              "stockTrainArchive": 173.503748,
+              "archivedVerifyExport": 92.64122300000002
+            }
+          }
+        }
+      }
+    ],
+    "median": {
+      "stock-cold": {
+        "wallSeconds": 2.32893164397683,
+        "processCpuSeconds": 2.3144649999999998,
+        "sampledGroupPssKiB": 366109,
+        "phasesMs": {
+          "stockCompileTrainArchive": 2197.633041,
+          "archivedVerifyExport": 93.10306600000013
+        }
+      },
+      "native-cold": {
+        "wallSeconds": 2.7258466409984976,
+        "processCpuSeconds": 2.704652,
+        "sampledGroupPssKiB": 353910,
+        "phasesMs": {
+          "emptyStockCompile": 2066.510864,
+          "nativeGenerateCompile": 483.75899100000015,
+          "nativeTrainArchive": 41.70491099999981,
+          "archivedVerifyExport": 92.22423600000002
+        }
+      },
+      "stock-warm": {
+        "wallSeconds": 0.3096451599849388,
+        "processCpuSeconds": 0.30572299999999997,
+        "sampledGroupPssKiB": 86557,
+        "phasesMs": {
+          "emptySnapshotStage": 1.468522,
+          "stockTrainArchive": 172.247725,
+          "archivedVerifyExport": 91.82877200000001
+        }
+      },
+      "native-warm": {
+        "wallSeconds": 0.1784787819487974,
+        "processCpuSeconds": 0.177504,
+        "sampledGroupPssKiB": 76875,
+        "phasesMs": {
+          "emptySnapshotStage": 1.4708230000000029,
+          "nativeTrainArchive": 43.533498,
+          "archivedVerifyExport": 93.78610200000001
+        }
+      }
+    },
+    "stockOverNative": {
+      "cold": 0.8543883610134887,
+      "warm": 1.7349130053664914
+    },
+    "checkpointFilesPerSample": 72,
+    "timedSamples": 20,
+    "archiveAndCsvByteParity": true,
+    "untimedArchivedReplayParity": true,
+    "replaySha256": "c0979843b4ca521f99332253db3788a3e65647e06c49d9cc9771601356063008"
+  }
+}
