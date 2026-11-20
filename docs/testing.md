@@ -65,6 +65,12 @@ the BendTT step. MCP stdio covers workspace-only authoring and sweep paths.
 
 The Linux workflow also runs `node checks/flagship_slice.mjs` to reproduce two original first-checkpoint files from the [flagship study](../studies/flagship-toy-text/README.md). This checks the exact byte hashes under the pinned runner, not training quality or reproduction of every row. For G2/G3, the [additive fixture](../tools/archive-gates/n9-flagship-plan.json) also pins the new manifest and full source/bundle identities without replacing the historical baselines. The [flagship v2 study](../studies/flagship-toy-text-v2/README.md) has its own additive archive pin and a separate `node checks/flagship_v2_slice.mjs` job step. It checks two exact checkpoint hashes after 64 episodes. Neither slice is a claim that every artifact was reproduced in hosted CI.
 
+The [post-fix challenge and Kart results](../studies/complex-worlds/tie-breaking-fix/README.md)
+include a separate local archive check. Its read-only collection stage verifies
+the four sealed runs, replays no training, and recomputes the checked-in
+challenge summaries, exact Storm values, and Kart frozen-policy results. This
+is not a full retraining step in hosted CI.
+
 | Local command or guide | Coverage and CI step |
 | --- | --- |
 | `node checks/docs_check.mjs`; `node --test checks/docs_inventory.test.mjs checks/docs_markdown.test.mjs` | Link targets, headings, executable paths, source counts and negative fixtures. Root Node tests. |

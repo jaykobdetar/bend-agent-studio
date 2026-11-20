@@ -1,0 +1,7312 @@
+{
+  "trainRoads": [
+    "..l..R...",
+    "..r..L...",
+    ".L...r..",
+    ".R...l..",
+    "....r..L..",
+    "....l..R..",
+    ".r..L.r...",
+    ".l..R.l..."
+  ],
+  "heldoutTracks": {
+    "quarry": "...L..r..",
+    "quarry-mirror": "...R..l..",
+    "shifted-pair": "..r.L....",
+    "shifted-mirror": "..l.R...."
+  },
+  "transitionChecks": 2660,
+  "trainingUniqueViews": 266,
+  "aliases": 9,
+  "targets": {
+    "quarry": {
+      "road": "...L..r..",
+      "states": 43,
+      "oracle": 4.5,
+      "scripted": {
+        "mean": 4,
+        "starts": [
+          {
+            "lane": 0,
+            "score": 4,
+            "ticks": 5,
+            "gravel": 0,
+            "unseen": 0
+          },
+          {
+            "lane": 2,
+            "score": 4,
+            "ticks": 5,
+            "gravel": 0,
+            "unseen": 0
+          }
+        ]
+      },
+      "distinctPublicViews": 42,
+      "viewsPresentInPractice": 36
+    },
+    "quarry-mirror": {
+      "road": "...R..l..",
+      "states": 43,
+      "oracle": 4.5,
+      "scripted": {
+        "mean": 4,
+        "starts": [
+          {
+            "lane": 0,
+            "score": 4,
+            "ticks": 5,
+            "gravel": 0,
+            "unseen": 0
+          },
+          {
+            "lane": 2,
+            "score": 4,
+            "ticks": 5,
+            "gravel": 0,
+            "unseen": 0
+          }
+        ]
+      },
+      "distinctPublicViews": 42,
+      "viewsPresentInPractice": 36
+    },
+    "shifted-pair": {
+      "road": "..r.L....",
+      "states": 44,
+      "oracle": 5,
+      "scripted": {
+        "mean": 4.5,
+        "starts": [
+          {
+            "lane": 0,
+            "score": 5,
+            "ticks": 4,
+            "gravel": 0,
+            "unseen": 0
+          },
+          {
+            "lane": 2,
+            "score": 4,
+            "ticks": 5,
+            "gravel": 0,
+            "unseen": 0
+          }
+        ]
+      },
+      "distinctPublicViews": 43,
+      "viewsPresentInPractice": 22
+    },
+    "shifted-mirror": {
+      "road": "..l.R....",
+      "states": 44,
+      "oracle": 5,
+      "scripted": {
+        "mean": 4.5,
+        "starts": [
+          {
+            "lane": 0,
+            "score": 4,
+            "ticks": 5,
+            "gravel": 0,
+            "unseen": 0
+          },
+          {
+            "lane": 2,
+            "score": 5,
+            "ticks": 4,
+            "gravel": 0,
+            "unseen": 0
+          }
+        ]
+      },
+      "distinctPublicViews": 43,
+      "viewsPresentInPractice": 22
+    }
+  },
+  "report": {
+    "0": {
+      "quarry": {
+        "tabular": 0,
+        "shared": 0,
+        "gain": 0,
+        "interval": [
+          0,
+          0
+        ],
+        "qBetter": 0,
+        "linearBetter": 0
+      },
+      "quarry-mirror": {
+        "tabular": 0,
+        "shared": 0,
+        "gain": 0,
+        "interval": [
+          0,
+          0
+        ],
+        "qBetter": 0,
+        "linearBetter": 0
+      },
+      "shifted-pair": {
+        "tabular": 0,
+        "shared": 0,
+        "gain": 0,
+        "interval": [
+          0,
+          0
+        ],
+        "qBetter": 0,
+        "linearBetter": 0
+      },
+      "shifted-mirror": {
+        "tabular": 0,
+        "shared": 0,
+        "gain": 0,
+        "interval": [
+          0,
+          0
+        ],
+        "qBetter": 0,
+        "linearBetter": 0
+      },
+      "all": {
+        "tabular": 0,
+        "shared": 0,
+        "gain": 0,
+        "interval": [
+          0,
+          0
+        ],
+        "qBetter": 0,
+        "linearBetter": 0
+      }
+    },
+    "1024": {
+      "quarry": {
+        "tabular": 2.25,
+        "shared": 2.5,
+        "gain": 0.25,
+        "interval": [
+          -1.4070456489574603,
+          1.9070456489574603
+        ],
+        "qBetter": 2,
+        "linearBetter": 6
+      },
+      "quarry-mirror": {
+        "tabular": 1.875,
+        "shared": 2.5625,
+        "gain": 0.6875,
+        "interval": [
+          -0.5350338512821713,
+          1.9100338512821713
+        ],
+        "qBetter": 1,
+        "linearBetter": 7
+      },
+      "shifted-pair": {
+        "tabular": 1.3125,
+        "shared": 2.9375,
+        "gain": 1.625,
+        "interval": [
+          0.6836474429317907,
+          2.5663525570682095
+        ],
+        "qBetter": 1,
+        "linearBetter": 7
+      },
+      "shifted-mirror": {
+        "tabular": 1.625,
+        "shared": 3,
+        "gain": 1.375,
+        "interval": [
+          0.3092782519720916,
+          2.4407217480279084
+        ],
+        "qBetter": 2,
+        "linearBetter": 6
+      },
+      "all": {
+        "tabular": 1.765625,
+        "shared": 2.75,
+        "gain": 0.984375,
+        "interval": [
+          0.1550287693733744,
+          1.8137212306266255
+        ],
+        "qBetter": 2,
+        "linearBetter": 6
+      }
+    },
+    "4096": {
+      "quarry": {
+        "tabular": 2.625,
+        "shared": 2.75,
+        "gain": 0.125,
+        "interval": [
+          -0.7331222011965275,
+          0.9831222011965275
+        ],
+        "qBetter": 3,
+        "linearBetter": 4
+      },
+      "quarry-mirror": {
+        "tabular": 2.3125,
+        "shared": 2.75,
+        "gain": 0.4375,
+        "interval": [
+          -0.5219097874385935,
+          1.3969097874385934
+        ],
+        "qBetter": 4,
+        "linearBetter": 4
+      },
+      "shifted-pair": {
+        "tabular": 1.5,
+        "shared": 3.5,
+        "gain": 2,
+        "interval": [
+          0.9519923124845218,
+          3.0480076875154785
+        ],
+        "qBetter": 0,
+        "linearBetter": 8
+      },
+      "shifted-mirror": {
+        "tabular": 1.8125,
+        "shared": 3.625,
+        "gain": 1.8125,
+        "interval": [
+          1.1830010687544599,
+          2.44199893124554
+        ],
+        "qBetter": 0,
+        "linearBetter": 8
+      },
+      "all": {
+        "tabular": 2.0625,
+        "shared": 3.15625,
+        "gain": 1.09375,
+        "interval": [
+          0.43815000680682936,
+          1.7493499931931706
+        ],
+        "qBetter": 0,
+        "linearBetter": 8
+      }
+    },
+    "16384": {
+      "quarry": {
+        "tabular": 2.9375,
+        "shared": 3.3125,
+        "gain": 0.375,
+        "interval": [
+          -0.4228260644890286,
+          1.1728260644890285
+        ],
+        "qBetter": 3,
+        "linearBetter": 4
+      },
+      "quarry-mirror": {
+        "tabular": 2.8125,
+        "shared": 3.25,
+        "gain": 0.4375,
+        "interval": [
+          -0.3815536812151952,
+          1.2565536812151952
+        ],
+        "qBetter": 1,
+        "linearBetter": 2
+      },
+      "shifted-pair": {
+        "tabular": 1.625,
+        "shared": 3.9375,
+        "gain": 2.3125,
+        "interval": [
+          0.9918156224700687,
+          3.6331843775299313
+        ],
+        "qBetter": 0,
+        "linearBetter": 8
+      },
+      "shifted-mirror": {
+        "tabular": 1.9375,
+        "shared": 3.875,
+        "gain": 1.9375,
+        "interval": [
+          0.9029768901829938,
+          2.9720231098170062
+        ],
+        "qBetter": 1,
+        "linearBetter": 7
+      },
+      "all": {
+        "tabular": 2.328125,
+        "shared": 3.59375,
+        "gain": 1.265625,
+        "interval": [
+          0.6602889544256793,
+          1.8709610455743206
+        ],
+        "qBetter": 0,
+        "linearBetter": 8
+      }
+    },
+    "65536": {
+      "quarry": {
+        "tabular": 3.4375,
+        "shared": 3.4375,
+        "gain": 0,
+        "interval": [
+          -0.8937439588979467,
+          0.8937439588979467
+        ],
+        "qBetter": 4,
+        "linearBetter": 1
+      },
+      "quarry-mirror": {
+        "tabular": 3.375,
+        "shared": 3.5,
+        "gain": 0.125,
+        "interval": [
+          -0.7331222011965275,
+          0.9831222011965275
+        ],
+        "qBetter": 3,
+        "linearBetter": 3
+      },
+      "shifted-pair": {
+        "tabular": 1.625,
+        "shared": 4,
+        "gain": 2.375,
+        "interval": [
+          1.5464771755212698,
+          3.20352282447873
+        ],
+        "qBetter": 0,
+        "linearBetter": 8
+      },
+      "shifted-mirror": {
+        "tabular": 2.125,
+        "shared": 4,
+        "gain": 1.875,
+        "interval": [
+          1.4423180664268458,
+          2.3076819335731544
+        ],
+        "qBetter": 0,
+        "linearBetter": 8
+      },
+      "all": {
+        "tabular": 2.640625,
+        "shared": 3.734375,
+        "gain": 1.09375,
+        "interval": [
+          0.6766736420437371,
+          1.5108263579562629
+        ],
+        "qBetter": 0,
+        "linearBetter": 8
+      }
+    }
+  },
+  "final": {
+    "tabular": {
+      "validation": 4.609375,
+      "starts": 64,
+      "ticks": 331,
+      "gravel": 19,
+      "ticksNotObservedByPairedTabular": 97
+    },
+    "shared": {
+      "validation": 4.34375,
+      "starts": 64,
+      "ticks": 337,
+      "gravel": 0,
+      "ticksNotObservedByPairedTabular": 92
+    }
+  },
+  "rows": [
+    {
+      "rep": 0,
+      "arm": "tabular",
+      "budget": 0,
+      "held": {
+        "quarry": {
+          "mean": 0,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 0,
+              "ticks": 9,
+              "gravel": 0,
+              "unseen": 9
+            },
+            {
+              "lane": 2,
+              "score": 0,
+              "ticks": 9,
+              "gravel": 0,
+              "unseen": 9
+            }
+          ]
+        },
+        "quarry-mirror": {
+          "mean": 0,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 0,
+              "ticks": 9,
+              "gravel": 0,
+              "unseen": 9
+            },
+            {
+              "lane": 2,
+              "score": 0,
+              "ticks": 9,
+              "gravel": 0,
+              "unseen": 9
+            }
+          ]
+        },
+        "shifted-pair": {
+          "mean": 0,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 0,
+              "ticks": 9,
+              "gravel": 0,
+              "unseen": 9
+            },
+            {
+              "lane": 2,
+              "score": 0,
+              "ticks": 9,
+              "gravel": 0,
+              "unseen": 9
+            }
+          ]
+        },
+        "shifted-mirror": {
+          "mean": 0,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 0,
+              "ticks": 9,
+              "gravel": 0,
+              "unseen": 9
+            },
+            {
+              "lane": 2,
+              "score": 0,
+              "ticks": 9,
+              "gravel": 0,
+              "unseen": 9
+            }
+          ]
+        }
+      },
+      "trainingObsForTabular": 0,
+      "validationMean": 0,
+      "hash": "fb4239582000ef3656b60af343414109e0ec5446017439821b9b0f943e35b3ab"
+    },
+    {
+      "rep": 0,
+      "arm": "tabular",
+      "budget": 1024,
+      "held": {
+        "quarry": {
+          "mean": 1.5,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 4,
+              "ticks": 5,
+              "gravel": 0,
+              "unseen": 2
+            },
+            {
+              "lane": 2,
+              "score": -1,
+              "ticks": 6,
+              "gravel": 1,
+              "unseen": 1
+            }
+          ]
+        },
+        "quarry-mirror": {
+          "mean": 0.5,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 0,
+              "ticks": 5,
+              "gravel": 1,
+              "unseen": 1
+            },
+            {
+              "lane": 2,
+              "score": 1,
+              "ticks": 8,
+              "gravel": 0,
+              "unseen": 5
+            }
+          ]
+        },
+        "shifted-pair": {
+          "mean": -1,
+          "starts": [
+            {
+              "lane": 0,
+              "score": -1,
+              "ticks": 6,
+              "gravel": 1,
+              "unseen": 2
+            },
+            {
+              "lane": 2,
+              "score": -1,
+              "ticks": 6,
+              "gravel": 1,
+              "unseen": 3
+            }
+          ]
+        },
+        "shifted-mirror": {
+          "mean": 1,
+          "starts": [
+            {
+              "lane": 0,
+              "score": -2,
+              "ticks": 7,
+              "gravel": 1,
+              "unseen": 3
+            },
+            {
+              "lane": 2,
+              "score": 4,
+              "ticks": 5,
+              "gravel": 0,
+              "unseen": 2
+            }
+          ]
+        }
+      },
+      "trainingObsForTabular": 179,
+      "validationMean": 3.3749999999999996,
+      "hash": "424e22d6bbdd032ff42393b9cf4733daa962cff01c03479d16a6399ada4cb390"
+    },
+    {
+      "rep": 0,
+      "arm": "tabular",
+      "budget": 4096,
+      "held": {
+        "quarry": {
+          "mean": 1.5,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 4,
+              "ticks": 5,
+              "gravel": 0,
+              "unseen": 2
+            },
+            {
+              "lane": 2,
+              "score": -1,
+              "ticks": 6,
+              "gravel": 1,
+              "unseen": 1
+            }
+          ]
+        },
+        "quarry-mirror": {
+          "mean": 2,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 3,
+              "ticks": 6,
+              "gravel": 0,
+              "unseen": 1
+            },
+            {
+              "lane": 2,
+              "score": 1,
+              "ticks": 8,
+              "gravel": 0,
+              "unseen": 3
+            }
+          ]
+        },
+        "shifted-pair": {
+          "mean": -1,
+          "starts": [
+            {
+              "lane": 0,
+              "score": -1,
+              "ticks": 6,
+              "gravel": 1,
+              "unseen": 2
+            },
+            {
+              "lane": 2,
+              "score": -1,
+              "ticks": 6,
+              "gravel": 1,
+              "unseen": 3
+            }
+          ]
+        },
+        "shifted-mirror": {
+          "mean": 1.5,
+          "starts": [
+            {
+              "lane": 0,
+              "score": -1,
+              "ticks": 6,
+              "gravel": 1,
+              "unseen": 3
+            },
+            {
+              "lane": 2,
+              "score": 4,
+              "ticks": 5,
+              "gravel": 0,
+              "unseen": 2
+            }
+          ]
+        }
+      },
+      "trainingObsForTabular": 236,
+      "validationMean": 3.7812500000000004,
+      "hash": "f6ed0d7e40b646a33cb28f5001342648d468744b76871a9e91f2a395cff6dd9a"
+    },
+    {
+      "rep": 0,
+      "arm": "tabular",
+      "budget": 16384,
+      "held": {
+        "quarry": {
+          "mean": 1.5,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 4,
+              "ticks": 5,
+              "gravel": 0,
+              "unseen": 2
+            },
+            {
+              "lane": 2,
+              "score": -1,
+              "ticks": 6,
+              "gravel": 1,
+              "unseen": 1
+            }
+          ]
+        },
+        "quarry-mirror": {
+          "mean": 3.5,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 3,
+              "ticks": 6,
+              "gravel": 0,
+              "unseen": 1
+            },
+            {
+              "lane": 2,
+              "score": 4,
+              "ticks": 5,
+              "gravel": 0,
+              "unseen": 1
+            }
+          ]
+        },
+        "shifted-pair": {
+          "mean": -1,
+          "starts": [
+            {
+              "lane": 0,
+              "score": -1,
+              "ticks": 6,
+              "gravel": 1,
+              "unseen": 2
+            },
+            {
+              "lane": 2,
+              "score": -1,
+              "ticks": 6,
+              "gravel": 1,
+              "unseen": 3
+            }
+          ]
+        },
+        "shifted-mirror": {
+          "mean": 1.5,
+          "starts": [
+            {
+              "lane": 0,
+              "score": -1,
+              "ticks": 6,
+              "gravel": 1,
+              "unseen": 3
+            },
+            {
+              "lane": 2,
+              "score": 4,
+              "ticks": 5,
+              "gravel": 0,
+              "unseen": 2
+            }
+          ]
+        }
+      },
+      "trainingObsForTabular": 256,
+      "validationMean": 4.3125,
+      "hash": "03f9911808ad064a61d09ba24af5fa8e0491f1a837b592e7cecfaceda1a6903e"
+    },
+    {
+      "rep": 0,
+      "arm": "tabular",
+      "budget": 65536,
+      "held": {
+        "quarry": {
+          "mean": 1,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 3,
+              "ticks": 6,
+              "gravel": 0,
+              "unseen": 1
+            },
+            {
+              "lane": 2,
+              "score": -1,
+              "ticks": 6,
+              "gravel": 1,
+              "unseen": 1
+            }
+          ]
+        },
+        "quarry-mirror": {
+          "mean": 3.5,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 3,
+              "ticks": 6,
+              "gravel": 0,
+              "unseen": 1
+            },
+            {
+              "lane": 2,
+              "score": 4,
+              "ticks": 5,
+              "gravel": 0,
+              "unseen": 1
+            }
+          ]
+        },
+        "shifted-pair": {
+          "mean": -1,
+          "starts": [
+            {
+              "lane": 0,
+              "score": -1,
+              "ticks": 6,
+              "gravel": 1,
+              "unseen": 2
+            },
+            {
+              "lane": 2,
+              "score": -1,
+              "ticks": 6,
+              "gravel": 1,
+              "unseen": 3
+            }
+          ]
+        },
+        "shifted-mirror": {
+          "mean": 2,
+          "starts": [
+            {
+              "lane": 0,
+              "score": -1,
+              "ticks": 6,
+              "gravel": 1,
+              "unseen": 3
+            },
+            {
+              "lane": 2,
+              "score": 5,
+              "ticks": 4,
+              "gravel": 0,
+              "unseen": 2
+            }
+          ]
+        }
+      },
+      "trainingObsForTabular": 265,
+      "validationMean": 4.5,
+      "hash": "9f43deac562f4b7a4fb1f578c3ef76b93894b12df054087f9b0522118fb2a85e"
+    },
+    {
+      "rep": 0,
+      "arm": "shared",
+      "budget": 0,
+      "held": {
+        "quarry": {
+          "mean": 0,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 0,
+              "ticks": 9,
+              "gravel": 0,
+              "unseen": 9
+            },
+            {
+              "lane": 2,
+              "score": 0,
+              "ticks": 9,
+              "gravel": 0,
+              "unseen": 9
+            }
+          ]
+        },
+        "quarry-mirror": {
+          "mean": 0,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 0,
+              "ticks": 9,
+              "gravel": 0,
+              "unseen": 9
+            },
+            {
+              "lane": 2,
+              "score": 0,
+              "ticks": 9,
+              "gravel": 0,
+              "unseen": 9
+            }
+          ]
+        },
+        "shifted-pair": {
+          "mean": 0,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 0,
+              "ticks": 9,
+              "gravel": 0,
+              "unseen": 9
+            },
+            {
+              "lane": 2,
+              "score": 0,
+              "ticks": 9,
+              "gravel": 0,
+              "unseen": 9
+            }
+          ]
+        },
+        "shifted-mirror": {
+          "mean": 0,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 0,
+              "ticks": 9,
+              "gravel": 0,
+              "unseen": 9
+            },
+            {
+              "lane": 2,
+              "score": 0,
+              "ticks": 9,
+              "gravel": 0,
+              "unseen": 9
+            }
+          ]
+        }
+      },
+      "trainingObsForTabular": 0,
+      "validationMean": 0,
+      "hash": "7b799da1e08fee87fc822d357f42acde7eb670139e5bcb0af220d1e6c8f6f9fc"
+    },
+    {
+      "rep": 0,
+      "arm": "shared",
+      "budget": 1024,
+      "held": {
+        "quarry": {
+          "mean": 2,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 4,
+              "ticks": 5,
+              "gravel": 0,
+              "unseen": 3
+            },
+            {
+              "lane": 2,
+              "score": 0,
+              "ticks": 5,
+              "gravel": 1,
+              "unseen": 1
+            }
+          ]
+        },
+        "quarry-mirror": {
+          "mean": 2,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 0,
+              "ticks": 5,
+              "gravel": 1,
+              "unseen": 2
+            },
+            {
+              "lane": 2,
+              "score": 4,
+              "ticks": 5,
+              "gravel": 0,
+              "unseen": 1
+            }
+          ]
+        },
+        "shifted-pair": {
+          "mean": 2,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 4,
+              "ticks": 5,
+              "gravel": 0,
+              "unseen": 2
+            },
+            {
+              "lane": 2,
+              "score": 0,
+              "ticks": 5,
+              "gravel": 1,
+              "unseen": 3
+            }
+          ]
+        },
+        "shifted-mirror": {
+          "mean": 2,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 0,
+              "ticks": 5,
+              "gravel": 1,
+              "unseen": 3
+            },
+            {
+              "lane": 2,
+              "score": 4,
+              "ticks": 5,
+              "gravel": 0,
+              "unseen": 2
+            }
+          ]
+        }
+      },
+      "trainingObsForTabular": 179,
+      "validationMean": 4.062500000000001,
+      "hash": "65fd4a2c63750aeaad5acbd6920046800e46a5bc569907e8cf7fb0ed476c7398"
+    },
+    {
+      "rep": 0,
+      "arm": "shared",
+      "budget": 4096,
+      "held": {
+        "quarry": {
+          "mean": 3,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 4,
+              "ticks": 5,
+              "gravel": 0,
+              "unseen": 3
+            },
+            {
+              "lane": 2,
+              "score": 2,
+              "ticks": 7,
+              "gravel": 0,
+              "unseen": 1
+            }
+          ]
+        },
+        "quarry-mirror": {
+          "mean": 3.5,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 3,
+              "ticks": 6,
+              "gravel": 0,
+              "unseen": 2
+            },
+            {
+              "lane": 2,
+              "score": 4,
+              "ticks": 5,
+              "gravel": 0,
+              "unseen": 1
+            }
+          ]
+        },
+        "shifted-pair": {
+          "mean": 3.5,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 4,
+              "ticks": 5,
+              "gravel": 0,
+              "unseen": 2
+            },
+            {
+              "lane": 2,
+              "score": 3,
+              "ticks": 6,
+              "gravel": 0,
+              "unseen": 3
+            }
+          ]
+        },
+        "shifted-mirror": {
+          "mean": 4,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 4,
+              "ticks": 5,
+              "gravel": 0,
+              "unseen": 3
+            },
+            {
+              "lane": 2,
+              "score": 4,
+              "ticks": 5,
+              "gravel": 0,
+              "unseen": 2
+            }
+          ]
+        }
+      },
+      "trainingObsForTabular": 236,
+      "validationMean": 3.7812499999999996,
+      "hash": "205b2628ed37a4e53aec425eb2c742647424c01c238047e9967eadf9c26367bf"
+    },
+    {
+      "rep": 0,
+      "arm": "shared",
+      "budget": 16384,
+      "held": {
+        "quarry": {
+          "mean": 3.5,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 4,
+              "ticks": 5,
+              "gravel": 0,
+              "unseen": 2
+            },
+            {
+              "lane": 2,
+              "score": 3,
+              "ticks": 6,
+              "gravel": 0,
+              "unseen": 1
+            }
+          ]
+        },
+        "quarry-mirror": {
+          "mean": 3.5,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 3,
+              "ticks": 6,
+              "gravel": 0,
+              "unseen": 1
+            },
+            {
+              "lane": 2,
+              "score": 4,
+              "ticks": 5,
+              "gravel": 0,
+              "unseen": 1
+            }
+          ]
+        },
+        "shifted-pair": {
+          "mean": 4.5,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 4,
+              "ticks": 5,
+              "gravel": 0,
+              "unseen": 2
+            },
+            {
+              "lane": 2,
+              "score": 5,
+              "ticks": 4,
+              "gravel": 0,
+              "unseen": 2
+            }
+          ]
+        },
+        "shifted-mirror": {
+          "mean": 4.5,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 5,
+              "ticks": 4,
+              "gravel": 0,
+              "unseen": 2
+            },
+            {
+              "lane": 2,
+              "score": 4,
+              "ticks": 5,
+              "gravel": 0,
+              "unseen": 2
+            }
+          ]
+        }
+      },
+      "trainingObsForTabular": 256,
+      "validationMean": 3.9374999999999996,
+      "hash": "b6e609b4c914beafd0bb7428f044814c3a65568e1532e0bdb2d8d25241252dba"
+    },
+    {
+      "rep": 0,
+      "arm": "shared",
+      "budget": 65536,
+      "held": {
+        "quarry": {
+          "mean": 3.5,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 4,
+              "ticks": 5,
+              "gravel": 0,
+              "unseen": 0
+            },
+            {
+              "lane": 2,
+              "score": 3,
+              "ticks": 6,
+              "gravel": 0,
+              "unseen": 1
+            }
+          ]
+        },
+        "quarry-mirror": {
+          "mean": 3.5,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 3,
+              "ticks": 6,
+              "gravel": 0,
+              "unseen": 1
+            },
+            {
+              "lane": 2,
+              "score": 4,
+              "ticks": 5,
+              "gravel": 0,
+              "unseen": 0
+            }
+          ]
+        },
+        "shifted-pair": {
+          "mean": 3.5,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 4,
+              "ticks": 5,
+              "gravel": 0,
+              "unseen": 2
+            },
+            {
+              "lane": 2,
+              "score": 3,
+              "ticks": 6,
+              "gravel": 0,
+              "unseen": 3
+            }
+          ]
+        },
+        "shifted-mirror": {
+          "mean": 3.5,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 3,
+              "ticks": 6,
+              "gravel": 0,
+              "unseen": 3
+            },
+            {
+              "lane": 2,
+              "score": 4,
+              "ticks": 5,
+              "gravel": 0,
+              "unseen": 2
+            }
+          ]
+        }
+      },
+      "trainingObsForTabular": 265,
+      "validationMean": 4.187499999999999,
+      "hash": "37700fbe33bfa59454202d94c05ae089e1d57b0441d29c86c0311ea0022e000d"
+    },
+    {
+      "rep": 1,
+      "arm": "tabular",
+      "budget": 0,
+      "held": {
+        "quarry": {
+          "mean": 0,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 0,
+              "ticks": 9,
+              "gravel": 0,
+              "unseen": 9
+            },
+            {
+              "lane": 2,
+              "score": 0,
+              "ticks": 9,
+              "gravel": 0,
+              "unseen": 9
+            }
+          ]
+        },
+        "quarry-mirror": {
+          "mean": 0,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 0,
+              "ticks": 9,
+              "gravel": 0,
+              "unseen": 9
+            },
+            {
+              "lane": 2,
+              "score": 0,
+              "ticks": 9,
+              "gravel": 0,
+              "unseen": 9
+            }
+          ]
+        },
+        "shifted-pair": {
+          "mean": 0,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 0,
+              "ticks": 9,
+              "gravel": 0,
+              "unseen": 9
+            },
+            {
+              "lane": 2,
+              "score": 0,
+              "ticks": 9,
+              "gravel": 0,
+              "unseen": 9
+            }
+          ]
+        },
+        "shifted-mirror": {
+          "mean": 0,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 0,
+              "ticks": 9,
+              "gravel": 0,
+              "unseen": 9
+            },
+            {
+              "lane": 2,
+              "score": 0,
+              "ticks": 9,
+              "gravel": 0,
+              "unseen": 9
+            }
+          ]
+        }
+      },
+      "trainingObsForTabular": 0,
+      "validationMean": 0,
+      "hash": "ccfb4b776ede839c6510e38cf138fed665dc31e3975f017d03b614f593d6756a"
+    },
+    {
+      "rep": 1,
+      "arm": "tabular",
+      "budget": 1024,
+      "held": {
+        "quarry": {
+          "mean": 2,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 4,
+              "ticks": 5,
+              "gravel": 0,
+              "unseen": 3
+            },
+            {
+              "lane": 2,
+              "score": 0,
+              "ticks": 5,
+              "gravel": 1,
+              "unseen": 1
+            }
+          ]
+        },
+        "quarry-mirror": {
+          "mean": 2,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 0,
+              "ticks": 5,
+              "gravel": 1,
+              "unseen": 1
+            },
+            {
+              "lane": 2,
+              "score": 4,
+              "ticks": 5,
+              "gravel": 0,
+              "unseen": 0
+            }
+          ]
+        },
+        "shifted-pair": {
+          "mean": 2,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 5,
+              "ticks": 4,
+              "gravel": 0,
+              "unseen": 2
+            },
+            {
+              "lane": 2,
+              "score": -1,
+              "ticks": 6,
+              "gravel": 1,
+              "unseen": 3
+            }
+          ]
+        },
+        "shifted-mirror": {
+          "mean": 1.5,
+          "starts": [
+            {
+              "lane": 0,
+              "score": -1,
+              "ticks": 6,
+              "gravel": 1,
+              "unseen": 2
+            },
+            {
+              "lane": 2,
+              "score": 4,
+              "ticks": 5,
+              "gravel": 0,
+              "unseen": 2
+            }
+          ]
+        }
+      },
+      "trainingObsForTabular": 200,
+      "validationMean": 3.9999999999999996,
+      "hash": "efefc84566e2364b0c0c818f2bbf20359654b7390116843161307d80c1242e23"
+    },
+    {
+      "rep": 1,
+      "arm": "tabular",
+      "budget": 4096,
+      "held": {
+        "quarry": {
+          "mean": 2,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 4,
+              "ticks": 5,
+              "gravel": 0,
+              "unseen": 2
+            },
+            {
+              "lane": 2,
+              "score": 0,
+              "ticks": 5,
+              "gravel": 1,
+              "unseen": 1
+            }
+          ]
+        },
+        "quarry-mirror": {
+          "mean": 2.5,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 1,
+              "ticks": 4,
+              "gravel": 1,
+              "unseen": 1
+            },
+            {
+              "lane": 2,
+              "score": 4,
+              "ticks": 5,
+              "gravel": 0,
+              "unseen": 0
+            }
+          ]
+        },
+        "shifted-pair": {
+          "mean": 2,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 5,
+              "ticks": 4,
+              "gravel": 0,
+              "unseen": 2
+            },
+            {
+              "lane": 2,
+              "score": -1,
+              "ticks": 6,
+              "gravel": 1,
+              "unseen": 3
+            }
+          ]
+        },
+        "shifted-mirror": {
+          "mean": 1.5,
+          "starts": [
+            {
+              "lane": 0,
+              "score": -1,
+              "ticks": 6,
+              "gravel": 1,
+              "unseen": 2
+            },
+            {
+              "lane": 2,
+              "score": 4,
+              "ticks": 5,
+              "gravel": 0,
+              "unseen": 2
+            }
+          ]
+        }
+      },
+      "trainingObsForTabular": 248,
+      "validationMean": 4.125000000000001,
+      "hash": "ea45917cb1404d98db222bca5fa744383b3e907635fce7e367fe48805716c93c"
+    },
+    {
+      "rep": 1,
+      "arm": "tabular",
+      "budget": 16384,
+      "held": {
+        "quarry": {
+          "mean": 2,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 4,
+              "ticks": 5,
+              "gravel": 0,
+              "unseen": 0
+            },
+            {
+              "lane": 2,
+              "score": 0,
+              "ticks": 5,
+              "gravel": 1,
+              "unseen": 1
+            }
+          ]
+        },
+        "quarry-mirror": {
+          "mean": 3,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 1,
+              "ticks": 4,
+              "gravel": 1,
+              "unseen": 0
+            },
+            {
+              "lane": 2,
+              "score": 5,
+              "ticks": 4,
+              "gravel": 0,
+              "unseen": 0
+            }
+          ]
+        },
+        "shifted-pair": {
+          "mean": 2,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 5,
+              "ticks": 4,
+              "gravel": 0,
+              "unseen": 2
+            },
+            {
+              "lane": 2,
+              "score": -1,
+              "ticks": 6,
+              "gravel": 1,
+              "unseen": 3
+            }
+          ]
+        },
+        "shifted-mirror": {
+          "mean": 1.5,
+          "starts": [
+            {
+              "lane": 0,
+              "score": -1,
+              "ticks": 6,
+              "gravel": 1,
+              "unseen": 2
+            },
+            {
+              "lane": 2,
+              "score": 4,
+              "ticks": 5,
+              "gravel": 0,
+              "unseen": 2
+            }
+          ]
+        }
+      },
+      "trainingObsForTabular": 259,
+      "validationMean": 4.34375,
+      "hash": "e4cf5853f30134cf241e72168729ba1b73bb14094f4acf2f3db260b34f20f5d7"
+    },
+    {
+      "rep": 1,
+      "arm": "tabular",
+      "budget": 65536,
+      "held": {
+        "quarry": {
+          "mean": 3.5,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 4,
+              "ticks": 5,
+              "gravel": 0,
+              "unseen": 0
+            },
+            {
+              "lane": 2,
+              "score": 3,
+              "ticks": 6,
+              "gravel": 0,
+              "unseen": 1
+            }
+          ]
+        },
+        "quarry-mirror": {
+          "mean": 4.5,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 4,
+              "ticks": 5,
+              "gravel": 0,
+              "unseen": 1
+            },
+            {
+              "lane": 2,
+              "score": 5,
+              "ticks": 4,
+              "gravel": 0,
+              "unseen": 0
+            }
+          ]
+        },
+        "shifted-pair": {
+          "mean": 2,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 5,
+              "ticks": 4,
+              "gravel": 0,
+              "unseen": 2
+            },
+            {
+              "lane": 2,
+              "score": -1,
+              "ticks": 6,
+              "gravel": 1,
+              "unseen": 3
+            }
+          ]
+        },
+        "shifted-mirror": {
+          "mean": 2,
+          "starts": [
+            {
+              "lane": 0,
+              "score": -1,
+              "ticks": 6,
+              "gravel": 1,
+              "unseen": 2
+            },
+            {
+              "lane": 2,
+              "score": 5,
+              "ticks": 4,
+              "gravel": 0,
+              "unseen": 2
+            }
+          ]
+        }
+      },
+      "trainingObsForTabular": 265,
+      "validationMean": 4.53125,
+      "hash": "8e54d522d9b9e05327abe992ee22d21f1d123f638d003173bd13b657cce6ee3a"
+    },
+    {
+      "rep": 1,
+      "arm": "shared",
+      "budget": 0,
+      "held": {
+        "quarry": {
+          "mean": 0,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 0,
+              "ticks": 9,
+              "gravel": 0,
+              "unseen": 9
+            },
+            {
+              "lane": 2,
+              "score": 0,
+              "ticks": 9,
+              "gravel": 0,
+              "unseen": 9
+            }
+          ]
+        },
+        "quarry-mirror": {
+          "mean": 0,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 0,
+              "ticks": 9,
+              "gravel": 0,
+              "unseen": 9
+            },
+            {
+              "lane": 2,
+              "score": 0,
+              "ticks": 9,
+              "gravel": 0,
+              "unseen": 9
+            }
+          ]
+        },
+        "shifted-pair": {
+          "mean": 0,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 0,
+              "ticks": 9,
+              "gravel": 0,
+              "unseen": 9
+            },
+            {
+              "lane": 2,
+              "score": 0,
+              "ticks": 9,
+              "gravel": 0,
+              "unseen": 9
+            }
+          ]
+        },
+        "shifted-mirror": {
+          "mean": 0,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 0,
+              "ticks": 9,
+              "gravel": 0,
+              "unseen": 9
+            },
+            {
+              "lane": 2,
+              "score": 0,
+              "ticks": 9,
+              "gravel": 0,
+              "unseen": 9
+            }
+          ]
+        }
+      },
+      "trainingObsForTabular": 0,
+      "validationMean": 0,
+      "hash": "1c7fda32f2444fb1b4fb0696a1fcf510b144daeccfd832fc72e21c8f4f9fb654"
+    },
+    {
+      "rep": 1,
+      "arm": "shared",
+      "budget": 1024,
+      "held": {
+        "quarry": {
+          "mean": 3,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 3,
+              "ticks": 6,
+              "gravel": 0,
+              "unseen": 3
+            },
+            {
+              "lane": 2,
+              "score": 3,
+              "ticks": 6,
+              "gravel": 0,
+              "unseen": 3
+            }
+          ]
+        },
+        "quarry-mirror": {
+          "mean": 3,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 3,
+              "ticks": 6,
+              "gravel": 0,
+              "unseen": 2
+            },
+            {
+              "lane": 2,
+              "score": 3,
+              "ticks": 6,
+              "gravel": 0,
+              "unseen": 1
+            }
+          ]
+        },
+        "shifted-pair": {
+          "mean": 4,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 4,
+              "ticks": 5,
+              "gravel": 0,
+              "unseen": 3
+            },
+            {
+              "lane": 2,
+              "score": 4,
+              "ticks": 5,
+              "gravel": 0,
+              "unseen": 3
+            }
+          ]
+        },
+        "shifted-mirror": {
+          "mean": 4,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 4,
+              "ticks": 5,
+              "gravel": 0,
+              "unseen": 3
+            },
+            {
+              "lane": 2,
+              "score": 4,
+              "ticks": 5,
+              "gravel": 0,
+              "unseen": 3
+            }
+          ]
+        }
+      },
+      "trainingObsForTabular": 200,
+      "validationMean": 3.6562499999999996,
+      "hash": "b0cd9f97cebf85156fcda8d3bd8a2c45990a01e79adea6c84c81fba11f9cffd9"
+    },
+    {
+      "rep": 1,
+      "arm": "shared",
+      "budget": 4096,
+      "held": {
+        "quarry": {
+          "mean": 3,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 4,
+              "ticks": 5,
+              "gravel": 0,
+              "unseen": 1
+            },
+            {
+              "lane": 2,
+              "score": 2,
+              "ticks": 7,
+              "gravel": 0,
+              "unseen": 2
+            }
+          ]
+        },
+        "quarry-mirror": {
+          "mean": 2,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 1,
+              "ticks": 8,
+              "gravel": 0,
+              "unseen": 2
+            },
+            {
+              "lane": 2,
+              "score": 3,
+              "ticks": 6,
+              "gravel": 0,
+              "unseen": 1
+            }
+          ]
+        },
+        "shifted-pair": {
+          "mean": 2.5,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 2,
+              "ticks": 7,
+              "gravel": 0,
+              "unseen": 3
+            },
+            {
+              "lane": 2,
+              "score": 3,
+              "ticks": 6,
+              "gravel": 0,
+              "unseen": 3
+            }
+          ]
+        },
+        "shifted-mirror": {
+          "mean": 2.5,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 3,
+              "ticks": 6,
+              "gravel": 0,
+              "unseen": 3
+            },
+            {
+              "lane": 2,
+              "score": 2,
+              "ticks": 7,
+              "gravel": 0,
+              "unseen": 3
+            }
+          ]
+        }
+      },
+      "trainingObsForTabular": 248,
+      "validationMean": 3.6562500000000004,
+      "hash": "6084d981626a9fe441a8d8d84f7de8a3d2f3471c898ca14b5937b7255b4fd6b7"
+    },
+    {
+      "rep": 1,
+      "arm": "shared",
+      "budget": 16384,
+      "held": {
+        "quarry": {
+          "mean": 2.5,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 3,
+              "ticks": 6,
+              "gravel": 0,
+              "unseen": 1
+            },
+            {
+              "lane": 2,
+              "score": 2,
+              "ticks": 7,
+              "gravel": 0,
+              "unseen": 1
+            }
+          ]
+        },
+        "quarry-mirror": {
+          "mean": 2.5,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 2,
+              "ticks": 7,
+              "gravel": 0,
+              "unseen": 1
+            },
+            {
+              "lane": 2,
+              "score": 3,
+              "ticks": 6,
+              "gravel": 0,
+              "unseen": 1
+            }
+          ]
+        },
+        "shifted-pair": {
+          "mean": 3.5,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 4,
+              "ticks": 5,
+              "gravel": 0,
+              "unseen": 3
+            },
+            {
+              "lane": 2,
+              "score": 3,
+              "ticks": 6,
+              "gravel": 0,
+              "unseen": 3
+            }
+          ]
+        },
+        "shifted-mirror": {
+          "mean": 3.5,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 3,
+              "ticks": 6,
+              "gravel": 0,
+              "unseen": 3
+            },
+            {
+              "lane": 2,
+              "score": 4,
+              "ticks": 5,
+              "gravel": 0,
+              "unseen": 3
+            }
+          ]
+        }
+      },
+      "trainingObsForTabular": 259,
+      "validationMean": 3.625,
+      "hash": "4919971a6c7e5ea7767a04aaf8f6bf5a3fd67ee136c22a0966449bbbffba62f2"
+    },
+    {
+      "rep": 1,
+      "arm": "shared",
+      "budget": 65536,
+      "held": {
+        "quarry": {
+          "mean": 3.5,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 4,
+              "ticks": 5,
+              "gravel": 0,
+              "unseen": 0
+            },
+            {
+              "lane": 2,
+              "score": 3,
+              "ticks": 6,
+              "gravel": 0,
+              "unseen": 1
+            }
+          ]
+        },
+        "quarry-mirror": {
+          "mean": 3.5,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 3,
+              "ticks": 6,
+              "gravel": 0,
+              "unseen": 1
+            },
+            {
+              "lane": 2,
+              "score": 4,
+              "ticks": 5,
+              "gravel": 0,
+              "unseen": 0
+            }
+          ]
+        },
+        "shifted-pair": {
+          "mean": 3.5,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 4,
+              "ticks": 5,
+              "gravel": 0,
+              "unseen": 3
+            },
+            {
+              "lane": 2,
+              "score": 3,
+              "ticks": 6,
+              "gravel": 0,
+              "unseen": 3
+            }
+          ]
+        },
+        "shifted-mirror": {
+          "mean": 3.5,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 3,
+              "ticks": 6,
+              "gravel": 0,
+              "unseen": 3
+            },
+            {
+              "lane": 2,
+              "score": 4,
+              "ticks": 5,
+              "gravel": 0,
+              "unseen": 3
+            }
+          ]
+        }
+      },
+      "trainingObsForTabular": 265,
+      "validationMean": 4.437500000000001,
+      "hash": "ef61080c7642272d6c4ce67eafee0d8ce623e313516f4165f3cfcd9f89039691"
+    },
+    {
+      "rep": 2,
+      "arm": "tabular",
+      "budget": 0,
+      "held": {
+        "quarry": {
+          "mean": 0,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 0,
+              "ticks": 9,
+              "gravel": 0,
+              "unseen": 9
+            },
+            {
+              "lane": 2,
+              "score": 0,
+              "ticks": 9,
+              "gravel": 0,
+              "unseen": 9
+            }
+          ]
+        },
+        "quarry-mirror": {
+          "mean": 0,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 0,
+              "ticks": 9,
+              "gravel": 0,
+              "unseen": 9
+            },
+            {
+              "lane": 2,
+              "score": 0,
+              "ticks": 9,
+              "gravel": 0,
+              "unseen": 9
+            }
+          ]
+        },
+        "shifted-pair": {
+          "mean": 0,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 0,
+              "ticks": 9,
+              "gravel": 0,
+              "unseen": 9
+            },
+            {
+              "lane": 2,
+              "score": 0,
+              "ticks": 9,
+              "gravel": 0,
+              "unseen": 9
+            }
+          ]
+        },
+        "shifted-mirror": {
+          "mean": 0,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 0,
+              "ticks": 9,
+              "gravel": 0,
+              "unseen": 9
+            },
+            {
+              "lane": 2,
+              "score": 0,
+              "ticks": 9,
+              "gravel": 0,
+              "unseen": 9
+            }
+          ]
+        }
+      },
+      "trainingObsForTabular": 0,
+      "validationMean": 0,
+      "hash": "37c05192d7a079ec0259bcfb8a3769b3cb78444ec281fcee684f0890fd79e6b9"
+    },
+    {
+      "rep": 2,
+      "arm": "tabular",
+      "budget": 1024,
+      "held": {
+        "quarry": {
+          "mean": 2.5,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 3,
+              "ticks": 6,
+              "gravel": 0,
+              "unseen": 3
+            },
+            {
+              "lane": 2,
+              "score": 2,
+              "ticks": 7,
+              "gravel": 0,
+              "unseen": 3
+            }
+          ]
+        },
+        "quarry-mirror": {
+          "mean": 2,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 2,
+              "ticks": 7,
+              "gravel": 0,
+              "unseen": 1
+            },
+            {
+              "lane": 2,
+              "score": 2,
+              "ticks": 7,
+              "gravel": 0,
+              "unseen": 1
+            }
+          ]
+        },
+        "shifted-pair": {
+          "mean": 1.5,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 4,
+              "ticks": 5,
+              "gravel": 0,
+              "unseen": 2
+            },
+            {
+              "lane": 2,
+              "score": -1,
+              "ticks": 6,
+              "gravel": 1,
+              "unseen": 3
+            }
+          ]
+        },
+        "shifted-mirror": {
+          "mean": 1.5,
+          "starts": [
+            {
+              "lane": 0,
+              "score": -1,
+              "ticks": 6,
+              "gravel": 1,
+              "unseen": 3
+            },
+            {
+              "lane": 2,
+              "score": 4,
+              "ticks": 5,
+              "gravel": 0,
+              "unseen": 2
+            }
+          ]
+        }
+      },
+      "trainingObsForTabular": 200,
+      "validationMean": 3.8125000000000004,
+      "hash": "15ea2a1e65b06e70b14eab0b281b38f6a6b77061702f96908bac928ca8aa32e2"
+    },
+    {
+      "rep": 2,
+      "arm": "tabular",
+      "budget": 4096,
+      "held": {
+        "quarry": {
+          "mean": 3.5,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 4,
+              "ticks": 5,
+              "gravel": 0,
+              "unseen": 2
+            },
+            {
+              "lane": 2,
+              "score": 3,
+              "ticks": 6,
+              "gravel": 0,
+              "unseen": 1
+            }
+          ]
+        },
+        "quarry-mirror": {
+          "mean": 3.5,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 3,
+              "ticks": 6,
+              "gravel": 0,
+              "unseen": 1
+            },
+            {
+              "lane": 2,
+              "score": 4,
+              "ticks": 5,
+              "gravel": 0,
+              "unseen": 1
+            }
+          ]
+        },
+        "shifted-pair": {
+          "mean": 2,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 5,
+              "ticks": 4,
+              "gravel": 0,
+              "unseen": 2
+            },
+            {
+              "lane": 2,
+              "score": -1,
+              "ticks": 6,
+              "gravel": 1,
+              "unseen": 3
+            }
+          ]
+        },
+        "shifted-mirror": {
+          "mean": 2,
+          "starts": [
+            {
+              "lane": 0,
+              "score": -1,
+              "ticks": 6,
+              "gravel": 1,
+              "unseen": 3
+            },
+            {
+              "lane": 2,
+              "score": 5,
+              "ticks": 4,
+              "gravel": 0,
+              "unseen": 2
+            }
+          ]
+        }
+      },
+      "trainingObsForTabular": 239,
+      "validationMean": 4.125,
+      "hash": "fee0cc1fc7ce9522ba34f231d4c9612195b4767c9caa444b47940ae74f783624"
+    },
+    {
+      "rep": 2,
+      "arm": "tabular",
+      "budget": 16384,
+      "held": {
+        "quarry": {
+          "mean": 3,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 3,
+              "ticks": 6,
+              "gravel": 0,
+              "unseen": 1
+            },
+            {
+              "lane": 2,
+              "score": 3,
+              "ticks": 6,
+              "gravel": 0,
+              "unseen": 1
+            }
+          ]
+        },
+        "quarry-mirror": {
+          "mean": 3.5,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 3,
+              "ticks": 6,
+              "gravel": 0,
+              "unseen": 1
+            },
+            {
+              "lane": 2,
+              "score": 4,
+              "ticks": 5,
+              "gravel": 0,
+              "unseen": 0
+            }
+          ]
+        },
+        "shifted-pair": {
+          "mean": 2,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 5,
+              "ticks": 4,
+              "gravel": 0,
+              "unseen": 2
+            },
+            {
+              "lane": 2,
+              "score": -1,
+              "ticks": 6,
+              "gravel": 1,
+              "unseen": 3
+            }
+          ]
+        },
+        "shifted-mirror": {
+          "mean": 2,
+          "starts": [
+            {
+              "lane": 0,
+              "score": -1,
+              "ticks": 6,
+              "gravel": 1,
+              "unseen": 3
+            },
+            {
+              "lane": 2,
+              "score": 5,
+              "ticks": 4,
+              "gravel": 0,
+              "unseen": 2
+            }
+          ]
+        }
+      },
+      "trainingObsForTabular": 259,
+      "validationMean": 4.468750000000001,
+      "hash": "803a0c3b12ef8ef4e44fb9659272aabdf1655517bb1811edf20b5ed0027a3ebe"
+    },
+    {
+      "rep": 2,
+      "arm": "tabular",
+      "budget": 65536,
+      "held": {
+        "quarry": {
+          "mean": 3.5,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 4,
+              "ticks": 5,
+              "gravel": 0,
+              "unseen": 0
+            },
+            {
+              "lane": 2,
+              "score": 3,
+              "ticks": 6,
+              "gravel": 0,
+              "unseen": 1
+            }
+          ]
+        },
+        "quarry-mirror": {
+          "mean": 4,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 3,
+              "ticks": 6,
+              "gravel": 0,
+              "unseen": 1
+            },
+            {
+              "lane": 2,
+              "score": 5,
+              "ticks": 4,
+              "gravel": 0,
+              "unseen": 0
+            }
+          ]
+        },
+        "shifted-pair": {
+          "mean": 2,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 5,
+              "ticks": 4,
+              "gravel": 0,
+              "unseen": 2
+            },
+            {
+              "lane": 2,
+              "score": -1,
+              "ticks": 6,
+              "gravel": 1,
+              "unseen": 3
+            }
+          ]
+        },
+        "shifted-mirror": {
+          "mean": 2,
+          "starts": [
+            {
+              "lane": 0,
+              "score": -1,
+              "ticks": 6,
+              "gravel": 1,
+              "unseen": 3
+            },
+            {
+              "lane": 2,
+              "score": 5,
+              "ticks": 4,
+              "gravel": 0,
+              "unseen": 2
+            }
+          ]
+        }
+      },
+      "trainingObsForTabular": 264,
+      "validationMean": 4.5625,
+      "hash": "c8c63cc90504653973d51c47d7bf148f3efbae3a765f74012172c22a8ccb3e11"
+    },
+    {
+      "rep": 2,
+      "arm": "shared",
+      "budget": 0,
+      "held": {
+        "quarry": {
+          "mean": 0,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 0,
+              "ticks": 9,
+              "gravel": 0,
+              "unseen": 9
+            },
+            {
+              "lane": 2,
+              "score": 0,
+              "ticks": 9,
+              "gravel": 0,
+              "unseen": 9
+            }
+          ]
+        },
+        "quarry-mirror": {
+          "mean": 0,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 0,
+              "ticks": 9,
+              "gravel": 0,
+              "unseen": 9
+            },
+            {
+              "lane": 2,
+              "score": 0,
+              "ticks": 9,
+              "gravel": 0,
+              "unseen": 9
+            }
+          ]
+        },
+        "shifted-pair": {
+          "mean": 0,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 0,
+              "ticks": 9,
+              "gravel": 0,
+              "unseen": 9
+            },
+            {
+              "lane": 2,
+              "score": 0,
+              "ticks": 9,
+              "gravel": 0,
+              "unseen": 9
+            }
+          ]
+        },
+        "shifted-mirror": {
+          "mean": 0,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 0,
+              "ticks": 9,
+              "gravel": 0,
+              "unseen": 9
+            },
+            {
+              "lane": 2,
+              "score": 0,
+              "ticks": 9,
+              "gravel": 0,
+              "unseen": 9
+            }
+          ]
+        }
+      },
+      "trainingObsForTabular": 0,
+      "validationMean": 0,
+      "hash": "632d5ad9a1504d84fe14f98ae1ab265ac84abb8216dbeda655943303950c61de"
+    },
+    {
+      "rep": 2,
+      "arm": "shared",
+      "budget": 1024,
+      "held": {
+        "quarry": {
+          "mean": 3,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 4,
+              "ticks": 5,
+              "gravel": 0,
+              "unseen": 3
+            },
+            {
+              "lane": 2,
+              "score": 2,
+              "ticks": 7,
+              "gravel": 0,
+              "unseen": 1
+            }
+          ]
+        },
+        "quarry-mirror": {
+          "mean": 3.5,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 3,
+              "ticks": 6,
+              "gravel": 0,
+              "unseen": 1
+            },
+            {
+              "lane": 2,
+              "score": 4,
+              "ticks": 5,
+              "gravel": 0,
+              "unseen": 2
+            }
+          ]
+        },
+        "shifted-pair": {
+          "mean": 3.5,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 4,
+              "ticks": 5,
+              "gravel": 0,
+              "unseen": 3
+            },
+            {
+              "lane": 2,
+              "score": 3,
+              "ticks": 6,
+              "gravel": 0,
+              "unseen": 3
+            }
+          ]
+        },
+        "shifted-mirror": {
+          "mean": 4,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 4,
+              "ticks": 5,
+              "gravel": 0,
+              "unseen": 3
+            },
+            {
+              "lane": 2,
+              "score": 4,
+              "ticks": 5,
+              "gravel": 0,
+              "unseen": 2
+            }
+          ]
+        }
+      },
+      "trainingObsForTabular": 200,
+      "validationMean": 3.78125,
+      "hash": "4f6312374689e4c9e24abbfc47f2cb3e9ccb6ae52ea504a6f43dc8f0140b906a"
+    },
+    {
+      "rep": 2,
+      "arm": "shared",
+      "budget": 4096,
+      "held": {
+        "quarry": {
+          "mean": 2.5,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 3,
+              "ticks": 6,
+              "gravel": 0,
+              "unseen": 2
+            },
+            {
+              "lane": 2,
+              "score": 2,
+              "ticks": 7,
+              "gravel": 0,
+              "unseen": 1
+            }
+          ]
+        },
+        "quarry-mirror": {
+          "mean": 3,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 3,
+              "ticks": 6,
+              "gravel": 0,
+              "unseen": 1
+            },
+            {
+              "lane": 2,
+              "score": 3,
+              "ticks": 6,
+              "gravel": 0,
+              "unseen": 2
+            }
+          ]
+        },
+        "shifted-pair": {
+          "mean": 3,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 4,
+              "ticks": 5,
+              "gravel": 0,
+              "unseen": 2
+            },
+            {
+              "lane": 2,
+              "score": 2,
+              "ticks": 7,
+              "gravel": 0,
+              "unseen": 3
+            }
+          ]
+        },
+        "shifted-mirror": {
+          "mean": 3.5,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 3,
+              "ticks": 6,
+              "gravel": 0,
+              "unseen": 3
+            },
+            {
+              "lane": 2,
+              "score": 4,
+              "ticks": 5,
+              "gravel": 0,
+              "unseen": 2
+            }
+          ]
+        }
+      },
+      "trainingObsForTabular": 239,
+      "validationMean": 3.843749999999999,
+      "hash": "3a3665afd35f0e5a022feb9ce204947b78598bd7136c91516ba3779c0974c96c"
+    },
+    {
+      "rep": 2,
+      "arm": "shared",
+      "budget": 16384,
+      "held": {
+        "quarry": {
+          "mean": 3.5,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 4,
+              "ticks": 5,
+              "gravel": 0,
+              "unseen": 0
+            },
+            {
+              "lane": 2,
+              "score": 3,
+              "ticks": 6,
+              "gravel": 0,
+              "unseen": 1
+            }
+          ]
+        },
+        "quarry-mirror": {
+          "mean": 3.5,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 3,
+              "ticks": 6,
+              "gravel": 0,
+              "unseen": 1
+            },
+            {
+              "lane": 2,
+              "score": 4,
+              "ticks": 5,
+              "gravel": 0,
+              "unseen": 0
+            }
+          ]
+        },
+        "shifted-pair": {
+          "mean": 4.5,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 4,
+              "ticks": 5,
+              "gravel": 0,
+              "unseen": 2
+            },
+            {
+              "lane": 2,
+              "score": 5,
+              "ticks": 4,
+              "gravel": 0,
+              "unseen": 2
+            }
+          ]
+        },
+        "shifted-mirror": {
+          "mean": 4.5,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 5,
+              "ticks": 4,
+              "gravel": 0,
+              "unseen": 2
+            },
+            {
+              "lane": 2,
+              "score": 4,
+              "ticks": 5,
+              "gravel": 0,
+              "unseen": 2
+            }
+          ]
+        }
+      },
+      "trainingObsForTabular": 259,
+      "validationMean": 4.03125,
+      "hash": "b8dfb85e0082d165c251a9830d64ea6c11f4453ef3ce53b1f5e70d9268b9eff5"
+    },
+    {
+      "rep": 2,
+      "arm": "shared",
+      "budget": 65536,
+      "held": {
+        "quarry": {
+          "mean": 3.5,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 4,
+              "ticks": 5,
+              "gravel": 0,
+              "unseen": 0
+            },
+            {
+              "lane": 2,
+              "score": 3,
+              "ticks": 6,
+              "gravel": 0,
+              "unseen": 1
+            }
+          ]
+        },
+        "quarry-mirror": {
+          "mean": 3.5,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 3,
+              "ticks": 6,
+              "gravel": 0,
+              "unseen": 1
+            },
+            {
+              "lane": 2,
+              "score": 4,
+              "ticks": 5,
+              "gravel": 0,
+              "unseen": 0
+            }
+          ]
+        },
+        "shifted-pair": {
+          "mean": 5,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 5,
+              "ticks": 4,
+              "gravel": 0,
+              "unseen": 2
+            },
+            {
+              "lane": 2,
+              "score": 5,
+              "ticks": 4,
+              "gravel": 0,
+              "unseen": 2
+            }
+          ]
+        },
+        "shifted-mirror": {
+          "mean": 5,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 5,
+              "ticks": 4,
+              "gravel": 0,
+              "unseen": 2
+            },
+            {
+              "lane": 2,
+              "score": 5,
+              "ticks": 4,
+              "gravel": 0,
+              "unseen": 2
+            }
+          ]
+        }
+      },
+      "trainingObsForTabular": 264,
+      "validationMean": 4.46875,
+      "hash": "47fae81f5e464bf52ba85e4c6599624d1258cdfc01738e54ae0afc0083fe3e20"
+    },
+    {
+      "rep": 3,
+      "arm": "tabular",
+      "budget": 0,
+      "held": {
+        "quarry": {
+          "mean": 0,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 0,
+              "ticks": 9,
+              "gravel": 0,
+              "unseen": 9
+            },
+            {
+              "lane": 2,
+              "score": 0,
+              "ticks": 9,
+              "gravel": 0,
+              "unseen": 9
+            }
+          ]
+        },
+        "quarry-mirror": {
+          "mean": 0,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 0,
+              "ticks": 9,
+              "gravel": 0,
+              "unseen": 9
+            },
+            {
+              "lane": 2,
+              "score": 0,
+              "ticks": 9,
+              "gravel": 0,
+              "unseen": 9
+            }
+          ]
+        },
+        "shifted-pair": {
+          "mean": 0,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 0,
+              "ticks": 9,
+              "gravel": 0,
+              "unseen": 9
+            },
+            {
+              "lane": 2,
+              "score": 0,
+              "ticks": 9,
+              "gravel": 0,
+              "unseen": 9
+            }
+          ]
+        },
+        "shifted-mirror": {
+          "mean": 0,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 0,
+              "ticks": 9,
+              "gravel": 0,
+              "unseen": 9
+            },
+            {
+              "lane": 2,
+              "score": 0,
+              "ticks": 9,
+              "gravel": 0,
+              "unseen": 9
+            }
+          ]
+        }
+      },
+      "trainingObsForTabular": 0,
+      "validationMean": 0,
+      "hash": "2bca57ce7b71cebf468b2e673c2e4d6e9e842de0ee0d0d01c2294a50c5ca0a70"
+    },
+    {
+      "rep": 3,
+      "arm": "tabular",
+      "budget": 1024,
+      "held": {
+        "quarry": {
+          "mean": 1.5,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 1,
+              "ticks": 8,
+              "gravel": 0,
+              "unseen": 1
+            },
+            {
+              "lane": 2,
+              "score": 2,
+              "ticks": 7,
+              "gravel": 0,
+              "unseen": 1
+            }
+          ]
+        },
+        "quarry-mirror": {
+          "mean": 1,
+          "starts": [
+            {
+              "lane": 0,
+              "score": -2,
+              "ticks": 7,
+              "gravel": 1,
+              "unseen": 1
+            },
+            {
+              "lane": 2,
+              "score": 4,
+              "ticks": 5,
+              "gravel": 0,
+              "unseen": 3
+            }
+          ]
+        },
+        "shifted-pair": {
+          "mean": 2,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 5,
+              "ticks": 4,
+              "gravel": 0,
+              "unseen": 2
+            },
+            {
+              "lane": 2,
+              "score": -1,
+              "ticks": 6,
+              "gravel": 1,
+              "unseen": 3
+            }
+          ]
+        },
+        "shifted-mirror": {
+          "mean": 2,
+          "starts": [
+            {
+              "lane": 0,
+              "score": -1,
+              "ticks": 6,
+              "gravel": 1,
+              "unseen": 3
+            },
+            {
+              "lane": 2,
+              "score": 5,
+              "ticks": 4,
+              "gravel": 0,
+              "unseen": 2
+            }
+          ]
+        }
+      },
+      "trainingObsForTabular": 192,
+      "validationMean": 3.5625,
+      "hash": "29fd4fae8d9d8952f20992e589f38d34367e9a7f595246abe2f8b98086081be0"
+    },
+    {
+      "rep": 3,
+      "arm": "tabular",
+      "budget": 4096,
+      "held": {
+        "quarry": {
+          "mean": 1.5,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 1,
+              "ticks": 8,
+              "gravel": 0,
+              "unseen": 1
+            },
+            {
+              "lane": 2,
+              "score": 2,
+              "ticks": 7,
+              "gravel": 0,
+              "unseen": 1
+            }
+          ]
+        },
+        "quarry-mirror": {
+          "mean": 1,
+          "starts": [
+            {
+              "lane": 0,
+              "score": -2,
+              "ticks": 7,
+              "gravel": 1,
+              "unseen": 1
+            },
+            {
+              "lane": 2,
+              "score": 4,
+              "ticks": 5,
+              "gravel": 0,
+              "unseen": 3
+            }
+          ]
+        },
+        "shifted-pair": {
+          "mean": 2,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 5,
+              "ticks": 4,
+              "gravel": 0,
+              "unseen": 2
+            },
+            {
+              "lane": 2,
+              "score": -1,
+              "ticks": 6,
+              "gravel": 1,
+              "unseen": 3
+            }
+          ]
+        },
+        "shifted-mirror": {
+          "mean": 2,
+          "starts": [
+            {
+              "lane": 0,
+              "score": -1,
+              "ticks": 6,
+              "gravel": 1,
+              "unseen": 3
+            },
+            {
+              "lane": 2,
+              "score": 5,
+              "ticks": 4,
+              "gravel": 0,
+              "unseen": 2
+            }
+          ]
+        }
+      },
+      "trainingObsForTabular": 245,
+      "validationMean": 4.09375,
+      "hash": "c828cc94aeaf14a23bf718a4cd5fea12f4e36f320adac7854800cebded47c591"
+    },
+    {
+      "rep": 3,
+      "arm": "tabular",
+      "budget": 16384,
+      "held": {
+        "quarry": {
+          "mean": 4,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 4,
+              "ticks": 5,
+              "gravel": 0,
+              "unseen": 1
+            },
+            {
+              "lane": 2,
+              "score": 4,
+              "ticks": 5,
+              "gravel": 0,
+              "unseen": 1
+            }
+          ]
+        },
+        "quarry-mirror": {
+          "mean": 1.5,
+          "starts": [
+            {
+              "lane": 0,
+              "score": -1,
+              "ticks": 6,
+              "gravel": 1,
+              "unseen": 1
+            },
+            {
+              "lane": 2,
+              "score": 4,
+              "ticks": 5,
+              "gravel": 0,
+              "unseen": 0
+            }
+          ]
+        },
+        "shifted-pair": {
+          "mean": 2,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 5,
+              "ticks": 4,
+              "gravel": 0,
+              "unseen": 2
+            },
+            {
+              "lane": 2,
+              "score": -1,
+              "ticks": 6,
+              "gravel": 1,
+              "unseen": 3
+            }
+          ]
+        },
+        "shifted-mirror": {
+          "mean": 2,
+          "starts": [
+            {
+              "lane": 0,
+              "score": -1,
+              "ticks": 6,
+              "gravel": 1,
+              "unseen": 3
+            },
+            {
+              "lane": 2,
+              "score": 5,
+              "ticks": 4,
+              "gravel": 0,
+              "unseen": 2
+            }
+          ]
+        }
+      },
+      "trainingObsForTabular": 262,
+      "validationMean": 4.53125,
+      "hash": "ac0edb636c5a2fc6b36e6c29f0ed37d489ffd67e3bc01862cb6be5a101de6597"
+    },
+    {
+      "rep": 3,
+      "arm": "tabular",
+      "budget": 65536,
+      "held": {
+        "quarry": {
+          "mean": 4,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 4,
+              "ticks": 5,
+              "gravel": 0,
+              "unseen": 1
+            },
+            {
+              "lane": 2,
+              "score": 4,
+              "ticks": 5,
+              "gravel": 0,
+              "unseen": 1
+            }
+          ]
+        },
+        "quarry-mirror": {
+          "mean": 2.5,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 0,
+              "ticks": 5,
+              "gravel": 1,
+              "unseen": 1
+            },
+            {
+              "lane": 2,
+              "score": 5,
+              "ticks": 4,
+              "gravel": 0,
+              "unseen": 0
+            }
+          ]
+        },
+        "shifted-pair": {
+          "mean": 2,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 5,
+              "ticks": 4,
+              "gravel": 0,
+              "unseen": 2
+            },
+            {
+              "lane": 2,
+              "score": -1,
+              "ticks": 6,
+              "gravel": 1,
+              "unseen": 3
+            }
+          ]
+        },
+        "shifted-mirror": {
+          "mean": 2,
+          "starts": [
+            {
+              "lane": 0,
+              "score": -1,
+              "ticks": 6,
+              "gravel": 1,
+              "unseen": 3
+            },
+            {
+              "lane": 2,
+              "score": 5,
+              "ticks": 4,
+              "gravel": 0,
+              "unseen": 2
+            }
+          ]
+        }
+      },
+      "trainingObsForTabular": 265,
+      "validationMean": 4.624999999999999,
+      "hash": "c80e7292a6893a443cad3715a509bf49643f625b3eeb3263b3433c27fc74e6be"
+    },
+    {
+      "rep": 3,
+      "arm": "shared",
+      "budget": 0,
+      "held": {
+        "quarry": {
+          "mean": 0,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 0,
+              "ticks": 9,
+              "gravel": 0,
+              "unseen": 9
+            },
+            {
+              "lane": 2,
+              "score": 0,
+              "ticks": 9,
+              "gravel": 0,
+              "unseen": 9
+            }
+          ]
+        },
+        "quarry-mirror": {
+          "mean": 0,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 0,
+              "ticks": 9,
+              "gravel": 0,
+              "unseen": 9
+            },
+            {
+              "lane": 2,
+              "score": 0,
+              "ticks": 9,
+              "gravel": 0,
+              "unseen": 9
+            }
+          ]
+        },
+        "shifted-pair": {
+          "mean": 0,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 0,
+              "ticks": 9,
+              "gravel": 0,
+              "unseen": 9
+            },
+            {
+              "lane": 2,
+              "score": 0,
+              "ticks": 9,
+              "gravel": 0,
+              "unseen": 9
+            }
+          ]
+        },
+        "shifted-mirror": {
+          "mean": 0,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 0,
+              "ticks": 9,
+              "gravel": 0,
+              "unseen": 9
+            },
+            {
+              "lane": 2,
+              "score": 0,
+              "ticks": 9,
+              "gravel": 0,
+              "unseen": 9
+            }
+          ]
+        }
+      },
+      "trainingObsForTabular": 0,
+      "validationMean": 0,
+      "hash": "496c337e43cfd6fa80a941daa04e0a84721707f157fdfa8d59de0048470adf51"
+    },
+    {
+      "rep": 3,
+      "arm": "shared",
+      "budget": 1024,
+      "held": {
+        "quarry": {
+          "mean": 3.5,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 4,
+              "ticks": 5,
+              "gravel": 0,
+              "unseen": 2
+            },
+            {
+              "lane": 2,
+              "score": 3,
+              "ticks": 6,
+              "gravel": 0,
+              "unseen": 2
+            }
+          ]
+        },
+        "quarry-mirror": {
+          "mean": 3.5,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 3,
+              "ticks": 6,
+              "gravel": 0,
+              "unseen": 3
+            },
+            {
+              "lane": 2,
+              "score": 4,
+              "ticks": 5,
+              "gravel": 0,
+              "unseen": 3
+            }
+          ]
+        },
+        "shifted-pair": {
+          "mean": 4,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 4,
+              "ticks": 5,
+              "gravel": 0,
+              "unseen": 2
+            },
+            {
+              "lane": 2,
+              "score": 4,
+              "ticks": 5,
+              "gravel": 0,
+              "unseen": 3
+            }
+          ]
+        },
+        "shifted-mirror": {
+          "mean": 4,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 4,
+              "ticks": 5,
+              "gravel": 0,
+              "unseen": 3
+            },
+            {
+              "lane": 2,
+              "score": 4,
+              "ticks": 5,
+              "gravel": 0,
+              "unseen": 2
+            }
+          ]
+        }
+      },
+      "trainingObsForTabular": 192,
+      "validationMean": 3.6249999999999996,
+      "hash": "77c47e20e65087f5ddf99f2e7bd58de60b632bb14eda256c31e3acafd6cb529b"
+    },
+    {
+      "rep": 3,
+      "arm": "shared",
+      "budget": 4096,
+      "held": {
+        "quarry": {
+          "mean": 2.5,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 3,
+              "ticks": 6,
+              "gravel": 0,
+              "unseen": 0
+            },
+            {
+              "lane": 2,
+              "score": 2,
+              "ticks": 7,
+              "gravel": 0,
+              "unseen": 1
+            }
+          ]
+        },
+        "quarry-mirror": {
+          "mean": 2.5,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 2,
+              "ticks": 7,
+              "gravel": 0,
+              "unseen": 1
+            },
+            {
+              "lane": 2,
+              "score": 3,
+              "ticks": 6,
+              "gravel": 0,
+              "unseen": 2
+            }
+          ]
+        },
+        "shifted-pair": {
+          "mean": 4.5,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 5,
+              "ticks": 4,
+              "gravel": 0,
+              "unseen": 2
+            },
+            {
+              "lane": 2,
+              "score": 4,
+              "ticks": 5,
+              "gravel": 0,
+              "unseen": 3
+            }
+          ]
+        },
+        "shifted-mirror": {
+          "mean": 4.5,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 4,
+              "ticks": 5,
+              "gravel": 0,
+              "unseen": 3
+            },
+            {
+              "lane": 2,
+              "score": 5,
+              "ticks": 4,
+              "gravel": 0,
+              "unseen": 2
+            }
+          ]
+        }
+      },
+      "trainingObsForTabular": 245,
+      "validationMean": 3.8125,
+      "hash": "4c7487db58eb376e274671868b26c2cca708aa957de9c159348947889c4252c6"
+    },
+    {
+      "rep": 3,
+      "arm": "shared",
+      "budget": 16384,
+      "held": {
+        "quarry": {
+          "mean": 3.5,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 4,
+              "ticks": 5,
+              "gravel": 0,
+              "unseen": 0
+            },
+            {
+              "lane": 2,
+              "score": 3,
+              "ticks": 6,
+              "gravel": 0,
+              "unseen": 1
+            }
+          ]
+        },
+        "quarry-mirror": {
+          "mean": 3.5,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 3,
+              "ticks": 6,
+              "gravel": 0,
+              "unseen": 1
+            },
+            {
+              "lane": 2,
+              "score": 4,
+              "ticks": 5,
+              "gravel": 0,
+              "unseen": 0
+            }
+          ]
+        },
+        "shifted-pair": {
+          "mean": 5,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 5,
+              "ticks": 4,
+              "gravel": 0,
+              "unseen": 2
+            },
+            {
+              "lane": 2,
+              "score": 5,
+              "ticks": 4,
+              "gravel": 0,
+              "unseen": 2
+            }
+          ]
+        },
+        "shifted-mirror": {
+          "mean": 5,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 5,
+              "ticks": 4,
+              "gravel": 0,
+              "unseen": 2
+            },
+            {
+              "lane": 2,
+              "score": 5,
+              "ticks": 4,
+              "gravel": 0,
+              "unseen": 2
+            }
+          ]
+        }
+      },
+      "trainingObsForTabular": 262,
+      "validationMean": 4.093750000000001,
+      "hash": "69084cc40f7c4328d73da96b34b55b03f02d8aa15549cd00fdc78f927ced217b"
+    },
+    {
+      "rep": 3,
+      "arm": "shared",
+      "budget": 65536,
+      "held": {
+        "quarry": {
+          "mean": 3.5,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 4,
+              "ticks": 5,
+              "gravel": 0,
+              "unseen": 0
+            },
+            {
+              "lane": 2,
+              "score": 3,
+              "ticks": 6,
+              "gravel": 0,
+              "unseen": 1
+            }
+          ]
+        },
+        "quarry-mirror": {
+          "mean": 3.5,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 3,
+              "ticks": 6,
+              "gravel": 0,
+              "unseen": 1
+            },
+            {
+              "lane": 2,
+              "score": 4,
+              "ticks": 5,
+              "gravel": 0,
+              "unseen": 0
+            }
+          ]
+        },
+        "shifted-pair": {
+          "mean": 4,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 5,
+              "ticks": 4,
+              "gravel": 0,
+              "unseen": 2
+            },
+            {
+              "lane": 2,
+              "score": 3,
+              "ticks": 6,
+              "gravel": 0,
+              "unseen": 3
+            }
+          ]
+        },
+        "shifted-mirror": {
+          "mean": 4,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 3,
+              "ticks": 6,
+              "gravel": 0,
+              "unseen": 3
+            },
+            {
+              "lane": 2,
+              "score": 5,
+              "ticks": 4,
+              "gravel": 0,
+              "unseen": 2
+            }
+          ]
+        }
+      },
+      "trainingObsForTabular": 265,
+      "validationMean": 4.4375,
+      "hash": "a9c95bcaeaf8815f5e6e22081c456e3a7f51bfe431d296e88fa775fea2d629c4"
+    },
+    {
+      "rep": 4,
+      "arm": "tabular",
+      "budget": 0,
+      "held": {
+        "quarry": {
+          "mean": 0,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 0,
+              "ticks": 9,
+              "gravel": 0,
+              "unseen": 9
+            },
+            {
+              "lane": 2,
+              "score": 0,
+              "ticks": 9,
+              "gravel": 0,
+              "unseen": 9
+            }
+          ]
+        },
+        "quarry-mirror": {
+          "mean": 0,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 0,
+              "ticks": 9,
+              "gravel": 0,
+              "unseen": 9
+            },
+            {
+              "lane": 2,
+              "score": 0,
+              "ticks": 9,
+              "gravel": 0,
+              "unseen": 9
+            }
+          ]
+        },
+        "shifted-pair": {
+          "mean": 0,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 0,
+              "ticks": 9,
+              "gravel": 0,
+              "unseen": 9
+            },
+            {
+              "lane": 2,
+              "score": 0,
+              "ticks": 9,
+              "gravel": 0,
+              "unseen": 9
+            }
+          ]
+        },
+        "shifted-mirror": {
+          "mean": 0,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 0,
+              "ticks": 9,
+              "gravel": 0,
+              "unseen": 9
+            },
+            {
+              "lane": 2,
+              "score": 0,
+              "ticks": 9,
+              "gravel": 0,
+              "unseen": 9
+            }
+          ]
+        }
+      },
+      "trainingObsForTabular": 0,
+      "validationMean": 0,
+      "hash": "31314cb7b417d5822bb8d042f27a76bfc0731765fc9c5e8fe246ee0e23557dd5"
+    },
+    {
+      "rep": 4,
+      "arm": "tabular",
+      "budget": 1024,
+      "held": {
+        "quarry": {
+          "mean": 2,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 4,
+              "ticks": 5,
+              "gravel": 0,
+              "unseen": 2
+            },
+            {
+              "lane": 2,
+              "score": 0,
+              "ticks": 5,
+              "gravel": 1,
+              "unseen": 1
+            }
+          ]
+        },
+        "quarry-mirror": {
+          "mean": 3,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 2,
+              "ticks": 7,
+              "gravel": 0,
+              "unseen": 1
+            },
+            {
+              "lane": 2,
+              "score": 4,
+              "ticks": 5,
+              "gravel": 0,
+              "unseen": 0
+            }
+          ]
+        },
+        "shifted-pair": {
+          "mean": 1.5,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 4,
+              "ticks": 5,
+              "gravel": 0,
+              "unseen": 2
+            },
+            {
+              "lane": 2,
+              "score": -1,
+              "ticks": 6,
+              "gravel": 1,
+              "unseen": 3
+            }
+          ]
+        },
+        "shifted-mirror": {
+          "mean": 2.5,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 1,
+              "ticks": 8,
+              "gravel": 0,
+              "unseen": 4
+            },
+            {
+              "lane": 2,
+              "score": 4,
+              "ticks": 5,
+              "gravel": 0,
+              "unseen": 2
+            }
+          ]
+        }
+      },
+      "trainingObsForTabular": 197,
+      "validationMean": 3.6562499999999996,
+      "hash": "e66d7afc33209501bc15b3b39285dd507319f14ac90923cc9dae35bbabcb097b"
+    },
+    {
+      "rep": 4,
+      "arm": "tabular",
+      "budget": 4096,
+      "held": {
+        "quarry": {
+          "mean": 2,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 4,
+              "ticks": 5,
+              "gravel": 0,
+              "unseen": 2
+            },
+            {
+              "lane": 2,
+              "score": 0,
+              "ticks": 5,
+              "gravel": 1,
+              "unseen": 1
+            }
+          ]
+        },
+        "quarry-mirror": {
+          "mean": 3.5,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 3,
+              "ticks": 6,
+              "gravel": 0,
+              "unseen": 1
+            },
+            {
+              "lane": 2,
+              "score": 4,
+              "ticks": 5,
+              "gravel": 0,
+              "unseen": 0
+            }
+          ]
+        },
+        "shifted-pair": {
+          "mean": 1.5,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 4,
+              "ticks": 5,
+              "gravel": 0,
+              "unseen": 2
+            },
+            {
+              "lane": 2,
+              "score": -1,
+              "ticks": 6,
+              "gravel": 1,
+              "unseen": 3
+            }
+          ]
+        },
+        "shifted-mirror": {
+          "mean": 2.5,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 1,
+              "ticks": 8,
+              "gravel": 0,
+              "unseen": 4
+            },
+            {
+              "lane": 2,
+              "score": 4,
+              "ticks": 5,
+              "gravel": 0,
+              "unseen": 2
+            }
+          ]
+        }
+      },
+      "trainingObsForTabular": 237,
+      "validationMean": 3.7812499999999996,
+      "hash": "c44a8cde18002fd6e6cddb82d0e3fa47132aeaeada7efba3b1b343f0c466d9be"
+    },
+    {
+      "rep": 4,
+      "arm": "tabular",
+      "budget": 16384,
+      "held": {
+        "quarry": {
+          "mean": 2,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 4,
+              "ticks": 5,
+              "gravel": 0,
+              "unseen": 0
+            },
+            {
+              "lane": 2,
+              "score": 0,
+              "ticks": 5,
+              "gravel": 1,
+              "unseen": 1
+            }
+          ]
+        },
+        "quarry-mirror": {
+          "mean": 3.5,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 3,
+              "ticks": 6,
+              "gravel": 0,
+              "unseen": 1
+            },
+            {
+              "lane": 2,
+              "score": 4,
+              "ticks": 5,
+              "gravel": 0,
+              "unseen": 0
+            }
+          ]
+        },
+        "shifted-pair": {
+          "mean": 2,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 5,
+              "ticks": 4,
+              "gravel": 0,
+              "unseen": 2
+            },
+            {
+              "lane": 2,
+              "score": -1,
+              "ticks": 6,
+              "gravel": 1,
+              "unseen": 3
+            }
+          ]
+        },
+        "shifted-mirror": {
+          "mean": 3,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 1,
+              "ticks": 8,
+              "gravel": 0,
+              "unseen": 4
+            },
+            {
+              "lane": 2,
+              "score": 5,
+              "ticks": 4,
+              "gravel": 0,
+              "unseen": 2
+            }
+          ]
+        }
+      },
+      "trainingObsForTabular": 262,
+      "validationMean": 4.375000000000001,
+      "hash": "bb4233f6aa0479da48721b244ba6b0ef409b748dbd8e38eb04b76024a8af5fc4"
+    },
+    {
+      "rep": 4,
+      "arm": "tabular",
+      "budget": 65536,
+      "held": {
+        "quarry": {
+          "mean": 3.5,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 4,
+              "ticks": 5,
+              "gravel": 0,
+              "unseen": 0
+            },
+            {
+              "lane": 2,
+              "score": 3,
+              "ticks": 6,
+              "gravel": 0,
+              "unseen": 1
+            }
+          ]
+        },
+        "quarry-mirror": {
+          "mean": 4.5,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 4,
+              "ticks": 5,
+              "gravel": 0,
+              "unseen": 1
+            },
+            {
+              "lane": 2,
+              "score": 5,
+              "ticks": 4,
+              "gravel": 0,
+              "unseen": 0
+            }
+          ]
+        },
+        "shifted-pair": {
+          "mean": 2,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 5,
+              "ticks": 4,
+              "gravel": 0,
+              "unseen": 2
+            },
+            {
+              "lane": 2,
+              "score": -1,
+              "ticks": 6,
+              "gravel": 1,
+              "unseen": 3
+            }
+          ]
+        },
+        "shifted-mirror": {
+          "mean": 3,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 1,
+              "ticks": 8,
+              "gravel": 0,
+              "unseen": 4
+            },
+            {
+              "lane": 2,
+              "score": 5,
+              "ticks": 4,
+              "gravel": 0,
+              "unseen": 2
+            }
+          ]
+        }
+      },
+      "trainingObsForTabular": 264,
+      "validationMean": 4.5625,
+      "hash": "be33f070b21b643f75258f8546f6958d101153db6d89d6a571f82ecd57958ed5"
+    },
+    {
+      "rep": 4,
+      "arm": "shared",
+      "budget": 0,
+      "held": {
+        "quarry": {
+          "mean": 0,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 0,
+              "ticks": 9,
+              "gravel": 0,
+              "unseen": 9
+            },
+            {
+              "lane": 2,
+              "score": 0,
+              "ticks": 9,
+              "gravel": 0,
+              "unseen": 9
+            }
+          ]
+        },
+        "quarry-mirror": {
+          "mean": 0,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 0,
+              "ticks": 9,
+              "gravel": 0,
+              "unseen": 9
+            },
+            {
+              "lane": 2,
+              "score": 0,
+              "ticks": 9,
+              "gravel": 0,
+              "unseen": 9
+            }
+          ]
+        },
+        "shifted-pair": {
+          "mean": 0,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 0,
+              "ticks": 9,
+              "gravel": 0,
+              "unseen": 9
+            },
+            {
+              "lane": 2,
+              "score": 0,
+              "ticks": 9,
+              "gravel": 0,
+              "unseen": 9
+            }
+          ]
+        },
+        "shifted-mirror": {
+          "mean": 0,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 0,
+              "ticks": 9,
+              "gravel": 0,
+              "unseen": 9
+            },
+            {
+              "lane": 2,
+              "score": 0,
+              "ticks": 9,
+              "gravel": 0,
+              "unseen": 9
+            }
+          ]
+        }
+      },
+      "trainingObsForTabular": 0,
+      "validationMean": 0,
+      "hash": "244f8f42c2bf05e20444eaed074ae347a0c7603af36fa287aa8c3ecf1c22514d"
+    },
+    {
+      "rep": 4,
+      "arm": "shared",
+      "budget": 1024,
+      "held": {
+        "quarry": {
+          "mean": 3.5,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 4,
+              "ticks": 5,
+              "gravel": 0,
+              "unseen": 2
+            },
+            {
+              "lane": 2,
+              "score": 3,
+              "ticks": 6,
+              "gravel": 0,
+              "unseen": 3
+            }
+          ]
+        },
+        "quarry-mirror": {
+          "mean": 3.5,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 3,
+              "ticks": 6,
+              "gravel": 0,
+              "unseen": 2
+            },
+            {
+              "lane": 2,
+              "score": 4,
+              "ticks": 5,
+              "gravel": 0,
+              "unseen": 1
+            }
+          ]
+        },
+        "shifted-pair": {
+          "mean": 2,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 4,
+              "ticks": 5,
+              "gravel": 0,
+              "unseen": 2
+            },
+            {
+              "lane": 2,
+              "score": 0,
+              "ticks": 5,
+              "gravel": 1,
+              "unseen": 3
+            }
+          ]
+        },
+        "shifted-mirror": {
+          "mean": 2,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 0,
+              "ticks": 5,
+              "gravel": 1,
+              "unseen": 3
+            },
+            {
+              "lane": 2,
+              "score": 4,
+              "ticks": 5,
+              "gravel": 0,
+              "unseen": 2
+            }
+          ]
+        }
+      },
+      "trainingObsForTabular": 197,
+      "validationMean": 3.53125,
+      "hash": "fe7553001c2a644ead8d547651e271e1c3b52e230aaf715d9f8ac8c49140e753"
+    },
+    {
+      "rep": 4,
+      "arm": "shared",
+      "budget": 4096,
+      "held": {
+        "quarry": {
+          "mean": 2.5,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 4,
+              "ticks": 5,
+              "gravel": 0,
+              "unseen": 2
+            },
+            {
+              "lane": 2,
+              "score": 1,
+              "ticks": 8,
+              "gravel": 0,
+              "unseen": 2
+            }
+          ]
+        },
+        "quarry-mirror": {
+          "mean": 2.5,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 1,
+              "ticks": 8,
+              "gravel": 0,
+              "unseen": 1
+            },
+            {
+              "lane": 2,
+              "score": 4,
+              "ticks": 5,
+              "gravel": 0,
+              "unseen": 0
+            }
+          ]
+        },
+        "shifted-pair": {
+          "mean": 3.5,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 4,
+              "ticks": 5,
+              "gravel": 0,
+              "unseen": 2
+            },
+            {
+              "lane": 2,
+              "score": 3,
+              "ticks": 6,
+              "gravel": 0,
+              "unseen": 3
+            }
+          ]
+        },
+        "shifted-mirror": {
+          "mean": 3.5,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 3,
+              "ticks": 6,
+              "gravel": 0,
+              "unseen": 3
+            },
+            {
+              "lane": 2,
+              "score": 4,
+              "ticks": 5,
+              "gravel": 0,
+              "unseen": 2
+            }
+          ]
+        }
+      },
+      "trainingObsForTabular": 237,
+      "validationMean": 3.46875,
+      "hash": "1932a6dac80c526957dac7bc6819443b474338c6ac18906819bc6461977bae9e"
+    },
+    {
+      "rep": 4,
+      "arm": "shared",
+      "budget": 16384,
+      "held": {
+        "quarry": {
+          "mean": 3.5,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 4,
+              "ticks": 5,
+              "gravel": 0,
+              "unseen": 0
+            },
+            {
+              "lane": 2,
+              "score": 3,
+              "ticks": 6,
+              "gravel": 0,
+              "unseen": 2
+            }
+          ]
+        },
+        "quarry-mirror": {
+          "mean": 3.5,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 3,
+              "ticks": 6,
+              "gravel": 0,
+              "unseen": 1
+            },
+            {
+              "lane": 2,
+              "score": 4,
+              "ticks": 5,
+              "gravel": 0,
+              "unseen": 0
+            }
+          ]
+        },
+        "shifted-pair": {
+          "mean": 2.5,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 4,
+              "ticks": 5,
+              "gravel": 0,
+              "unseen": 3
+            },
+            {
+              "lane": 2,
+              "score": 1,
+              "ticks": 4,
+              "gravel": 1,
+              "unseen": 2
+            }
+          ]
+        },
+        "shifted-mirror": {
+          "mean": 2.5,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 1,
+              "ticks": 4,
+              "gravel": 1,
+              "unseen": 2
+            },
+            {
+              "lane": 2,
+              "score": 4,
+              "ticks": 5,
+              "gravel": 0,
+              "unseen": 3
+            }
+          ]
+        }
+      },
+      "trainingObsForTabular": 262,
+      "validationMean": 4.468750000000002,
+      "hash": "6e1a5202386f5fe680e31ce18a2df0e19e8e89763eff69930d02789fd3234b27"
+    },
+    {
+      "rep": 4,
+      "arm": "shared",
+      "budget": 65536,
+      "held": {
+        "quarry": {
+          "mean": 3.5,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 4,
+              "ticks": 5,
+              "gravel": 0,
+              "unseen": 0
+            },
+            {
+              "lane": 2,
+              "score": 3,
+              "ticks": 6,
+              "gravel": 0,
+              "unseen": 1
+            }
+          ]
+        },
+        "quarry-mirror": {
+          "mean": 3.5,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 3,
+              "ticks": 6,
+              "gravel": 0,
+              "unseen": 1
+            },
+            {
+              "lane": 2,
+              "score": 4,
+              "ticks": 5,
+              "gravel": 0,
+              "unseen": 0
+            }
+          ]
+        },
+        "shifted-pair": {
+          "mean": 4.5,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 5,
+              "ticks": 4,
+              "gravel": 0,
+              "unseen": 2
+            },
+            {
+              "lane": 2,
+              "score": 4,
+              "ticks": 5,
+              "gravel": 0,
+              "unseen": 2
+            }
+          ]
+        },
+        "shifted-mirror": {
+          "mean": 4.5,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 4,
+              "ticks": 5,
+              "gravel": 0,
+              "unseen": 2
+            },
+            {
+              "lane": 2,
+              "score": 5,
+              "ticks": 4,
+              "gravel": 0,
+              "unseen": 2
+            }
+          ]
+        }
+      },
+      "trainingObsForTabular": 264,
+      "validationMean": 4.468750000000001,
+      "hash": "d2944b0fafc608c14e8bd6cf45e8160eddbad5a4a7eba5e58b9e764dc06f7938"
+    },
+    {
+      "rep": 5,
+      "arm": "tabular",
+      "budget": 0,
+      "held": {
+        "quarry": {
+          "mean": 0,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 0,
+              "ticks": 9,
+              "gravel": 0,
+              "unseen": 9
+            },
+            {
+              "lane": 2,
+              "score": 0,
+              "ticks": 9,
+              "gravel": 0,
+              "unseen": 9
+            }
+          ]
+        },
+        "quarry-mirror": {
+          "mean": 0,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 0,
+              "ticks": 9,
+              "gravel": 0,
+              "unseen": 9
+            },
+            {
+              "lane": 2,
+              "score": 0,
+              "ticks": 9,
+              "gravel": 0,
+              "unseen": 9
+            }
+          ]
+        },
+        "shifted-pair": {
+          "mean": 0,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 0,
+              "ticks": 9,
+              "gravel": 0,
+              "unseen": 9
+            },
+            {
+              "lane": 2,
+              "score": 0,
+              "ticks": 9,
+              "gravel": 0,
+              "unseen": 9
+            }
+          ]
+        },
+        "shifted-mirror": {
+          "mean": 0,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 0,
+              "ticks": 9,
+              "gravel": 0,
+              "unseen": 9
+            },
+            {
+              "lane": 2,
+              "score": 0,
+              "ticks": 9,
+              "gravel": 0,
+              "unseen": 9
+            }
+          ]
+        }
+      },
+      "trainingObsForTabular": 0,
+      "validationMean": 0,
+      "hash": "3ffcd6cc9b42146721bba749f0761295335d66ed520a3588bb01b488c45b0397"
+    },
+    {
+      "rep": 5,
+      "arm": "tabular",
+      "budget": 1024,
+      "held": {
+        "quarry": {
+          "mean": 4,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 4,
+              "ticks": 5,
+              "gravel": 0,
+              "unseen": 0
+            },
+            {
+              "lane": 2,
+              "score": 4,
+              "ticks": 5,
+              "gravel": 0,
+              "unseen": 1
+            }
+          ]
+        },
+        "quarry-mirror": {
+          "mean": 1.5,
+          "starts": [
+            {
+              "lane": 0,
+              "score": -1,
+              "ticks": 6,
+              "gravel": 1,
+              "unseen": 1
+            },
+            {
+              "lane": 2,
+              "score": 4,
+              "ticks": 5,
+              "gravel": 0,
+              "unseen": 3
+            }
+          ]
+        },
+        "shifted-pair": {
+          "mean": 1.5,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 4,
+              "ticks": 5,
+              "gravel": 0,
+              "unseen": 2
+            },
+            {
+              "lane": 2,
+              "score": -1,
+              "ticks": 6,
+              "gravel": 1,
+              "unseen": 3
+            }
+          ]
+        },
+        "shifted-mirror": {
+          "mean": 1.5,
+          "starts": [
+            {
+              "lane": 0,
+              "score": -1,
+              "ticks": 6,
+              "gravel": 1,
+              "unseen": 3
+            },
+            {
+              "lane": 2,
+              "score": 4,
+              "ticks": 5,
+              "gravel": 0,
+              "unseen": 2
+            }
+          ]
+        }
+      },
+      "trainingObsForTabular": 188,
+      "validationMean": 3.5937500000000004,
+      "hash": "a13d940acf8c112fe6ed6db138b38f078acbd1a762ee6a8e25fae8461992042a"
+    },
+    {
+      "rep": 5,
+      "arm": "tabular",
+      "budget": 4096,
+      "held": {
+        "quarry": {
+          "mean": 3.5,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 3,
+              "ticks": 6,
+              "gravel": 0,
+              "unseen": 1
+            },
+            {
+              "lane": 2,
+              "score": 4,
+              "ticks": 5,
+              "gravel": 0,
+              "unseen": 1
+            }
+          ]
+        },
+        "quarry-mirror": {
+          "mean": 1,
+          "starts": [
+            {
+              "lane": 0,
+              "score": -1,
+              "ticks": 6,
+              "gravel": 1,
+              "unseen": 0
+            },
+            {
+              "lane": 2,
+              "score": 3,
+              "ticks": 6,
+              "gravel": 0,
+              "unseen": 1
+            }
+          ]
+        },
+        "shifted-pair": {
+          "mean": 2,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 5,
+              "ticks": 4,
+              "gravel": 0,
+              "unseen": 2
+            },
+            {
+              "lane": 2,
+              "score": -1,
+              "ticks": 6,
+              "gravel": 1,
+              "unseen": 3
+            }
+          ]
+        },
+        "shifted-mirror": {
+          "mean": 2,
+          "starts": [
+            {
+              "lane": 0,
+              "score": -1,
+              "ticks": 6,
+              "gravel": 1,
+              "unseen": 3
+            },
+            {
+              "lane": 2,
+              "score": 5,
+              "ticks": 4,
+              "gravel": 0,
+              "unseen": 2
+            }
+          ]
+        }
+      },
+      "trainingObsForTabular": 244,
+      "validationMean": 4.249999999999999,
+      "hash": "54a980f794ef25390300632c3251d487697117a17ecd84463c7d0baaf085cfcb"
+    },
+    {
+      "rep": 5,
+      "arm": "tabular",
+      "budget": 16384,
+      "held": {
+        "quarry": {
+          "mean": 3.5,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 3,
+              "ticks": 6,
+              "gravel": 0,
+              "unseen": 1
+            },
+            {
+              "lane": 2,
+              "score": 4,
+              "ticks": 5,
+              "gravel": 0,
+              "unseen": 1
+            }
+          ]
+        },
+        "quarry-mirror": {
+          "mean": 2.5,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 2,
+              "ticks": 7,
+              "gravel": 0,
+              "unseen": 1
+            },
+            {
+              "lane": 2,
+              "score": 3,
+              "ticks": 6,
+              "gravel": 0,
+              "unseen": 1
+            }
+          ]
+        },
+        "shifted-pair": {
+          "mean": 2,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 5,
+              "ticks": 4,
+              "gravel": 0,
+              "unseen": 2
+            },
+            {
+              "lane": 2,
+              "score": -1,
+              "ticks": 6,
+              "gravel": 1,
+              "unseen": 3
+            }
+          ]
+        },
+        "shifted-mirror": {
+          "mean": 2,
+          "starts": [
+            {
+              "lane": 0,
+              "score": -1,
+              "ticks": 6,
+              "gravel": 1,
+              "unseen": 3
+            },
+            {
+              "lane": 2,
+              "score": 5,
+              "ticks": 4,
+              "gravel": 0,
+              "unseen": 2
+            }
+          ]
+        }
+      },
+      "trainingObsForTabular": 259,
+      "validationMean": 4.749999999999999,
+      "hash": "d199cbbeafc4493fa91fecf28ecbaa2752721053cd32c641bfda70912a5dd4dc"
+    },
+    {
+      "rep": 5,
+      "arm": "tabular",
+      "budget": 65536,
+      "held": {
+        "quarry": {
+          "mean": 4.5,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 5,
+              "ticks": 4,
+              "gravel": 0,
+              "unseen": 0
+            },
+            {
+              "lane": 2,
+              "score": 4,
+              "ticks": 5,
+              "gravel": 0,
+              "unseen": 1
+            }
+          ]
+        },
+        "quarry-mirror": {
+          "mean": 3.5,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 3,
+              "ticks": 6,
+              "gravel": 0,
+              "unseen": 1
+            },
+            {
+              "lane": 2,
+              "score": 4,
+              "ticks": 5,
+              "gravel": 0,
+              "unseen": 0
+            }
+          ]
+        },
+        "shifted-pair": {
+          "mean": 2,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 5,
+              "ticks": 4,
+              "gravel": 0,
+              "unseen": 2
+            },
+            {
+              "lane": 2,
+              "score": -1,
+              "ticks": 6,
+              "gravel": 1,
+              "unseen": 3
+            }
+          ]
+        },
+        "shifted-mirror": {
+          "mean": 2,
+          "starts": [
+            {
+              "lane": 0,
+              "score": -1,
+              "ticks": 6,
+              "gravel": 1,
+              "unseen": 3
+            },
+            {
+              "lane": 2,
+              "score": 5,
+              "ticks": 4,
+              "gravel": 0,
+              "unseen": 2
+            }
+          ]
+        }
+      },
+      "trainingObsForTabular": 265,
+      "validationMean": 4.749999999999999,
+      "hash": "f3ce11cdfe77ef7cbe445b6c9c8af9e9a11571039dce7803820c57f9d3851a37"
+    },
+    {
+      "rep": 5,
+      "arm": "shared",
+      "budget": 0,
+      "held": {
+        "quarry": {
+          "mean": 0,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 0,
+              "ticks": 9,
+              "gravel": 0,
+              "unseen": 9
+            },
+            {
+              "lane": 2,
+              "score": 0,
+              "ticks": 9,
+              "gravel": 0,
+              "unseen": 9
+            }
+          ]
+        },
+        "quarry-mirror": {
+          "mean": 0,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 0,
+              "ticks": 9,
+              "gravel": 0,
+              "unseen": 9
+            },
+            {
+              "lane": 2,
+              "score": 0,
+              "ticks": 9,
+              "gravel": 0,
+              "unseen": 9
+            }
+          ]
+        },
+        "shifted-pair": {
+          "mean": 0,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 0,
+              "ticks": 9,
+              "gravel": 0,
+              "unseen": 9
+            },
+            {
+              "lane": 2,
+              "score": 0,
+              "ticks": 9,
+              "gravel": 0,
+              "unseen": 9
+            }
+          ]
+        },
+        "shifted-mirror": {
+          "mean": 0,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 0,
+              "ticks": 9,
+              "gravel": 0,
+              "unseen": 9
+            },
+            {
+              "lane": 2,
+              "score": 0,
+              "ticks": 9,
+              "gravel": 0,
+              "unseen": 9
+            }
+          ]
+        }
+      },
+      "trainingObsForTabular": 0,
+      "validationMean": 0,
+      "hash": "1d591847c5ded106c52648c5f81e1f6ca77560f7fea62e705c7d7bc16b9a643d"
+    },
+    {
+      "rep": 5,
+      "arm": "shared",
+      "budget": 1024,
+      "held": {
+        "quarry": {
+          "mean": 2,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 2,
+              "ticks": 7,
+              "gravel": 0,
+              "unseen": 1
+            },
+            {
+              "lane": 2,
+              "score": 2,
+              "ticks": 7,
+              "gravel": 0,
+              "unseen": 2
+            }
+          ]
+        },
+        "quarry-mirror": {
+          "mean": 2,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 2,
+              "ticks": 7,
+              "gravel": 0,
+              "unseen": 2
+            },
+            {
+              "lane": 2,
+              "score": 2,
+              "ticks": 7,
+              "gravel": 0,
+              "unseen": 2
+            }
+          ]
+        },
+        "shifted-pair": {
+          "mean": 1,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 3,
+              "ticks": 6,
+              "gravel": 0,
+              "unseen": 2
+            },
+            {
+              "lane": 2,
+              "score": -1,
+              "ticks": 6,
+              "gravel": 1,
+              "unseen": 3
+            }
+          ]
+        },
+        "shifted-mirror": {
+          "mean": 1,
+          "starts": [
+            {
+              "lane": 0,
+              "score": -1,
+              "ticks": 6,
+              "gravel": 1,
+              "unseen": 3
+            },
+            {
+              "lane": 2,
+              "score": 3,
+              "ticks": 6,
+              "gravel": 0,
+              "unseen": 2
+            }
+          ]
+        }
+      },
+      "trainingObsForTabular": 188,
+      "validationMean": 2.8125000000000004,
+      "hash": "7976f185d7798e633dc8020328a6959453c0bbbbc981a700e88ba9533f7b34da"
+    },
+    {
+      "rep": 5,
+      "arm": "shared",
+      "budget": 4096,
+      "held": {
+        "quarry": {
+          "mean": 2.5,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 3,
+              "ticks": 6,
+              "gravel": 0,
+              "unseen": 0
+            },
+            {
+              "lane": 2,
+              "score": 2,
+              "ticks": 7,
+              "gravel": 0,
+              "unseen": 1
+            }
+          ]
+        },
+        "quarry-mirror": {
+          "mean": 2.5,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 2,
+              "ticks": 7,
+              "gravel": 0,
+              "unseen": 1
+            },
+            {
+              "lane": 2,
+              "score": 3,
+              "ticks": 6,
+              "gravel": 0,
+              "unseen": 1
+            }
+          ]
+        },
+        "shifted-pair": {
+          "mean": 3,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 4,
+              "ticks": 5,
+              "gravel": 0,
+              "unseen": 2
+            },
+            {
+              "lane": 2,
+              "score": 2,
+              "ticks": 7,
+              "gravel": 0,
+              "unseen": 3
+            }
+          ]
+        },
+        "shifted-mirror": {
+          "mean": 3,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 2,
+              "ticks": 7,
+              "gravel": 0,
+              "unseen": 3
+            },
+            {
+              "lane": 2,
+              "score": 4,
+              "ticks": 5,
+              "gravel": 0,
+              "unseen": 2
+            }
+          ]
+        }
+      },
+      "trainingObsForTabular": 244,
+      "validationMean": 3.593750000000001,
+      "hash": "13ed643983cd586ad7df441b5e6b76a5cfb9d7ca035d61eebb7ffbe235d54408"
+    },
+    {
+      "rep": 5,
+      "arm": "shared",
+      "budget": 16384,
+      "held": {
+        "quarry": {
+          "mean": 3,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 4,
+              "ticks": 5,
+              "gravel": 0,
+              "unseen": 0
+            },
+            {
+              "lane": 2,
+              "score": 2,
+              "ticks": 7,
+              "gravel": 0,
+              "unseen": 1
+            }
+          ]
+        },
+        "quarry-mirror": {
+          "mean": 2.5,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 2,
+              "ticks": 7,
+              "gravel": 0,
+              "unseen": 1
+            },
+            {
+              "lane": 2,
+              "score": 3,
+              "ticks": 6,
+              "gravel": 0,
+              "unseen": 1
+            }
+          ]
+        },
+        "shifted-pair": {
+          "mean": 3.5,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 4,
+              "ticks": 5,
+              "gravel": 0,
+              "unseen": 2
+            },
+            {
+              "lane": 2,
+              "score": 3,
+              "ticks": 6,
+              "gravel": 0,
+              "unseen": 3
+            }
+          ]
+        },
+        "shifted-mirror": {
+          "mean": 3.5,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 3,
+              "ticks": 6,
+              "gravel": 0,
+              "unseen": 3
+            },
+            {
+              "lane": 2,
+              "score": 4,
+              "ticks": 5,
+              "gravel": 0,
+              "unseen": 2
+            }
+          ]
+        }
+      },
+      "trainingObsForTabular": 259,
+      "validationMean": 3.7500000000000004,
+      "hash": "ccc60d922284a40cc880d0e150cbb51eda680270a6bf75850b0d14a40ddf9b60"
+    },
+    {
+      "rep": 5,
+      "arm": "shared",
+      "budget": 65536,
+      "held": {
+        "quarry": {
+          "mean": 3.5,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 4,
+              "ticks": 5,
+              "gravel": 0,
+              "unseen": 0
+            },
+            {
+              "lane": 2,
+              "score": 3,
+              "ticks": 6,
+              "gravel": 0,
+              "unseen": 1
+            }
+          ]
+        },
+        "quarry-mirror": {
+          "mean": 3.5,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 3,
+              "ticks": 6,
+              "gravel": 0,
+              "unseen": 1
+            },
+            {
+              "lane": 2,
+              "score": 4,
+              "ticks": 5,
+              "gravel": 0,
+              "unseen": 0
+            }
+          ]
+        },
+        "shifted-pair": {
+          "mean": 4,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 4,
+              "ticks": 5,
+              "gravel": 0,
+              "unseen": 2
+            },
+            {
+              "lane": 2,
+              "score": 4,
+              "ticks": 5,
+              "gravel": 0,
+              "unseen": 2
+            }
+          ]
+        },
+        "shifted-mirror": {
+          "mean": 4,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 4,
+              "ticks": 5,
+              "gravel": 0,
+              "unseen": 2
+            },
+            {
+              "lane": 2,
+              "score": 4,
+              "ticks": 5,
+              "gravel": 0,
+              "unseen": 2
+            }
+          ]
+        }
+      },
+      "trainingObsForTabular": 265,
+      "validationMean": 4.343749999999999,
+      "hash": "85544f2771adca0fc688f1c294f287b2de95aaa1283fde5a2dc4d220773f218a"
+    },
+    {
+      "rep": 6,
+      "arm": "tabular",
+      "budget": 0,
+      "held": {
+        "quarry": {
+          "mean": 0,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 0,
+              "ticks": 9,
+              "gravel": 0,
+              "unseen": 9
+            },
+            {
+              "lane": 2,
+              "score": 0,
+              "ticks": 9,
+              "gravel": 0,
+              "unseen": 9
+            }
+          ]
+        },
+        "quarry-mirror": {
+          "mean": 0,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 0,
+              "ticks": 9,
+              "gravel": 0,
+              "unseen": 9
+            },
+            {
+              "lane": 2,
+              "score": 0,
+              "ticks": 9,
+              "gravel": 0,
+              "unseen": 9
+            }
+          ]
+        },
+        "shifted-pair": {
+          "mean": 0,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 0,
+              "ticks": 9,
+              "gravel": 0,
+              "unseen": 9
+            },
+            {
+              "lane": 2,
+              "score": 0,
+              "ticks": 9,
+              "gravel": 0,
+              "unseen": 9
+            }
+          ]
+        },
+        "shifted-mirror": {
+          "mean": 0,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 0,
+              "ticks": 9,
+              "gravel": 0,
+              "unseen": 9
+            },
+            {
+              "lane": 2,
+              "score": 0,
+              "ticks": 9,
+              "gravel": 0,
+              "unseen": 9
+            }
+          ]
+        }
+      },
+      "trainingObsForTabular": 0,
+      "validationMean": 0,
+      "hash": "9231b65d9a5b659ce2c14c3e1978318877f7e8a4057f7dff46f62634e0429332"
+    },
+    {
+      "rep": 6,
+      "arm": "tabular",
+      "budget": 1024,
+      "held": {
+        "quarry": {
+          "mean": 3.5,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 4,
+              "ticks": 5,
+              "gravel": 0,
+              "unseen": 1
+            },
+            {
+              "lane": 2,
+              "score": 3,
+              "ticks": 6,
+              "gravel": 0,
+              "unseen": 1
+            }
+          ]
+        },
+        "quarry-mirror": {
+          "mean": 2.5,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 3,
+              "ticks": 6,
+              "gravel": 0,
+              "unseen": 1
+            },
+            {
+              "lane": 2,
+              "score": 2,
+              "ticks": 7,
+              "gravel": 0,
+              "unseen": 1
+            }
+          ]
+        },
+        "shifted-pair": {
+          "mean": 1.5,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 4,
+              "ticks": 5,
+              "gravel": 0,
+              "unseen": 2
+            },
+            {
+              "lane": 2,
+              "score": -1,
+              "ticks": 6,
+              "gravel": 1,
+              "unseen": 2
+            }
+          ]
+        },
+        "shifted-mirror": {
+          "mean": 1.5,
+          "starts": [
+            {
+              "lane": 0,
+              "score": -1,
+              "ticks": 6,
+              "gravel": 1,
+              "unseen": 2
+            },
+            {
+              "lane": 2,
+              "score": 4,
+              "ticks": 5,
+              "gravel": 0,
+              "unseen": 2
+            }
+          ]
+        }
+      },
+      "trainingObsForTabular": 194,
+      "validationMean": 3.7812499999999996,
+      "hash": "09783721e0c8614b3a287b7acc88a4a3e14d4dccd9112322ab908b1f0f4f4a93"
+    },
+    {
+      "rep": 6,
+      "arm": "tabular",
+      "budget": 4096,
+      "held": {
+        "quarry": {
+          "mean": 4,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 4,
+              "ticks": 5,
+              "gravel": 0,
+              "unseen": 1
+            },
+            {
+              "lane": 2,
+              "score": 4,
+              "ticks": 5,
+              "gravel": 0,
+              "unseen": 1
+            }
+          ]
+        },
+        "quarry-mirror": {
+          "mean": 3.5,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 3,
+              "ticks": 6,
+              "gravel": 0,
+              "unseen": 1
+            },
+            {
+              "lane": 2,
+              "score": 4,
+              "ticks": 5,
+              "gravel": 0,
+              "unseen": 1
+            }
+          ]
+        },
+        "shifted-pair": {
+          "mean": 1.5,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 4,
+              "ticks": 5,
+              "gravel": 0,
+              "unseen": 2
+            },
+            {
+              "lane": 2,
+              "score": -1,
+              "ticks": 6,
+              "gravel": 1,
+              "unseen": 2
+            }
+          ]
+        },
+        "shifted-mirror": {
+          "mean": 1.5,
+          "starts": [
+            {
+              "lane": 0,
+              "score": -1,
+              "ticks": 6,
+              "gravel": 1,
+              "unseen": 2
+            },
+            {
+              "lane": 2,
+              "score": 4,
+              "ticks": 5,
+              "gravel": 0,
+              "unseen": 2
+            }
+          ]
+        }
+      },
+      "trainingObsForTabular": 243,
+      "validationMean": 3.8437500000000004,
+      "hash": "a086a4ab6cf4de63b7799228922cb7e06e51a3effedcf8719aeec0b13d9512c6"
+    },
+    {
+      "rep": 6,
+      "arm": "tabular",
+      "budget": 16384,
+      "held": {
+        "quarry": {
+          "mean": 4,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 4,
+              "ticks": 5,
+              "gravel": 0,
+              "unseen": 1
+            },
+            {
+              "lane": 2,
+              "score": 4,
+              "ticks": 5,
+              "gravel": 0,
+              "unseen": 1
+            }
+          ]
+        },
+        "quarry-mirror": {
+          "mean": 3.5,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 3,
+              "ticks": 6,
+              "gravel": 0,
+              "unseen": 1
+            },
+            {
+              "lane": 2,
+              "score": 4,
+              "ticks": 5,
+              "gravel": 0,
+              "unseen": 1
+            }
+          ]
+        },
+        "shifted-pair": {
+          "mean": 2,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 5,
+              "ticks": 4,
+              "gravel": 0,
+              "unseen": 2
+            },
+            {
+              "lane": 2,
+              "score": -1,
+              "ticks": 6,
+              "gravel": 1,
+              "unseen": 2
+            }
+          ]
+        },
+        "shifted-mirror": {
+          "mean": 2,
+          "starts": [
+            {
+              "lane": 0,
+              "score": -1,
+              "ticks": 6,
+              "gravel": 1,
+              "unseen": 2
+            },
+            {
+              "lane": 2,
+              "score": 5,
+              "ticks": 4,
+              "gravel": 0,
+              "unseen": 2
+            }
+          ]
+        }
+      },
+      "trainingObsForTabular": 260,
+      "validationMean": 4.3125,
+      "hash": "eb1139e2085b85f531ba4b90e0caba7564d16109f4cc800f94aa2bc3f5098101"
+    },
+    {
+      "rep": 6,
+      "arm": "tabular",
+      "budget": 65536,
+      "held": {
+        "quarry": {
+          "mean": 4,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 4,
+              "ticks": 5,
+              "gravel": 0,
+              "unseen": 0
+            },
+            {
+              "lane": 2,
+              "score": 4,
+              "ticks": 5,
+              "gravel": 0,
+              "unseen": 1
+            }
+          ]
+        },
+        "quarry-mirror": {
+          "mean": 3,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 3,
+              "ticks": 6,
+              "gravel": 0,
+              "unseen": 1
+            },
+            {
+              "lane": 2,
+              "score": 3,
+              "ticks": 6,
+              "gravel": 0,
+              "unseen": 0
+            }
+          ]
+        },
+        "shifted-pair": {
+          "mean": 2,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 5,
+              "ticks": 4,
+              "gravel": 0,
+              "unseen": 2
+            },
+            {
+              "lane": 2,
+              "score": -1,
+              "ticks": 6,
+              "gravel": 1,
+              "unseen": 2
+            }
+          ]
+        },
+        "shifted-mirror": {
+          "mean": 2,
+          "starts": [
+            {
+              "lane": 0,
+              "score": -1,
+              "ticks": 6,
+              "gravel": 1,
+              "unseen": 2
+            },
+            {
+              "lane": 2,
+              "score": 5,
+              "ticks": 4,
+              "gravel": 0,
+              "unseen": 2
+            }
+          ]
+        }
+      },
+      "trainingObsForTabular": 265,
+      "validationMean": 4.593749999999999,
+      "hash": "f167d0de16175ca1583e5b2e81101567b3ccbebb4494548e7071dcac8a067cc6"
+    },
+    {
+      "rep": 6,
+      "arm": "shared",
+      "budget": 0,
+      "held": {
+        "quarry": {
+          "mean": 0,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 0,
+              "ticks": 9,
+              "gravel": 0,
+              "unseen": 9
+            },
+            {
+              "lane": 2,
+              "score": 0,
+              "ticks": 9,
+              "gravel": 0,
+              "unseen": 9
+            }
+          ]
+        },
+        "quarry-mirror": {
+          "mean": 0,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 0,
+              "ticks": 9,
+              "gravel": 0,
+              "unseen": 9
+            },
+            {
+              "lane": 2,
+              "score": 0,
+              "ticks": 9,
+              "gravel": 0,
+              "unseen": 9
+            }
+          ]
+        },
+        "shifted-pair": {
+          "mean": 0,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 0,
+              "ticks": 9,
+              "gravel": 0,
+              "unseen": 9
+            },
+            {
+              "lane": 2,
+              "score": 0,
+              "ticks": 9,
+              "gravel": 0,
+              "unseen": 9
+            }
+          ]
+        },
+        "shifted-mirror": {
+          "mean": 0,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 0,
+              "ticks": 9,
+              "gravel": 0,
+              "unseen": 9
+            },
+            {
+              "lane": 2,
+              "score": 0,
+              "ticks": 9,
+              "gravel": 0,
+              "unseen": 9
+            }
+          ]
+        }
+      },
+      "trainingObsForTabular": 0,
+      "validationMean": 0,
+      "hash": "a1cb7a06dd69f5afd231f05cd5b5d1309aa5bb61fa6c1c3d20d4a28379fd82ca"
+    },
+    {
+      "rep": 6,
+      "arm": "shared",
+      "budget": 1024,
+      "held": {
+        "quarry": {
+          "mean": 0,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 0,
+              "ticks": 5,
+              "gravel": 1,
+              "unseen": 1
+            },
+            {
+              "lane": 2,
+              "score": 0,
+              "ticks": 5,
+              "gravel": 1,
+              "unseen": 0
+            }
+          ]
+        },
+        "quarry-mirror": {
+          "mean": 0,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 0,
+              "ticks": 5,
+              "gravel": 1,
+              "unseen": 1
+            },
+            {
+              "lane": 2,
+              "score": 0,
+              "ticks": 5,
+              "gravel": 1,
+              "unseen": 2
+            }
+          ]
+        },
+        "shifted-pair": {
+          "mean": 4,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 4,
+              "ticks": 5,
+              "gravel": 0,
+              "unseen": 2
+            },
+            {
+              "lane": 2,
+              "score": 4,
+              "ticks": 5,
+              "gravel": 0,
+              "unseen": 2
+            }
+          ]
+        },
+        "shifted-mirror": {
+          "mean": 4,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 4,
+              "ticks": 5,
+              "gravel": 0,
+              "unseen": 2
+            },
+            {
+              "lane": 2,
+              "score": 4,
+              "ticks": 5,
+              "gravel": 0,
+              "unseen": 2
+            }
+          ]
+        }
+      },
+      "trainingObsForTabular": 194,
+      "validationMean": 4.093750000000001,
+      "hash": "413a2ab36a68f2aa1ca9236daf7fa043faa442cd33a7f17f8b311bdc5cb0964c"
+    },
+    {
+      "rep": 6,
+      "arm": "shared",
+      "budget": 4096,
+      "held": {
+        "quarry": {
+          "mean": 3,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 4,
+              "ticks": 5,
+              "gravel": 0,
+              "unseen": 1
+            },
+            {
+              "lane": 2,
+              "score": 2,
+              "ticks": 7,
+              "gravel": 0,
+              "unseen": 1
+            }
+          ]
+        },
+        "quarry-mirror": {
+          "mean": 3,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 2,
+              "ticks": 7,
+              "gravel": 0,
+              "unseen": 1
+            },
+            {
+              "lane": 2,
+              "score": 4,
+              "ticks": 5,
+              "gravel": 0,
+              "unseen": 1
+            }
+          ]
+        },
+        "shifted-pair": {
+          "mean": 4,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 4,
+              "ticks": 5,
+              "gravel": 0,
+              "unseen": 2
+            },
+            {
+              "lane": 2,
+              "score": 4,
+              "ticks": 5,
+              "gravel": 0,
+              "unseen": 2
+            }
+          ]
+        },
+        "shifted-mirror": {
+          "mean": 4,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 4,
+              "ticks": 5,
+              "gravel": 0,
+              "unseen": 2
+            },
+            {
+              "lane": 2,
+              "score": 4,
+              "ticks": 5,
+              "gravel": 0,
+              "unseen": 2
+            }
+          ]
+        }
+      },
+      "trainingObsForTabular": 243,
+      "validationMean": 4.1875,
+      "hash": "7d157728bc1088e29c38a3d9223305b82357db9f6b44d4e1ab18bbef00970f10"
+    },
+    {
+      "rep": 6,
+      "arm": "shared",
+      "budget": 16384,
+      "held": {
+        "quarry": {
+          "mean": 3.5,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 4,
+              "ticks": 5,
+              "gravel": 0,
+              "unseen": 1
+            },
+            {
+              "lane": 2,
+              "score": 3,
+              "ticks": 6,
+              "gravel": 0,
+              "unseen": 1
+            }
+          ]
+        },
+        "quarry-mirror": {
+          "mean": 3.5,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 3,
+              "ticks": 6,
+              "gravel": 0,
+              "unseen": 1
+            },
+            {
+              "lane": 2,
+              "score": 4,
+              "ticks": 5,
+              "gravel": 0,
+              "unseen": 1
+            }
+          ]
+        },
+        "shifted-pair": {
+          "mean": 5,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 5,
+              "ticks": 4,
+              "gravel": 0,
+              "unseen": 2
+            },
+            {
+              "lane": 2,
+              "score": 5,
+              "ticks": 4,
+              "gravel": 0,
+              "unseen": 2
+            }
+          ]
+        },
+        "shifted-mirror": {
+          "mean": 5,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 5,
+              "ticks": 4,
+              "gravel": 0,
+              "unseen": 2
+            },
+            {
+              "lane": 2,
+              "score": 5,
+              "ticks": 4,
+              "gravel": 0,
+              "unseen": 2
+            }
+          ]
+        }
+      },
+      "trainingObsForTabular": 260,
+      "validationMean": 4.468750000000001,
+      "hash": "595b3d0fcf8755e5ada4ccde90e5c87b5b64309b49ab34ae2a84ef8dcf9b21d5"
+    },
+    {
+      "rep": 6,
+      "arm": "shared",
+      "budget": 65536,
+      "held": {
+        "quarry": {
+          "mean": 3.5,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 4,
+              "ticks": 5,
+              "gravel": 0,
+              "unseen": 0
+            },
+            {
+              "lane": 2,
+              "score": 3,
+              "ticks": 6,
+              "gravel": 0,
+              "unseen": 1
+            }
+          ]
+        },
+        "quarry-mirror": {
+          "mean": 3.5,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 3,
+              "ticks": 6,
+              "gravel": 0,
+              "unseen": 1
+            },
+            {
+              "lane": 2,
+              "score": 4,
+              "ticks": 5,
+              "gravel": 0,
+              "unseen": 0
+            }
+          ]
+        },
+        "shifted-pair": {
+          "mean": 4,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 4,
+              "ticks": 5,
+              "gravel": 0,
+              "unseen": 3
+            },
+            {
+              "lane": 2,
+              "score": 4,
+              "ticks": 5,
+              "gravel": 0,
+              "unseen": 2
+            }
+          ]
+        },
+        "shifted-mirror": {
+          "mean": 4,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 4,
+              "ticks": 5,
+              "gravel": 0,
+              "unseen": 2
+            },
+            {
+              "lane": 2,
+              "score": 4,
+              "ticks": 5,
+              "gravel": 0,
+              "unseen": 3
+            }
+          ]
+        }
+      },
+      "trainingObsForTabular": 265,
+      "validationMean": 4.156249999999999,
+      "hash": "3cf7d6c8876b15171f7d471c48f56fb3142ee01defbdef04103661ae9d55ccf5"
+    },
+    {
+      "rep": 7,
+      "arm": "tabular",
+      "budget": 0,
+      "held": {
+        "quarry": {
+          "mean": 0,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 0,
+              "ticks": 9,
+              "gravel": 0,
+              "unseen": 9
+            },
+            {
+              "lane": 2,
+              "score": 0,
+              "ticks": 9,
+              "gravel": 0,
+              "unseen": 9
+            }
+          ]
+        },
+        "quarry-mirror": {
+          "mean": 0,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 0,
+              "ticks": 9,
+              "gravel": 0,
+              "unseen": 9
+            },
+            {
+              "lane": 2,
+              "score": 0,
+              "ticks": 9,
+              "gravel": 0,
+              "unseen": 9
+            }
+          ]
+        },
+        "shifted-pair": {
+          "mean": 0,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 0,
+              "ticks": 9,
+              "gravel": 0,
+              "unseen": 9
+            },
+            {
+              "lane": 2,
+              "score": 0,
+              "ticks": 9,
+              "gravel": 0,
+              "unseen": 9
+            }
+          ]
+        },
+        "shifted-mirror": {
+          "mean": 0,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 0,
+              "ticks": 9,
+              "gravel": 0,
+              "unseen": 9
+            },
+            {
+              "lane": 2,
+              "score": 0,
+              "ticks": 9,
+              "gravel": 0,
+              "unseen": 9
+            }
+          ]
+        }
+      },
+      "trainingObsForTabular": 0,
+      "validationMean": 0,
+      "hash": "40e262c91c3a349f00449db50c6cd854311db1cd9cb1a4a5f0e1f0845926f841"
+    },
+    {
+      "rep": 7,
+      "arm": "tabular",
+      "budget": 1024,
+      "held": {
+        "quarry": {
+          "mean": 1,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 1,
+              "ticks": 8,
+              "gravel": 0,
+              "unseen": 5
+            },
+            {
+              "lane": 2,
+              "score": 1,
+              "ticks": 8,
+              "gravel": 0,
+              "unseen": 3
+            }
+          ]
+        },
+        "quarry-mirror": {
+          "mean": 2.5,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 1,
+              "ticks": 8,
+              "gravel": 0,
+              "unseen": 1
+            },
+            {
+              "lane": 2,
+              "score": 4,
+              "ticks": 5,
+              "gravel": 0,
+              "unseen": 2
+            }
+          ]
+        },
+        "shifted-pair": {
+          "mean": 1.5,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 4,
+              "ticks": 5,
+              "gravel": 0,
+              "unseen": 2
+            },
+            {
+              "lane": 2,
+              "score": -1,
+              "ticks": 6,
+              "gravel": 1,
+              "unseen": 2
+            }
+          ]
+        },
+        "shifted-mirror": {
+          "mean": 1.5,
+          "starts": [
+            {
+              "lane": 0,
+              "score": -1,
+              "ticks": 6,
+              "gravel": 1,
+              "unseen": 3
+            },
+            {
+              "lane": 2,
+              "score": 4,
+              "ticks": 5,
+              "gravel": 0,
+              "unseen": 2
+            }
+          ]
+        }
+      },
+      "trainingObsForTabular": 200,
+      "validationMean": 3.875000000000001,
+      "hash": "cdf4b8229eb2bb446dac7cc3dfb2f3349d11397e46854379af82fd1ffdefe9e3"
+    },
+    {
+      "rep": 7,
+      "arm": "tabular",
+      "budget": 4096,
+      "held": {
+        "quarry": {
+          "mean": 3,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 3,
+              "ticks": 6,
+              "gravel": 0,
+              "unseen": 2
+            },
+            {
+              "lane": 2,
+              "score": 3,
+              "ticks": 6,
+              "gravel": 0,
+              "unseen": 1
+            }
+          ]
+        },
+        "quarry-mirror": {
+          "mean": 1.5,
+          "starts": [
+            {
+              "lane": 0,
+              "score": -1,
+              "ticks": 6,
+              "gravel": 1,
+              "unseen": 1
+            },
+            {
+              "lane": 2,
+              "score": 4,
+              "ticks": 5,
+              "gravel": 0,
+              "unseen": 0
+            }
+          ]
+        },
+        "shifted-pair": {
+          "mean": 2,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 5,
+              "ticks": 4,
+              "gravel": 0,
+              "unseen": 2
+            },
+            {
+              "lane": 2,
+              "score": -1,
+              "ticks": 6,
+              "gravel": 1,
+              "unseen": 2
+            }
+          ]
+        },
+        "shifted-mirror": {
+          "mean": 1.5,
+          "starts": [
+            {
+              "lane": 0,
+              "score": -1,
+              "ticks": 6,
+              "gravel": 1,
+              "unseen": 3
+            },
+            {
+              "lane": 2,
+              "score": 4,
+              "ticks": 5,
+              "gravel": 0,
+              "unseen": 2
+            }
+          ]
+        }
+      },
+      "trainingObsForTabular": 244,
+      "validationMean": 4.468749999999999,
+      "hash": "2f2f96c59956a1ca443b937423b6bef899861deb6b7fe21604f1c84b141c89e5"
+    },
+    {
+      "rep": 7,
+      "arm": "tabular",
+      "budget": 16384,
+      "held": {
+        "quarry": {
+          "mean": 3.5,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 4,
+              "ticks": 5,
+              "gravel": 0,
+              "unseen": 1
+            },
+            {
+              "lane": 2,
+              "score": 3,
+              "ticks": 6,
+              "gravel": 0,
+              "unseen": 1
+            }
+          ]
+        },
+        "quarry-mirror": {
+          "mean": 1.5,
+          "starts": [
+            {
+              "lane": 0,
+              "score": -1,
+              "ticks": 6,
+              "gravel": 1,
+              "unseen": 1
+            },
+            {
+              "lane": 2,
+              "score": 4,
+              "ticks": 5,
+              "gravel": 0,
+              "unseen": 0
+            }
+          ]
+        },
+        "shifted-pair": {
+          "mean": 2,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 5,
+              "ticks": 4,
+              "gravel": 0,
+              "unseen": 2
+            },
+            {
+              "lane": 2,
+              "score": -1,
+              "ticks": 6,
+              "gravel": 1,
+              "unseen": 2
+            }
+          ]
+        },
+        "shifted-mirror": {
+          "mean": 1.5,
+          "starts": [
+            {
+              "lane": 0,
+              "score": -1,
+              "ticks": 6,
+              "gravel": 1,
+              "unseen": 3
+            },
+            {
+              "lane": 2,
+              "score": 4,
+              "ticks": 5,
+              "gravel": 0,
+              "unseen": 2
+            }
+          ]
+        }
+      },
+      "trainingObsForTabular": 262,
+      "validationMean": 4.687499999999998,
+      "hash": "9578d3837f6f1567af92ffa5cc076b4e517a48fb84d202b36d2358f17936789d"
+    },
+    {
+      "rep": 7,
+      "arm": "tabular",
+      "budget": 65536,
+      "held": {
+        "quarry": {
+          "mean": 3.5,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 4,
+              "ticks": 5,
+              "gravel": 0,
+              "unseen": 1
+            },
+            {
+              "lane": 2,
+              "score": 3,
+              "ticks": 6,
+              "gravel": 0,
+              "unseen": 1
+            }
+          ]
+        },
+        "quarry-mirror": {
+          "mean": 1.5,
+          "starts": [
+            {
+              "lane": 0,
+              "score": -1,
+              "ticks": 6,
+              "gravel": 1,
+              "unseen": 1
+            },
+            {
+              "lane": 2,
+              "score": 4,
+              "ticks": 5,
+              "gravel": 0,
+              "unseen": 0
+            }
+          ]
+        },
+        "shifted-pair": {
+          "mean": 2,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 5,
+              "ticks": 4,
+              "gravel": 0,
+              "unseen": 2
+            },
+            {
+              "lane": 2,
+              "score": -1,
+              "ticks": 6,
+              "gravel": 1,
+              "unseen": 2
+            }
+          ]
+        },
+        "shifted-mirror": {
+          "mean": 2,
+          "starts": [
+            {
+              "lane": 0,
+              "score": -1,
+              "ticks": 6,
+              "gravel": 1,
+              "unseen": 3
+            },
+            {
+              "lane": 2,
+              "score": 5,
+              "ticks": 4,
+              "gravel": 0,
+              "unseen": 2
+            }
+          ]
+        }
+      },
+      "trainingObsForTabular": 265,
+      "validationMean": 4.75,
+      "hash": "a2312453e525d2878b0e78d4f6d22a0b774179278925e0e01c94072f73aa9edf"
+    },
+    {
+      "rep": 7,
+      "arm": "shared",
+      "budget": 0,
+      "held": {
+        "quarry": {
+          "mean": 0,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 0,
+              "ticks": 9,
+              "gravel": 0,
+              "unseen": 9
+            },
+            {
+              "lane": 2,
+              "score": 0,
+              "ticks": 9,
+              "gravel": 0,
+              "unseen": 9
+            }
+          ]
+        },
+        "quarry-mirror": {
+          "mean": 0,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 0,
+              "ticks": 9,
+              "gravel": 0,
+              "unseen": 9
+            },
+            {
+              "lane": 2,
+              "score": 0,
+              "ticks": 9,
+              "gravel": 0,
+              "unseen": 9
+            }
+          ]
+        },
+        "shifted-pair": {
+          "mean": 0,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 0,
+              "ticks": 9,
+              "gravel": 0,
+              "unseen": 9
+            },
+            {
+              "lane": 2,
+              "score": 0,
+              "ticks": 9,
+              "gravel": 0,
+              "unseen": 9
+            }
+          ]
+        },
+        "shifted-mirror": {
+          "mean": 0,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 0,
+              "ticks": 9,
+              "gravel": 0,
+              "unseen": 9
+            },
+            {
+              "lane": 2,
+              "score": 0,
+              "ticks": 9,
+              "gravel": 0,
+              "unseen": 9
+            }
+          ]
+        }
+      },
+      "trainingObsForTabular": 0,
+      "validationMean": 0,
+      "hash": "f45a1d67ff13ad8e01f22d44a60d626cc3c965e32e862b58fb74628b0eeedced"
+    },
+    {
+      "rep": 7,
+      "arm": "shared",
+      "budget": 1024,
+      "held": {
+        "quarry": {
+          "mean": 3,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 3,
+              "ticks": 6,
+              "gravel": 0,
+              "unseen": 3
+            },
+            {
+              "lane": 2,
+              "score": 3,
+              "ticks": 6,
+              "gravel": 0,
+              "unseen": 3
+            }
+          ]
+        },
+        "quarry-mirror": {
+          "mean": 3,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 3,
+              "ticks": 6,
+              "gravel": 0,
+              "unseen": 2
+            },
+            {
+              "lane": 2,
+              "score": 3,
+              "ticks": 6,
+              "gravel": 0,
+              "unseen": 1
+            }
+          ]
+        },
+        "shifted-pair": {
+          "mean": 3,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 3,
+              "ticks": 6,
+              "gravel": 0,
+              "unseen": 3
+            },
+            {
+              "lane": 2,
+              "score": 3,
+              "ticks": 6,
+              "gravel": 0,
+              "unseen": 3
+            }
+          ]
+        },
+        "shifted-mirror": {
+          "mean": 3,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 3,
+              "ticks": 6,
+              "gravel": 0,
+              "unseen": 3
+            },
+            {
+              "lane": 2,
+              "score": 3,
+              "ticks": 6,
+              "gravel": 0,
+              "unseen": 3
+            }
+          ]
+        }
+      },
+      "trainingObsForTabular": 200,
+      "validationMean": 3.53125,
+      "hash": "3c5e536de7a41101df2f317513a4a8682b95384a8990dd9d062257c370354f99"
+    },
+    {
+      "rep": 7,
+      "arm": "shared",
+      "budget": 4096,
+      "held": {
+        "quarry": {
+          "mean": 3,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 3,
+              "ticks": 6,
+              "gravel": 0,
+              "unseen": 2
+            },
+            {
+              "lane": 2,
+              "score": 3,
+              "ticks": 6,
+              "gravel": 0,
+              "unseen": 1
+            }
+          ]
+        },
+        "quarry-mirror": {
+          "mean": 3,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 3,
+              "ticks": 6,
+              "gravel": 0,
+              "unseen": 1
+            },
+            {
+              "lane": 2,
+              "score": 3,
+              "ticks": 6,
+              "gravel": 0,
+              "unseen": 2
+            }
+          ]
+        },
+        "shifted-pair": {
+          "mean": 4,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 4,
+              "ticks": 5,
+              "gravel": 0,
+              "unseen": 2
+            },
+            {
+              "lane": 2,
+              "score": 4,
+              "ticks": 5,
+              "gravel": 0,
+              "unseen": 3
+            }
+          ]
+        },
+        "shifted-mirror": {
+          "mean": 4,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 4,
+              "ticks": 5,
+              "gravel": 0,
+              "unseen": 3
+            },
+            {
+              "lane": 2,
+              "score": 4,
+              "ticks": 5,
+              "gravel": 0,
+              "unseen": 2
+            }
+          ]
+        }
+      },
+      "trainingObsForTabular": 244,
+      "validationMean": 3.59375,
+      "hash": "4a8140a2245ee09d940edb57129978f19472bad0d657633f81b3acd766115125"
+    },
+    {
+      "rep": 7,
+      "arm": "shared",
+      "budget": 16384,
+      "held": {
+        "quarry": {
+          "mean": 3.5,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 4,
+              "ticks": 5,
+              "gravel": 0,
+              "unseen": 0
+            },
+            {
+              "lane": 2,
+              "score": 3,
+              "ticks": 6,
+              "gravel": 0,
+              "unseen": 1
+            }
+          ]
+        },
+        "quarry-mirror": {
+          "mean": 3.5,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 3,
+              "ticks": 6,
+              "gravel": 0,
+              "unseen": 1
+            },
+            {
+              "lane": 2,
+              "score": 4,
+              "ticks": 5,
+              "gravel": 0,
+              "unseen": 0
+            }
+          ]
+        },
+        "shifted-pair": {
+          "mean": 3,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 3,
+              "ticks": 6,
+              "gravel": 0,
+              "unseen": 2
+            },
+            {
+              "lane": 2,
+              "score": 3,
+              "ticks": 6,
+              "gravel": 0,
+              "unseen": 4
+            }
+          ]
+        },
+        "shifted-mirror": {
+          "mean": 2.5,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 2,
+              "ticks": 7,
+              "gravel": 0,
+              "unseen": 4
+            },
+            {
+              "lane": 2,
+              "score": 3,
+              "ticks": 6,
+              "gravel": 0,
+              "unseen": 2
+            }
+          ]
+        }
+      },
+      "trainingObsForTabular": 262,
+      "validationMean": 3.8125,
+      "hash": "78beac1bfa93074e0d46b80b3774a38145d9719ad11720f1e5b5bdb53348a2b4"
+    },
+    {
+      "rep": 7,
+      "arm": "shared",
+      "budget": 65536,
+      "held": {
+        "quarry": {
+          "mean": 3,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 3,
+              "ticks": 6,
+              "gravel": 0,
+              "unseen": 1
+            },
+            {
+              "lane": 2,
+              "score": 3,
+              "ticks": 6,
+              "gravel": 0,
+              "unseen": 1
+            }
+          ]
+        },
+        "quarry-mirror": {
+          "mean": 3.5,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 3,
+              "ticks": 6,
+              "gravel": 0,
+              "unseen": 1
+            },
+            {
+              "lane": 2,
+              "score": 4,
+              "ticks": 5,
+              "gravel": 0,
+              "unseen": 1
+            }
+          ]
+        },
+        "shifted-pair": {
+          "mean": 3.5,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 4,
+              "ticks": 5,
+              "gravel": 0,
+              "unseen": 2
+            },
+            {
+              "lane": 2,
+              "score": 3,
+              "ticks": 6,
+              "gravel": 0,
+              "unseen": 2
+            }
+          ]
+        },
+        "shifted-mirror": {
+          "mean": 3.5,
+          "starts": [
+            {
+              "lane": 0,
+              "score": 3,
+              "ticks": 6,
+              "gravel": 0,
+              "unseen": 2
+            },
+            {
+              "lane": 2,
+              "score": 4,
+              "ticks": 5,
+              "gravel": 0,
+              "unseen": 2
+            }
+          ]
+        }
+      },
+      "trainingObsForTabular": 265,
+      "validationMean": 4.249999999999999,
+      "hash": "dc299e6d3454aca7315e2aadf7f75d9f545547f66219bc77de7be1a94ba111fc"
+    }
+  ]
+}

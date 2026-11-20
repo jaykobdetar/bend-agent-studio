@@ -1,6 +1,6 @@
 # Three environments, three failure modes
 
-Published results on this page predate the training tie-breaking change. For
+The original table and figure predate the training tie-breaking change. For
 historical reproduction, use the [pre-change source tree](https://github.com/jaykobdetar/bend-agent-studio/tree/032375733bb9559d77cea59b812654fd35d5bfe5).
 
 These games separate **planning**, **information**, and **adaptation to
@@ -18,6 +18,15 @@ the independent units: Courier and Reserve each use eight, Switchboard uses
 sixteen. Each comparison matches seeds across arms or observation variants.
 Dyna uses five additional model backups per observed step, not equal compute.
 No cross-game average or claim about other tasks is implied.
+
+**After the training tie-breaking fix:** the matched 8-station Courier rerun
+still produced **0/256 deliveries for plain Q-learning** at 8,192 accepted
+moves (0/32 in each independently trained model) versus **256/256 for
+Dyna-Q** (32/32 in each model). Returns were unchanged at −155 versus the
+optimal +110. Randomizing greedy ties during training did not remove the
+planning advantage at this interaction budget. This does not establish an
+advantage at matched compute or larger budgets. See the
+[separate rerun results](tie-breaking-fix/README.md) for all four studies.
 
 ![Validation learning curves: planning reaches the courier optimum earlier; retaining both cues solves Switchboard; Dyna approaches optimal trading in Reserve.](learning-curves.svg)
 

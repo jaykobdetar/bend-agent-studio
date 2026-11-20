@@ -68,7 +68,9 @@ shifted-layout inputs are possible in practice. This is a test of unseen
 
 ## Reproduce
 
-Run on Node 24.22.3 and Bend 2.0.40 from the repository root. The generator
+To reproduce the original results byte for byte, run on Node 24.22.3 and
+Bend 2.0.40 from the historical checkout linked above. On R10.2, use the
+[post-fix protocol and results](../tie-breaking-fix/README.md). The generator
 creates a training-only manifest plus separate fixed held-out worlds.
 Use new paths for the design and archive.
 
