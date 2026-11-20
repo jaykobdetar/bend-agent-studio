@@ -265,3 +265,20 @@ A separate RTX 3060 Ti Q-learning attempt hit its 60-second ceiling while
 the runtime was compiling the device sidecar. It returned no model rows and
 its trace provided no verified kernel evidence. Dyna was not attempted on
 the GPU. No native or CUDA backend was adopted.
+
+
+## P11.8: scalar native checkpoint witness
+
+The [bounded native witness](../twin/scalar-q-spike/README.md) generated C for
+14 finite plans covering Q-learning, Expected SARSA, Double Q, Uniform and
+Dyna-Q. It reproduced 196 complete stock checkpoint files byte-for-byte on
+each of two Clang 22.1.4 builds: generic x86-64-v3 and local Zen 3. Both builds
+ran locally at `-O2`, with contraction and fast math disabled. The verifier
+used the unchanged JavaScript statistics reducer, original manifest and
+seal code. No generated result was written as an archive.
+
+This verifies the chosen plans, including literal and packed worlds, not all
+eligible shipped plans. The fixture detects a rare random tie retry and Dyna
+experience and draw ordering errors. This is not a runtime, scaling or
+compiler tuning measurement. SIMD, production scheduling, integration,
+and archive replay and resume through a native path are still unverified.

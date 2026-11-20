@@ -217,3 +217,7 @@ operation or sealed-checkpoint parity. Normal CI does not use the local GPU.
 The optional [population diagnostic](../tools/bend-parallel-spike/README.md)
 checks whole model-word layouts and raw training reports. It is not a sealed
 checkpoint, validation/test, or performance gate.
+
+The optional [scalar native witness](../twin/scalar-q-spike/README.md) compares
+complete candidate checkpoint bytes against previously verified stock
+archives. Generic target and Zen 3 evidence were both collected locally.
