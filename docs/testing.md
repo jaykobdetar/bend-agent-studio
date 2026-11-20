@@ -227,3 +227,7 @@ pinned Clang at generic x86-64-v3. A compatible runner compares its 12
 complete files against a fresh verified stock archive; an incompatible CPU
 can report a build but no runtime result. This is separate from the larger
 locally measured panel.
+
+The [portable tanh sample](../tools/bend-tanh-diagnostic/README.md) runs under
+pinned emitted JS and CPU-only native Bend with MPFR as a separate reference.
+It does not qualify a replacement math default.

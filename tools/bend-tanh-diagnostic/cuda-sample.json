@@ -1,0 +1,138 @@
+{
+  "schema": 1,
+  "scope": "bounded device correctness diagnostic; no exhaustive or timing claim",
+  "gpu": "NVIDIA GeForce RTX 3060 Ti",
+  "compiler": "Bend 2.0.40 / Clang 22.1.4",
+  "requestedBendHeapMiB": 512,
+  "rawCorpusSha256": "a7215fc26468e629a0c072e9520faba7ffe32efec6d3236e8d493b995cc633d9",
+  "wrapperSha256": "e42da8c3194bb5637797e39a0f1a94cfe06ad919445ac26a3277f5730056c8a7",
+  "linkedDiagnosticSha256": "8c392d4127ea2fc4a44bc27db877d7dd38a008ee9c30d6a07306a4bbc4d333fa",
+  "matchedExpectedWords": 24,
+  "edge": 16,
+  "center": 8,
+  "kernelName": "bend_dev",
+  "positiveDurationLaunches": 120,
+  "orderedWordsSha256": "9c93b531544075502908384917858d1cc1d3fa9537db955e989fad493d85766d",
+  "rows": [
+    {
+      "raw": "00000000",
+      "expected": "00000000",
+      "kind": "explicit edge"
+    },
+    {
+      "raw": "80000000",
+      "expected": "80000000",
+      "kind": "explicit edge"
+    },
+    {
+      "raw": "00000001",
+      "expected": "00000001",
+      "kind": "explicit edge"
+    },
+    {
+      "raw": "80000001",
+      "expected": "80000001",
+      "kind": "explicit edge"
+    },
+    {
+      "raw": "39800000",
+      "expected": "39800000",
+      "kind": "explicit edge"
+    },
+    {
+      "raw": "b9800000",
+      "expected": "b9800000",
+      "kind": "explicit edge"
+    },
+    {
+      "raw": "39800001",
+      "expected": "39800001",
+      "kind": "explicit edge"
+    },
+    {
+      "raw": "b9800001",
+      "expected": "b9800001",
+      "kind": "explicit edge"
+    },
+    {
+      "raw": "411fffff",
+      "expected": "3f800000",
+      "kind": "explicit edge"
+    },
+    {
+      "raw": "c11fffff",
+      "expected": "bf800000",
+      "kind": "explicit edge"
+    },
+    {
+      "raw": "41200000",
+      "expected": "3f800000",
+      "kind": "explicit edge"
+    },
+    {
+      "raw": "c1200000",
+      "expected": "bf800000",
+      "kind": "explicit edge"
+    },
+    {
+      "raw": "7f800000",
+      "expected": "3f800000",
+      "kind": "explicit edge"
+    },
+    {
+      "raw": "ff800000",
+      "expected": "bf800000",
+      "kind": "explicit edge"
+    },
+    {
+      "raw": "7fc01234",
+      "expected": "7fc00000",
+      "kind": "explicit edge"
+    },
+    {
+      "raw": "ff801234",
+      "expected": "7fc00000",
+      "kind": "explicit edge"
+    },
+    {
+      "raw": "3a76c7c8",
+      "expected": "3a76c7c3",
+      "kind": "stratified center"
+    },
+    {
+      "raw": "3c578c8b",
+      "expected": "3c57895c",
+      "kind": "stratified center"
+    },
+    {
+      "raw": "3e25b4b5",
+      "expected": "3e244643",
+      "kind": "stratified center"
+    },
+    {
+      "raw": "402043fc",
+      "expected": "3f7c99f5",
+      "kind": "stratified center"
+    },
+    {
+      "raw": "ba79e32c",
+      "expected": "ba79e327",
+      "kind": "stratified center"
+    },
+    {
+      "raw": "bc4fdc91",
+      "expected": "bc4fd9b6",
+      "kind": "stratified center"
+    },
+    {
+      "raw": "be4796b3",
+      "expected": "be45195a",
+      "kind": "stratified center"
+    },
+    {
+      "raw": "c02604a3",
+      "expected": "bf7d2851",
+      "kind": "stratified center"
+    }
+  ]
+}

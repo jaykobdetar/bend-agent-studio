@@ -297,6 +297,18 @@ operations on CUDA, not a full numerical or checkpoint test. No engine
 source, archive format, or default changed.
 
 
+The separate [portable tanh diagnostic](../tools/bend-tanh-diagnostic/README.md)
+uses fixed-order outward interval arithmetic and accepts a word only when
+both interval endpoints round to that word. Emitted JavaScript and native CPU
+matched both MPFR rounding paths on all 5,692 pinned inputs, including 4,110
+center values. The two MPFR paths share the same transcendental operation,
+so they check rounding and packing rather than providing independent math
+implementations. The sample cannot establish coverage of all binary32
+inputs. A separate 24-word CUDA subset matched exactly with verified device
+execution. Neither sample is a speed measurement, and the prototype was not
+adopted.
+
+
 ## P11.6: stock population diagnostic
 
 A [bounded slippery-lake diagnostic](../tools/bend-parallel-spike/README.md)

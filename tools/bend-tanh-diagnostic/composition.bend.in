@@ -1,0 +1,213 @@
+
+def tc_encoding(bias: U32, m: U32, carry: Bool) -> U32:
+  match carry:
+    case True{}:
+      U32.shln(ratio_add(bias, 1), 23n)
+    case False{}:
+      U32.or(U32.shln(bias, 23n), U32.and(m, 8388607))
+
+def tc_word_valid(x: U32, ok: Bool) -> Maybe<&2, U32>:
+  match ok:
+    case True{}:
+      Some{x}
+    case False{}:
+      None{}
+
+def tc_pack_m(+m: U32, +bias: U32, half: U32, sticky: U32) -> Maybe<&2, U32>:
+  +rounded = ratio_add(m, U32.and(half, U32.or(sticky, U32.and(m, 1))))
+  ok = Bool.and(U32.is_ge(m, 8388608), Bool.and(U32.is_ge(bias, 114), U32.is_le(bias, 126)))
+  tc_word_valid(tc_encoding(bias, rounded, U32.is_eq(rounded, 16777216)), ok)
+
+def tc_pack_loop(n: Nat, +q: RatioWord, bias: U32, +half: U32, sticky: U32, fits: Bool) -> Maybe<&2, U32>:
+  match n fits:
+    case _ True{}:
+      tc_pack_m(tc_mantissa(q), bias, half, sticky)
+    case 0n False{}:
+      None{}
+    case 1n+rest False{}:
+      +next = tc_shift1(q)
+      tc_pack_loop(rest, next, ratio_add(bias, 1), tc_lowbit(q), U32.or(half, sticky), tc_fits24(next))
+
+def tc_pack_ratio(p: U32, value: Maybe<&2, RatioProduct>) -> Maybe<&2, U32>:
+  match value:
+    case Some{RatioWindow{+q, _, _, sticky}}:
+      tc_pack_loop(32n, q, ratio_sub(150, p), 0, sticky, tc_fits24(q))
+    case None{}:
+      None{}
+
+def tc_final_ratio(+p: U32, numer: RatioWord, denom: Maybe<&2, RatioWord>, nonnegative: Bool) -> Maybe<&2, U32>:
+  match denom nonnegative:
+    case Some{d} True{}:
+      tc_pack_ratio(p, tc_ratio(p, numer, d))
+    case _ _:
+      None{}
+
+def tc_endpoint_guard(+p: U32, +y: RatioWord, +unit: RatioWord, ok: Bool) -> Maybe<&2, U32>:
+  match ok:
+    case True{}:
+      tc_final_ratio(p, ratio_difference(y, unit), tc_add_words(p, y, unit), True{})
+    case False{}:
+      None{}
+
+def tc_endpoint(p: U32, +y: RatioWord, +unit: RatioWord) -> Maybe<&2, U32>:
+  tc_endpoint_guard(p, y, unit, ratio_ge(y, unit))
+
+def tc_both_words(a: Maybe<&2, U32>, b: Maybe<&2, U32>) -> Maybe<&2, U32>:
+  match a b:
+    case Some{+l} Some{h}:
+      tc_word_valid(l, U32.is_eq(l, h))
+    case _ _:
+      None{}
+
+def tc_finish(+p: U32, yy: Maybe<&2, TCEdges>, +unit: RatioWord) -> Maybe<&2, U32>:
+  match yy:
+    case Some{TCBounds{l, h}}:
+      tc_both_words(tc_endpoint(p, l, unit), tc_endpoint(p, h, unit))
+    case None{}:
+      None{}
+
+def tc_from_words(a: Maybe<&2, RatioWord>, b: Maybe<&2, RatioWord>) -> Maybe<&2, TCEdges>:
+  match a b:
+    case Some{l} Some{h}:
+      Some{TCBounds{l, h}}
+    case _ _:
+      None{}
+
+def tc_from_products(a: Maybe<&2, FixedProduct>, b: Maybe<&2, FixedProduct>) -> Maybe<&2, TCEdges>:
+  match a b:
+    case Some{FixedWindow{l, _, _}} Some{FixedWindow{_, h, _}}:
+      Some{TCBounds{l, h}}
+    case _ _:
+      None{}
+
+def tc_square_loop(n: Nat, +p: U32, yy: Maybe<&2, TCEdges>) -> Maybe<&2, TCEdges>:
+  match n yy:
+    case 0n Some{y}:
+      Some{y}
+    case 1n+rest Some{TCBounds{+l, +h}}:
+      tc_square_loop(rest, p, tc_from_products(tc_mul(p, l, l), tc_mul(p, h, h)))
+    case _ None{}:
+      None{}
+
+def tc_div_pair(a: Maybe<&2, DivProduct>, b: Maybe<&2, DivProduct>) -> Maybe<&2, TCEdges>:
+  match a b:
+    case Some{DivWindow{l, _, _, _}} Some{DivWindow{_, h, _, _}}:
+      Some{TCBounds{l, h}}
+    case _ _:
+      None{}
+
+def tc_div_terms(+p: U32, +k: U32, z: Maybe<&2, TCEdges>) -> Maybe<&2, TCEdges>:
+  match z:
+    case Some{TCBounds{l, h}}:
+      tc_div_pair(tc_div(p, k, l), tc_div(p, k, h))
+    case None{}:
+      None{}
+
+def tc_term_product(+p: U32, old: TCEdges, +t: RatioWord) -> Maybe<&2, TCEdges>:
+  match old:
+    case TCBounds{l, h}:
+      tc_from_products(tc_mul(p, l, t), tc_mul(p, h, t))
+
+def tc_next_term(+p: U32, k: U32, t: RatioWord, term: TCEdges) -> Maybe<&2, TCEdges>:
+  tc_div_terms(p, k, tc_term_product(p, term, t))
+
+def tc_series_pair(terms: TCEdges, a: Maybe<&2, RatioWord>, b: Maybe<&2, RatioWord>) -> Maybe<&2, TCPhase>:
+  match a b:
+    case Some{l} Some{h}:
+      Some{TCSeries{terms, TCBounds{l, h}}}
+    case _ _:
+      None{}
+
+def tc_accumulate(+p: U32, sum: TCEdges, next: Maybe<&2, TCEdges>) -> Maybe<&2, TCPhase>:
+  match sum next:
+    case TCBounds{sl, sh} Some{TCBounds{+tl, +th}}:
+      tc_series_pair(TCBounds{tl, th}, tc_add_words(p, sl, tl), tc_add_words(p, sh, th))
+    case _ None{}:
+      None{}
+
+def tc_series_step(+p: U32, k: U32, t: RatioWord, old: TCPhase) -> Maybe<&2, TCPhase>:
+  match old:
+    case TCSeries{terms, sums}:
+      tc_accumulate(p, sums, tc_next_term(p, k, t, terms))
+
+def tc_use_tail(p: U32, lo: RatioWord, hi: RatioWord, tail: Maybe<&2, RatioWord>) -> Maybe<&2, TCEdges>:
+  match tail:
+    case Some{term}:
+      tc_from_words(Some{lo}, tc_add_words(p, hi, term))
+    case None{}:
+      None{}
+
+def tc_upper_tail(+p: U32, lo: RatioWord, hi: RatioWord, next: Maybe<&2, TCEdges>) -> Maybe<&2, TCEdges>:
+  match next:
+    case Some{TCBounds{_, +first}}:
+      tc_use_tail(p, lo, hi, tc_add_words(p, first, first))
+    case None{}:
+      None{}
+
+def tc_tail_terms(p: U32, sums: TCEdges, next: Maybe<&2, TCEdges>) -> Maybe<&2, TCEdges>:
+  match sums:
+    case TCBounds{l, h}:
+      tc_upper_tail(p, l, h, next)
+
+def tc_series_loop(n: Nat, +p: U32, +k: U32, +t: RatioWord, state: Maybe<&2, TCPhase>) -> Maybe<&2, TCEdges>:
+  match n state:
+    case 0n Some{TCSeries{terms, sums}}:
+      tc_tail_terms(p, sums, tc_next_term(p, k, t, terms))
+    case 1n+rest Some{old}:
+      tc_series_loop(rest, p, ratio_add(k, 1), t, tc_series_step(p, k, t, old))
+    case _ None{}:
+      None{}
+
+def tc_raise(n: Nat, a: RatioWord) -> RatioWord:
+  match n:
+    case 0n:
+      a
+    case 1n+rest:
+      tc_raise(rest, ratio_double(a))
+
+def tc_decode(+p: U32, +mag: U32) -> RatioWord:
+  pe = ratio_add(p, U32.shrn(mag, 23n))
+  +m = U32.or(U32.and(mag, 8388607), 8388608)
+  tc_raise(U32.to_nat(ratio_sub(pe, 155)),
+    RatioWide{U32.and(m, 2047), U32.and(U32.shrn(m, 11n), 2047), U32.shrn(m, 22n), 0, 0, 0, 0, 0})
+
+def tc_stage(+p: U32, n: Nat, mag: U32, +unit: RatioWord) -> Maybe<&2, U32>:
+  tc_finish(p, tc_square_loop(6n, p, tc_series_loop(n, p, 1, tc_decode(p, mag),
+    Some{TCSeries{TCBounds{unit, unit}, TCBounds{unit, unit}}})), unit)
+
+def tc_signed(sign: U32, a: Maybe<&2, U32>) -> Maybe<&2, U32>:
+  match a:
+    case Some{x}:
+      Some{U32.or(sign, x)}
+    case None{}:
+      None{}
+
+def tc_if_wide(mag: U32, sign: U32, a: Maybe<&2, U32>) -> Maybe<&2, U32>:
+  match a:
+    case Some{x}:
+      Some{U32.or(sign, x)}
+    case None{}:
+      tc_signed(sign, tc_stage(56, 20n, mag, RatioWide{0, 0, 0, 0, 0, 2, 0, 0}))
+
+def tc_middle(+mag: U32, sign: U32) -> Maybe<&2, U32>:
+  tc_if_wide(mag, sign, tc_stage(44, 14n, mag, RatioWide{0, 0, 0, 0, 1, 0, 0, 0}))
+
+def tc_region(mag: U32, sign: U32, small: Bool, large: Bool) -> Maybe<&2, U32>:
+  match small large:
+    case True{} _:
+      Some{U32.or(mag, sign)}
+    case False{} True{}:
+      Some{U32.or(1065353216, sign)}
+    case False{} False{}:
+      tc_middle(mag, sign)
+
+def tc_classify(+mag: U32, sign: U32, nan: Bool) -> Maybe<&2, U32>:
+  match nan:
+    case True{}:
+      Some{2143289344}
+    case False{}:
+      tc_region(mag, sign, U32.is_le(mag, 964689920), U32.is_ge(mag, 1092616192))
+
+def tanh_portable(+word: U32) -> Maybe<&2, U32>:
+  +mag = U32.and(word, 2147483647)
+  tc_classify(mag, U32.and(word, 2147483648), U32.is_gt(mag, 2139095040))

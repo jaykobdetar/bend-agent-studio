@@ -1,0 +1,140 @@
+import Base
+
+type DivDigit is Data:
+  DivPart{digit: U32, remainder: U32}
+
+type DivProduct is Data:
+  DivWindow{lower: List<&2, U32>, upper: List<&2, U32>, remainder: U32, sticky: U32}
+
+def div_wide_add(a: U32, b: U32) -> U32:
+  F32.to_u32(F32.add(U32.to_f32(a), U32.to_f32(b)))
+
+def div_wide_sub(a: U32, b: U32) -> U32:
+  F32.to_u32(F32.sub(U32.to_f32(a), U32.to_f32(b)))
+
+def place_bit(denom: U32, shifted_q: U32, trial_r: U32, take: Bool) -> DivDigit:
+  match take:
+    case True{}:
+      DivPart{U32.or(shifted_q, 1), div_wide_sub(trial_r, denom)}
+    case False{}:
+      DivPart{shifted_q, trial_r}
+
+def restore_one(+denom: U32, bit: U32, q: U32, +r: U32) -> DivDigit:
+  +trial = div_wide_add(div_wide_add(r, r), bit)
+  place_bit(denom, U32.shln(q, 1n), trial, U32.is_ge(trial, denom))
+
+def resume_bit(denom: U32, bit: U32, part: DivDigit) -> DivDigit:
+  match part:
+    case DivPart{q, r}:
+      restore_one(denom, bit, q, r)
+
+def digit_of(part: DivDigit) -> U32:
+  match part:
+    case DivPart{q, _}:
+      q
+
+def remainder_of(part: DivDigit) -> U32:
+  match part:
+    case DivPart{_, r}:
+      r
+
+def divide_digit(+denom: U32, +raw: U32, carry: U32) -> DivDigit:
+  state10 = resume_bit(denom, U32.and(U32.shrn(raw, 10n), 1), DivPart{0, carry})
+  state9 = resume_bit(denom, U32.and(U32.shrn(raw, 9n), 1), state10)
+  state8 = resume_bit(denom, U32.and(U32.shrn(raw, 8n), 1), state9)
+  state7 = resume_bit(denom, U32.and(U32.shrn(raw, 7n), 1), state8)
+  state6 = resume_bit(denom, U32.and(U32.shrn(raw, 6n), 1), state7)
+  state5 = resume_bit(denom, U32.and(U32.shrn(raw, 5n), 1), state6)
+  state4 = resume_bit(denom, U32.and(U32.shrn(raw, 4n), 1), state5)
+  state3 = resume_bit(denom, U32.and(U32.shrn(raw, 3n), 1), state4)
+  state2 = resume_bit(denom, U32.and(U32.shrn(raw, 2n), 1), state3)
+  state1 = resume_bit(denom, U32.and(U32.shrn(raw, 1n), 1), state2)
+  state0 = resume_bit(denom, U32.and(raw, 1), state1)
+  state0
+
+def fits_div_range(d6: U32, d7: U32, short_mode: Bool) -> Bool:
+  match short_mode:
+    case True{}:
+      Bool.and(U32.is_eq(d7, 0), U32.is_lt(d6, 256))
+    case False{}:
+      U32.is_lt(d7, 512)
+
+def finish_div(lo: List<&2, U32>, hi: List<&2, U32>, r: U32, sticky: U32, ok: Bool) -> Maybe<&2, DivProduct>:
+  match ok:
+    case True{}:
+      Some{DivWindow{lo, hi, r, sticky}}
+    case False{}:
+      None{}
+
+def div_round_window(+q0: U32, +q1: U32, +q2: U32, +q3: U32, +q4: U32, +q5: U32, +q6: U32, +q7: U32, +remainder: U32, short_mode: Bool) -> Maybe<&2, DivProduct>:
+  +sticky = Bool.to_u32(U32.is_gt(remainder, 0))
+  +inc0 = div_wide_add(q0, sticky)
+  +u0 = U32.and(inc0, 2047)
+  carry0 = U32.shrn(inc0, 11n)
+  +inc1 = div_wide_add(q1, carry0)
+  +u1 = U32.and(inc1, 2047)
+  carry1 = U32.shrn(inc1, 11n)
+  +inc2 = div_wide_add(q2, carry1)
+  +u2 = U32.and(inc2, 2047)
+  carry2 = U32.shrn(inc2, 11n)
+  +inc3 = div_wide_add(q3, carry2)
+  +u3 = U32.and(inc3, 2047)
+  carry3 = U32.shrn(inc3, 11n)
+  +inc4 = div_wide_add(q4, carry3)
+  +u4 = U32.and(inc4, 2047)
+  carry4 = U32.shrn(inc4, 11n)
+  +inc5 = div_wide_add(q5, carry4)
+  +u5 = U32.and(inc5, 2047)
+  carry5 = U32.shrn(inc5, 11n)
+  +inc6 = div_wide_add(q6, carry5)
+  +u6 = U32.and(inc6, 2047)
+  carry6 = U32.shrn(inc6, 11n)
+  +inc7 = div_wide_add(q7, carry6)
+  +u7 = U32.and(inc7, 2047)
+  carry7 = U32.shrn(inc7, 11n)
+  ok = Bool.and(U32.is_eq(carry7, 0), fits_div_range(u6, u7, short_mode))
+  finish_div([q0, q1, q2, q3, q4, q5, q6, q7], [u0, u1, u2, u3, u4, u5, u6, u7], remainder, sticky, ok)
+
+def valid_divide(+denom: U32, a0: U32, a1: U32, a2: U32, a3: U32, a4: U32, a5: U32, a6: U32, a7: U32, short_mode: Bool) -> Maybe<&2, DivProduct>:
+  +part7 = divide_digit(denom, a7, 0)
+  q7 = digit_of(part7)
+  r7 = remainder_of(part7)
+  +part6 = divide_digit(denom, a6, r7)
+  q6 = digit_of(part6)
+  r6 = remainder_of(part6)
+  +part5 = divide_digit(denom, a5, r6)
+  q5 = digit_of(part5)
+  r5 = remainder_of(part5)
+  +part4 = divide_digit(denom, a4, r5)
+  q4 = digit_of(part4)
+  r4 = remainder_of(part4)
+  +part3 = divide_digit(denom, a3, r4)
+  q3 = digit_of(part3)
+  r3 = remainder_of(part3)
+  +part2 = divide_digit(denom, a2, r3)
+  q2 = digit_of(part2)
+  r2 = remainder_of(part2)
+  +part1 = divide_digit(denom, a1, r2)
+  q1 = digit_of(part1)
+  r1 = remainder_of(part1)
+  +part0 = divide_digit(denom, a0, r1)
+  q0 = digit_of(part0)
+  r0 = remainder_of(part0)
+  div_round_window(q0, q1, q2, q3, q4, q5, q6, q7, r0, short_mode)
+
+def checked_divide(denom: U32, a0: U32, a1: U32, a2: U32, a3: U32, a4: U32, a5: U32, a6: U32, a7: U32, short_mode: Bool, ok: Bool) -> Maybe<&2, DivProduct>:
+  match ok:
+    case True{}:
+      valid_divide(denom, a0, a1, a2, a3, a4, a5, a6, a7, short_mode)
+    case False{}:
+      None{}
+
+def small_fixed_div(+frac: U32, sign: U32, +denom: U32, +a0: U32, +a1: U32, +a2: U32, +a3: U32, +a4: U32, +a5: U32, +a6: U32, +a7: U32) -> Maybe<&2, DivProduct>:
+  +short_mode = U32.is_eq(frac, 44)
+  allowed = Bool.or(short_mode, U32.is_eq(frac, 56))
+  denom_ok = Bool.and(U32.is_gt(denom, 0), U32.is_le(denom, 74))
+  positive = U32.is_eq(sign, 0)
+  digits_ok = U32.is_lt(U32.or(U32.or(U32.or(a0, a1), U32.or(a2, a3)), U32.or(U32.or(a4, a5), U32.or(a6, a7))), 2048)
+  cap_ok = fits_div_range(a6, a7, short_mode)
+  ok = Bool.and(allowed, Bool.and(denom_ok, Bool.and(positive, Bool.and(digits_ok, cap_ok))))
+  checked_divide(denom, a0, a1, a2, a3, a4, a5, a6, a7, short_mode, ok)

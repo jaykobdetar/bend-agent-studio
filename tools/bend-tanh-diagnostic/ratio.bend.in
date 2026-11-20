@@ -1,0 +1,158 @@
+import Base
+
+# Unsigned base-2^11 limbs. The public wrapper admits only p44/p56,
+# canonical limbs, and 0 <= numerator < denominator < 2^(p+30).
+type RatioWord is Data:
+  RatioWide{d0: U32, d1: U32, d2: U32, d3: U32, d4: U32, d5: U32, d6: U32, d7: U32}
+
+type RatioState is Data:
+  RatioBits{quotient: RatioWord, rem: RatioWord}
+
+type RatioProduct is Data:
+  RatioWindow{lower: RatioWord, upper: RatioWord, remainder: RatioWord, sticky: U32}
+
+def ratio_add(a: U32, b: U32) -> U32:
+  F32.to_u32(F32.add(U32.to_f32(a), U32.to_f32(b)))
+
+def ratio_sub(a: U32, b: U32) -> U32:
+  F32.to_u32(F32.sub(U32.to_f32(a), U32.to_f32(b)))
+
+def ratio_ge(a: RatioWord, b: RatioWord) -> Bool:
+  match a b:
+    case RatioWide{a0, +a1, +a2, +a3, +a4, +a5, +a6, +a7} RatioWide{b0, +b1, +b2, +b3, +b4, +b5, +b6, +b7}:
+      Bool.or(U32.is_gt(a7, b7), Bool.and(U32.is_eq(a7, b7), Bool.or(U32.is_gt(a6, b6), Bool.and(U32.is_eq(a6, b6), Bool.or(U32.is_gt(a5, b5), Bool.and(U32.is_eq(a5, b5), Bool.or(U32.is_gt(a4, b4), Bool.and(U32.is_eq(a4, b4), Bool.or(U32.is_gt(a3, b3), Bool.and(U32.is_eq(a3, b3), Bool.or(U32.is_gt(a2, b2), Bool.and(U32.is_eq(a2, b2), Bool.or(U32.is_gt(a1, b1), Bool.and(U32.is_eq(a1, b1), U32.is_ge(a0, b0)))))))))))))))
+
+def ratio_double(a: RatioWord) -> RatioWord:
+  match a:
+    case RatioWide{+a0, +a1, +a2, +a3, +a4, +a5, +a6, a7}:
+      RatioWide{U32.and(U32.shln(a0, 1n), 2047), U32.or(U32.and(U32.shln(a1, 1n), 2047), U32.shrn(a0, 10n)), U32.or(U32.and(U32.shln(a2, 1n), 2047), U32.shrn(a1, 10n)), U32.or(U32.and(U32.shln(a3, 1n), 2047), U32.shrn(a2, 10n)), U32.or(U32.and(U32.shln(a4, 1n), 2047), U32.shrn(a3, 10n)), U32.or(U32.and(U32.shln(a5, 1n), 2047), U32.shrn(a4, 10n)), U32.or(U32.and(U32.shln(a6, 1n), 2047), U32.shrn(a5, 10n)), U32.or(U32.and(U32.shln(a7, 1n), 2047), U32.shrn(a6, 10n))}
+
+def ratio_one(a: RatioWord) -> RatioWord:
+  match a:
+    case RatioWide{a0, a1, a2, a3, a4, a5, a6, a7}:
+      RatioWide{U32.or(a0, 1), a1, a2, a3, a4, a5, a6, a7}
+
+def ratio_difference(a: RatioWord, b: RatioWord) -> RatioWord:
+  match a b:
+    case RatioWide{a0, a1, a2, a3, a4, a5, a6, a7} RatioWide{b0, b1, b2, b3, b4, b5, b6, b7}:
+      +t0 = ratio_sub(ratio_sub(ratio_add(a0, 2048), b0), 0)
+      d0 = U32.and(t0, 2047)
+      br0 = Bool.to_u32(U32.is_lt(t0, 2048))
+      +t1 = ratio_sub(ratio_sub(ratio_add(a1, 2048), b1), br0)
+      d1 = U32.and(t1, 2047)
+      br1 = Bool.to_u32(U32.is_lt(t1, 2048))
+      +t2 = ratio_sub(ratio_sub(ratio_add(a2, 2048), b2), br1)
+      d2 = U32.and(t2, 2047)
+      br2 = Bool.to_u32(U32.is_lt(t2, 2048))
+      +t3 = ratio_sub(ratio_sub(ratio_add(a3, 2048), b3), br2)
+      d3 = U32.and(t3, 2047)
+      br3 = Bool.to_u32(U32.is_lt(t3, 2048))
+      +t4 = ratio_sub(ratio_sub(ratio_add(a4, 2048), b4), br3)
+      d4 = U32.and(t4, 2047)
+      br4 = Bool.to_u32(U32.is_lt(t4, 2048))
+      +t5 = ratio_sub(ratio_sub(ratio_add(a5, 2048), b5), br4)
+      d5 = U32.and(t5, 2047)
+      br5 = Bool.to_u32(U32.is_lt(t5, 2048))
+      +t6 = ratio_sub(ratio_sub(ratio_add(a6, 2048), b6), br5)
+      d6 = U32.and(t6, 2047)
+      br6 = Bool.to_u32(U32.is_lt(t6, 2048))
+      t7 = ratio_sub(ratio_sub(ratio_add(a7, 2048), b7), br6)
+      d7 = U32.and(t7, 2047)
+      RatioWide{d0, d1, d2, d3, d4, d5, d6, d7}
+
+def ratio_any(a: RatioWord) -> U32:
+  match a:
+    case RatioWide{a0, a1, a2, a3, a4, a5, a6, a7}:
+      Bool.to_u32(U32.is_gt(U32.or(U32.or(U32.or(a0, a1), U32.or(a2, a3)), U32.or(U32.or(a4, a5), U32.or(a6, a7))), 0))
+
+def ratio_ceil(a: RatioWord, sticky: U32) -> RatioWord:
+  match a:
+    case RatioWide{a0, a1, a2, a3, a4, a5, a6, a7}:
+      +t0 = ratio_add(a0, sticky)
+      u0 = U32.and(t0, 2047)
+      c0 = U32.shrn(t0, 11n)
+      +t1 = ratio_add(a1, c0)
+      u1 = U32.and(t1, 2047)
+      c1 = U32.shrn(t1, 11n)
+      +t2 = ratio_add(a2, c1)
+      u2 = U32.and(t2, 2047)
+      c2 = U32.shrn(t2, 11n)
+      +t3 = ratio_add(a3, c2)
+      u3 = U32.and(t3, 2047)
+      c3 = U32.shrn(t3, 11n)
+      +t4 = ratio_add(a4, c3)
+      u4 = U32.and(t4, 2047)
+      c4 = U32.shrn(t4, 11n)
+      +t5 = ratio_add(a5, c4)
+      u5 = U32.and(t5, 2047)
+      c5 = U32.shrn(t5, 11n)
+      +t6 = ratio_add(a6, c5)
+      u6 = U32.and(t6, 2047)
+      c6 = U32.shrn(t6, 11n)
+      t7 = ratio_add(a7, c6)
+      u7 = U32.and(t7, 2047)
+      RatioWide{u0, u1, u2, u3, u4, u5, u6, u7}
+
+def ratio_finish_checked(q: RatioWord, upper: RatioWord, rem: RatioWord, sticky: U32, ok: Bool) -> Maybe<&2, RatioProduct>:
+  match ok:
+    case True{}:
+      Some{RatioWindow{q, upper, rem, sticky}}
+    case False{}:
+      None{}
+
+def ratio_finish(+den: RatioWord, +q: RatioWord, +upper: RatioWord, +rem: RatioWord, sticky: U32, unit: RatioWord) -> Maybe<&2, RatioProduct>:
+  ok = Bool.and(ratio_ge(unit, upper), Bool.not(ratio_ge(rem, den)))
+  ratio_finish_checked(q, upper, rem, sticky, ok)
+
+def ratio_with_sticky(den: RatioWord, +q: RatioWord, rem: RatioWord, +sticky: U32, unit: RatioWord) -> Maybe<&2, RatioProduct>:
+  ratio_finish(den, q, ratio_ceil(q, sticky), rem, sticky, unit)
+
+def ratio_choose(den: RatioWord, q: RatioWord, rem: RatioWord, take: Bool) -> RatioState:
+  match take:
+    case True{}:
+      RatioBits{ratio_one(q), ratio_difference(rem, den)}
+    case False{}:
+      RatioBits{q, rem}
+
+def ratio_bit(+den: RatioWord, q: RatioWord, +twice: RatioWord) -> RatioState:
+  ratio_choose(den, ratio_double(q), twice, ratio_ge(twice, den))
+
+def ratio_loop(n: Nat, +den: RatioWord, state: RatioState, unit: RatioWord) -> Maybe<&2, RatioProduct>:
+  match n state:
+    case 0n RatioBits{q, +rem}:
+      ratio_with_sticky(den, q, rem, ratio_any(rem), unit)
+    case 1n+rest RatioBits{q, rem}:
+      ratio_loop(rest, den, ratio_bit(den, q, ratio_double(rem)), unit)
+
+def ratio_dispatch(a: RatioWord, b: RatioWord, short_mode: Bool) -> Maybe<&2, RatioProduct>:
+  match short_mode:
+    case True{}:
+      ratio_loop(44n, b, RatioBits{RatioWide{0, 0, 0, 0, 0, 0, 0, 0}, a}, RatioWide{0, 0, 0, 0, 1, 0, 0, 0})
+    case False{}:
+      ratio_loop(56n, b, RatioBits{RatioWide{0, 0, 0, 0, 0, 0, 0, 0}, a}, RatioWide{0, 0, 0, 0, 0, 2, 0, 0})
+
+def ratio_cap(d6: U32, d7: U32, short_mode: Bool) -> Bool:
+  match short_mode:
+    case True{}:
+      Bool.and(U32.is_eq(d7, 0), U32.is_lt(d6, 256))
+    case False{}:
+      U32.is_lt(d7, 512)
+
+def ratio_checked(a: RatioWord, b: RatioWord, short_mode: Bool, ok: Bool) -> Maybe<&2, RatioProduct>:
+  match ok:
+    case True{}:
+      ratio_dispatch(a, b, short_mode)
+    case False{}:
+      None{}
+
+def ratio_validate(+a: RatioWord, +b: RatioWord, short_mode: Bool, words_ok: Bool) -> Maybe<&2, RatioProduct>:
+  ratio_checked(a, b, short_mode, Bool.and(words_ok, Bool.not(ratio_ge(a, b))))
+
+def fixed_ratio(+p: U32, sign_a: U32, sign_b: U32, +a0: U32, +a1: U32, +a2: U32, +a3: U32, +a4: U32, +a5: U32, +a6: U32, +a7: U32, +b0: U32, +b1: U32, +b2: U32, +b3: U32, +b4: U32, +b5: U32, +b6: U32, +b7: U32) -> Maybe<&2, RatioProduct>:
+  +short_mode = U32.is_eq(p, 44)
+  allowed = Bool.or(short_mode, U32.is_eq(p, 56))
+  positive = Bool.and(U32.is_eq(sign_a, 0), U32.is_eq(sign_b, 0))
+  digits_ok = U32.is_lt(U32.or(U32.or(U32.or(U32.or(a0, a1), U32.or(a2, a3)), U32.or(U32.or(a4, a5), U32.or(a6, a7))), U32.or(U32.or(U32.or(b0, b1), U32.or(b2, b3)), U32.or(U32.or(b4, b5), U32.or(b6, b7)))), 2048)
+  within = ratio_cap(U32.or(a6, b6), U32.or(a7, b7), short_mode)
+  ok = Bool.and(allowed, Bool.and(positive, Bool.and(digits_ok, within)))
+  ratio_validate(RatioWide{a0, a1, a2, a3, a4, a5, a6, a7}, RatioWide{b0, b1, b2, b3, b4, b5, b6, b7}, short_mode, ok)
