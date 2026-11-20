@@ -384,4 +384,4 @@ local gates pass; fix any hosted failure before publishing another item.
 | P11.11 | JAX screening contingency | Use only if exact CUDA fails; outputs never sealed | Pending |
 | P11.12 | Machine autotuner | Tune performance only, not results | Pending |
 | P11.13 | Optional idle-time jobs | Explicit opt-in, owner activity stops jobs, resource limits | Pending |
-| P11.14 | Self-hosted runner preparation | Documentation and inactive main-only template; owner registration required | Pending |
+| P11.14 | Self-hosted runner preparation | Documentation and inactive main-only template; owner registration required | [Example prepared](docs/self-hosted-runner.md); no registration or GPU job |

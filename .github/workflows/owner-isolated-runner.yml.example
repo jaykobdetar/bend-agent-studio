@@ -1,0 +1,75 @@
+# Inert by design. See docs/self-hosted-runner.md before enabling.
+name: Owner-operated isolated Bend runner
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: bend-studio-isolated-p11
+  cancel-in-progress: false
+
+jobs:
+  isolated-checks:
+    # The owner must opt in on this exact repository. Public use requires a
+    # second opt-in; having this guard does not make a public runner safe.
+    if: >-
+      github.event_name == 'push' &&
+      github.ref == 'refs/heads/main' &&
+      github.repository == vars.BEND_RUNNER_REPOSITORY &&
+      vars.BEND_RUNNER_ENABLE == 'true' &&
+      (github.event.repository.private == true || vars.BEND_RUNNER_ALLOW_PUBLIC == 'true')
+    runs-on: [self-hosted, linux, x64, bend-studio-phase11-isolated]
+    timeout-minutes: 30
+    env:
+      BEND_NO_TELEMETRY: '1'
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+          fetch-depth: 0
+
+      - name: Require the preprovisioned pinned toolchain
+        run: |
+          test "$(node --version)" = 'v24.22.3'
+          test "$(bend version)" = 'bend 2.0.40'
+          lean --version | grep -F 'version 4.34.0'
+
+      - name: Run Bend tests and independent proofs
+        run: |
+          bend checks/checks.bend
+          bend checks/benchmark_checks.bend
+          bend checks/study_checks.bend
+          bend agents/sarsa/checks.bend
+          bend agents/n_step/checks.bend
+          bend agents/td_lambda/checks.bend
+          bend agents/reinforce/checks.bend
+          bend agents/linear/checks.bend
+          bend agents/clipped_pg/checks.bend
+          for proof in laws/PROOF.bend agents/{sarsa,n_step,td_lambda,reinforce,linear,clipped_pg}/proof.bend; do
+            verdict=$(bend "$proof" --verdict)
+            printf '%s\n' "$verdict"
+            grep -Fxq 'ALL PROOFS CHECK' <<< "$verdict"
+          done
+
+      - name: Check archive identities and exact checkpoint slices
+        run: |
+          node tools/archive-gates.mjs check tools/archive-gates/m0-exceptions.json
+          node tools/archive-gates.mjs check-backends
+          node checks/flagship_slice.mjs
+          node checks/flagship_v2_slice.mjs
+
+      # No GPU command is wired yet: no checked-in GPU parity test exists.
+      - name: Run the full flagship v2 study serially and verify its archive
+        if: vars.BEND_RUNNER_LONG_STUDY == 'true'
+        run: |
+          work=$(mktemp -d -- "$RUNNER_TEMP/bend-flagship.XXXXXX")
+          nice -n 10 node experiment.mjs run experiments/flagship-toy-text-v2.json "$work/run"
+          node experiment.mjs verify "$work/run"

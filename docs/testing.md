@@ -23,6 +23,8 @@ bash scripts/check-setup.sh
 
 The extras install Node 24.22.1 alongside, not in place of, 24.22.3 for the cross-version archive fixture, and a separate locked Python environment for the MCP SVG fixture. The fresh setup job builds the same developer image and runs its post-create command in a clean container before checking for zero skips in both Node suites and testing the two adapter environments. The original Linux and Windows jobs still run, including archive gates and proofs as before.
 
+The [owner-operated runner example](self-hosted-runner.md) is inactive and does not replace hosted CI.
+
 ## Which checks run where?
 
 Run commands from the repository root unless a different working directory is specified. The [CI workflow](../.github/workflows/checks.yml) is the source of truth for the pinned tools and steps.
