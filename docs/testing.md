@@ -221,3 +221,9 @@ checkpoint, validation/test, or performance gate.
 The optional [scalar native witness](../twin/scalar-q-spike/README.md) compares
 complete candidate checkpoint bytes against previously verified stock
 archives. Generic target and Zen 3 evidence were both collected locally.
+
+Hosted Linux also builds a single literal Q-learning witness with the
+pinned Clang at generic x86-64-v3. A compatible runner compares its 12
+complete files against a fresh verified stock archive; an incompatible CPU
+can report a build but no runtime result. This is separate from the larger
+locally measured panel.

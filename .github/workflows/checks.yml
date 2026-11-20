@@ -136,6 +136,44 @@ jobs:
           bend agents/clipped_pg/proof.bend --verdict
           BEND_CHECK_SCAFFOLD_VERDICT=1 node --test checks/scaffold_checks.mjs
 
+      - name: Build the generic x86-64-v3 native correctness witness
+        timeout-minutes: 2
+        run: |
+          set -euo pipefail
+          spike=twin/scalar-q-spike
+          work="$RUNNER_TEMP/p118-native-smoke"
+          clang="$RUNNER_TEMP/lean-4.34.0-linux/bin/clang"
+          test -x "$clang"
+          version=$("$clang" --version)
+          printf '%s\n' "$version"
+          grep -Eq '^clang version 22\.1\.4([[:space:]]|$)' <<< "$version"
+          mkdir -m 700 "$work"
+          node "$spike/parity.mjs" fixture "$work/plan.json" literal q_learning
+          node experiment.mjs run "$work/plan.json" "$work/reference"
+          node experiment.mjs verify "$work/reference"
+          node "$spike/parity.mjs" generate "$work/reference" "$work/witness.c"
+          C_INCLUDE_PATH="$RUNNER_TEMP/lean-4.34.0-linux/include/clang" \
+            "$clang" -std=c11 -O3 -Wall -Wextra -Werror -march=x86-64-v3 \
+            -ffp-contract=off -fno-fast-math -pthread "$work/witness.c" -lm -o "$work/witness"
+          echo "P11.8 diagnostic build passed; no native execution verified by this step."
+
+      - name: Check complete native witness checkpoint bytes (when x86-64-v3 is available)
+        timeout-minutes: 1
+        run: |
+          set -euo pipefail
+          work="$RUNNER_TEMP/p118-native-smoke"
+          hwcaps=$(LC_ALL=C /lib64/ld-linux-x86-64.so.2 --help)
+          if grep -Eq '^[[:space:]]+x86-64-v3 \(supported, searched\)$' <<< "$hwcaps"; then
+            node twin/scalar-q-spike/parity.mjs check "$work/reference" "$work/witness" 2
+            echo "P11.8 diagnostic runtime: 12 complete checkpoint files match (2 workers)." >> "$GITHUB_STEP_SUMMARY"
+          elif grep -Eq '^[[:space:]]+x86-64-v3$' <<< "$hwcaps"; then
+            echo "::warning::P11.8 native runtime parity not tested: hosted CPU lacks usable x86-64-v3."
+            echo "P11.8 diagnostic build passed; runtime parity not tested on this host." >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "::error::Unable to establish x86-64-v3 runtime capability."
+            exit 1
+          fi
+
   fresh-setup:
     name: Fresh devcontainer and zero-skip tests
     runs-on: ubuntu-24.04

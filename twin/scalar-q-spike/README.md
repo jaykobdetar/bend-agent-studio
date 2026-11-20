@@ -19,6 +19,15 @@ large diagnostic plans. The bounds and explicit stream size limit are for this
 witness only. If a bound fails it writes no archive. Never run the binary
 or import a backend from a source you do not control.
 
+The hosted Linux diagnostic reuses the pinned Bend, Node and Lean toolchain
+to build only the tiny literal Q-learning fixture. It generates and verifies a
+fresh stock archive before compiling the witness, then compares all 12 complete
+checkpoint files using two native workers if glibc reports a usable x86-64-v3
+CPU. If that capability is absent, the job records build success only and
+reports that runtime parity was not tested. A parity mismatch on supported
+hardware fails the job. This smoke does not benchmark anything, change the
+engine, or write native archives.
+
 ## Exact transaction
 
 1. Generate C constants from the **validated** plan, not from a second
