@@ -10,7 +10,7 @@ guard settings, medians, and reproduction commands.
 | --- | --- | --- |
 | P11.0 | Baseline recorded | Eight fixed workloads, five repeats each; diagnostic profiles preserved output bytes. Hardware perf counters were unavailable. |
 | P11.1 | Partial, on main | Optional exact same-seed superiority calculation and configurable Studio replay limits landed. Windows/macOS scope and existing checks were retained. |
-| P11.2 | Deferred | Read-only host capability reviewed; hard enforcement of a transient worker memory scope was not verified. Existing manual sharding is unchanged. |
+| P11.2 | Deferred | A disposable Linux memory cap was enforced. Two-worker evaluation preserved checkpoint bytes but slowed Bridge. No automatic sharding or evaluation change. |
 | P11.3 | Partial, on main | Resident preregistered validation stopping passed exact prefix checks and the fixed small pilot. Exact annotations, cold/warm compiler caching and cross-plan raw checkpoint reuse were not adopted. |
 | P11.4 | Deferred | No warm compiler service, Unix socket listener or background activation was installed. The measured compile cache did not meet the adoption gate. |
 | P11.5 | Not adopted | Warm batching preserved the sampled models and reports but was slower for Dyna-Q in all five paired comparisons. Step-budget and sealed parity were not tested in that spike. |
@@ -56,6 +56,34 @@ guard settings, medians, and reproduction commands.
   with identical verification, CSV and untimed replay. Native was 1.73×
   as fast with prebuilt code, but took 17% longer cold. This is not
   flagship performance or a qualified production runtime.
+
+## P11.2: memory isolation and evaluation
+
+The single authorized disposable Linux scope enforced the 48 MiB limit,
+recorded one OOM kill attributable to that scope, and was removed when the
+test exited. This establishes basic enforcement, not automatic sharding
+or a supported fallback. The scheduler tests exercised a simulated
+failure and cleanup; no production scheduler was enabled.
+
+A separate evaluation-only comparison used the pinned Node 24.22.3,
+archived Bend backend, unchanged validation and test seeds, and two
+resident Node worker threads on the fixed Ryzen 7 5800X machine.
+Evaluation used the existing report accumulator in seed order. Before
+timing and on every repeat, resealing the body with recomputed metrics
+matched every reference checkpoint byte. Reference files were not changed.
+Five alternating serial and two-worker repeats followed the preflight.
+
+| Original case | Checkpoints | Evaluation episodes | Serial median | Two workers median |
+| --- | ---: | ---: | ---: | ---: |
+| Bridge / Q-learning | 24 | 1,792 | 5.450 ms | 8.601 ms |
+| Storm Reserve 12×4 / Q-learning | 32 | 3,072 | 2,222.293 ms | 1,350.358 ms |
+
+These times exclude training, archive I/O, worker startup and checksum
+verification. Parallel evaluation was 1.65× as fast on this Storm
+Reserve cell but took 58% longer on Bridge. No worker mode was enabled or
+selected automatically. Qualifying a selective policy would require
+preregistered thresholds, checks across more models and all fixed
+workloads, and end-to-end lifecycle parity.
 
 ## Actual CUDA: one original flagship cell
 
