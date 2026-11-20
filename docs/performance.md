@@ -383,3 +383,14 @@ files, for 1,620 comparisons. Every original file was unchanged.
 This was a correctness check without timing or native archive writes. It
 does not qualify other flagship cells, any complete shipped plan, or
 historical replay and resume via a native integration.
+
+
+The [continuation witness](../twin/scalar-q-spike/continuation/README.md)
+rehydrated the exact 41-node indexed Q model from the original Slippery Lake
+checkpoint at 64 episodes. It ran the next 64 training episodes and eight
+validations in original seed order, resumed the saved stock statistics,
+and reproduced the complete checkpoint at 128 on both compiler targets.
+The original seal and predecessor link were preserved. Deliberately wrong
+seed, tree and predecessor inputs failed. This is one continuation boundary,
+not evidence for a native archive writer or the complete replay/resume
+lifecycle.

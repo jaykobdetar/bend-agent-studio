@@ -8,6 +8,8 @@ the complete P11.8 arm panel. No production files or core hashes change here.
 
 The [Dry Lake diagnostic](bench/README.md) records the separate `-O3`
 correctness gate and five bounded timing rounds on an unchanged P11.0 cell.
+The [single-boundary continuation](continuation/README.md) restores one
+archived Q-learning model and verifies its next stock checkpoint.
 
 It accepts a stock, trusted, verified archive of one normalized finite JSON
 (or normalized grid) world, one built-in Q-learning, Expected SARSA, Double Q,

@@ -1,0 +1,10 @@
+{
+  "schema": 1,
+  "parentManifest": "a5b41470bbe999d26d9919087156c5b62078ecae52c634757addd29e5ea36a43",
+  "normalizedPlanSha256": "50e1d22b0dcd52e98117fc541765cb08f049b5d752d8f13d06f6ef74e029d59e",
+  "game": "lake4-slip",
+  "arm": "q_learning",
+  "replicate": 0,
+  "fromCheckpoint": 64,
+  "toCheckpoint": 128
+}

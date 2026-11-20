@@ -1,0 +1,48 @@
+{
+  "schema": 1,
+  "tools": {
+    "node": "24.22.3",
+    "bend": "2.0.40",
+    "clang": "22.1.4",
+    "flags": [
+      "-O3",
+      "-ffp-contract=off",
+      "-fno-fast-math"
+    ]
+  },
+  "restoration": {
+    "matchedCheckpoint": "ebbb48dbe92b43fab818f10f61fb1bc77f253027d422ce212c5248c4d1b195f0",
+    "initialCheckpoint": "c520789641bdf8d246a705dc1c34dffdbe8902a1219fb7db080b7d826308775e",
+    "schema": 1,
+    "parentManifest": "a5b41470bbe999d26d9919087156c5b62078ecae52c634757addd29e5ea36a43",
+    "sourceCheckpoint": "c520789641bdf8d246a705dc1c34dffdbe8902a1219fb7db080b7d826308775e",
+    "game": "lake4-slip",
+    "arm": "q_learning",
+    "replicate": 0,
+    "from": 64,
+    "to": 128,
+    "trainStart": 150500064,
+    "validationBase": 1905000000,
+    "restoredIndexedNodes": 41,
+    "appendedTrainReports": 64,
+    "validationReports": 8,
+    "testReports": 0,
+    "parentArchiveWritten": false
+  },
+  "identities": {
+    "parentInventorySha256": "36f3163ffdf02bc45efa39cc8b83c619b551112bbdf6204cff2f45c82b6bc93c",
+    "sameRawWireSha256": "5eaea5ff6b97bbfb96ec114fd40c596d84abc9f4f11d648b67625bdfd886a255",
+    "wireBytes": 2895,
+    "continuationDescriptorSha256": "0a42c79a2327effbbe8f563874bb0697adc71ea2fb7c5655186df244b82ac703",
+    "generatedCSha256": "84ac77f5a824f78d92099dcbe891152758a2e0e3f9172bad395da523234fea93",
+    "executableSha256": {
+      "x86-64-v3": "6ec9943fab398a06c8992fb59f8741590a45d25d08f76c16d408f4405b0385ab",
+      "znver3": "b510cc0d864b2d229851f2bf96153ce68f0f2cd7c10cb67de39b86a8c88c6fa9"
+    }
+  },
+  "negativeControls": {
+    "earlier-train-seed": "checkpoint differs in model",
+    "restored-root-visit-count": "rehydrated starting model differs",
+    "stale-source-checkpoint-binding": "native wire bound to a different source checkpoint or selection"
+  }
+}
