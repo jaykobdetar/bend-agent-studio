@@ -1,9 +1,13 @@
-# P11.8 scalar parity: five finite-world built-ins
+# P11.8 scalar kernels: fixed pthread correctness
 
-**Status: byte parity on fourteen bounded scalar plans, with two build targets.** This is
+**Status: byte parity on fourteen bounded plans with 1, 2, or 4 native workers
+and two build targets.** The kernels are still scalar. This is
 a bounded parity harness against the reference checkout `62decf6`, not a
 production engine, an archive writer, a performance claim, or equivalence for
 the complete P11.8 arm panel. No production files or core hashes change here.
+
+The [Dry Lake diagnostic](bench/README.md) records the separate `-O3`
+correctness gate and five bounded timing rounds on an unchanged P11.0 cell.
 
 It accepts a stock, trusted, verified archive of one normalized finite JSON
 (or normalized grid) world, one built-in Q-learning, Expected SARSA, Double Q,
@@ -130,7 +134,8 @@ separate local check. This is not a benchmark.
 ```sh
 spike=twin/scalar-q-spike
 scratch=$(mktemp -d)
-clang="$HOME/.elan/toolchains/leanprover--lean4---v4.34.0/bin/clang"
+: "${LEAN_CLANG:?set to the pinned Clang 22.1.4 executable}"
+clang="$LEAN_CLANG"
 export C_INCLUDE_PATH="${clang%/bin/clang}/include/clang"
 targets=(x86-64-v3) # Add znver3 only on a compatible local machine.
 run_case() {
@@ -140,9 +145,11 @@ run_case() {
   node "$spike/parity.mjs" generate "$scratch/$key-run" "$scratch/$key.c"
   for arch in "${targets[@]}"; do
     "$clang" -std=c11 -O2 -Wall -Wextra -Werror -march="$arch" \
-      -ffp-contract=off -fno-fast-math \
+      -ffp-contract=off -fno-fast-math -pthread \
       "$scratch/$key.c" -lm -o "$scratch/$key-$arch"
-    node "$spike/parity.mjs" check "$scratch/$key-run" "$scratch/$key-$arch"
+    for workers in 1 2 4; do
+      node "$spike/parity.mjs" check "$scratch/$key-run" "$scratch/$key-$arch" "$workers"
+    done
   done
 }
 for learner in q_learning expected_sarsa double_q random dyna_q; do
@@ -208,8 +215,9 @@ evaluation counts, and an unknown field. No rejected input wrote candidate C.
 
 Both builds used Clang 22.1.4 with FMA contraction and fast math disabled.
 Each compared against **the same** stock archive for that plan, including
-all 144 original checkpoints with unchanged archive
-seals, backend and trial-set hashes. The trial-set digest is
+all 196 checkpoints frozen by scalar commit `7884568` with unchanged archive
+seals, backend and trial-set hashes. The table's counts apply independently
+to each of 1, 2, or 4 workers. The trial-set digest is
 SHA-256 over each sorted archive-relative checkpoint filename, a NUL byte,
 and its file bytes. The generic target was compiled and run locally, not
 run in hosted CI.
@@ -245,7 +253,7 @@ and the archived private cursor is its initial value advanced by exactly
 the number of planning draws.
 On the engineered learning cases, actual archived training replays and native-derived
 trees still pick action 3 first under the deliberately rare rejected draw.
-The negative checks each changed one site in generated C, compiled with
+The frozen scalar negative checks each changed one site in generated C, compiled with
 the same generic target and left the plan digest and stock archive unchanged:
 
 | Deliberate change | First rejection |
@@ -264,6 +272,40 @@ the same generic target and left the plan digest and stock archive unchanged:
 
 These controls distinguish specific policy, backup, and RNG errors from
 matching final scores. No native archive was written.
+
+## Pthread witness
+
+One process starts a fixed cohort of 1, 2, or 4 pthreads. Worker `i`
+handles the strided replicate indices `i, i + workers, ...`; each replicate's
+seeds, private learner and phase order are unchanged. Workers share only
+immutable plan input and do not share a learner or output stream. The
+parent joins every worker, checks every replicate result is present, then
+emits the plan hash followed by complete replicate streams in ascending
+order. The JS reducer and checkpoint comparison are unchanged.
+
+Each worker has a 1 MiB stack, with a compile-time limit of half that for
+the learner, and checks the required floating-point mode. The output
+slots use a static slab with at most 16 MiB for bytes across the plan
+including the plan hash, divided evenly among the replicates. An
+oversized replicate fails closed even if another slot has unused space.
+No intermediate output files or partially ordered success streams are
+written by workers. This is a diagnostic memory bound, not an archive
+format or process-pool contract.
+
+The 196 distinct checkpoints matched in each of six combinations
+(1/2/4 workers, two compiler targets), for 1,176 full-file comparisons.
+Raw streams in every combination also matched the corresponding frozen
+scalar executable byte-for-byte, including a fresh 4-worker rerun on
+each plan and target (112 raw stream comparisons). A test-only condition
+variable forced replicate 1 to finish before 0 for Dyna with 2 and 4
+workers; exact sorted output still matched.
+
+Tests that reversed merge order or accidentally reused replicate 0's RNG
+seed for replicate 1 were rejected by coordinate and model checks
+respectively. Tiny output bounds, missing replicate output, an unsupported
+worker floating-point mode, and invalid worker counts all failed with
+no stdout. The tests used one pinned logical CPU, explicit memory and
+time ceilings, and neither hosted CI nor performance measurements.
 
 ## Beyond this reference
 
@@ -287,3 +329,12 @@ matching final scores. No native archive was written.
   on the locked P11.0 workloads with five repeats, no regression and measured
   speedup before adoption. The RTX transcendental mismatch is not waived
   by this finite-scope witness.
+* This pool establishes ordered independent work, not Level-4 performance.
+  Before timing, use a separately reserved CPU window and pin to distinct
+  physical cores without competing work. Predeclare the workloads, seed
+  panel, worker counts and comparison against the best stock configuration.
+  In addition to hot training, measure cold code generation/compilation,
+  launch/stream/merge, and the end-to-end archive and evaluation path with
+  at least five runs per comparison. Verify same bytes and report memory
+  and failure behavior before considering adoption. AVX2 lane parity,
+  multi-core contention, and historical resume remain untested.

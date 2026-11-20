@@ -212,11 +212,11 @@ function accumulate(sum, reports, expected) {
   }
   return sum;
 }
-function compare(exe, dir, archived) {
+function compare(exe, dir, archived, workers) {
   const p = archived.body.plan;
   status(dir, true);
   const config = settings(p.arms[0],p.games[0]);
-  const lines = execFileSync(path.resolve(exe), [], {
+  const lines = execFileSync(path.resolve(exe), workers === undefined ? [] : [workers], {
     encoding: 'utf8', maxBuffer: 16 * 1024 * 1024, timeout: 30000,
   }).trim().split('\n');
   assert.equal(lines.shift(), digest(canonical(p)), 'this executable was generated for another plan');
@@ -282,14 +282,17 @@ if (mode === 'fixture' && file && !rest.length && ['literal','packed'].includes(
   const plan = fixture(extra === 'packed',fourth ?? 'q_learning');
   requireEligible(readPlan(plan));
   output(file, numberPreservingJson(plan,2)+'\n');
-} else if (mode === 'generate-plan' && file && extra && !fourth) {
+} else if (mode === 'generate-plan' && file && extra && fourth === undefined) {
   writeSource(extra, readPlan(path.resolve(file)));
-} else if (['generate','check'].includes(mode) && file && extra && !fourth) {
+} else if (file && extra && !rest.length && (
+  (mode === 'generate' && fourth === undefined) ||
+  (mode === 'check' && (fourth === undefined || ['1','2','4'].includes(fourth)))
+)) {
   const archive = unseal(manifestPath(file));
   checkedSnapshot(file,archive);
   assert.equal(archive.body.toolchain.node,process.versions.node);
   assert.equal(archive.body.toolchain.bend,'bend 2.0.40');
   requireEligible(archive.body.plan);
   if (mode === 'generate') writeSource(extra, archive.body.plan);
-  else compare(extra, file, archive);
-} else throw Error('usage: parity.mjs fixture NEW_PLAN literal|packed [' + methods.join('|') + '] | generate-plan PLAN NEW_C | generate TRUSTED_STOCK_RUN NEW_C | check TRUSTED_STOCK_RUN TRUSTED_NATIVE_EXE');
+  else compare(extra, file, archive, fourth);
+} else throw Error('usage: parity.mjs fixture NEW_PLAN literal|packed [' + methods.join('|') + '] | generate-plan PLAN NEW_C | generate TRUSTED_STOCK_RUN NEW_C | check TRUSTED_STOCK_RUN TRUSTED_NATIVE_EXE [1|2|4]');

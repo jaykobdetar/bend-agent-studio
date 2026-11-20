@@ -1,0 +1,24 @@
+{
+  "node": "24.22.3",
+  "bend": "2.0.40",
+  "clang": "22.1.4",
+  "optimization": "-O3",
+  "distinctCheckpoints": 223,
+  "comparisons": 1338,
+  "nontimingLogicalCpu": 8,
+  "primary": {
+    "count": 27,
+    "sourceSha256": "6bc47e55467238167a8a0df4d3a1ddcf9e61ae39b9c499d4f7a4c144b70fc1d7",
+    "targets": {
+      "x86-64-v3": {
+        "binarySha256": "a1f507aa32789e8373422cd3deb62f07c13ab83477b72e214667cbdde3d46786",
+        "wireSha256": "69439dcea9b6a94669e0c0f2f4118389504f1b97ab01579818b01d7b09c19e7e"
+      },
+      "znver3": {
+        "binarySha256": "14e16a8395dbd0fa5cdc381ee18409bdf3626f65f810d21019d54b7ab838a68f",
+        "wireSha256": "69439dcea9b6a94669e0c0f2f4118389504f1b97ab01579818b01d7b09c19e7e"
+      }
+    }
+  },
+  "kernelTemplateSha256": "1042b03e300eedfa5bc524c725680083c6c31d0b66bdee84df11c9d2f95b014b"
+}

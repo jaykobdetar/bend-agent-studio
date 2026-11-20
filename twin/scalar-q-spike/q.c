@@ -1,9 +1,11 @@
-/* Scalar parity reference; source data are injected by parity.mjs.
+/* Scalar replicate kernels in a fixed pthread pool; data from parity.mjs.
  * It writes a comparison stream, never isolated or sealed checkpoints. */
+#define _POSIX_C_SOURCE 200809L
 #include <fenv.h>
 #include <float.h>
 #include <inttypes.h>
 #include <math.h>
+#include <pthread.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -36,7 +38,22 @@ typedef struct {
 typedef struct { float score; uint32_t steps, terminal; } Report;
 typedef struct { uint32_t action_row; float value; } Maximum;
 
-static void fail(const char *s) { fputs(s, stderr); fputc('\n', stderr); exit(1); }
+#define OUTPUT_CAP (16u * 1024u * 1024u)
+#define STACK_CAP (1024u * 1024u)
+#define MAX_WORKERS 4u
+#define REPLICATE_CAP ((OUTPUT_CAP - sizeof(PLAN_HASH)) / REPLICATES)
+_Static_assert(sizeof(Learner) <= STACK_CAP / 2, "learner leaves insufficient fixed stack headroom");
+_Static_assert(REPLICATES >= 1 && REPLICATES <= 8 && REPLICATE_CAP > 1, "invalid replicate/output bounds");
+typedef struct { size_t size; char data[REPLICATE_CAP]; } Result;
+typedef struct { uint32_t first, stride; } Work;
+static Result results[REPLICATES]; /* exactly one thread owns each mutable slot */
+
+static void fail(const char *s) {
+  fprintf(stderr, "%s\n", s);
+  fflush(stderr);
+  /* No shared stream cleanup/flush from a failed worker. */
+  _Exit(1);
+}
 static float from_bits(uint32_t bits) { float x; memcpy(&x, &bits, sizeof x); return x; }
 static uint32_t bits_of(float x) { uint32_t bits; memcpy(&bits, &x, sizeof bits); return bits; }
 static uint32_t lcg(uint32_t x) { return x * UINT32_C(1664525) + UINT32_C(1013904223); }
@@ -255,46 +272,46 @@ static Report episode(Learner *learner, uint32_t seed, int train) {
   }
   return (Report){score, steps, s.count == 0};
 }
-static void print_reports(Learner *learner, uint32_t seed, uint32_t count, int train) {
-  putchar('[');
+static void print_reports(FILE *out, Learner *learner, uint32_t seed, uint32_t count, int train) {
+  fputc('[', out);
   for (uint32_t i = 0; i < count; ++i) {
     Report r = episode(learner, seed + i, train);
-    printf("%s[%" PRIu32 ",%" PRIu32 ",%" PRIu32 "]", i ? "," : "", bits_of(r.score), r.steps, r.terminal);
+    fprintf(out, "%s[%" PRIu32 ",%" PRIu32 ",%" PRIu32 "]", i ? "," : "", bits_of(r.score), r.steps, r.terminal);
   }
-  putchar(']');
+  fputc(']', out);
 }
-static void print_tree(const Table *t) {
-  putchar('[');
+static void print_tree(FILE *out, const Table *t) {
+  fputc('[', out);
   for (uint32_t i = 0; i < t->size; ++i) {
     const Cell *c = &t->cells[i];
-    printf("%s[%" PRIu32 ",%" PRIu32 ",%" PRIu32 ",%" PRIu32 ",%" PRIu32 ",%" PRIu32 "]",
+    fprintf(out, "%s[%" PRIu32 ",%" PRIu32 ",%" PRIu32 ",%" PRIu32 ",%" PRIu32 ",%" PRIu32 "]",
            i ? "," : "", c->s, c->a, c->visits, bits_of(c->value), c->lo, c->hi);
   }
-  putchar(']');
+  fputc(']', out);
 }
-static void print_model(const Learner *learner) {
+static void print_model(FILE *out, const Learner *learner) {
 #if DYNA_Q
-  putchar('[');
-  print_tree(learner->values);
-  fputs(",[", stdout);
+  fputc('[', out);
+  print_tree(out, learner->values);
+  fputs(",[", out);
   for (uint32_t i = 0; i < learner->pairs; ++i) {
     Pair p = learner->experience[i];
-    printf("%s[%" PRIu32 ",%" PRIu32 ",%" PRIu32 ",[", i ? "," : "", p.s, p.a, p.total);
+    fprintf(out, "%s[%" PRIu32 ",%" PRIu32 ",%" PRIu32 ",[", i ? "," : "", p.s, p.a, p.total);
     for (uint32_t j = p.first; j != EMPTY; j = learner->outcomes[j].next) {
       Sample x = learner->outcomes[j];
-      printf("%s[%" PRIu32 ",%" PRIu32 ",%" PRIu32 "]",
+      fprintf(out, "%s[%" PRIu32 ",%" PRIu32 ",%" PRIu32 "]",
              j == p.first ? "" : ",", x.row, x.count, bits_of(x.reward));
     }
-    fputs("]]", stdout);
+    fputs("]]", out);
   }
-  printf("],%" PRIu32 ",%" PRIu32 "]", learner->pairs, learner->planning_seed);
+  fprintf(out, "],%" PRIu32 ",%" PRIu32 "]", learner->pairs, learner->planning_seed);
 #else
-  if (DOUBLE_Q) putchar('[');
-  print_tree(learner->values);
+  if (DOUBLE_Q) fputc('[', out);
+  print_tree(out, learner->values);
   if (DOUBLE_Q) {
-    putchar(',');
-    print_tree(learner->values + 1);
-    printf(",%" PRIu32 "]", learner->side_seed);
+    fputc(',', out);
+    print_tree(out, learner->values + 1);
+    fprintf(out, ",%" PRIu32 "]", learner->side_seed);
   }
 #endif
 }
@@ -304,34 +321,78 @@ static uint32_t mxcsr(void) {
   return control;
 }
 
-int main(void) {
+static void require_fp_environment(void) {
   if (fegetround() != FE_TONEAREST || (mxcsr() & (0x8000 | 0x40)))
     fail("requires nearest-even and IEEE subnormal inputs/outputs");
-  puts(PLAN_HASH);
-  for (uint32_t rep = 0; rep < REPLICATES; ++rep) {
-    uint32_t done = 0, offset = rep * STRIDE;
-    Learner learner = {.side_seed = DOUBLE_Q ? mix((TRAIN_SEED + offset) ^ UINT32_C(374761393)) : 0};
+}
+static void run_replicate(uint32_t rep) {
+  Result *result = &results[rep];
+  FILE *out = fmemopen(result->data, sizeof result->data, "w");
+  if (!out) fail("cannot open bounded replicate buffer");
+  uint32_t done = 0, offset = rep * STRIDE;
+  Learner learner = {.side_seed = DOUBLE_Q ? mix((TRAIN_SEED + offset) ^ UINT32_C(374761393)) : 0};
 #if DYNA_Q
-    learner.planning_seed = mix((TRAIN_SEED + offset) ^ UINT32_C(1274126177));
+  learner.planning_seed = mix((TRAIN_SEED + offset) ^ UINT32_C(1274126177));
 #endif
-    for (size_t i = 0; i < sizeof checkpoints / sizeof checkpoints[0]; ++i) {
-      uint32_t point = checkpoints[i];
-      printf("[%" PRIu32 ",%" PRIu32 ",", rep, point);
-      print_reports(&learner, TRAIN_SEED + offset + done, point - done, 1);
-      putchar(',');
-      print_reports(&learner, VAL_SEED + offset, VAL_COUNT, 0);
-      putchar(',');
+  for (size_t i = 0; i < sizeof checkpoints / sizeof checkpoints[0]; ++i) {
+    uint32_t point = checkpoints[i];
+    fprintf(out, "[%" PRIu32 ",%" PRIu32 ",", rep, point);
+    print_reports(out, &learner, TRAIN_SEED + offset + done, point - done, 1);
+    fputc(',', out);
+    print_reports(out, &learner, VAL_SEED + offset, VAL_COUNT, 0);
+    fputc(',', out);
 #if TEST_COUNT > 0
-      if (i+1 == sizeof checkpoints / sizeof checkpoints[0])
-        print_reports(&learner, TEST_SEED + offset, TEST_COUNT, 0);
-      else
+    if (i+1 == sizeof checkpoints / sizeof checkpoints[0])
+      print_reports(out, &learner, TEST_SEED + offset, TEST_COUNT, 0);
+    else
 #endif
-        fputs("null", stdout);
-      putchar(',');
-      print_model(&learner);
-      puts("]");
-      done = point;
-    }
+      fputs("null", out);
+    fputc(',', out);
+    print_model(out, &learner);
+    fputs("]\n", out);
+    done = point;
   }
-  return ferror(stdout) ? 1 : 0;
+  if (fflush(out) || ferror(out)) fail("replicate exhausted its output budget");
+  long n = ftell(out);
+  if (n <= 0 || (size_t)n >= sizeof result->data || fclose(out))
+    fail("replicate output not complete within its budget");
+  result->size = (size_t)n;
+}
+static void *work(void *arg) {
+  const Work *job = arg;
+  require_fp_environment();
+  for (uint32_t rep = job->first; rep < REPLICATES; rep += job->stride)
+    run_replicate(rep);
+  return NULL;
+}
+int main(int argc, char **argv) {
+  uint32_t workers = 1;
+  if (argc == 2 && !strcmp(argv[1], "2")) workers = 2;
+  else if (argc == 2 && !strcmp(argv[1], "4")) workers = 4;
+  else if (argc != 1 && !(argc == 2 && !strcmp(argv[1], "1")))
+    fail("usage: native [1|2|4]");
+  require_fp_environment();
+  pthread_t pool[MAX_WORKERS];
+  Work jobs[MAX_WORKERS];
+  pthread_attr_t attr;
+  if (pthread_attr_init(&attr) || pthread_attr_setstacksize(&attr, STACK_CAP))
+    fail("cannot configure fixed worker stacks");
+  for (uint32_t i = 0; i < workers; ++i) {
+    jobs[i] = (Work){i, workers};
+    if (pthread_create(&pool[i], &attr, work, &jobs[i])) fail("cannot start native worker");
+  }
+  if (pthread_attr_destroy(&attr)) fail("cannot release worker attributes");
+  for (uint32_t i = 0; i < workers; ++i)
+    if (pthread_join(pool[i], NULL)) fail("cannot join native worker");
+
+  /* Joining publishes each result. Nothing was emitted during training. */
+  for (uint32_t rep = 0; rep < REPLICATES; ++rep)
+    if (!results[rep].size) fail("missing native replicate output");
+  if (puts(PLAN_HASH) == EOF) fail("cannot write plan hash");
+  for (uint32_t rep = 0; rep < REPLICATES; ++rep) {
+    const Result *result = &results[rep];
+    if (fwrite(result->data, 1, result->size, stdout) != result->size)
+      fail("cannot write ordered native output");
+  }
+  return fflush(stdout) || ferror(stdout) ? 1 : 0;
 }

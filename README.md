@@ -57,6 +57,7 @@ On this CliffWalking run, Dyna-Q reached a mean validation return of −13 by 64
 | [Analysis](docs/analysis.md) | Paired statistics, oracles, curves, sequential evidence and HTML reports |
 | [Offline learning](docs/offline.md) | Collect, fit, score, behavior support and Minari export |
 | [Formal laws](docs/laws.md) | Proven properties, proof files and the scope of their guarantees |
+| [Performance](docs/performance.md) | Fixed workloads, resource limits, results and backend parity |
 | [Testing](docs/testing.md) | Local checks, compiler tests and independent proof verification |
 | [Command reference](docs/commands.md) | CLI purposes, arguments and examples |
 

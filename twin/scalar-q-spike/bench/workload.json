@@ -1,0 +1,81 @@
+{
+  "cell": "perf-flagship-double",
+  "referenceEngine": "62decf6cce87217a86005eb2a048a94d2062c88f",
+  "manifest": "737b075ad6ef474a53c9b305ace5619a1b15b00b861553854d36d5067c83b37d",
+  "backend": "220fac2622b7b41fb698f3f016ce75b9df86baf5c0ab5230d793a202ad33afb9",
+  "preparedPlanLock": "313e987855f511b48cfa7215055ba6258fc388dc65a7447a1a15203ed8c06f85",
+  "worldFile": "worlds/benchmarks/toy-text/lake4-dry.json",
+  "worldSha256": "8760e26a7d69c42e04ccfa44675193090b1e726670ce153b275c1bef2a29c3df",
+  "checkpointFiles": 27,
+  "trialSetSha256": "84453821b658ad9b4d71e71415d06ad0b0f5438d75b5aec1d997e74ae8a42acc",
+  "phaseTotals": {
+    "train": {
+      "episodes": 3072,
+      "steps": 21834
+    },
+    "validation": {
+      "episodes": 216,
+      "steps": 13328
+    },
+    "test": {
+      "episodes": 48,
+      "steps": 288
+    }
+  },
+  "timedArchitecture": "x86-64-v3",
+  "roundOrders": [
+    [
+      1,
+      2,
+      4
+    ],
+    [
+      2,
+      4,
+      1
+    ],
+    [
+      4,
+      1,
+      2
+    ],
+    [
+      1,
+      4,
+      2
+    ],
+    [
+      4,
+      2,
+      1
+    ]
+  ],
+  "p110Tooling": "db478028c0ca6eabaf3b70450f71c886d536f2f6",
+  "measuredMachine": {
+    "cpu": "AMD Ryzen 7 5800X",
+    "kernel": "Linux",
+    "logicalCpuMasks": {
+      "one": "8",
+      "two": "8,9",
+      "four": "8,9,10,11",
+      "siblingPairs": [
+        [
+          0,
+          8
+        ],
+        [
+          1,
+          9
+        ],
+        [
+          2,
+          10
+        ],
+        [
+          3,
+          11
+        ]
+      ]
+    }
+  }
+}

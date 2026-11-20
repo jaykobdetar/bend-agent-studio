@@ -1,0 +1,261 @@
+{
+  "schema": 1,
+  "workload": "perf-flagship-double",
+  "manifest": "737b075ad6ef474a53c9b305ace5619a1b15b00b861553854d36d5067c83b37d",
+  "compilerTarget": "x86-64-v3",
+  "optimization": "-O3",
+  "repetitions": 5,
+  "runningWorkers": {
+    "1": 1,
+    "2": 2,
+    "4": 3
+  },
+  "correctness": {
+    "untimedO3DistinctStockFiles": 223,
+    "untimedO3TargetWorkerCombinations": 6,
+    "untimedO3FullFileComparisons": 1338,
+    "timedDistinctStockFiles": 27,
+    "phaseTotals": {
+      "train": {
+        "episodes": 3072,
+        "steps": 21834
+      },
+      "validation": {
+        "episodes": 216,
+        "steps": 13328
+      },
+      "test": {
+        "episodes": 48,
+        "steps": 288
+      }
+    },
+    "timedEndpointFileComparisons": 810,
+    "rawWireComparisons": 15,
+    "wireSha256": "69439dcea9b6a94669e0c0f2f4118389504f1b97ab01579818b01d7b09c19e7e",
+    "wireBytes": 92702,
+    "setupEndpointFileComparisons": 81
+  },
+  "guard": {
+    "peakGroupPssKiB": 686838,
+    "peakIndividualRssKiB": 691944,
+    "minHostAvailableKiB": 9352456,
+    "maxGroupSwapKiB": 0,
+    "maxHostSwapOutKiB": 0,
+    "guardedInvocations": 74
+  },
+  "timedCells": {
+    "stock-compile": {
+      "wallSamplesMs": [
+        3301.482773,
+        3364.582669,
+        3587.577755,
+        3307.453344,
+        3218.064831
+      ],
+      "wallMedianMs": 3307.453344,
+      "wallRangeMs": [
+        3218.064831,
+        3587.577755
+      ],
+      "processCpuMedianMs": 3269.902,
+      "peakSampledGroupPssKiB": 686838
+    },
+    "native-compile": {
+      "wallSamplesMs": [
+        140.877736,
+        144.123885,
+        141.168308,
+        138.552337,
+        139.653135
+      ],
+      "wallMedianMs": 140.877736,
+      "wallRangeMs": [
+        138.552337,
+        144.123885
+      ],
+      "processCpuMedianMs": 138.042,
+      "peakSampledGroupPssKiB": 85883
+    },
+    "stock-preparation": {
+      "wallSamplesMs": [
+        3504.265957,
+        3479.187191,
+        3353.959235,
+        3293.031886,
+        3464.319983
+      ],
+      "wallMedianMs": 3464.319983,
+      "wallRangeMs": [
+        3293.031886,
+        3504.265957
+      ],
+      "processCpuMedianMs": 3409.525,
+      "peakSampledGroupPssKiB": 661306
+    },
+    "native-preparation": {
+      "wallSamplesMs": [
+        214.319041,
+        213.473853,
+        214.62224,
+        215.771261,
+        211.314441
+      ],
+      "wallMedianMs": 214.319041,
+      "wallRangeMs": [
+        211.314441,
+        215.771261
+      ],
+      "processCpuMedianMs": 212.567,
+      "peakSampledGroupPssKiB": 85946
+    },
+    "1-raw": {
+      "wallSamplesMs": [
+        5.831839,
+        5.848429,
+        5.677308,
+        5.769847,
+        5.812197
+      ],
+      "wallMedianMs": 5.812197,
+      "wallRangeMs": [
+        5.677308,
+        5.848429
+      ],
+      "processCpuMedianMs": 5.665,
+      "peakSampledGroupPssKiB": 215
+    },
+    "1-stock": {
+      "wallSamplesMs": [
+        352.708037,
+        340.23126,
+        349.941307,
+        339.893743,
+        348.852655
+      ],
+      "wallMedianMs": 348.852655,
+      "wallRangeMs": [
+        339.893743,
+        352.708037
+      ],
+      "processCpuMedianMs": 344.297,
+      "peakSampledGroupPssKiB": 86452
+    },
+    "1-native": {
+      "wallSamplesMs": [
+        121.868103,
+        116.694147,
+        118.532865,
+        123.082752,
+        183.761176
+      ],
+      "wallMedianMs": 121.868103,
+      "wallRangeMs": [
+        116.694147,
+        183.761176
+      ],
+      "processCpuMedianMs": 121.657,
+      "peakSampledGroupPssKiB": 73091
+    },
+    "2-raw": {
+      "wallSamplesMs": [
+        4.936666,
+        5.129507,
+        5.369547,
+        4.889705,
+        4.719095
+      ],
+      "wallMedianMs": 4.936666,
+      "wallRangeMs": [
+        4.719095,
+        5.369547
+      ],
+      "processCpuMedianMs": 5.811,
+      "peakSampledGroupPssKiB": 229
+    },
+    "2-stock": {
+      "wallSamplesMs": [
+        373.324935,
+        344.544396,
+        363.440068,
+        344.569685,
+        337.382962
+      ],
+      "wallMedianMs": 344.569685,
+      "wallRangeMs": [
+        337.382962,
+        373.324935
+      ],
+      "processCpuMedianMs": 566.698,
+      "peakSampledGroupPssKiB": 132710
+    },
+    "2-native": {
+      "wallSamplesMs": [
+        93.541339,
+        88.047515,
+        94.95078,
+        93.70656,
+        84.881037
+      ],
+      "wallMedianMs": 93.541339,
+      "wallRangeMs": [
+        84.881037,
+        94.95078
+      ],
+      "processCpuMedianMs": 114.604,
+      "peakSampledGroupPssKiB": 72461
+    },
+    "4-raw": {
+      "wallSamplesMs": [
+        4.170214,
+        3.873363,
+        3.993933,
+        3.909252,
+        4.250223
+      ],
+      "wallMedianMs": 3.993933,
+      "wallRangeMs": [
+        3.873363,
+        4.250223
+      ],
+      "processCpuMedianMs": 6.191,
+      "peakSampledGroupPssKiB": 237
+    },
+    "4-stock": {
+      "wallSamplesMs": [
+        284.034608,
+        273.552174,
+        272.798775,
+        259.110342,
+        274.768324
+      ],
+      "wallMedianMs": 273.552174,
+      "wallRangeMs": [
+        259.110342,
+        284.034608
+      ],
+      "processCpuMedianMs": 781.953,
+      "peakSampledGroupPssKiB": 168439
+    },
+    "4-native": {
+      "wallSamplesMs": [
+        87.464809,
+        90.390922,
+        91.334129,
+        94.135371,
+        88.510848
+      ],
+      "wallMedianMs": 90.390922,
+      "wallRangeMs": [
+        87.464809,
+        94.135371
+      ],
+      "processCpuMedianMs": 117.103,
+      "peakSampledGroupPssKiB": 72095
+    }
+  },
+  "ratioOfStockToNativeCheckedEndpointWallMedians": {
+    "1": 2.862543,
+    "2": 3.683609,
+    "4": 3.026324
+  }
+}

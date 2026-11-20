@@ -329,3 +329,31 @@ eligible shipped plans. The fixture detects a rare random tie retry and Dyna
 experience and draw ordering errors. This is not a runtime, scaling or
 compiler tuning measurement. SIMD, production scheduling, integration,
 and archive replay and resume through a native path are still unverified.
+
+
+### Threaded/O3 follow-up
+
+The [separate verified benchmark](../twin/scalar-q-spike/bench/README.md) used
+the unchanged Dry Lake/Double Q cell from P11.0. Across the 14 earlier cases
+and that cell, `-O3` builds matched all 223 distinct complete checkpoint files
+at 1, 2, and 4 workers, on both compiler targets, for 1,338 comparisons.
+The earlier scalar scope and the current threaded diagnostic still do not
+qualify an engine for the full shipped plan panel.
+
+Five interleaved runs of the Dry Lake cell gave these checked, prebuilt,
+**in-memory** medians:
+
+| Requested workers | Stock checked endpoint | Native checked endpoint |
+| --- | ---: | ---: |
+| 1 | 348.853 ms | 121.868 ms |
+| 2 | 344.570 ms | 93.541 ms |
+| 4 (3 active) | 273.552 ms | 90.391 ms |
+
+All 810 timed checkpoint comparisons across 27 distinct files matched the
+stock bytes. For setup separately, median source preparation plus compile
+was 3.464 seconds for the stock diagnostic and 0.214 seconds for generated C.
+These stages are reported separately, rather than using the native raw
+producer as an end-to-end comparator. The same frozen training, validation
+and test phases were checked, not tuned. Native and stock endpoints both
+leave archives untouched. This does not establish a production speedup
+or the effect on all P11.0 workloads.
