@@ -193,3 +193,45 @@ exports against serial runs, including interrupted resumes and partial
 episodes. Any separate evaluation pool must reduce in seed order with the
 existing statistics update and fit in the same memory budget. Neither
 change was adopted or timed against the reference.
+
+
+## P11.3: prospective stopping and annotation trials
+
+The CLI's [preregistered sequential validation](experiments.md#prospective-validation-stopping)
+keeps the matched blocks in seed order and never trains an unapproved block.
+On a synthetic, deterministic two-arm validation fixture, the effect was
+known before the run: the learning arm chooses an action worth two more
+reward units than the fixed reference. The maximum was fixed at 32 pairs;
+there were no test episodes. This is separate from the P11.0 workloads.
+
+Five alternating comparisons used the [reference machine](../tools/perf/machine.json),
+pinned Node 24.22.3 and Bend 2.0.40, one logical CPU, and the benchmark guard.
+Both versions of the stopping command stopped at 9 of 32 pairs. All 36
+sealed checkpoint files in each stopped prefix matched the corresponding
+fixed-maximum run byte-for-byte, and the decision was recalculated solely
+from the authorized validation prefix.
+
+| Approach | Median wall time | Pairs executed |
+| --- | ---: | ---: |
+| Complete the fixed maximum (initial comparison) | 0.898 s | 32 |
+| Stopping draft, one Node process per arm | 2.474 s | 9 |
+| Complete the fixed maximum (resident comparison) | 0.899 s | 32 |
+| Stopping with one verified resident runner | 0.428 s | 9 |
+
+The resident command took about 52% less time on this early-crossing fixture.
+A study that cannot stop early may not benefit; the no-crossing path was
+tested for correctness, not timed. This does not make training a given
+checkpoint faster. Normal run, replay and resume do not use the new command.
+
+An experimental exact-evaluation annotation path preserved all 60 sealed
+files and the old sampled CSV in ten runs of the fixed flagship
+Cliff/Dyna cell over five rounds. Opting in increased median wall time from
+8.960 to 9.199 seconds; re-reading 27 exact values took 0.197 seconds, versus
+0.176 seconds with the existing study helper. Its overlapping modeled values
+agreed; the candidate was not adopted. Neither sampled evaluation nor the
+existing analysis has changed.
+
+A live compile-cache prototype passed unit tests for corrupt entries and
+ownership rejection, but the real compiler dependency audit and
+warm/cold measurements are incomplete. Cross-plan raw checkpoint reuse
+does not satisfy the current manifest-linked seal. Neither cache is enabled.

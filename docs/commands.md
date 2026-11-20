@@ -13,6 +13,7 @@ Run examples from the **repository root**, not from the directory containing thi
 | Compare stationary observation-based and full-state policies. | `node experiment.mjs oracle worlds/remember-the-cue.json 2 --reactive` |
 | Solve an infinite-horizon discounted finite world. | `node experiment.mjs oracle worlds/detour.json --discount 0.95 --tolerance 1e-9` |
 | Compile a plan and save its source, backend and checkpoints. | `node experiment.mjs run experiments/bridge.json runs/bridge` |
+| Extend a prospectively registered validation-only study to its first stopping decision. | `node experiment.mjs extend runs/locked --until-decided "$SEQUENTIAL_SPEC"` |
 | Read progress; unfinished trials are allowed. | `node experiment.mjs status runs/bridge` |
 | Check that every declared trial and checkpoint is complete and valid. | `node experiment.mjs verify runs/bridge` |
 | Resume an unfinished study; do not create a second run. | `node runs/bridge/code/experiment.mjs resume runs/bridge` |

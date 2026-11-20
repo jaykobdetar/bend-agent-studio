@@ -41,6 +41,55 @@ The bridge has two choices. The safe choice ends the game with one point. The ri
 
 The [local MCP adapter](../mcp/README.md) accepts either a plan path or a self-contained JSON plan in an empty workspace. Validate the world and plan, compare the game with its oracle, launch training, and poll the returned job ID. After training, use the stored run to summarize replicate estimates, replay an episode, or explain a finite-world decision. MCP and the CLI use the same validators, compiled runner, sealed checkpoints, and original phase/seed definitions. See [plan and spec fields](../mcp/FIELDS.md) for the typed inputs.
 
+### Prospective validation stopping
+
+This checkout-only command is for a **new** plan with one game, two matched
+arms, no transfer targets, no test episodes, and 2–64 predeclared replicates.
+Decide before seeing outcomes: the candidate and reference, final checkpoint,
+validation return metric, paired difference bounds, practical margin, alpha,
+and maximum replicates. Use valid external bounds, not estimates from this
+study. Lock the seed blocks and all training settings in the original plan.
+For a plan with maximum 3, initialize a new archive without running trials via
+`--shard 6/7`. More generally choose shard index twice the maximum and
+denominator one larger; that index selects no trial. Commit the spec below
+before launching any trial. The checksum is SHA-256 of the canonical
+**normalized** plan sealed in the initialized archive.
+
+```json
+{
+  "schema": 1,
+  "planSha256": "<sha256-of-normalized-plan>",
+  "game": "bridge",
+  "candidate": "q",
+  "reference": "random",
+  "metric": "validation_return",
+  "checkpoint": 256,
+  "maximum": 3,
+  "design": {"lower": -2, "upper": 2, "margin": 0, "alpha": 0.05}
+}
+```
+
+Use the recorded Node version and a trusted local run from the verified
+Phase 10 runner revision. Unsupported runner revisions are refused. Run
+`node experiment.mjs extend runs/locked --until-decided "$SEQUENTIAL_SPEC"`,
+where the variable is the path of the committed spec in this checkout. The
+command checks the spec's Git bytes and that the root contains no checkpoint
+evidence on first registration. It reads and trains one pair at a time, in
+fixed replicate and arm order, then calls `sequentialPaired` on the resulting
+validation prefix. It stops at the first declared crossing or maximum.
+An early stop intentionally leaves the ordinary archive incomplete; it is
+not a completed fixed-replicate export. Do not run ordinary resume or manual
+shards against a registered destination. The lock covers this live command
+only, and prior independent access to the same seed results cannot be proven
+absent by Git or the archive hashes.
+
+A controlled interruption can resume only the last authorized pair, with
+contiguous verified checkpoints. An unexpected file, out-of-prefix result or
+stale lock fails closed. Verify that no previous process remains before taking
+any manual recovery action. The recorded prefix, independently trained fits,
+and predeclared bounds support the anytime-valid calculation only under
+[its statistical assumptions](analysis.md#analysis-tools-and-checks).
+
 ## Declare the comparison
 
 Put the algorithms or hyperparameter choices in `arms`. The Cartesian product of training games, arms, and replicate numbers defines the trials. Within a replicate, all arms share the same starting episode seeds. Separate, nonoverlapping seed blocks cover training, validation, and test. Make the stride large enough for the longest block. The compiler records effective floating-point parameters and epsilon thresholds.

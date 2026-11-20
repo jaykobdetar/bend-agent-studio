@@ -6,6 +6,13 @@ import {scaffold, sweep} from './tools/scaffold.mjs';
 export * from './core/experiment.mjs';
 export async function main(argv) {
   const [command, a, b, ...rest] = argv;
+  if (command === 'extend') {
+    if (!a || b !== '--until-decided' || rest.length !== 1)
+      throw Error('usage: node experiment.mjs extend RUN --until-decided SPEC');
+    const {extend} = await import('./analysis/extend.mjs');
+    console.log(JSON.stringify(await extend(path.resolve(a), path.resolve(rest[0])), null, 2));
+    return;
+  }
   if (command === 'init') {
     if (!a || !b || (rest.length && (rest.length !== 1 || rest[0] !== '--bend')))
       throw Error('usage: node experiment.mjs init agent|world|plan NAME [--bend (world only)]');
