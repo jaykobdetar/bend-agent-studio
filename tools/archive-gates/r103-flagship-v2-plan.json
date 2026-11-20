@@ -1,0 +1,68 @@
+{
+  "experiments/flagship-toy-text-v2.json": {
+    "plan": "50e1d22b0dcd52e98117fc541765cb08f049b5d752d8f13d06f6ef74e029d59e",
+    "sources": {
+      "actor_critic.bend": "186db86cb6cc2643f2bab862241bd7361521f6623c7e8f7d730f5bb54b2b7b8c",
+      "agent_0301f537a09239c0db386cab66fc9f80.bend": "0301f537a09239c0db386cab66fc9f8076779f0d5f82bb0458dac196b4e7251c",
+      "agent_5cfca71b8557ced796203e9b22e8611a.bend": "5cfca71b8557ced796203e9b22e8611a646bd31692bb5346fc366e2315238b13",
+      "agent_5d65f3da0d3c2628a6e6f8b5eadbc716.bend": "5d65f3da0d3c2628a6e6f8b5eadbc71665ea482b27f5db6e92a6016460953e76",
+      "agent_a1e81b7f9a0a0e796bde2780170ca983.bend": "a1e81b7f9a0a0e796bde2780170ca983db718ab3802427a79cbe4d212d3dd6f2",
+      "agent_source.mjs": "8c22a32b67b127481ed3e5684ccee502676e34484911dc102e250969dd05f605",
+      "assessment.mjs": "3cdc8eb0228395a05557e6e492c69ecaf1b82c89d2c16a124f1530b9f963b990",
+      "cartpole.bend": "fe66ef1aec328176db348f5e44593d0a44bcd2ee42e06ef4562cb5c999d05d4f",
+      "cliff.bend": "68db94ba29764f3daad7e9534589f52fba5a046291564f433705d90cd8c9fc2a",
+      "cursor.bend": "e55ac234e1eadf19c6eed0b305fce647e33a99daed33f367df61cc187898cb4b",
+      "doors.bend": "46ccc0523160c084afa69970527447dff7ac13406146ab6d8ba0cd1edc11daf0",
+      "double_q.bend": "486633bede1487426e030e7ac89f7b3bcad3712aae1f77571a2f068694935c9d",
+      "dyna.bend": "db201278b4b5548f01b31faf9ac669955baae34e769118bfce1f0f331bc8629e",
+      "engine.bend": "3e362f23fbf0fc2f955bbc5deb6d4dbf15076fc61b2bf17b49d2c8acd4647af5",
+      "experiment.mjs": "68902cc4319ad39b40ca0c288da1b6d94184904f19921649ece9e50c5a99e5b4",
+      "experiment_config.mjs": "be680f550044e976f5af046f01f2f28600c8b111b6c60b0bc946b0d4bec797b0",
+      "ferry.bend": "190b45312c5604336f4c345d0ef3f67ef0fd943dac0dc967a7ec8c7b9eebcf9c",
+      "finite.bend": "bee3d645069c57c707180e567408b52eb7289283528dd6d044a8a8636d2af2ae",
+      "finite_world.mjs": "5f52ee64613a5741026f60747ef355bbe1b299510305285d8790479c0c489cee",
+      "history.bend": "2e09f93f19aa5d19fa667cdd36c174f26547f18243d88ce265603c90fd2850a9",
+      "key_maze.bend": "1686ac7e99481b8f3b8c8db46866ee536e13a8f14d3336e5875fbc94507424f9",
+      "logged.bend": "001261703d1c15f0e9f6d089fb2493385f805c88a0097e774a01ce6ef99e9c85",
+      "mountain_car.bend": "922d459b43b6158436b35af0d8ea58657d6f96ae0978c7f4d7cad252e163580e",
+      "noisy_fork.bend": "928064f593be348cb44441fc24fcdaa0b5ff5d04741690000192d26d1f4c1231",
+      "offline.bend": "d1df014881ade9c7766b79e9ab73d7d65643ee0472f5d7709c736ee60cc14c34",
+      "orchard.bend": "f10c95ea4376f36b40ce1fae560164491b957957ba2af6f57235689e9b038d98",
+      "packed_world.mjs": "5c090fa3961aa4e94fb5630fdbb80019495171cb8baf2c8140b07408e1f35d70",
+      "parallel_trials.mjs": "352660cfda55b6ae96df4fc8d36481756362c1e08f10be824f857f529669ed29",
+      "parameters.bend": "0bb54598c0c556e201e8415ce02f501a21098d4dce4f6c5f570280329027754b",
+      "process_output.mjs": "f9cd711e2e2cdf338c5b5f5bd8eb10b05cb02256fb42dee5273c26d9cd7ac6cd",
+      "scene_3e05ac0283c224a8b106.bend": "060432fef8f5bdac9b6108ee483452e40b0f6d97eb801d5cab91bbe9c5f7f68c",
+      "scene_95d3e437f0ac10c9e259.bend": "bc5c09e084586e57d821119562a8e4b7a35005731f1d12ea3abba4e8df638281",
+      "scene_b3bc2cd0c83feb46c825.bend": "9593ca77c66a795eb5254939884c9048bef914ba09ac55662fe941318483af95",
+      "scene_c6b2d71fe13419da334b.bend": "0fd5259adfea8b787af568e2251ee581cee81fb039902289dcb8ba3c885490f3",
+      "scene_e2c4041cd362c7aff59d.bend": "ee5985574127fa92b3d30a9cd4e7a2787549d9df7b7c6881d2b7726e11a528b5",
+      "study.bend": "97e6c4b71976c7f09b89b1b9df09bf0d5c85ad2ab13d52ca1b7b7ff2a9b74859",
+      "tabular.bend": "e18c1d7044bf688bfbd080f810d46c150ee7c556ed6804aa7f5ea2084b87b0cb",
+      "tile_control.bend": "1cd948911d03bfcc542481415224b1d56cc526c074be398dc85576f2e78132eb",
+      "weights.bend": "4ddc2b0d2e88dc490a3524f83417632c62bf294ad3973fea0838dbe83fcfbce8"
+    },
+    "bundles": {
+      "arms/n_step": {
+        "entry": "agent_a1e81b7f9a0a0e796bde2780170ca983",
+        "files": {
+          "agent_0301f537a09239c0db386cab66fc9f80.bend": "0301f537a09239c0db386cab66fc9f8076779f0d5f82bb0458dac196b4e7251c",
+          "agent_a1e81b7f9a0a0e796bde2780170ca983.bend": "a1e81b7f9a0a0e796bde2780170ca983db718ab3802427a79cbe4d212d3dd6f2"
+        }
+      },
+      "arms/sarsa": {
+        "entry": "agent_5d65f3da0d3c2628a6e6f8b5eadbc716",
+        "files": {
+          "agent_5d65f3da0d3c2628a6e6f8b5eadbc716.bend": "5d65f3da0d3c2628a6e6f8b5eadbc71665ea482b27f5db6e92a6016460953e76"
+        }
+      },
+      "arms/td_lambda": {
+        "entry": "agent_5cfca71b8557ced796203e9b22e8611a",
+        "files": {
+          "agent_0301f537a09239c0db386cab66fc9f80.bend": "0301f537a09239c0db386cab66fc9f8076779f0d5f82bb0458dac196b4e7251c",
+          "agent_5cfca71b8557ced796203e9b22e8611a.bend": "5cfca71b8557ced796203e9b22e8611a646bd31692bb5346fc366e2315238b13"
+        }
+      }
+    }
+  }
+}

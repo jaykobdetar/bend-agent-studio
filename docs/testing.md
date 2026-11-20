@@ -63,7 +63,7 @@ pinned Lean available, `BEND_CHECK_SCAFFOLD_VERDICT=1 node --test checks/scaffol
 also proves the generated placeholder law independently; Linux CI runs it in
 the BendTT step. MCP stdio covers workspace-only authoring and sweep paths.
 
-The Linux workflow also runs `node checks/flagship_slice.mjs` to reproduce two original first-checkpoint files from the [flagship study](../studies/flagship-toy-text/README.md). This checks the exact byte hashes under the pinned runner, not training quality or reproduction of every row. For G2/G3, the [additive fixture](../tools/archive-gates/n9-flagship-plan.json) also pins the new manifest and full source/bundle identities without replacing the historical baselines.
+The Linux workflow also runs `node checks/flagship_slice.mjs` to reproduce two original first-checkpoint files from the [flagship study](../studies/flagship-toy-text/README.md). This checks the exact byte hashes under the pinned runner, not training quality or reproduction of every row. For G2/G3, the [additive fixture](../tools/archive-gates/n9-flagship-plan.json) also pins the new manifest and full source/bundle identities without replacing the historical baselines. The [flagship v2 study](../studies/flagship-toy-text-v2/README.md) has its own additive archive pin and a separate `node checks/flagship_v2_slice.mjs` job step. It checks two exact checkpoint hashes after 64 episodes. Neither slice is a claim that every artifact was reproduced in hosted CI.
 
 | Local command or guide | Coverage and CI step |
 | --- | --- |

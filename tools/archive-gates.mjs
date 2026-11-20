@@ -516,9 +516,20 @@ try {
           added[key] = entry;
         }
       }
-      const expected = [...Object.keys(historical.plans), ...Object.keys(added)].sort();
+      // Plans first published after R10.2 have no historical bytes to restore.
+      const flagshipV2 = 'experiments/flagship-toy-text-v2.json';
+      const current = json(path.join(fixtures, 'r103-flagship-v2-plan.json'));
+      assert.deepEqual(Object.keys(current), [flagshipV2], 'R10.3 inventory must pin only v2');
+      assert(!Object.hasOwn(historical.plans, flagshipV2) && !Object.hasOwn(added, flagshipV2));
+      const expected = [...Object.keys(historical.plans), ...Object.keys(added), flagshipV2].sort();
       assert.deepEqual(Object.keys(report.plans), expected, 'training plan inventory changed');
-      const original = undoR102Sources(report, loadR102());
+      const {[flagshipV2]: v2, ...priorPlans} = report.plans;
+      assert.deepEqual(
+        {...v2, sources: sortMap(Object.entries({...report.commonSources, ...v2.sources}))},
+        current[flagshipV2],
+        flagshipV2 + ' post-R10.2 G2/G3 archive identity changed',
+      );
+      const original = undoR102Sources({...report, plans: priorPlans}, loadR102());
       for (const [key, entry] of Object.entries(added)) {
         const actual = original.plans[key];
         assert.deepEqual(

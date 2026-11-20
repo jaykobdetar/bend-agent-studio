@@ -1,4 +1,6 @@
-# Flagship toy-text study
+# Flagship toy-text study (v1)
+
+**Historical study, before training tie-breaking changed.** With equal action values, training used the first legal action on its greedy branch. On FrozenLake this favors left, which is a self-loop at the initial state of the dry map and can leave the agent there on the slippery map. Until exploration finds a reward, zero-valued choices can stay tied. This first-action trap helps explain the lake results alongside sparse reward and the short budget; evaluation still uses the first maximal action. The archived results below are unchanged. See [v2](../flagship-toy-text-v2/README.md) for a new fixed-suite experiment after the change.
 
 A fixed-suite example of importing finite worlds, training with matched seeds, independently checking the run archive and reporting uncertainty. This is not a hyperparameter search or a ranking across reinforcement-learning problems in general.
 
@@ -22,7 +24,7 @@ A fixed-suite example of importing finite worlds, training with matched seeds, i
 
 At the held-out final checkpoint, Dyna-Q had the highest normalized IQM in this suite: **0.615** (95% interval 0.505–0.728), versus **0.576** (0.483–0.653) for Q-learning and **−0.001** (−0.017–0.029) for random. Its probability of improvement was **0.732** (0.685–0.785) versus random but only **0.510** (0.500–0.530) versus Q-learning. The other learning arms each reached 0.720 versus random. These estimates are descriptive, and the apparent Dyna-Q advantage over Q-learning is not a basis for a general ranking.
 
-The intervals are 95% percentile intervals from 2,000 bootstrap resamples of trained replicate blocks. Suite PI averages, within each game, all cross-arm replicate pairs with ties counted as half; it is not the paired replicate win rate. Game membership stays fixed, and suite bootstrap samples the matched arm blocks within each game. These are pointwise estimates with no multiplicity adjustment. A tied estimate or zero-width interval can arise from discrete outcomes or identical choices in these seed blocks; it is not proof of identical policies. Small sample sizes, shared evaluation seeds across budgets, equal weighting of the two easy bandits, sparse FrozenLake reward and the short episode budget limit conclusions. Use independent seeds and a more diverse fixed suite to confirm any ranking.
+The intervals are 95% percentile intervals from 2,000 bootstrap resamples of trained replicate blocks. Suite PI averages, within each game, all cross-arm replicate pairs with ties counted as half; it is not the paired replicate win rate. Game membership stays fixed, and suite bootstrap samples the matched arm blocks within each game. These are pointwise estimates with no multiplicity adjustment. A tied estimate or zero-width interval can arise from discrete outcomes or identical choices in these seed blocks; it is not proof of identical policies. Small sample sizes, shared evaluation seeds across budgets, equal weighting of the two easy bandits, FrozenLake’s first-action trap during training, sparse rewards and the short episode budget limit conclusions. Use independent seeds and a more diverse fixed suite to confirm any ranking.
 
 ## Inspect a learned route in Studio
 
@@ -34,7 +36,7 @@ Choose **Open replay**, then select `cliff4x12`, `dyna_q`, checkpoint **128**, r
 
 ## Reproduce
 
-Run from the repository root with Bend 2.0.40 and Node 24.22.3. For the figures activate an isolated Python environment with Matplotlib (the committed charts were made with Python 3.14.7 and Matplotlib 3.11.2; numerical analyses are standard-library only). Output directories must not exist. Do not commit the run archive.
+To reproduce these historical training bytes, start from [the v1 checkout](https://github.com/jaykobdetar/bend-agent-studio/tree/1973d8f2e39f13d32cb15d26c01ab0a267b410da). Training the same v1 manifest on the R10.2 runner instead would create a different sealed identity and may produce different results. Run from the historical repository root with Bend 2.0.40 and Node 24.22.3. For the figures activate an isolated Python environment with Matplotlib (the committed charts were made with Python 3.14.7 and Matplotlib 3.11.2; numerical analyses are standard-library only). Output directories must not exist. Do not commit the run archive.
 
 ```sh
 node experiment.mjs validate experiments/flagship-toy-text.json
