@@ -231,10 +231,30 @@ Cliff/Dyna cell over five rounds. Opting in increased median wall time from
 agreed; the candidate was not adopted. Neither sampled evaluation nor the
 existing analysis has changed.
 
-A live compile-cache prototype passed unit tests for corrupt entries and
-ownership rejection, but the real compiler dependency audit and
-warm/cold measurements are incomplete. Cross-plan raw checkpoint reuse
-does not satisfy the current manifest-linked seal. Neither cache is enabled.
+The live compile-cache prototype subsequently passed a guarded cold/hit
+archive-parity test with a custom SARSA arm and built-in Q arm. Its owner-only
+cache rejects altered entries, unsupported input paths and user library
+overrides. A file-open audit of the pinned compiler regenerated the original
+backend bytes for the fixed flagship bandit cell.
+
+On that P11.0 cell, five interleaved direct, cold-miss, and warm-hit rounds
+used one logical CPU of the [reference machine](../tools/perf/machine.json).
+All 15 timed archives, all 27 checkpoints in each, and the sampled CSV matched
+the pinned archive byte-for-byte. Warm priming was not timed in the warm row;
+cold runs used a new cache. Node 24.22.3 and Bend 2.0.40 were identical across
+lanes.
+
+| Compile-cache mode | Median end-to-end wall | Result |
+| --- | ---: | --- |
+| Direct, no cache | 1.934 s | Reference |
+| Cold cache miss | 2.106 s | 8.9% slower; lost all five pairs |
+| Warm cache hit | 0.264 s | 86% less time in this cell |
+
+The prototype was **not adopted**. The warm gain does not cancel the measured
+cold regression under this phase's acceptance rule. The audit and one
+workload do not qualify general cache reuse. Cross-plan raw checkpoint
+reuse also does not satisfy the current manifest-linked seal. Neither cache,
+nor a background compiler service, is enabled.
 
 
 ## P11.5: episode batching was not adopted
