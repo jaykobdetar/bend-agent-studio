@@ -379,7 +379,7 @@ local gates pass; fix any hosted failure before publishing another item.
 | P11.4 | Warm engine prototype | Local Unix socket, parity and direct fallback; measurable benefit | Pending |
 | P11.5 | Fewer JavaScript–Bend calls | Episode and step checkpoints byte-identical, benchmark improvement | Not adopted: bounded episode benchmark regressed Dyna-Q; step budgets not tested |
 | P11.6 | Bend parallel and CUDA population spike | Adopt only if exact and faster than the best comparable path | Bounded CPU diagnostic complete; CUDA case capped; not adopted |
-| P11.7 | Cross-backend F32 operations | Correct rounding evidence and reviewed archive transition | Stock device mismatch reproduced; portable tanh has exact sampled outputs but two known undecided midpoint inputs; not qualified |
+| P11.7 | Cross-backend F32 operations | Correct rounding evidence and reviewed archive transition | Stock device mismatch reproduced; wider portable tanh resolved the two sampled midpoint refusals on CPU and CUDA. No exhaustive coverage or core change |
 | P11.8 | Native twin for eligible finite environments | Local and generic builds match all eligible sealed checkpoints | Five-arm witness, threaded timing, original flagship cells and complete Bridge plan, archive handoff and Uniform AVX2; no production backend |
 | P11.9 | Native compiler tuning | Retain exact parity and demonstrate additional speedup | Pending |
 | P11.10 | CUDA population kernel | Local GPU parity and measured CPU/GPU crossover | One original flagship Q-learning cell matched all 90 checkpoints on the RTX 3060 Ti; no full matrix, GPU archive writer or crossover timing |

@@ -15,7 +15,7 @@ guard settings, medians, and reproduction commands.
 | P11.4 | Deferred | No warm compiler service, Unix socket listener or background activation was installed. The measured compile cache did not meet the adoption gate. |
 | P11.5 | Not adopted | Warm batching preserved the sampled models and reports but was slower for Dyna-Q in all five paired comparisons. Step-budget and sealed parity were not tested in that spike. |
 | P11.6 | CPU diagnostic; not adopted | Five stock JS/CPU paths matched 64 complete models and 2,048 training reports each. The bounded CUDA population attempt returned no model rows or verified device kernel. |
-| P11.7 | Partial diagnostic | Stock sine differed by one ULP on actual CUDA. An outward portable tanh prototype matched 5,692 CPU/JS words and 24 verified CUDA words. A separate midpoint test found two deliberate refusals and no incorrect numeric output. The current precision stages do not cover all inputs. |
+| P11.7 | Partial diagnostic | Stock sine differed by one ULP on actual CUDA. An outward portable tanh prototype matched 5,692 CPU/JS words and 24 verified CUDA words. A separate midpoint test found two deliberate refusals and no incorrect numeric output. A wider experimental stage resolved both on CPU and CUDA, but exhaustive correct rounding remains unverified. |
 | P11.8 | Partial diagnostic | Five finite learners, both compiler targets, 1/2/4 workers, three cells under the actual flagship seal, one complete shipped Bridge plan, bounded continuation and stock archive handoff, a Uniform-policy AVX2 RNG witness, and a hosted generic-native smoke. No adopted engine, whole eligible plan matrix, learner SIMD, or complete native archive lifecycle. |
 | P11.9 | Deferred | Do not tune a production native engine until one qualifies; no PGO, ThinLTO or BOLT adoption. |
 | P11.10 | Not qualified | One original flagship Q-learning cell matched all 90 stock checkpoints on the actual RTX 3060 Ti. The scope does not qualify a production CUDA backend. |
@@ -84,6 +84,26 @@ Reserve cell but took 58% longer on Bridge. No worker mode was enabled or
 selected automatically. Qualifying a selective policy would require
 preregistered thresholds, checks across more models and all fixed
 workloads, and end-to-end lifecycle parity.
+
+## P11.7: wider portable tanh, verified on CUDA
+
+The wider experimental stage was exercised directly on a fixed 24-word
+sample, selected before running on the RTX 3060 Ti. It included 18
+numeric outputs (including the two signed midpoint cases refused by
+the narrower stage) and six out-of-domain controls. Both CPU paths
+and the MPFR reference agreed on the numeric results. The stock Bend
+2.0.40 CUDA build matched all 24 expected rows, including the six
+intentional refusals. An Nsight trace verified 120 positive-duration
+`bend_dev` kernel launches from one process on one GPU.
+The ordered output SHA-256 was
+`5a6b109c0c3a48596d6430c26b0ad7cd2dc805b09e6c11ee35127de457929569`.
+Two preceding attempts were stopped by the paging safeguard and
+yielded no numerical result.
+
+This establishes bounded cross-device parity for this diagnostic
+only. It does not establish exhaustive binary32 correct rounding,
+fix the stock sine mismatch, cover the other transcendental functions,
+or change the production math, checkpoint formats or archive identity.
 
 ## Actual CUDA: one original flagship cell
 
