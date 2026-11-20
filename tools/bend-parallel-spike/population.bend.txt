@@ -1,0 +1,131 @@
+import Base
+import ./study.bend as S
+import ./tabular.bend as T
+import ./dyna.bend as D
+import ./engine.bend as E
+
+def tree(node: T.Tree, tail: List<&2,U32>) -> List<&2,U32>:
+  match node:
+    case T.Vacant{}: 0 <> tail
+    case T.Node{s,a,T.Cell{visits,value},lo,hi}:
+      1 <> s <> a <> visits <> F32.bits(value) <> tree(lo,tree(hi,tail))
+
+def table(values: T.Table, tail: List<&2,U32>) -> List<&2,U32>:
+  match values:
+    case Nil{}: 0 <> tail
+    case T.Indexed{root} <> Nil{}: 1 <> tree(root,tail)
+    case _: 4294967295 <> tail
+
+def legal(actions: List<&2,U32>, tail: List<&2,U32>) -> List<&2,U32>:
+  match actions:
+    case Nil{}: 0 <> tail
+    case action <> rest: 1 <> action <> legal(rest,tail)
+
+def samples(rows: List<&2,D.Sample>, tail: List<&2,U32>) -> List<&2,U32>:
+  match rows:
+    case Nil{}: 0 <> tail
+    case D.Sample{E.End{obs},count,reward} <> rest:
+      1 <> count <> F32.bits(reward) <> obs <> 0 <> samples(rest,tail)
+    case D.Sample{E.Open{obs,actions},count,reward} <> rest:
+      1 <> count <> F32.bits(reward) <> obs <> 1 <> legal(actions,samples(rest,tail))
+
+def experience(pairs: D.Model) -> List<&2,U32>:
+  match pairs:
+    case Nil{}: [0]
+    case D.PairModel{obs,action,total,outcomes} <> rest:
+      1 <> obs <> action <> total <> samples(outcomes,experience(rest))
+
+def words(m: S.Model) -> List<&2,U32>:
+  match m:
+    case S.Agent{S.Settings{S.QLearning{},alpha,gamma,eps},values}:
+      0 <> F32.bits(alpha) <> F32.bits(gamma) <> eps <> table(values,[])
+    case S.PlanningAgent{S.Settings{S.DynaQ{p},alpha,gamma,eps},D.Planner{values,exp,pairs,seed}}:
+      1 <> F32.bits(alpha) <> F32.bits(gamma) <> eps <> U32.from_nat(p) <>
+        pairs <> seed <> table(values,experience(exp))
+    case _: [4294967295]
+
+type Segment is Data:
+  Segment{model: S.Model, reports: List<&2,U32>}
+
+def stop(reason: E.Stop, tail: List<&2,U32>) -> List<&2,U32>:
+  match reason:
+    case E.Terminal{}: 0 <> 0 <> tail
+    case E.Limit{}: 1 <> 0 <> tail
+    case E.Illegal{act}: 2 <> act <> tail
+
+def after(r: E.Report<S.Model>) -> S.Model:
+  E.Report{m,_,_,_} = r
+  m
+
+def prepend(r: E.Report<S.Model>, result: Segment) -> Segment:
+  E.Report{_,score,steps,reason} = r
+  Segment{m, rest} = result
+  Segment{m,F32.bits(score) <> U32.from_nat(steps) <> stop(reason,rest)}
+
+def advance(episodes: Nat, +seed: U32, m: S.Model) -> Segment:
+  match episodes:
+    case 0n: Segment{m,[]}
+    case 1n+rest:
+      +r = S.scene_95d3e437f0ac10c9e259(E.Train{},m,seed,100n)
+      prepend(r,advance(rest,U32.add(seed,1),after(r)))
+
+def settings(arm: U32) -> S.Settings:
+  match arm:
+    case 0: S.Settings{S.QLearning{},0.25,0.9,16384}
+    case _: S.Settings{S.DynaQ{5n},0.25,0.9,16384}
+
+def segment_model(s: Segment) -> S.Model:
+  Segment{m,_} = s
+  m
+
+def segment_reports(s: Segment) -> List<&2,U32>:
+  Segment{_,rs} = s
+  rs
+
+def leaf(rep: U32, arm: U32) -> List<&2,List<&2,U32>>:
+  +seed = U32.add(150500000,U32.mul(rep,10000))
+  +m0 = S.initial_for(settings(arm),seed)
+  +a8 = advance(8n,seed,m0)
+  +m8 = segment_model(a8)
+  +a64 = advance(56n,U32.add(seed,8),m8)
+  +m64 = segment_model(a64)
+  +a128 = advance(64n,U32.add(seed,64),m64)
+  [words(m0),words(m8),words(m64),words(segment_model(a128)),segment_reports(a8),segment_reports(a64),segment_reports(a128)]
+
+def joined(a: List<&2,List<&2,U32>>, b: List<&2,List<&2,U32>>) -> List<&2,List<&2,U32>>:
+  List.append(&2,List<&2,U32>,a,b)
+
+def serial(n: Nat, +rep: U32, +arm: U32) -> List<&2,List<&2,U32>>:
+  match n:
+    case 0n: []
+    case 1n+rest: joined(leaf(rep,arm),serial(rest,U32.add(rep,1),arm))
+
+def fork(+depth: Nat, +root: U32, +stride: U32, +arm: U32) -> List<&2,List<&2,U32>>:
+  match depth:
+    case 0n: leaf(root,arm)
+    case 1n++rest:
+      +half = U32.shr(stride)
+      left right = fork(rest,root,half,arm) fork(rest,U32.add(root,half),half,arm)
+      joined(left,right)
+
+def row(xs: List<&2,U32>) -> String:
+  List.show(~&2,~U32,~U32.show,xs)
+
+def print_rows(xs: List<&2,List<&2,U32>>) -> IO(Unit):
+  IO.print(List.show(~&2,~List<&2,U32>,~row,xs))
+
+def run_args(mode: Maybe<&2,U32>, arm: Maybe<&2,U32>) -> IO(Unit):
+  match mode arm:
+    case Some{0} Some{a}: print_rows(serial(8n,0,a))
+    case Some{1} Some{a}: print_rows(fork(3n,0,8,a))
+    case _ _: IO.die(Unit,1,"usage: population 0|1 ARM (0 Q or 1 Dyna)")
+
+def argv(args: List<String>) -> IO(Unit):
+  match args:
+    case _ <> mode <> arm <> Nil{}: run_args(U32.read(mode),U32.read(arm))
+    case _: IO.die(Unit,1,"usage: population MODE ARM")
+
+def main() -> IO(Unit):
+  do IO<Unit>:
+    args : List<String> <- IO.args()
+    argv(args)

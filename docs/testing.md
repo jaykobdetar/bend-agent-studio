@@ -211,3 +211,7 @@ See the [automatic shard verification gap](performance.md#p112-hard-limits-befor
 A separate [F32 sentinel](../tools/bend-f32-sentinel/README.md) checks exact
 words against MPFR on selected inputs. It is not a substitute for exhaustive
 operation or sealed-checkpoint parity. Normal CI does not use the local GPU.
+
+The optional [population diagnostic](../tools/bend-parallel-spike/README.md)
+checks whole model-word layouts and raw training reports. It is not a sealed
+checkpoint, validation/test, or performance gate.

@@ -376,7 +376,7 @@ local gates pass; fix any hosted failure before publishing another item.
 | P11.3 | Exact evaluation, sequential extension and reuse | Separate exact metrics and a prespecified stopping rule; verified reusable bytes | Partial: validation-only stopping implemented; exact annotation and cache drafts not adopted |
 | P11.4 | Warm engine prototype | Local Unix socket, parity and direct fallback; measurable benefit | Pending |
 | P11.5 | Fewer JavaScript–Bend calls | Episode and step checkpoints byte-identical, benchmark improvement | Pending |
-| P11.6 | Bend parallel and CUDA population spike | Adopt only if exact and faster than the best comparable path | Pending |
+| P11.6 | Bend parallel and CUDA population spike | Adopt only if exact and faster than the best comparable path | Bounded CPU diagnostic complete; CUDA case capped; not adopted |
 | P11.7 | Cross-backend F32 operations | Correct rounding evidence and reviewed archive transition | Stock device mismatch reproduced; correctly rounded replacements and exhaustive validation pending |
 | P11.8 | Native twin for eligible finite environments | Local and generic builds match all eligible sealed checkpoints | Pending |
 | P11.9 | Native compiler tuning | Retain exact parity and demonstrate additional speedup | Pending |

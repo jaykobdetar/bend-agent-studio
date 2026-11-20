@@ -248,3 +248,20 @@ one ULP, representing seven distinct operation/input combinations. This
 is evidence against replacing the sealed engine with stock transcendental
 operations on CUDA, not a full numerical or checkpoint test. No engine
 source, archive format, or default changed.
+
+
+## P11.6: stock population diagnostic
+
+A [bounded slippery-lake diagnostic](../tools/bend-parallel-spike/README.md)
+matched all 64 model snapshots and 2,048 individual training reports on
+each of five stock JavaScript and native CPU paths. Both arms used the
+original archived seeds and generated world adapter. When two native
+threads were requested, both shared one logical CPU; the result verifies
+the mechanism and these outputs, not throughput or sealed archive parity.
+The wider compiler job hit the diagnostic's 2 GiB memory guard, so only the
+scoped fixture is qualified.
+
+A separate RTX 3060 Ti Q-learning attempt hit its 60-second ceiling while
+the runtime was compiling the device sidecar. It returned no model rows and
+its trace provided no verified kernel evidence. Dyna was not attempted on
+the GPU. No native or CUDA backend was adopted.
