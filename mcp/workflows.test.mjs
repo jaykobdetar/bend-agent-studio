@@ -97,9 +97,13 @@ test(
   {...compilerTest, timeout: 120000},
   async (t) => {
     const {root, call, run, write} = fixture(t);
-    fs.copyFileSync(path.join(repo, 'agents/ucb/agent.bend'), path.join(root, 'ucb.bend'));
-    fs.appendFileSync(path.join(root, 'ucb.bend'), '\n# import helpers above.\n');
-    assert.equal((await call('check_bend', {file: 'ucb.bend'})).valid, true);
+    // Copy the agent and its relative imports inside the isolated workspace.
+    const entry = 'agents/ucb/agent.bend';
+    fs.mkdirSync(path.join(root, 'agents/ucb'), {recursive: true});
+    fs.mkdirSync(path.join(root, 'core'));
+    for (const file of [entry, 'core/parameters.bend', 'core/engine.bend', 'core/tabular.bend'])
+      fs.copyFileSync(path.join(repo, file), path.join(root, file));
+    assert.equal((await call('check_bend', {file: entry})).valid, true);
     const plan = sample('dispatch-source');
     plan.replicates = 2;
     plan.games[0].file = 'dispatch.json';

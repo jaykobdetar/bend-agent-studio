@@ -56,24 +56,25 @@ def greedy(model: Model, state: Car.State, actions: List<&2, U32>) -> U32:
   Linear{TileSettings{method, a, g, e}, weights} = model
   T.best_action(choices(actions, values(features(method, state), weights)))
 
+def sampled_greedy(model: Model,state: Car.State,actions: List<&2,U32>,word: U32) -> U32:
+  Linear{TileSettings{method,a,g,e},weights}=model
+  row=values(features(method,state),weights)
+  T.sampled_best(~W.Row,~W.action_value,actions,row,word)
+
 def select(explore: Bool, model: Model, state: Car.State, actions: List<&2, U32>, word: U32) -> U32:
   match explore:
-    case True{}: T.random_action(actions, word)
-    case False{}: greedy(model, state, actions)
+    case True{}: T.random_action(actions,E.mix_word(U32.xor(word,2654435769)))
+    case False{}: sampled_greedy(model,state,actions,word)
 
-def training(mode: E.Mode) -> Bool:
-  match mode:
-    case E.Train{}: True{}
-    case E.Evaluate{}: False{}
+def train(+settings: Settings,weights: W.Tree,state: Car.State,actions: List<&2,U32>,+word: U32) -> U32:
+  TileSettings{m,a,g,buckets}=settings
+  select(U32.is_lt(U32.and(word,65535),buckets),Linear{settings,weights},state,actions,word)
 
 def act(model: Model, state: Car.State, actions: List<&2, U32>, mode: E.Mode, word: U32) -> U32:
-  match model:
-    case Linear{TileSettings{RandomCar{}, a, g, e}, weights}: T.random_action(actions, word)
-    case Linear{TileSettings{method, a, g, +e}, weights}:
-      +bits = word
-      explore = training(mode) && U32.is_lt(U32.and(bits, 65535), e)
-      select(explore, Linear{TileSettings{method, a, g, e}, weights}, state, actions,
-             E.mix_word(U32.xor(bits, 2654435769)))
+  match model mode:
+    case Linear{TileSettings{RandomCar{},a,g,e},weights} _: T.random_action(actions,word)
+    case Linear{settings,weights} E.Train{}: train(settings,weights,state,actions,word)
+    case other E.Evaluate{}: greedy(other,state,actions)
 
 def backup(method: Method, buckets: U32, options: T.Choices) -> F32:
   match method options:

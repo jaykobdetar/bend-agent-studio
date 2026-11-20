@@ -16,6 +16,7 @@ import ../core/offline.bend as Offline
 import ../core/arena.bend as Arena
 import ../core/arena_table.bend as ArenaTable
 import ../agents/self_play/agent.bend as Player
+import ../agents/ucb/agent.bend as UCB
 
 law evaluation_freezes_model:
   for -M: Data
@@ -589,3 +590,148 @@ law contextual_segment_matches_episode:
   {segment_report(S,O,M,C.segment(~S,~O,~M,~E.Contextual{E.World{reset,inspect,step},act,learn,finish},mode,limit,
     C.start(~S,~O,~M,~E.Contextual{E.World{reset,inspect,step},act,learn,finish},model,seed,limit))) ==
     Some{E.episode(~S,~O,~M,~E.Contextual{E.World{reset,inspect,step},act,learn,finish},mode,model,seed,limit)} : Maybe<&2,E.Report<M>>}
+
+# The Train-only tie draw never affects deterministic frozen evaluation.
+
+law epsilon_greedy_evaluation_is_first_max:
+  for q: T.Table
+  for s: U32
+  for legal: List<&2,U32>
+  for word: U32
+  {T.epsilon_greedy(q,s,legal,E.Evaluate{},word) == T.best_action(T.choices(legal,q,s)) : U32}
+
+law mean_reward_evaluation_is_first_max:
+  for q: T.Table
+  for alpha: F32
+  for gamma: F32
+  for buckets: U32
+  for s: U32
+  for legal: List<&2,U32>
+  for word: U32
+  {Study.act(Study.Agent{Study.Settings{Study.MeanReward{},alpha,gamma,buckets},q},s,legal,E.Evaluate{},word)
+    == T.best_action(T.choices(legal,q,s)) : U32}
+
+law q_learning_evaluation_is_first_max:
+  for q: T.Table
+  for alpha: F32
+  for gamma: F32
+  for buckets: U32
+  for s: U32
+  for legal: List<&2,U32>
+  for word: U32
+  {Study.act(Study.Agent{Study.Settings{Study.QLearning{},alpha,gamma,buckets},q},s,legal,E.Evaluate{},word)
+    == T.best_action(T.choices(legal,q,s)) : U32}
+
+law expected_sarsa_evaluation_is_first_max:
+  for q: T.Table
+  for alpha: F32
+  for gamma: F32
+  for buckets: U32
+  for s: U32
+  for legal: List<&2,U32>
+  for word: U32
+  {Study.act(Study.Agent{Study.Settings{Study.ExpectedSarsa{},alpha,gamma,buckets},q},s,legal,E.Evaluate{},word)
+    == T.best_action(T.choices(legal,q,s)) : U32}
+
+law dyna_evaluation_is_first_max:
+  for state: Dyna.State
+  for planning: Nat
+  for alpha: F32
+  for gamma: F32
+  for buckets: U32
+  for s: U32
+  for legal: List<&2,U32>
+  for word: U32
+  {Study.act(Study.PlanningAgent{Study.Settings{Study.DynaQ{planning},alpha,gamma,buckets},state},s,legal,E.Evaluate{},word)
+    == T.best_action(T.choices(legal,Dyna.values(state),s)) : U32}
+
+law double_q_evaluation_is_first_max:
+  for tables: DQ.Tables
+  for alpha: F32
+  for gamma: F32
+  for buckets: U32
+  for s: U32
+  for legal: List<&2,U32>
+  for word: U32
+  {Study.act(Study.DoubleAgent{Study.Settings{Study.DoubleQ{},alpha,gamma,buckets},tables},s,legal,E.Evaluate{},word)
+    == DQ.best(tables,s,legal) : U32}
+
+law coarse_q_evaluation_is_first_max:
+  for q: W.Tree
+  for alpha: F32
+  for gamma: F32
+  for buckets: U32
+  for s: Car.State
+  for legal: List<&2,U32>
+  for word: U32
+  {Tile.act(Tile.Linear{Tile.TileSettings{Tile.CoarseQ{},alpha,gamma,buckets},q},s,legal,E.Evaluate{},word)
+    == Tile.greedy(Tile.Linear{Tile.TileSettings{Tile.CoarseQ{},alpha,gamma,buckets},q},s,legal) : U32}
+
+law tile_q_evaluation_is_first_max:
+  for q: W.Tree
+  for alpha: F32
+  for gamma: F32
+  for buckets: U32
+  for s: Car.State
+  for legal: List<&2,U32>
+  for word: U32
+  {Tile.act(Tile.Linear{Tile.TileSettings{Tile.TileQ{},alpha,gamma,buckets},q},s,legal,E.Evaluate{},word)
+    == Tile.greedy(Tile.Linear{Tile.TileSettings{Tile.TileQ{},alpha,gamma,buckets},q},s,legal) : U32}
+
+law tile_expected_evaluation_is_first_max:
+  for q: W.Tree
+  for alpha: F32
+  for gamma: F32
+  for buckets: U32
+  for s: Car.State
+  for legal: List<&2,U32>
+  for word: U32
+  {Tile.act(Tile.Linear{Tile.TileSettings{Tile.TileExpected{},alpha,gamma,buckets},q},s,legal,E.Evaluate{},word)
+    == Tile.greedy(Tile.Linear{Tile.TileSettings{Tile.TileExpected{},alpha,gamma,buckets},q},s,legal) : U32}
+
+law negamax_evaluation_is_first_max:
+  for table: ArenaTable.Tree
+  for history: List<&2,Player.DecisionRecord>
+  for second: Bool
+  for key: U32
+  for alpha: F32
+  for gamma: F32
+  for buckets: U32
+  for legal: List<&2,U32>
+  for word: U32
+  {Player.act(Player.Player{Player.Settings{Player.Negamax{},alpha,gamma,buckets},table,history},Arena.Mover{second,key},legal,E.Evaluate{},word)
+    == T.best_action(T.choices(legal,ArenaTable.get(key,table),0)) : U32}
+
+law arena_expected_evaluation_is_first_max:
+  for table: ArenaTable.Tree
+  for history: List<&2,Player.DecisionRecord>
+  for second: Bool
+  for key: U32
+  for alpha: F32
+  for gamma: F32
+  for buckets: U32
+  for legal: List<&2,U32>
+  for word: U32
+  {Player.act(Player.Player{Player.Settings{Player.Expected{},alpha,gamma,buckets},table,history},Arena.Mover{second,key},legal,E.Evaluate{},word)
+    == T.best_action(T.choices(legal,ArenaTable.get(key,table),0)) : U32}
+
+law arena_monte_carlo_evaluation_is_first_max:
+  for table: ArenaTable.Tree
+  for history: List<&2,Player.DecisionRecord>
+  for second: Bool
+  for key: U32
+  for alpha: F32
+  for gamma: F32
+  for buckets: U32
+  for legal: List<&2,U32>
+  for word: U32
+  {Player.act(Player.Player{Player.Settings{Player.MonteCarlo{},alpha,gamma,buckets},table,history},Arena.Mover{second,key},legal,E.Evaluate{},word)
+    == T.best_action(T.choices(legal,ArenaTable.get(key,table),0)) : U32}
+
+law ucb_evaluation_is_first_max:
+  for q: T.Table
+  for scale: F32
+  for s: U32
+  for legal: List<&2,U32>
+  for word: U32
+  {UCB.act(UCB.UCB{q,scale},s,legal,E.Evaluate{},word) == T.best_action(T.choices(legal,q,s)) : U32}

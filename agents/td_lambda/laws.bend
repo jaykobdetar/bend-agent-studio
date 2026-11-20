@@ -28,3 +28,16 @@ law one_step_weights:
   for cut: Bool
   {L.weights(L.learn(L.Agent{w,[],L.Config{lin,alpha,gamma,0.0}},E.Transition{s,a,r,next,cut})) ==
     L.apply(L.grad(lin,[],s,a),w,F32.mul(alpha,F32.sub(F32.add(r,F32.mul(gamma,L.future(next,lin,w))),L.value(lin,w,s,a)))) : T.Table}
+
+law evaluation_is_first_max:
+  for weights: T.Table
+  for traces: L.Traces
+  for linear: Bool
+  for alpha: F32
+  for gamma: F32
+  for rate: F32
+  for s: U32
+  for legal: List<&2,U32>
+  for word: U32
+  {L.act(L.Agent{weights,traces,L.Config{linear,alpha,gamma,rate}},s,legal,E.Evaluate{},word)
+    == T.best_action(T.choices(legal,L.project(legal,linear,weights,s),s)) : U32}

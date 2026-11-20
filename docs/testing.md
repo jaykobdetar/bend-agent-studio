@@ -41,6 +41,16 @@ at the repository root. Move any intentional scratch output into an ignored
 directory such as `runs/`. The Studio compiler fixture also checks that a
 validation-only invocation writes nothing, including in source archives without Git.
 
+The training-tie regression compiles the deployed policy paths and runs a
+four-move, zero-exploration corridor. The prior policy completed 0 of 24
+training episodes and 0 of 3 frozen evaluation episodes in that corridor.
+The new policy completed all 24 training episodes and all three evaluations,
+each reaching the goal in four moves. This isolates first-action bias; it does
+not establish how much the change helps on other worlds. A fixed-word
+frequency check covers the three-way tie and exercises the incomplete-bucket
+retry. The flagship v1 and historical demo checks retain their original pins.
+The fixed legacy benchmark keeps the original training policy and CSV hash.
+
 A green Windows job means the Node-only workflow passed. It does **not** mean Bend, Lean, the compiled backend hash checks, Gymnasium or Minari ran on Windows. For the quick local smoke test use `npm test`; for a change to archive layout, learner semantics or Python integration, run the matching row above as well.
 
 The [Bend upgrade watch](upgrading-bend.md) is a separate weekly/manual check against the latest official 2.x version. It does not replace any pinned job, and its results are never required for a merge.

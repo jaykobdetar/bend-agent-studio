@@ -4,7 +4,7 @@ The [experiment rules](experiments.md#rules-for-experiments) mix mathematical st
 
 ## Formal Properties
 
-The <!-- count:core-laws -->50<!-- /count --> core laws are stated in [laws/LAWS.bend](../laws/LAWS.bend) and proved in [laws/PROOF.bend](../laws/PROOF.bend). The learners declare <!-- count:learner-laws -->15<!-- /count --> additional laws in their own modules:
+The <!-- count:core-laws -->63<!-- /count --> core laws are stated in [laws/LAWS.bend](../laws/LAWS.bend) and proved in [laws/PROOF.bend](../laws/PROOF.bend). The learners declare <!-- count:learner-laws -->18<!-- /count --> additional laws in their own modules:
 
 | Learner | Statements | Proofs |
 | --- | --- | --- |
@@ -38,6 +38,8 @@ A **proof** establishes the named proposition for the types and inputs it quanti
 - **Logging bucket totals:** For a nonempty duplicate-free legal list with exactly one preferred entry, and `B` in 0–65,536, write `B = n*q + r` for the list size `n`. There are `n` shares of `q`, `r` extra round-robin buckets and `65,536 - B` additional buckets for the preferred action. That gives 65,536 mathematically; the existing Bend declarations do not connect symbolic U32 division, remainder, indexed list counts and the no-overflow bound. No universal machine-checked count theorem is claimed. The compiled campaign exhausts every low 16-bit value for each of 24 seeded legal lists/thresholds (including 0 and 65,536), compares every histogram bin to the real `Logged.count` and checks the total.
 
 ### Other guarantees
+
+- **Greedy ties.** Evaluation keeps the existing first-max policy, independently of the policy word. The core and learner verdicts cover the changed greedy policy paths. The compiler-backed tests check that training selects only exact legal maxima for small scored tables and check the frequency of a three-way tie with a fixed stream of words. This frequency check is not a proof of exact uniformity over finite seeds.
 
 - **Sparse updates.** `table_adjust_value` and `table_adjust_visits` cover the addressed observation/action key; the corresponding other-key laws preserve both reads, including absent keys and duplicate input entries.
 - **Episode accounting.** `every_report_counts_once` includes illegal exits. The counting-learner rollout laws preserve a signed difference from the starting counter, rather than assuming the counter started at zero.

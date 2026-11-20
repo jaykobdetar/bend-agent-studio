@@ -7,3 +7,5 @@ def L.truncation_clears(s,actions,p,q,alpha,gamma): {==}
 def L.finish_clears(m,reason):
   match m:
     case S.Agent{q,p,alpha,gamma}: {==}
+
+def L.evaluation_is_first_max(q,pending,alpha,gamma,s,legal,word): {==}

@@ -7,3 +7,5 @@ def L.truncated_empty(s,xs,b,q,n,a,g): {==}
 def L.finish_empty(m,reason):
   match m:
     case N.Agent{q,b,N.Config{n,a,g}}: {==}
+
+def L.evaluation_is_first_max(q,buffer,cfg,s,legal,word): {==}

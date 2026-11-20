@@ -39,20 +39,24 @@ def initial(seed: U32, params: P.Parameters) -> Model:
 def choose(explore: Bool, table: Store.Tree, key: U32, actions: List<&2,U32>, word: U32) -> U32:
   match explore:
     case True{}: T.random_action(actions,E.mix_word(U32.xor(word,2654435769)))
-    case False{}: T.best_action(T.choices(actions,Store.get(key,table),0))
+    case False{}: T.sampled_table(Store.get(key,table),0,actions,word)
 
 def explore(mode: E.Mode, buckets: U32, word: U32) -> Bool:
   match mode:
     case E.Evaluate{}: False{}
     case E.Train{}: U32.is_lt(U32.and(word,65535),buckets)
 
+def train(buckets: U32,table: Store.Tree,key: U32,actions: List<&2,U32>,+word: U32) -> U32:
+  choose(explore(E.Train{},buckets,word),table,key,actions,word)
+
 def act(model: Model, obs: A.Signal, actions: List<&2,U32>, mode: E.Mode, word: U32) -> U32:
-  match model obs:
-    case Player{Settings{Uniform{},a,g,e},t,h} _: T.random_action(actions,word)
-    case Player{Settings{rule,a,g,e},t,h} A.Mover{second,key}:
-      +draw=word
-      choose(explore(mode,e,draw),t,key,actions,draw)
-    case _ _: 0
+  match model obs mode:
+    case Player{Settings{Uniform{},a,g,e},t,h} _ _: T.random_action(actions,word)
+    case Player{Settings{rule,a,g,e},t,h} A.Mover{second,key} E.Train{}:
+      train(e,t,key,actions,word)
+    case Player{cfg,t,h} A.Mover{second,key} E.Evaluate{}:
+      T.best_action(T.choices(actions,Store.get(key,t),0))
+    case _ _ _: 0
 
 def estimate(method: Method, buckets: U32, options: T.Choices) -> F32:
   match method options:

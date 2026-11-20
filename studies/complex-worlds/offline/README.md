@@ -1,5 +1,8 @@
 # Storm Reserve: overlap is not agreement
 
+Published results on this page predate the training tie-breaking change. For
+historical reproduction, use the [pre-change source tree](https://github.com/jaykobdetar/bend-agent-studio/tree/032375733bb9559d77cea59b812654fd35d5bfe5).
+
 Take the Dyna-5 policy at checkpoint 1,024 in the 12-period Storm Reserve
 study. Log the policy as-is or with 25% uniform exploration. Each scheme
 uses eight matched seed blocks, with separate 256-episode fit, 512-episode

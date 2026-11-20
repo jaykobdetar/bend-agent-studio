@@ -1,0 +1,11 @@
+{
+  "schema": 1,
+  "initial": [{"to": 0, "weight": 1}],
+  "states": [
+    {"id":0,"observation":0,"actions":[{"id":0,"outcomes":[{"to":0,"weight":1,"reward":0}]},{"id":1,"outcomes":[{"to":1,"weight":1,"reward":0}]}]},
+    {"id":1,"observation":1,"actions":[{"id":0,"outcomes":[{"to":1,"weight":1,"reward":0}]},{"id":1,"outcomes":[{"to":2,"weight":1,"reward":0}]}]},
+    {"id":2,"observation":2,"actions":[{"id":0,"outcomes":[{"to":2,"weight":1,"reward":0}]},{"id":1,"outcomes":[{"to":3,"weight":1,"reward":0}]}]},
+    {"id":3,"observation":3,"actions":[{"id":0,"outcomes":[{"to":3,"weight":1,"reward":0}]},{"id":1,"outcomes":[{"to":4,"weight":1,"reward":1}]}]},
+    {"id":4,"observation":4,"actions":[]}
+  ]
+}

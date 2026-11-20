@@ -31,13 +31,24 @@ def trial(~S: Data, ~hooks: E.Hooks<S, U32, T.Table>, game: String, algorithm: S
   result = evaluate_result(~S, ~hooks, eval_seed, limit, trained)
   IO.print(game ++ "," ++ algorithm ++ "," ++ U32.show(train_seed) ++ "," ++ U32.show(eval_seed) ++ "," ++ result)
 
+# The fixed historical CSV used first-max during training. Keep its
+# protocol separate from the configurable learners' current Train policy.
+def legacy_choose(explore: Bool, model: T.Table, obs: U32, actions: List<&2,U32>, word: U32) -> U32:
+  match explore:
+    case True{}: T.random_action(actions, U32.shrn(word, 2n))
+    case False{}: T.best_action(T.choices(actions, model, obs))
+
+def legacy_epsilon_greedy(model: T.Table, obs: U32, actions: List<&2,U32>, mode: E.Mode, word: U32) -> U32:
+  +bits = word
+  legacy_choose(T.exploratory(mode, bits), model, obs, actions, bits)
+
 def compare(~S: Data, ~world: E.World<S, U32>, +name: String, +limit: Nat,
             +train_seed: U32, +eval_seed: U32) -> IO(Unit):
   do IO<Unit>:
     trial(~S, ~E.Hooks{world, T.uniform, T.keep}, name, "random", train_seed, eval_seed, limit)
-    trial(~S, ~E.Hooks{world, T.epsilon_greedy, T.bandit}, name, "sample_mean", train_seed, eval_seed, limit)
-    trial(~S, ~E.Hooks{world, T.epsilon_greedy, T.q_learning}, name, "q_learning", train_seed, eval_seed, limit)
-    trial(~S, ~E.Hooks{world, T.epsilon_greedy, T.expected_sarsa}, name, "expected_sarsa", train_seed, eval_seed, limit)
+    trial(~S, ~E.Hooks{world, legacy_epsilon_greedy, T.bandit}, name, "sample_mean", train_seed, eval_seed, limit)
+    trial(~S, ~E.Hooks{world, legacy_epsilon_greedy, T.q_learning}, name, "q_learning", train_seed, eval_seed, limit)
+    trial(~S, ~E.Hooks{world, legacy_epsilon_greedy, T.expected_sarsa}, name, "expected_sarsa", train_seed, eval_seed, limit)
 
 def replicate(+index: U32) -> IO(Unit):
   +train_seed = U32.add(10000, U32.mul(index, 10000))

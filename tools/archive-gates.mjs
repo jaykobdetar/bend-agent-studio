@@ -75,7 +75,14 @@ function trainingPlans() {
         ),
       ];
       return [
-        [key, {file, plan, bundles: sortMap(references.map(([id, b]) => [id, bundleIdentity(b)]))}],
+        [
+          key,
+          {
+            file,
+            plan,
+            bundles: sortMap(references.map(([id, b]) => [id, bundleIdentity(b)])),
+          },
+        ],
       ];
     }),
   );
@@ -103,7 +110,10 @@ async function snapshot(plan, dir, runProgram, input) {
   // Ordinary run builds and publishes the snapshot. Shard at index count has
   // no trials, so loading the inert backend cannot execute an episode.
   const count = plan.games.length * plan.arms.length * plan.replicates;
-  const config = input ?? {...plan, arms: plan.arms.map(({buckets, ...arm}) => arm)};
+  const config = input ?? {
+    ...plan,
+    arms: plan.arms.map(({buckets, ...arm}) => arm),
+  };
   const result = await run(config, dir, ['--shard', count + '/' + (count + 1)], runProgram);
   assert.equal(result.finished, 0, 'gate unexpectedly visited trials');
   assert.equal(result.created, 0, 'gate unexpectedly wrote checkpoints');
@@ -172,7 +182,11 @@ async function captureSources(tmp, plans) {
     }
     entries.push([
       key,
-      {plan: digest(canonical(plan)), sources: sortMap(Object.entries(t.sources)), bundles},
+      {
+        plan: digest(canonical(plan)),
+        sources: sortMap(Object.entries(t.sources)),
+        bundles,
+      },
     ]);
   }
   assert(entries.length, 'No training plans found');
@@ -266,6 +280,125 @@ function compareSources(saved, actual, allow, transition) {
   assert.deepEqual([...used].sort(), Object.keys(allow).sort(), 'Unused M0 archive hash exception');
 }
 
+// Undo only the exact R10.2 changes before applying the independently pinned
+// older checks. The round trip checks the current endpoints and the composed
+// predecessor (M0 -> F8 for historical plans; original capture for additions).
+function undoDelta(after, change, valid, label, allowMissing = false) {
+  assert.deepEqual(Object.keys(change).sort(), ['after', 'before'], label);
+  for (const value of Object.values(change))
+    assert(
+      (allowMissing && value === null) || (typeof value === 'string' && valid.test(value)),
+      label + ' invalid transition value',
+    );
+  assert.notEqual(change.before, change.after, label + ' no-op transition');
+  assert.equal(after, change.after, label + ' current value differs');
+  return change.before;
+}
+
+function undoFileMap(files, changes, label) {
+  const before = {...files};
+  for (const [key, delta] of Object.entries(changes)) {
+    assert(flat.test(key) && key !== 'backend.mjs', label + ' invalid file name: ' + key);
+    const value = undoDelta(
+      Object.hasOwn(before, key) ? before[key] : null,
+      delta,
+      sha,
+      label + ' ' + key,
+      true,
+    );
+    if (value === null) delete before[key];
+    else before[key] = value;
+  }
+  return sortMap(Object.entries(before));
+}
+
+function undoR102Sources(report, r102) {
+  for (const key of Object.keys(r102.plans))
+    assert(Object.hasOwn(report.plans, key), 'R10.2 unknown plan: ' + key);
+  return {
+    ...report,
+    commonSources: {},
+    plans: sortMap(
+      Object.entries(report.plans).map(([key, input]) => {
+        const changes = r102.plans[key] ?? {};
+        assert(
+          Object.keys(changes).every((k) => ['sources', 'bundles', 'plan'].includes(k)),
+          key + ' unknown R10.2 delta',
+        );
+        if (Object.hasOwn(r102.plans, key))
+          assert(Object.keys(changes).length > 0, key + ' empty R10.2 delta');
+        const bundleChanges = changes.bundles ?? {};
+        const hasBundleChanges = Object.keys(bundleChanges).length > 0;
+        assert.equal(
+          Object.hasOwn(changes, 'plan'),
+          hasBundleChanges,
+          key + ' R10.2 normalized plan hash may only move with bundle bytes/identity',
+        );
+        const sources = {...report.commonSources, ...input.sources};
+        for (const name of Object.keys(changes.sources ?? {}))
+          assert(
+            !Object.hasOwn(r102.commonSources, name),
+            key + ' duplicate source delta: ' + name,
+          );
+        const bundles = {...input.bundles};
+        for (const [id, delta] of Object.entries(bundleChanges)) {
+          assert(Object.hasOwn(bundles, id), key + ' unknown R10.2 bundle: ' + id);
+          assert(
+            Object.keys(delta).length > 0 &&
+              Object.keys(delta).every((k) => ['entry', 'files'].includes(k)),
+            key + ' invalid R10.2 bundle delta: ' + id,
+          );
+          const label = key + ' R10.2 ' + id;
+          const {entry, files} = bundles[id];
+          const priorEntry = delta.entry
+            ? undoDelta(entry, delta.entry, /^[\w.-]+$/, label + ' entry')
+            : entry;
+          const priorFiles = undoFileMap(files, delta.files ?? {}, label + ' files');
+          assert.notDeepEqual(
+            {entry: priorEntry, files: priorFiles},
+            {entry, files},
+            label + ' no-op bundle transition',
+          );
+          bundles[id] = {entry: priorEntry, files: priorFiles};
+        }
+        return [
+          key,
+          {
+            plan: changes.plan
+              ? undoDelta(input.plan, changes.plan, sha, key + ' R10.2 plan')
+              : input.plan,
+            sources: undoFileMap(
+              sources,
+              {...r102.commonSources, ...changes.sources},
+              key + ' R10.2 sources',
+            ),
+            bundles,
+          },
+        ];
+      }),
+    ),
+  };
+}
+
+function loadR102() {
+  const r102 = json(path.join(fixtures, 'r102-transition.json'));
+  assert.deepEqual(Object.keys(r102).sort(), [
+    'backends',
+    'commonSources',
+    'plans',
+    'predecessor',
+    'schema',
+  ]);
+  assert.equal(r102.schema, 1);
+  assert.deepEqual(r102.predecessor, {
+    commit: '032375733bb9559d77cea59b812654fd35d5bfe5',
+    tree: '30ca2f4622e3c4a91a2a7539fb69525d928ba4bc',
+  });
+  for (const name of ['backends', 'commonSources', 'plans'])
+    assert(r102[name] && typeof r102[name] === 'object' && !Array.isArray(r102[name]));
+  return r102;
+}
+
 function backendPlans(plans) {
   const from = (name, choose) => {
     const base = plans['experiments/' + name + '.json'].plan;
@@ -347,6 +480,14 @@ try {
           change,
           'G2 F8 backend ' + name,
         );
+      for (const [name, change] of Object.entries(loadR102().backends)) {
+        assert(Object.hasOwn(expected.backends, name), 'R10.2 unknown backend: ' + name);
+        expected.backends[name] = transitioned(
+          expected.backends[name],
+          change,
+          'G2 R10.2 backend ' + name,
+        );
+      }
       assert.deepEqual(report, expected, 'Representative backend SHA-256 changed');
       console.log(
         'G2 backends: ' +
@@ -377,13 +518,13 @@ try {
       }
       const expected = [...Object.keys(historical.plans), ...Object.keys(added)].sort();
       assert.deepEqual(Object.keys(report.plans), expected, 'training plan inventory changed');
-      const original = {...report, plans: {...report.plans}};
+      const original = undoR102Sources(report, loadR102());
       for (const [key, entry] of Object.entries(added)) {
-        const actual = report.plans[key];
+        const actual = original.plans[key];
         assert.deepEqual(
           {
             ...actual,
-            sources: sortMap(Object.entries({...report.commonSources, ...actual.sources})),
+            sources: sortMap(Object.entries({...original.commonSources, ...actual.sources})),
           },
           entry,
           key + ' additional G2/G3 archive identity changed',

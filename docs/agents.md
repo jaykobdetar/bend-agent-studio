@@ -33,7 +33,14 @@ See the [local MCP server](../mcp/README.md) for typed authoring, training jobs,
 For fixed-suite comparisons, [the analyzer supports IQM, probability of improvement, and performance profiles](analysis.md#comparing-a-fixed-suite-of-games), with replicate bootstrap intervals and no extra dependencies. Per-game analysis remains the default.
 
 New tabular learners index observation/action IDs with a persistent digital
-search tree. Legal-list order still breaks ties. See the
+search tree. During training, greedy choices in the tabular, tile, linear,
+self-play and UCB learners sample among legal actions whose values are
+exactly maximal. This uses a separate pseudorandom draw from the
+exploration decision and action draw. Evaluation still chooses the first
+maximum in public legal-list order. Exploration rates, bootstrap targets
+and offline policies are unchanged. UCB still visits untried actions in
+public legal-list order before using its score-based policy. Previously saved runs keep their
+original behavior when replayed or resumed. See the
 [archive parity and timing procedure](experiments.md#compare-keyed-tabular-training-against-list-backed-archives)
 for the benchmark and its limits.
 

@@ -1,5 +1,8 @@
 # Three environments, three failure modes
 
+Published results on this page predate the training tie-breaking change. For
+historical reproduction, use the [pre-change source tree](https://github.com/jaykobdetar/bend-agent-studio/tree/032375733bb9559d77cea59b812654fd35d5bfe5).
+
 These games separate **planning**, **information**, and **adaptation to
 chance**. A solved small example checks the intended rules before a harder
 variant asks whether the learned policy actually works.

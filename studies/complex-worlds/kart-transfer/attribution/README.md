@@ -1,5 +1,8 @@
 # Apex Kart: was the transfer gain just left/right symmetry?
 
+Published results on this page predate the training tie-breaking change. For
+historical reproduction, use the [pre-change source tree](https://github.com/jaykobdetar/bend-agent-studio/tree/032375733bb9559d77cea59b812654fd35d5bfe5).
+
 The [original transfer study](../README.md) put two changes in
 the same learner: pooling action values across related observations, and
 reflecting right bends into left-bend coordinates. This ablation splits them

@@ -1,5 +1,8 @@
 # Apex Kart: transfer with a short public road preview
 
+Published results on this page predate the training tie-breaking change. For
+historical reproduction, use the [pre-change source tree](https://github.com/jaykobdetar/bend-agent-studio/tree/032375733bb9559d77cea59b812654fd35d5bfe5).
+
 A shared feature learner handled **unseen track layouts** better than tabular
 Q at the same number of real moves. It did not beat a one-step rule that
 knows the physics. This is a local follow-up to [Apex Kart](../../../worlds/challenges/apex-kart/README.md),

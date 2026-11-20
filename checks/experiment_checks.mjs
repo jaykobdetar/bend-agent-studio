@@ -1,3 +1,4 @@
+import './training-ties.test.mjs';
 import {compilerTest} from './support.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';

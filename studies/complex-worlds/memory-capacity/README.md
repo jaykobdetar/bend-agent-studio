@@ -1,5 +1,8 @@
 # Switchboard: how much memory helps?
 
+Published results on this page predate the training tie-breaking change. For
+historical reproduction, use the [pre-change source tree](https://github.com/jaykobdetar/bend-agent-studio/tree/032375733bb9559d77cea59b812654fd35d5bfe5).
+
 With all 16 cue bits visible in memory, tabular Q-learning faces 1,048,576
 different query contexts. Remembering the last few cues lowers the best
 possible score, but it lets the learner reuse an observation more often.

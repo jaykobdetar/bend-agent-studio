@@ -806,3 +806,29 @@ def Laws.contextual_segment_matches_episode(S,O,M,reset,inspect,step,act,learn,f
     Some{E.finish_report(S,O,M,E.mixed_hooks(S,O,M,E.Contextual{E.World{reset,inspect,step},act,learn,finish}),mode,raw)},
     completed_contextual(~S,~O,~M,~E.World{reset,inspect,step},~act,~learn,~finish,limit,mode,run),
     mixed_finish_contextual(~S,~O,~M,~reset,~inspect,~step,~act,~learn,~finish,mode,raw))
+
+def Laws.epsilon_greedy_evaluation_is_first_max(q,s,legal,word): {==}
+
+def Laws.mean_reward_evaluation_is_first_max(q,alpha,gamma,buckets,s,legal,word): {==}
+
+def Laws.q_learning_evaluation_is_first_max(q,alpha,gamma,buckets,s,legal,word): {==}
+
+def Laws.expected_sarsa_evaluation_is_first_max(q,alpha,gamma,buckets,s,legal,word): {==}
+
+def Laws.dyna_evaluation_is_first_max(state,planning,alpha,gamma,buckets,s,legal,word): {==}
+
+def Laws.double_q_evaluation_is_first_max(tables,alpha,gamma,buckets,s,legal,word): {==}
+
+def Laws.coarse_q_evaluation_is_first_max(q,alpha,gamma,buckets,s,legal,word): {==}
+
+def Laws.tile_q_evaluation_is_first_max(q,alpha,gamma,buckets,s,legal,word): {==}
+
+def Laws.tile_expected_evaluation_is_first_max(q,alpha,gamma,buckets,s,legal,word): {==}
+
+def Laws.negamax_evaluation_is_first_max(table,history,second,key,alpha,gamma,buckets,legal,word): {==}
+
+def Laws.arena_expected_evaluation_is_first_max(table,history,second,key,alpha,gamma,buckets,legal,word): {==}
+
+def Laws.arena_monte_carlo_evaluation_is_first_max(table,history,second,key,alpha,gamma,buckets,legal,word): {==}
+
+def Laws.ucb_evaluation_is_first_max(q,scale,s,legal,word): {==}

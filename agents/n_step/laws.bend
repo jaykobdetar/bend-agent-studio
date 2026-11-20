@@ -26,3 +26,13 @@ law finish_empty:
   for m: N.Model
   for reason: E.Stop
   {N.buffer(N.finish(m,reason)) == [] : N.Buffer}
+
+law evaluation_is_first_max:
+  for q: T.Table
+  for buffer: N.Buffer
+  for cfg: N.Config
+  for s: U32
+  for legal: List<&2,U32>
+  for word: U32
+  {N.act(N.Agent{q,buffer,cfg},s,legal,E.Evaluate{},word)
+    == T.best_action(T.choices(legal,q,s)) : U32}

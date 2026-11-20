@@ -164,6 +164,86 @@ def random_action(+actions: List<&2, U32>, word: U32) -> U32:
   index = U32.mod(word, U32.max(1, count))
   selected(List.get(&2, U32, actions, U32.to_nat(index)))
 
+# This distribution is used only by the acting policy in Train mode.
+# Choices, best_action and every backup keep the original deterministic order.
+type Maxima is Data:
+  NoMaxima{}
+  UnorderedOnly{last: U32}
+  Maxima{value: F32, actions: List<&2,U32>, count: U32}
+
+def record_max(tied: Bool, replaces: Bool, +action: U32, +value: F32,
+               +maximum: F32, +actions: List<&2,U32>, +count: U32) -> Maxima:
+  match tied replaces:
+    case True{} _: Maxima{maximum,action <> actions,U32.add(count,1)}
+    case False{} True{}: Maxima{value,[action],1}
+    case False{} False{}: Maxima{maximum,actions,count}
+
+def extend_max(ordered: Bool,+action: U32,+value: F32, tail: Maxima) -> Maxima:
+  match ordered tail:
+    case False{} NoMaxima{}: UnorderedOnly{action}
+    case False{} other: other
+    case True{} NoMaxima{}: Maxima{value,[action],1}
+    case True{} UnorderedOnly{last}: Maxima{value,[action],1}
+    case True{} Maxima{+maximum,actions,count}:
+      record_max(F32.is_eq(value,maximum),F32.is_gt(value,maximum),
+                 action,value,maximum,actions,count)
+
+# An unordered score (NaN) cannot equal a maximum. If every score is
+# unordered, retain the final legal action, as in the old deterministic fold.
+def add_score(action: U32,+value: F32,tail: Maxima) -> Maxima:
+  extend_max(F32.is_eq(value,value),action,value,tail)
+
+def maxima(~A: Data,~score: A -> U32 -> F32,actions: List<&2,U32>,+context: A) -> Maxima:
+  match actions:
+    case Nil{}: NoMaxima{}
+    case +a <> rest: add_score(a,score(context,a),maxima(~A,~score,rest,context))
+
+# Exploration decisions use the raw policy word; mixed exploratory action
+# selection uses XOR 2654435769. This distinct XOR domain is for greedy ties.
+# Domain separation provides a separate pseudorandom draw, not information-
+# theoretic independence between functions of the same finite seed.
+def tie_seed(word: U32) -> U32: U32.xor(word,2246822519)
+
+def reject_index(reject: Bool,retry: Unit -> U32,accept: Unit -> U32) -> U32:
+  match reject:
+    case True{}: retry(Unit{})
+    case False{}: accept(Unit{})
+
+def tie_index(fuel: Nat,+count: U32,+threshold: U32,+seed: U32) -> U32:
+  match fuel:
+    case 0n: 0
+    case 1n++rest:
+      +draw=E.mix_word(seed)
+      reject_index(U32.is_lt(draw,threshold),
+        u => tie_index(rest,count,threshold,E.next_seed(seed)),
+        u => U32.mod(draw,count))
+
+def choose_max(options: Maxima, word: U32) -> U32:
+  match options:
+    case NoMaxima{}: 0
+    case UnorderedOnly{last}: last
+    case Maxima{value,actions,1}: selected(List.get(&2,U32,actions,0n))
+    case Maxima{value,actions,+count}:
+      # Skip the incomplete low bucket: 2^32 mod count, by modular subtraction.
+      # The retry stream advances the full-period LCG before mixing. Its
+      # first threshold+1 draws are distinct; at most threshold can reject.
+      +threshold=U32.mod(U32.sub(0,count),count)
+      index=tie_index(Nat.add(U32.to_nat(threshold),1n),count,threshold,tie_seed(word))
+      selected(List.get(&2,U32,actions,U32.to_nat(index)))
+
+def sampled_best(~A: Data,~score: A -> U32 -> F32,actions: List<&2,U32>,context: A,word: U32) -> U32:
+  choose_max(maxima(~A,~score,actions,context),word)
+
+type TableScore is Data:
+  TableScore{values: Table, obs: U32}
+
+def table_score(context: TableScore,action: U32) -> F32:
+  TableScore{model,obs}=context
+  lookup(model,obs,action)
+
+def sampled_table(model: Table,obs: U32,actions: List<&2,U32>,word: U32) -> U32:
+  sampled_best(~TableScore,~table_score,actions,TableScore{model,obs},word)
+
 def exploratory(mode: E.Mode, word: U32) -> Bool:
   match mode:
     case E.Evaluate{}: False{}
@@ -172,11 +252,15 @@ def exploratory(mode: E.Mode, word: U32) -> Bool:
 def choose(explore: Bool, model: Table, obs: U32, actions: List<&2, U32>, word: U32) -> U32:
   match explore:
     case True{}: random_action(actions, U32.shrn(word, 2n))
-    case False{}: best_action(choices(actions, model, obs))
+    case False{}: sampled_table(model,obs,actions,word)
+
+def train_epsilon_greedy(model: Table,obs: U32,actions: List<&2,U32>,+word: U32) -> U32:
+  choose(exploratory(E.Train{},word),model,obs,actions,word)
 
 def epsilon_greedy(model: Table, obs: U32, actions: List<&2, U32>, mode: E.Mode, word: U32) -> U32:
-  +bits = word
-  choose(exploratory(mode, bits), model, obs, actions, bits)
+  match mode:
+    case E.Evaluate{}: best_action(choices(actions,model,obs))
+    case E.Train{}: train_epsilon_greedy(model,obs,actions,word)
 
 def uniform(model: Table, obs: U32, actions: List<&2, U32>, mode: E.Mode, word: U32) -> U32:
   random_action(actions, word)

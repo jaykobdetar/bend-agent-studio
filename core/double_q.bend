@@ -18,6 +18,17 @@ def best(tables: Tables, obs: U32, actions: List<&2, U32>) -> U32:
   Tables{left, right, seed} = tables
   T.best_action(choices(actions, left, right, obs))
 
+type CombinedScore is Data:
+  CombinedScore{tables: Tables, obs: U32}
+
+def combined_score(context: CombinedScore,+a: U32) -> F32:
+  CombinedScore{tables,+obs}=context
+  Tables{left,right,seed}=tables
+  F32.add(T.lookup(left,obs,a),T.lookup(right,obs,a))
+
+def sampled_best(tables: Tables,obs: U32,actions: List<&2,U32>,word: U32) -> U32:
+  T.sampled_best(~CombinedScore,~(p => a => combined_score(p,a)),actions,CombinedScore{tables,obs},word)
+
 def evaluate_best(right: T.Table, obs: U32, options: T.Choices) -> F32:
   match options:
     case T.NoChoices{}: 0.0

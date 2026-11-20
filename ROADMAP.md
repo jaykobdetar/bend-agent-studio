@@ -38,7 +38,7 @@ See [Studio crash recovery](README.md#if-studio-stops-during-training) for super
 
 ## Phase 1: laws (do these first)
 
-Context: `laws/LAWS.bend` declares <!-- count:core-laws -->50<!-- /count --> laws and `laws/PROOF.bend` proves each one. Laws should cover structure, accounting, and information flow. Do not attempt floating-point results (convergence, exact values, unbiasedness). Do not restate determinism, which purity gives, or hidden-state isolation, which the `Transition<O>` type already enforces. Host-side properties (seed blocks, storage, statistics) stay as Node tests.
+Context: `laws/LAWS.bend` declares <!-- count:core-laws -->63<!-- /count --> laws and `laws/PROOF.bend` proves each one. Laws should cover structure, accounting, and information flow. Do not attempt floating-point results (convergence, exact values, unbiasedness). Do not restate determinism, which purity gives, or hidden-state isolation, which the `Transition<O>` type already enforces. Host-side properties (seed blocks, storage, statistics) stay as Node tests.
 
 If Bend's `law` syntax cannot express a hypothesis (for example "for a key different from…"), use an unconditional special case or a guard expression, and record the limitation in a comment.
 
@@ -352,7 +352,7 @@ item; after three unsuccessful attempts, revert that item without rewriting hist
 | ID | Work | Status |
 | --- | --- | --- |
 | R10.1 | Stop the Studio test compiler leaving output in the repo root; guard against untracked root files after tests. | Implemented; [test guide](docs/testing.md) |
-| R10.2 | Sample uniformly from exact greedy ties during training only. | Pending |
+| R10.2 | Sample among exact greedy ties during training only. | Implemented; [evaluation and regression checks](docs/testing.md) |
 | R10.3 | Run a preregistered flagship v2 with fresh seeds, preserving v1. | Pending |
 | R10.4 | Rerun the primary challenge and Kart transfer studies without overwriting their evidence. | Pending |
 | R10.5 | Check deterministic tie behavior in exact-evaluation tools against rollouts. | Pending |

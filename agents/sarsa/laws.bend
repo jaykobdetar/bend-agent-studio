@@ -24,3 +24,14 @@ law finish_clears:
   for m: S.Model
   for reason: E.Stop
   {S.pending(S.finish(m,reason)) == S.Clear{} : S.Pending}
+
+law evaluation_is_first_max:
+  for q: T.Table
+  for pending: S.Pending
+  for alpha: F32
+  for gamma: F32
+  for s: U32
+  for legal: List<&2,U32>
+  for word: U32
+  {S.act(S.Agent{q,pending,alpha,gamma},s,legal,E.Evaluate{},word)
+    == T.best_action(T.choices(legal,q,s)) : U32}

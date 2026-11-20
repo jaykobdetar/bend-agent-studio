@@ -1,5 +1,8 @@
 # Switchboard: learning on cue patterns never seen in training
 
+Published results on this page predate the training tie-breaking change. For
+historical reproduction, use the [pre-change source tree](https://github.com/jaykobdetar/bend-agent-studio/tree/032375733bb9559d77cea59b812654fd35d5bfe5).
+
 The earlier [memory-capacity study](../memory-capacity/README.md) showed that
 tabular Q-learning struggles to use all 16 remembered cues because there are
 1,048,576 distinct query observations. Here a small opt-in feature adapter

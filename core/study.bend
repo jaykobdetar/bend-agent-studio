@@ -59,29 +59,32 @@ def explores(mode: E.Mode, buckets: U32, word: U32) -> Bool:
 
 def select(explore: Bool, table: T.Table, obs: U32, actions: List<&2, U32>, word: U32) -> U32:
   match explore:
-    case False{}: T.best_action(T.choices(actions, table, obs))
-    case True{}: T.random_action(actions, word)
+    case False{}: T.sampled_table(table,obs,actions,word)
+    case True{}: T.random_action(actions,E.mix_word(U32.xor(word,2654435769)))
 
 def select_double(explore: Bool, tables: DQ.Tables, obs: U32, actions: List<&2, U32>, word: U32) -> U32:
   match explore:
-    case True{}: T.random_action(actions, word)
-    case False{}: DQ.best(tables, obs, actions)
+    case True{}: T.random_action(actions,E.mix_word(U32.xor(word,2654435769)))
+    case False{}: DQ.sampled_best(tables,obs,actions,word)
+
+def train_table(buckets: U32,table: T.Table,obs: U32,actions: List<&2,U32>,+word: U32) -> U32:
+  select(explores(E.Train{},buckets,word),table,obs,actions,word)
+
+def train_double(buckets: U32,tables: DQ.Tables,obs: U32,actions: List<&2,U32>,+word: U32) -> U32:
+  select_double(explores(E.Train{},buckets,word),tables,obs,actions,word)
 
 def act(model: Model, obs: U32, actions: List<&2, U32>, mode: E.Mode, word: U32) -> U32:
-  match model:
-    case PlanningAgent{Settings{method, a, g, e}, state}:
-      +bits = word
-      select(explores(mode,e,bits),Dyna.values(state),obs,actions,E.mix_word(U32.xor(bits,2654435769)))
-    case DoubleAgent{Settings{method, alpha, gamma, buckets}, tables}:
-      +bits = word
-      select_double(explores(mode, buckets, bits), tables, obs, actions, E.mix_word(U32.xor(bits, 2654435769)))
-    case Agent{Settings{Uniform{}, alpha, gamma, buckets}, values}:
-      T.random_action(actions, word)
-    case Agent{Settings{method, alpha, gamma, buckets}, values}:
-      +bits = word
-      # A separate mixed draw selects the action, independent of which
-      # epsilon threshold was applied to the policy word.
-      select(explores(mode, buckets, bits), values, obs, actions, E.mix_word(U32.xor(bits, 2654435769)))
+  match model mode:
+    case PlanningAgent{Settings{method,a,g,e},state} E.Train{}:
+      train_table(e,Dyna.values(state),obs,actions,word)
+    case PlanningAgent{cfg,state} E.Evaluate{}: T.best_action(T.choices(actions,Dyna.values(state),obs))
+    case DoubleAgent{Settings{method,a,g,e},tables} E.Train{}:
+      train_double(e,tables,obs,actions,word)
+    case DoubleAgent{cfg,tables} E.Evaluate{}: DQ.best(tables,obs,actions)
+    case Agent{Settings{Uniform{},alpha,gamma,buckets},values} _: T.random_action(actions,word)
+    case Agent{Settings{method,alpha,gamma,buckets},values} E.Train{}:
+      train_table(buckets,values,obs,actions,word)
+    case Agent{cfg,values} E.Evaluate{}: T.best_action(T.choices(actions,values,obs))
 
 def expected(+epsilon: F32, options: T.Choices) -> F32:
   match options:

@@ -47,19 +47,25 @@ def choices(legal: List<&2,U32>,+features: Features,+tree: W.Tree) -> T.Choices:
     case Nil{}: T.NoChoices{}
     case +a <> rest: T.consider(a,dot(features,tree,a),choices(rest,features,tree))
 
+type FeatureScore is Data:
+  FeatureScore{features: Features, weights: W.Tree}
+
+def feature_score(context: FeatureScore,action: U32) -> F32:
+  FeatureScore{features,tree}=context
+  dot(features,tree,action)
+
 def select(explore: Bool,features: Features,tree: W.Tree,legal: List<&2,U32>,word: U32) -> U32:
   match explore:
-    case True{}: T.random_action(legal,word)
-    case False{}: T.best_action(choices(legal,features,tree))
+    case True{}: T.random_action(legal,E.mix_word(U32.xor(word,2654435769)))
+    case False{}: T.sampled_best(~FeatureScore,~feature_score,legal,FeatureScore{features,tree},word)
 
-def training(mode: E.Mode) -> Bool:
-  match mode:
-    case E.Train{}: True{}
-    case E.Evaluate{}: False{}
+def train(buckets: U32,features: Features,tree: W.Tree,legal: List<&2,U32>,+word: U32) -> U32:
+  select(U32.is_lt(U32.and(word,65535),buckets),features,tree,legal,word)
 
-def act(~O: Data,~features: O -> Features,model: Model,obs: O,legal: List<&2,U32>,mode: E.Mode,+word: U32) -> U32:
-  Linear{Settings{alpha,gamma,epsilon},tree}=model
-  select(training(mode) && U32.is_lt(U32.and(word,65535),epsilon),features(obs),tree,legal,E.mix_word(U32.xor(word,2654435769)))
+def act(~O: Data,~features: O -> Features,model: Model,obs: O,legal: List<&2,U32>,mode: E.Mode,word: U32) -> U32:
+  match model mode:
+    case Linear{Settings{a,g,e},tree} E.Train{}: train(e,features(obs),tree,legal,word)
+    case Linear{settings,tree} E.Evaluate{}: T.best_action(choices(legal,features(obs),tree))
 
 def future(~O: Data,~features: O -> Features,tree: W.Tree,view: E.View<O>) -> F32:
   match view:

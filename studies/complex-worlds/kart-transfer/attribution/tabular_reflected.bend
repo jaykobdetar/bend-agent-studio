@@ -33,13 +33,21 @@ def explores(mode: E.Mode,word: U32) -> Bool:
 
 def select(explore: Bool,values: T.Table,obs: U32,legal: List<&2,U32>,word: U32) -> U32:
   match explore:
-    case True{}: T.random_action(legal,word)
-    case False{}: T.best_action(T.choices(legal,values,obs))
+    case True{}: T.random_action(legal,E.mix_word(U32.xor(word,2654435769)))
+    case False{}: T.sampled_table(values,obs,legal,word)
 
-def choose(model: Model,+obs0: U32,legal: List<&2,U32>,mode: E.Mode,+word: U32) -> U32:
+def train(values: T.Table,obs0: U32,legal: List<&2,U32>,+word: U32) -> U32:
+  select(explores(E.Train{},word),values,obs0,legal,word)
+
+def policy(mode: E.Mode,values: T.Table,obs0: U32,legal: List<&2,U32>,word: U32) -> U32:
+  match mode:
+    case E.Evaluate{}: T.best_action(T.choices(legal,values,obs0))
+    case E.Train{}: train(values,obs0,legal,word)
+
+def choose(model: Model,+obs0: U32,legal: List<&2,U32>,mode: E.Mode,word: U32) -> U32:
   Table{values,reflect}=model
   +flip=reflect && F.flip_at(obs0)
-  F.steering(flip,select(explores(mode,word),values,obs(flip,obs0),legal,E.mix_word(U32.xor(word,2654435769))))
+  F.steering(flip,policy(mode,values,obs(flip,obs0),legal,word))
 
 def act(model: Model,obs0: U32,legal: List<&2,U32>,mode: E.Mode,word: U32) -> U32:
   choose(model,obs0,legal,mode,word)
