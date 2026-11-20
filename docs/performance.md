@@ -400,3 +400,26 @@ The original seal and predecessor link were preserved. Deliberately wrong
 seed, tree and predecessor inputs failed. This is one continuation boundary,
 not evidence for a native archive writer or the complete replay/resume
 lifecycle.
+
+
+Two other [bounded correctness checks](../twin/scalar-q-spike/README.md)
+exercise separate pieces of a possible native implementation:
+
+* The [literal Q archive handoff](../twin/scalar-q-spike/lifecycle/README.md)
+  compared all 12 candidate byte buffers with stock before creating any
+  scratch archive. Stock verified the complete scratch and reproduced a
+  learned-model replay; a separate six-file prefix resumed with archived
+  Bend into all 12 exact files. A deliberate late mismatch created no
+  folder. This is not native resume, an independent writer, or a generally
+  qualified archive lifecycle.
+* The [Uniform AVX2 witness](../twin/scalar-q-spike/avx2/README.md) used actual
+  256-bit operations on the RNG path and preserved raw reports, masking
+  semantics and all 12 sealed files on each compiler target. It does not
+  vectorize the learners or measure performance.
+
+The [complete stock Bridge plan](../twin/scalar-q-spike/bridge/README.md)
+also passed under its actual parent seal: 3 arms × 8 replicates × 3 budgets,
+or 72 distinct files, matched on both compiler targets at 1, 2 and 4 workers.
+The plan, validation and test settings were unchanged; no projected
+archive or native writer was used. This is one complete shipped plan,
+not the complete eligible matrix or a runtime measurement.

@@ -1,0 +1,12 @@
+{
+  "schema": 1,
+  "stockManifest": "814bdb44f0e2db2d8b0271231988e03a9a551caa04d2f898f9e688271aafcf97",
+  "plan": "p118-literal",
+  "stockTrialSetSha256": "78e3b9aa4d0ad4b32d3dc7c5439e9dc1f7cb95c82fe36bd4c9410f89360518dc",
+  "game": "wire",
+  "arm": "q",
+  "replicates": 3,
+  "checkpoints": [0, 1, 7, 31],
+  "prefixEndsAt": 1,
+  "replay": { "replicate": 0, "checkpoint": 7, "phase": "validation", "index": 0 }
+}

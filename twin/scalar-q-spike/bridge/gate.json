@@ -1,0 +1,25 @@
+{
+  "schema": 1,
+  "referenceRunner": "764724b404c998c69ebdab0cb077d321b71a2768",
+  "experiment": "experiments/bridge.json",
+  "experimentSha256": "e403e17522f7a71920f7a3cc2cbf0e7dbbf36d9f0e76801185d1a208fa2ca422",
+  "world": "worlds/bridge.json",
+  "worldSha256": "617d0547d4c50fa0236770725cabd6213e8f74cb9c4ab0a41cb0e75de9e033c6",
+  "normalizedPlanSha256": "8058a1f5e3f186da353a3c417c91075c23df6c637bb9ae909cfb1918fa75bc48",
+  "name": "authored-bridge",
+  "budgetUnit": "episodes",
+  "game": "bridge",
+  "horizon": 2,
+  "replicates": 8,
+  "arms": [
+    { "id": "random", "method": "random" },
+    { "id": "q", "method": "q_learning" },
+    { "id": "double", "method": "double_q" }
+  ],
+  "checkpoints": [0, 32, 256],
+  "validationEpisodes": 32,
+  "testEpisodes": 128,
+  "seeds": { "train": 71000000, "validation": 1500000000, "test": 2500000000, "stride": 10000 },
+  "compilerTargets": ["x86-64-v3", "znver3"],
+  "workerCounts": [1, 2, 4]
+}

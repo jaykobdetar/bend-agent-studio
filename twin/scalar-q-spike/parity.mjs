@@ -212,7 +212,7 @@ function accumulate(sum, reports, expected) {
   }
   return sum;
 }
-function compare(exe, dir, archived, workers, selection) {
+function compare(exe, dir, archived, workers, selection, captured) {
   const p = selection?.plan ?? archived.body.plan;
   status(dir, true);
   const config = settings(p.arms[0],p.games[0]);
@@ -240,11 +240,14 @@ function compare(exe, dir, archived, workers, selection) {
       else assert.equal(te,null);
       const file = path.join(dir,'trials',game,arm,String(rep),point+'.json');
       const exact = unseal(file), candidate = seal(body);
-      if (candidate !== fs.readFileSync(file,'utf8')) {
+      const bytes = captured ? Buffer.from(candidate,'utf8') : null;
+      const matches = bytes ? bytes.equals(fs.readFileSync(file)) : candidate === fs.readFileSync(file,'utf8');
+      if (!matches) {
         for (const key of Object.keys(body))
           assert.deepEqual(body[key],exact.body[key], 'parity mismatch at '+rep+':'+point+' '+key);
         assert.fail('checkpoint bytes differ despite equal decoded fields at '+rep+':'+point);
       }
+      if (captured) captured.push({game,arm,rep,point,bytes});
       // A selected trial still derives its own chain from complete,
       // checked candidate bytes within the original parent namespace.
       done = point; parent = selection ? JSON.parse(candidate).hash : exact.hash;
@@ -290,6 +293,15 @@ function trustedArchive(root) {
   assert.equal(archive.body.toolchain.bend,'bend 2.0.40');
   return archive;
 }
+// Diagnostic handoff: return independently generated buffers only after
+// the entire eligible stock comparison and the existing checks succeeded.
+export function collectVerifiedCheckpoints(root, exe) {
+  const archive=trustedArchive(root);
+  requireEligible(archive.body.plan);
+  const rows=[];
+  compare(exe,root,archive,undefined,undefined,rows);
+  return rows;
+}
 function selectRange(archive, gameId, armId, rangeArg) {
   const p = archive.body.plan;
   const match = /^(?:(0|[1-9]\d*):)?([1-8])$/.exec(rangeArg);
@@ -323,34 +335,36 @@ function requireOutsideArchive(file, root) {
     'place the generated C outside the parent archive');
 }
 
-const [mode, file, extra, fourth, ...rest] = process.argv.slice(2);
-if (mode === 'fixture' && file && !rest.length && ['literal','packed'].includes(extra) &&
-    methods.includes(fourth ?? 'q_learning')) {
-  const plan = fixture(extra === 'packed',fourth ?? 'q_learning');
-  requireEligible(readPlan(plan));
-  output(file, numberPreservingJson(plan,2)+'\n');
-} else if (mode === 'generate-plan' && file && extra && fourth === undefined) {
-  writeSource(extra, readPlan(path.resolve(file)));
-} else if (file && extra && !rest.length && (
-  (mode === 'generate' && fourth === undefined) ||
-  (mode === 'check' && (fourth === undefined || ['1','2','4'].includes(fourth)))
-)) {
-  const archive = trustedArchive(file);
-  requireEligible(archive.body.plan);
-  if (mode === 'generate') writeSource(extra, archive.body.plan);
-  else compare(extra, file, archive, fourth);
-} else if (file && extra && fourth && (
-  (mode==='generate-cell' && rest.length===2) ||
-  (mode==='check-cell' && (rest.length===2 || (rest.length===3 && ['1','2','4'].includes(rest[2]))))
-)) {
-  const archive=trustedArchive(file);
-  const [range,destination,workers]=rest;
-  const selection=selectRange(archive,extra,fourth,range);
-  if (mode==='generate-cell') {
-    requireOutsideArchive(destination,file);
-    writeSource(destination,selection.plan,selection.wireHash);
-  } else compare(destination,file,archive,workers,selection);
-} else throw Error('usage: parity.mjs fixture NEW_PLAN literal|packed [' + methods.join('|') +
-  '] | generate-plan PLAN NEW_C | generate TRUSTED_STOCK_RUN NEW_C | check TRUSTED_STOCK_RUN TRUSTED_NATIVE_EXE [1|2|4]' +
-  ' | generate-cell TRUSTED_PARENT GAME ARM COUNT|START:COUNT NEW_C' +
-  ' | check-cell TRUSTED_PARENT GAME ARM COUNT|START:COUNT TRUSTED_NATIVE_EXE [1|2|4]');
+if (import.meta.main) {
+  const [mode, file, extra, fourth, ...rest] = process.argv.slice(2);
+  if (mode === 'fixture' && file && !rest.length && ['literal','packed'].includes(extra) &&
+      methods.includes(fourth ?? 'q_learning')) {
+    const plan = fixture(extra === 'packed',fourth ?? 'q_learning');
+    requireEligible(readPlan(plan));
+    output(file, numberPreservingJson(plan,2)+'\n');
+  } else if (mode === 'generate-plan' && file && extra && fourth === undefined) {
+    writeSource(extra, readPlan(path.resolve(file)));
+  } else if (file && extra && !rest.length && (
+    (mode === 'generate' && fourth === undefined) ||
+    (mode === 'check' && (fourth === undefined || ['1','2','4'].includes(fourth)))
+  )) {
+    const archive = trustedArchive(file);
+    requireEligible(archive.body.plan);
+    if (mode === 'generate') writeSource(extra, archive.body.plan);
+    else compare(extra, file, archive, fourth);
+  } else if (file && extra && fourth && (
+    (mode==='generate-cell' && rest.length===2) ||
+    (mode==='check-cell' && (rest.length===2 || (rest.length===3 && ['1','2','4'].includes(rest[2]))))
+  )) {
+    const archive=trustedArchive(file);
+    const [range,destination,workers]=rest;
+    const selection=selectRange(archive,extra,fourth,range);
+    if (mode==='generate-cell') {
+      requireOutsideArchive(destination,file);
+      writeSource(destination,selection.plan,selection.wireHash);
+    } else compare(destination,file,archive,workers,selection);
+  } else throw Error('usage: parity.mjs fixture NEW_PLAN literal|packed [' + methods.join('|') +
+    '] | generate-plan PLAN NEW_C | generate TRUSTED_STOCK_RUN NEW_C | check TRUSTED_STOCK_RUN TRUSTED_NATIVE_EXE [1|2|4]' +
+    ' | generate-cell TRUSTED_PARENT GAME ARM COUNT|START:COUNT NEW_C' +
+    ' | check-cell TRUSTED_PARENT GAME ARM COUNT|START:COUNT TRUSTED_NATIVE_EXE [1|2|4]');
+}

@@ -1,0 +1,22 @@
+{
+  "scope": "Uniform literal finite-world diagnostic, one worker, no timing",
+  "node": "24.22.3",
+  "bend": "2.0.40",
+  "clang": "22.1.4",
+  "clangRevision": "35990504507d79e0b9deb809c8ee5e1b34ceef20",
+  "flags": ["-std=c11", "-O3", "-Wall", "-Wextra", "-Werror", "-ffp-contract=off", "-fno-fast-math", "-pthread"],
+  "stockManifestFileSha256": "4da0a3361079c4c14c0e0733f6e2291926c172330c42c8facb955fab42644fe4",
+  "stockManifestSeal": "ce7a287bc08a6ba9deb131a43cf92005f3b477f019a84faec67b85332771f9ba",
+  "stockBackendSha256": "afa6ed01bd8f62f54438b0bef82a06d6ccaa9daf74d07021abc4e5432f7d7e38",
+  "stockTrialSetSha256": "de3687c6942440f159478de942ed5c39c30805e35c4774e7d386ecad79574364",
+  "generatedScalarSourceSha256": "d2e3328d42ce40e61002a07e7919f012e0fcab5930b65f4d1283f1e71b097379",
+  "generatedVectorSourceSha256": "f7674b6bffbaeeecce613c08ef392b3a0deca32a909d701454fae71c35658e19",
+  "frozenAndVectorWireSha256": "51fec07c3db071ae0eb5325c87f60ddade375e32ae2e4c1109f267f1593f3a71",
+  "orderedReportsByStop": {"terminalAtReset": 54, "terminalAtStep1": 76, "terminalAtStep2": 59, "terminalAtHorizon3": 55, "openAtHorizon3": 113},
+  "partialBatchActiveLaneCounts": [1, 6],
+  "avx2RngInstructionsOnCalledUniform8Path": ["vpmulld ymm", "vpsrld ymm", "vpxor ymm"],
+  "targets": {
+    "x86-64-v3": {"executableSha256": "087b1222654fb22386497368bc3a3d4450b34bd6788d3c444190a27dc033b3df", "completeCheckpointByteMatches": 12},
+    "znver3": {"executableSha256": "48692fe61b80824b37965ced7c73f6f9b35db09e9fce019dc4f58a9d0c56322c", "completeCheckpointByteMatches": 12}
+  }
+}

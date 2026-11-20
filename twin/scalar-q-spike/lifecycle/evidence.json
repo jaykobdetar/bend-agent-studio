@@ -1,0 +1,36 @@
+{
+  "schema": 1,
+  "toolchain": {
+    "node": "24.22.3",
+    "bend": "2.0.40",
+    "clang": "22.1.4",
+    "target": "x86-64-v3",
+    "optimization": "-O3"
+  },
+  "roundTrip": {
+    "sameStockManifest": "814bdb44f0e2db2d8b0271231988e03a9a551caa04d2f898f9e688271aafcf97",
+    "matchedBeforeStaging": 12,
+    "completeVerified": 12,
+    "replay": {
+      "replicate": 0,
+      "checkpoint": 7,
+      "phase": "validation",
+      "index": 0
+    },
+    "replaySha256": "51177d8cbec0b9041fd58d4b705532deef129583f9b1765183ece6f24468f993",
+    "prefixFilesBeforeResume": 6,
+    "stockResumeCreated": 6,
+    "resumedFilesMatched": 12,
+    "referenceFingerprint": "d2ee653b9bb431e6ef238eff46e7d1b19cabf79fe502d2598d06f40140675d82"
+  },
+  "stockTrialSetSha256": "78e3b9aa4d0ad4b32d3dc7c5439e9dc1f7cb95c82fe36bd4c9410f89360518dc",
+  "externalFileInventorySha256": "d2359983585affe326e7781aac82082729dddffb2b749c1baa0c37789bb0b774",
+  "generatedCSha256": "a3f06eb00de30fb8154d550a59a27b1d78c779035b3772070e5aeea2207787e5",
+  "nativeExecutableSha256": "f7cca61f5453ef50ab21a6b29150140a730c0ce53a97a0198abd6389191a7b34",
+  "distinctScratchCheckpointFilesConfirmed": 24,
+  "replayedLearnedIndexedModel": true,
+  "negative": {
+    "lateDifferentModel": "replicate 2, checkpoint 31, model",
+    "scratchCreated": false
+  }
+}

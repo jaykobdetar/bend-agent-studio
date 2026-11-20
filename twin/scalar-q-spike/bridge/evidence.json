@@ -1,0 +1,60 @@
+{
+  "schema": 1,
+  "gateSha256": "d82c1928523ab21a07abca34016b49cf27cf0359aa63a64173e339eafafcc14c",
+  "parentManifest": "4e941a074db4c8615aafb6149b6285db50266fd97a3672eab492b0f4b3a12fcd",
+  "toolchain": {
+    "node": "24.22.3",
+    "bend": "2.0.40",
+    "clang": "22.1.4",
+    "optimization": "-O3"
+  },
+  "stockBackendSha256": "5de44ec990dd4a6674faad18062b4a436dadfd37ad51cdc0101e181a8ada2186",
+  "stockTrialSetSha256": "ac2fb0c6171bc1067b44bac2aee8c8d742b3004f99f58c860ec35bb1a454843d",
+  "stockInventorySha256BeforeAndAfter": "aad92ad8cfa1314867d4a9e471ac7267ff9ae7b59bd5c7e7cb364bd02213b3fa",
+  "stockTrialsVerified": 24,
+  "distinctCheckpointFiles": 72,
+  "fullByteComparisons": 432,
+  "episodesPerFullConfiguration": {
+    "train": 6144,
+    "validation": 2304,
+    "test": 3072
+  },
+  "cells": [
+    {
+      "id": "random",
+      "method": "random",
+      "uniqueCheckpointFiles": 24,
+      "comparisons": 144,
+      "generatedCSha256": "62bfca0aea2541cba518b6c419eb2d437842cf3fd28360fd1ac3e2584296ebfd",
+      "wireSha256": "1b4ca3774ca061d56df882c877d694965f78c980ae8fcfaf4c973362c17da858",
+      "executableSha256": {
+        "x86-64-v3": "536d8a2c2b2fd913e39a2e9e6df676eb3fd83d99937d9c665e6dacb4464b3f96",
+        "znver3": "4a3829dd9c0cc6320120ae0269198bbcee06117d9c65cd0530062edda14b8b4a"
+      }
+    },
+    {
+      "id": "q",
+      "method": "q_learning",
+      "uniqueCheckpointFiles": 24,
+      "comparisons": 144,
+      "generatedCSha256": "f6794b7488aad2880767c6b80f10786dcead9655ad42d97df9b0b935652b8fc1",
+      "wireSha256": "7267442a876e6c34eaa1ff46d4d7506029af02ec562fb4ca2adad4af205cb56e",
+      "executableSha256": {
+        "x86-64-v3": "f63dde2bf22e15b1696af0a0c9f381d80e7d0a50ead785deec254d6b169b9500",
+        "znver3": "36a02820b5275939d5e3c55f17014e1b722c47de69040d1d1558fa15b063c89f"
+      }
+    },
+    {
+      "id": "double",
+      "method": "double_q",
+      "uniqueCheckpointFiles": 24,
+      "comparisons": 144,
+      "generatedCSha256": "573c6a83b1664ac211567865938dc56a74fa5d10d6b0b2c139f599049033e722",
+      "wireSha256": "8decd916600a4bed05a7376c4eb1b61d38254ad2345029427d8dcb5a284243a7",
+      "executableSha256": {
+        "x86-64-v3": "abad7ba8240ae60a2fae89ccf0a60c1afed14629499376304ae374229b299b67",
+        "znver3": "17d5b4d78c1f65956cfe42ca18bc21d578d8d2fe68997bf9fdde85c4630f23c4"
+      }
+    }
+  ]
+}
