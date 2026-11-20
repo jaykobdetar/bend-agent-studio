@@ -18,7 +18,7 @@ guard settings, medians, and reproduction commands.
 | P11.7 | Partial diagnostic | Stock sine differed by one ULP on actual CUDA. An outward portable tanh prototype matched 5,692 CPU/JS words and 24 verified CUDA words. A separate midpoint test found two deliberate refusals and no incorrect numeric output. The current precision stages do not cover all inputs. |
 | P11.8 | Partial diagnostic | Five finite learners, both compiler targets, 1/2/4 workers, three cells under the actual flagship seal, one complete shipped Bridge plan, bounded continuation and stock archive handoff, a Uniform-policy AVX2 RNG witness, and a hosted generic-native smoke. No adopted engine, whole eligible plan matrix, learner SIMD, or complete native archive lifecycle. |
 | P11.9 | Deferred | Do not tune a production native engine until one qualifies; no PGO, ThinLTO or BOLT adoption. |
-| P11.10 | Not qualified | No exact production population CUDA backend. Stock GPU probe and portable tanh device sample are separate from workload parity. |
+| P11.10 | Not qualified | One original flagship Q-learning cell matched all 90 stock checkpoints on the actual RTX 3060 Ti. The scope does not qualify a production CUDA backend. |
 | P11.11 | Not evaluated | A missing population test does not justify an approximate screening backend. |
 | P11.12 | Deferred | No tuner or persisted settings derived from an unqualified runtime. |
 | P11.13 | Deferred | No automatic idle work or service activation. |
@@ -56,6 +56,35 @@ guard settings, medians, and reproduction commands.
   with identical verification, CSV and untimed replay. Native was 1.73×
   as fast with prebuilt code, but took 17% longer cold. This is not
   flagship performance or a qualified production runtime.
+
+## Actual CUDA: one original flagship cell
+
+The original flagship v2 slippery FrozenLake / Q-learning cell used the
+unchanged plan, all ten original replicate IDs, and its original validation
+and test budgets. The reference was the stock archive with parent seal
+`a5b41470bbe999d26d9919087156c5b62078ecae52c634757addd29e5ea36a43`.
+
+The one-cell CUDA witness was built with CUDA 12.0.140 and GCC 12 for
+sm_86, with FMA contraction and flush-to-zero disabled. The finite
+Q-learning loop used explicit round-to-nearest binary32 arithmetic and
+no transcendental operations. Two Nsight captures on the RTX 3060 Ti
+each recorded one positive-duration kernel event. Host code transferred
+and encoded the results but did not run the learner or fall back to the
+CPU. The captured output matched the corresponding ordered CPU output,
+covering 11,120 training, validation and test episode reports in total.
+The unchanged native comparator then matched the complete checkpoint
+bytes against the stock archive.
+
+| Original replicates | Matched checkpoints | Captured wire SHA-256 |
+| --- | ---: | --- |
+| 0–7 | 72 | `ff00f68f2e6039990897f3c63592511f9e770dda23bfe64c6c9cd22457867d9d` |
+| 8–9 | 18 | `89a8e13c6c1508a53937272015a0705323bbf341d0735299bc75a081fddcf9bb` |
+
+This is device correctness evidence for one cell, not a speed test.
+There was no GPU archive writer, no independent full-plan lifecycle
+test on CUDA, and no CPU/GPU crossover measurement. The original archive
+was not modified. The portable tanh and stock Bend CUDA experiments
+are distinct diagnostics and do not extend this cell's scope.
 
 ## Adoption priorities
 
