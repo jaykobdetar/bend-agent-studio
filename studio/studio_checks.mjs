@@ -394,9 +394,11 @@ test('reopening a Studio home preserves newest-first job order, including legacy
     await server.close();
   }
 });
-test('replay deadline and runner failure release capacity', {timeout: 15000}, async (t) => {
-  // Give the fixture time to start on loaded CI runners; it still sleeps for two minutes.
-  const {server, dir, replay} = await mountedReplay(t, 3000);
+test('replay deadline and runner failure release capacity', {timeout: 45000}, async (t) => {
+  // A replay runner can take several seconds to launch on a busy Windows CI host.
+  // The hung fixture still sleeps for two minutes; the one-slot cap makes
+  // each following response prove that the last replay released its slot.
+  const {server, dir, replay} = await mountedReplay(t, 10_000, undefined, undefined, 1);
   try {
     const pending = replay(0);
     const pid = await waitForRunner(dir, 0);
