@@ -1,0 +1,67 @@
+{
+  "schema": 1,
+  "name": "switchboard-generalization",
+  "games": [
+    {
+      "id": "direct",
+      "worldFile": "../../../worlds/challenges/switchboard/switchboard.bend",
+      "parameters": {
+        "width": 16,
+        "delay": 0,
+        "encoding": 2
+      },
+      "limit": 17
+    },
+    {
+      "id": "remapped",
+      "worldFile": "remapped.bend",
+      "parameters": {
+        "width": 16,
+        "delay": 0,
+        "encoding": 2
+      },
+      "limit": 17
+    }
+  ],
+  "arms": [
+    {
+      "id": "tabular",
+      "method": "q_learning",
+      "epsilon": 0.125,
+      "alpha": 0.25,
+      "gamma": 1
+    },
+    {
+      "id": "query-only",
+      "method": "custom",
+      "agentFile": "cue_linear.bend",
+      "parameters": {
+        "use_bits": 0
+      }
+    },
+    {
+      "id": "cue-linear",
+      "method": "custom",
+      "agentFile": "cue_linear.bend",
+      "parameters": {
+        "use_bits": 1
+      }
+    }
+  ],
+  "replicates": 8,
+  "checkpoints": [
+    0,
+    128,
+    512,
+    2048,
+    8192
+  ],
+  "validationEpisodes": 128,
+  "testEpisodes": 1024,
+  "seeds": {
+    "train": 617000000,
+    "validation": 1846000000,
+    "test": 3069000000,
+    "stride": 100000
+  }
+}

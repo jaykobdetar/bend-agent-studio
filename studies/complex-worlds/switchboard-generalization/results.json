@@ -1,0 +1,587 @@
+{
+  "contexts": 1048576,
+  "policyChecks": 46080,
+  "traceChecks": 384,
+  "groups": [
+    {
+      "game": "direct",
+      "arm": "tabular",
+      "episodes": 0,
+      "replicates": 8,
+      "exactAccuracy": 0.5,
+      "exactRange": [
+        0.5,
+        0.5
+      ],
+      "novelAccuracy": 0.5,
+      "meanUniqueTrainingContexts": 0,
+      "crossMappingAccuracy": null,
+      "validationAccuracy": 0.50976563,
+      "testAccuracy": null,
+      "meanCheckpointBytes": 681.5
+    },
+    {
+      "game": "direct",
+      "arm": "query-only",
+      "episodes": 0,
+      "replicates": 8,
+      "exactAccuracy": 0.5,
+      "exactRange": [
+        0.5,
+        0.5
+      ],
+      "novelAccuracy": 0.5,
+      "meanUniqueTrainingContexts": 0,
+      "crossMappingAccuracy": null,
+      "validationAccuracy": 0.50976563,
+      "testAccuracy": null,
+      "meanCheckpointBytes": 706.5
+    },
+    {
+      "game": "direct",
+      "arm": "cue-linear",
+      "episodes": 0,
+      "replicates": 8,
+      "exactAccuracy": 0.5,
+      "exactRange": [
+        0.5,
+        0.5
+      ],
+      "novelAccuracy": 0.5,
+      "meanUniqueTrainingContexts": 0,
+      "crossMappingAccuracy": 0.5,
+      "validationAccuracy": 0.50976563,
+      "testAccuracy": null,
+      "meanCheckpointBytes": 721.5,
+      "pairedExactGainOverTabular": {
+        "mean": 0,
+        "t95": [
+          0,
+          0
+        ]
+      }
+    },
+    {
+      "game": "direct",
+      "arm": "tabular",
+      "episodes": 128,
+      "replicates": 8,
+      "exactAccuracy": 0.50006199,
+      "exactRange": [
+        0.50005627,
+        0.5000658
+      ],
+      "novelAccuracy": 0.50000095,
+      "meanUniqueTrainingContexts": 128,
+      "crossMappingAccuracy": null,
+      "validationAccuracy": 0.50976563,
+      "testAccuracy": null,
+      "meanCheckpointBytes": 136853.625
+    },
+    {
+      "game": "direct",
+      "arm": "query-only",
+      "episodes": 128,
+      "replicates": 8,
+      "exactAccuracy": 0.5,
+      "exactRange": [
+        0.5,
+        0.5
+      ],
+      "novelAccuracy": 0.49998557,
+      "meanUniqueTrainingContexts": 128,
+      "crossMappingAccuracy": null,
+      "validationAccuracy": 0.51855469,
+      "testAccuracy": null,
+      "meanCheckpointBytes": 43478
+    },
+    {
+      "game": "direct",
+      "arm": "cue-linear",
+      "episodes": 128,
+      "replicates": 8,
+      "exactAccuracy": 0.76249409,
+      "exactRange": [
+        0.75072002,
+        0.76833725
+      ],
+      "novelAccuracy": 0.7624664,
+      "meanUniqueTrainingContexts": 128,
+      "crossMappingAccuracy": 0.49869251,
+      "validationAccuracy": 0.765625,
+      "testAccuracy": null,
+      "meanCheckpointBytes": 613283.75,
+      "pairedExactGainOverTabular": {
+        "mean": 0.2624321,
+        "t95": [
+          0.25766679,
+          0.2671974
+        ]
+      }
+    },
+    {
+      "game": "direct",
+      "arm": "tabular",
+      "episodes": 512,
+      "replicates": 8,
+      "exactAccuracy": 0.50023973,
+      "exactRange": [
+        0.50022888,
+        0.50025368
+      ],
+      "novelAccuracy": 0.49999571,
+      "meanUniqueTrainingContexts": 511.75,
+      "crossMappingAccuracy": null,
+      "validationAccuracy": 0.50976563,
+      "testAccuracy": null,
+      "meanCheckpointBytes": 446901.75
+    },
+    {
+      "game": "direct",
+      "arm": "query-only",
+      "episodes": 512,
+      "replicates": 8,
+      "exactAccuracy": 0.5,
+      "exactRange": [
+        0.5,
+        0.5
+      ],
+      "novelAccuracy": 0.49997531,
+      "meanUniqueTrainingContexts": 511.75,
+      "crossMappingAccuracy": null,
+      "validationAccuracy": 0.49414063,
+      "testAccuracy": null,
+      "meanCheckpointBytes": 45440.75
+    },
+    {
+      "game": "direct",
+      "arm": "cue-linear",
+      "episodes": 512,
+      "replicates": 8,
+      "exactAccuracy": 0.94413936,
+      "exactRange": [
+        0.9312582,
+        0.95926571
+      ],
+      "novelAccuracy": 0.9441153,
+      "meanUniqueTrainingContexts": 511.75,
+      "crossMappingAccuracy": 0.50009048,
+      "validationAccuracy": 0.94042969,
+      "testAccuracy": null,
+      "meanCheckpointBytes": 622411.25,
+      "pairedExactGainOverTabular": {
+        "mean": 0.44389963,
+        "t95": [
+          0.43374471,
+          0.45405455
+        ]
+      }
+    },
+    {
+      "game": "direct",
+      "arm": "tabular",
+      "episodes": 2048,
+      "replicates": 8,
+      "exactAccuracy": 0.50097835,
+      "exactRange": [
+        0.50094128,
+        0.50100994
+      ],
+      "novelAccuracy": 0.50000269,
+      "meanUniqueTrainingContexts": 2046.125,
+      "crossMappingAccuracy": null,
+      "validationAccuracy": 0.51074219,
+      "testAccuracy": null,
+      "meanCheckpointBytes": 1403114.625
+    },
+    {
+      "game": "direct",
+      "arm": "query-only",
+      "episodes": 2048,
+      "replicates": 8,
+      "exactAccuracy": 0.5,
+      "exactRange": [
+        0.5,
+        0.5
+      ],
+      "novelAccuracy": 0.49997593,
+      "meanUniqueTrainingContexts": 2046.125,
+      "crossMappingAccuracy": null,
+      "validationAccuracy": 0.49511719,
+      "testAccuracy": null,
+      "meanCheckpointBytes": 45491.875
+    },
+    {
+      "game": "direct",
+      "arm": "cue-linear",
+      "episodes": 2048,
+      "replicates": 8,
+      "exactAccuracy": 0.99996543,
+      "exactRange": [
+        0.99979591,
+        1
+      ],
+      "novelAccuracy": 0.99996536,
+      "meanUniqueTrainingContexts": 2046.125,
+      "crossMappingAccuracy": 0.50000358,
+      "validationAccuracy": 1,
+      "testAccuracy": null,
+      "meanCheckpointBytes": 622394.625,
+      "pairedExactGainOverTabular": {
+        "mean": 0.49898708,
+        "t95": [
+          0.49892028,
+          0.49905387
+        ]
+      }
+    },
+    {
+      "game": "direct",
+      "arm": "tabular",
+      "episodes": 8192,
+      "replicates": 8,
+      "exactAccuracy": 0.50388145,
+      "exactRange": [
+        0.50384617,
+        0.50394249
+      ],
+      "novelAccuracy": 0.49999165,
+      "meanUniqueTrainingContexts": 8157.375,
+      "crossMappingAccuracy": null,
+      "validationAccuracy": 0.515625,
+      "testAccuracy": 0.50378418,
+      "meanCheckpointBytes": 4087805
+    },
+    {
+      "game": "direct",
+      "arm": "query-only",
+      "episodes": 8192,
+      "replicates": 8,
+      "exactAccuracy": 0.5,
+      "exactRange": [
+        0.5,
+        0.5
+      ],
+      "novelAccuracy": 0.49996438,
+      "meanUniqueTrainingContexts": 8157.375,
+      "crossMappingAccuracy": null,
+      "validationAccuracy": 0.48242188,
+      "testAccuracy": 0.49768066,
+      "meanCheckpointBytes": 45635.625
+    },
+    {
+      "game": "direct",
+      "arm": "cue-linear",
+      "episodes": 8192,
+      "replicates": 8,
+      "exactAccuracy": 1,
+      "exactRange": [
+        1,
+        1
+      ],
+      "novelAccuracy": 1,
+      "meanUniqueTrainingContexts": 8157.375,
+      "crossMappingAccuracy": 0.5,
+      "validationAccuracy": 1,
+      "testAccuracy": 1,
+      "meanCheckpointBytes": 622709.375,
+      "pairedExactGainOverTabular": {
+        "mean": 0.49611855,
+        "t95": [
+          0.49608947,
+          0.49614762
+        ]
+      }
+    },
+    {
+      "game": "remapped",
+      "arm": "tabular",
+      "episodes": 0,
+      "replicates": 8,
+      "exactAccuracy": 0.5,
+      "exactRange": [
+        0.5,
+        0.5
+      ],
+      "novelAccuracy": 0.5,
+      "meanUniqueTrainingContexts": 0,
+      "crossMappingAccuracy": null,
+      "validationAccuracy": 0.5,
+      "testAccuracy": null,
+      "meanCheckpointBytes": 689
+    },
+    {
+      "game": "remapped",
+      "arm": "query-only",
+      "episodes": 0,
+      "replicates": 8,
+      "exactAccuracy": 0.5,
+      "exactRange": [
+        0.5,
+        0.5
+      ],
+      "novelAccuracy": 0.5,
+      "meanUniqueTrainingContexts": 0,
+      "crossMappingAccuracy": null,
+      "validationAccuracy": 0.5,
+      "testAccuracy": null,
+      "meanCheckpointBytes": 714
+    },
+    {
+      "game": "remapped",
+      "arm": "cue-linear",
+      "episodes": 0,
+      "replicates": 8,
+      "exactAccuracy": 0.5,
+      "exactRange": [
+        0.5,
+        0.5
+      ],
+      "novelAccuracy": 0.5,
+      "meanUniqueTrainingContexts": 0,
+      "crossMappingAccuracy": 0.5,
+      "validationAccuracy": 0.5,
+      "testAccuracy": null,
+      "meanCheckpointBytes": 729,
+      "pairedExactGainOverTabular": {
+        "mean": 0,
+        "t95": [
+          0,
+          0
+        ]
+      }
+    },
+    {
+      "game": "remapped",
+      "arm": "tabular",
+      "episodes": 128,
+      "replicates": 8,
+      "exactAccuracy": 0.50006366,
+      "exactRange": [
+        0.50005436,
+        0.50007057
+      ],
+      "novelAccuracy": 0.50000262,
+      "meanUniqueTrainingContexts": 128,
+      "crossMappingAccuracy": null,
+      "validationAccuracy": 0.5,
+      "testAccuracy": null,
+      "meanCheckpointBytes": 136864.625
+    },
+    {
+      "game": "remapped",
+      "arm": "query-only",
+      "episodes": 128,
+      "replicates": 8,
+      "exactAccuracy": 0.5,
+      "exactRange": [
+        0.5,
+        0.5
+      ],
+      "novelAccuracy": 0.49998617,
+      "meanUniqueTrainingContexts": 128,
+      "crossMappingAccuracy": null,
+      "validationAccuracy": 0.51367188,
+      "testAccuracy": null,
+      "meanCheckpointBytes": 43795.5
+    },
+    {
+      "game": "remapped",
+      "arm": "cue-linear",
+      "episodes": 128,
+      "replicates": 8,
+      "exactAccuracy": 0.76178384,
+      "exactRange": [
+        0.7485218,
+        0.77205181
+      ],
+      "novelAccuracy": 0.76175631,
+      "meanUniqueTrainingContexts": 128,
+      "crossMappingAccuracy": 0.49655008,
+      "validationAccuracy": 0.74511719,
+      "testAccuracy": null,
+      "meanCheckpointBytes": 615657.25,
+      "pairedExactGainOverTabular": {
+        "mean": 0.26172018,
+        "t95": [
+          0.2550927,
+          0.26834766
+        ]
+      }
+    },
+    {
+      "game": "remapped",
+      "arm": "tabular",
+      "episodes": 512,
+      "replicates": 8,
+      "exactAccuracy": 0.50024259,
+      "exactRange": [
+        0.50022793,
+        0.50025463
+      ],
+      "novelAccuracy": 0.49999857,
+      "meanUniqueTrainingContexts": 511.75,
+      "crossMappingAccuracy": null,
+      "validationAccuracy": 0.5,
+      "testAccuracy": null,
+      "meanCheckpointBytes": 446921.375
+    },
+    {
+      "game": "remapped",
+      "arm": "query-only",
+      "episodes": 512,
+      "replicates": 8,
+      "exactAccuracy": 0.5,
+      "exactRange": [
+        0.5,
+        0.5
+      ],
+      "novelAccuracy": 0.49997519,
+      "meanUniqueTrainingContexts": 511.75,
+      "crossMappingAccuracy": null,
+      "validationAccuracy": 0.48339844,
+      "testAccuracy": null,
+      "meanCheckpointBytes": 45445.75
+    },
+    {
+      "game": "remapped",
+      "arm": "cue-linear",
+      "episodes": 512,
+      "replicates": 8,
+      "exactAccuracy": 0.93708742,
+      "exactRange": [
+        0.92881203,
+        0.94699192
+      ],
+      "novelAccuracy": 0.93706051,
+      "meanUniqueTrainingContexts": 511.75,
+      "crossMappingAccuracy": 0.50018823,
+      "validationAccuracy": 0.94238281,
+      "testAccuracy": null,
+      "meanCheckpointBytes": 622422.375,
+      "pairedExactGainOverTabular": {
+        "mean": 0.43684483,
+        "t95": [
+          0.43166547,
+          0.44202418
+        ]
+      }
+    },
+    {
+      "game": "remapped",
+      "arm": "tabular",
+      "episodes": 2048,
+      "replicates": 8,
+      "exactAccuracy": 0.50096762,
+      "exactRange": [
+        0.50094509,
+        0.50098324
+      ],
+      "novelAccuracy": 0.49999194,
+      "meanUniqueTrainingContexts": 2046.125,
+      "crossMappingAccuracy": null,
+      "validationAccuracy": 0.5,
+      "testAccuracy": null,
+      "meanCheckpointBytes": 1403135.375
+    },
+    {
+      "game": "remapped",
+      "arm": "query-only",
+      "episodes": 2048,
+      "replicates": 8,
+      "exactAccuracy": 0.5,
+      "exactRange": [
+        0.5,
+        0.5
+      ],
+      "novelAccuracy": 0.49997104,
+      "meanUniqueTrainingContexts": 2046.125,
+      "crossMappingAccuracy": null,
+      "validationAccuracy": 0.4921875,
+      "testAccuracy": null,
+      "meanCheckpointBytes": 45489.625
+    },
+    {
+      "game": "remapped",
+      "arm": "cue-linear",
+      "episodes": 2048,
+      "replicates": 8,
+      "exactAccuracy": 0.99998868,
+      "exactRange": [
+        0.99993229,
+        1
+      ],
+      "novelAccuracy": 0.99998865,
+      "meanUniqueTrainingContexts": 2046.125,
+      "crossMappingAccuracy": 0.49999154,
+      "validationAccuracy": 1,
+      "testAccuracy": null,
+      "meanCheckpointBytes": 622389,
+      "pairedExactGainOverTabular": {
+        "mean": 0.49902105,
+        "t95": [
+          0.49899527,
+          0.49904683
+        ]
+      }
+    },
+    {
+      "game": "remapped",
+      "arm": "tabular",
+      "episodes": 8192,
+      "replicates": 8,
+      "exactAccuracy": 0.50387251,
+      "exactRange": [
+        0.5038271,
+        0.50394344
+      ],
+      "novelAccuracy": 0.49998264,
+      "meanUniqueTrainingContexts": 8157.375,
+      "crossMappingAccuracy": null,
+      "validationAccuracy": 0.50390625,
+      "testAccuracy": 0.51086426,
+      "meanCheckpointBytes": 4087969.125
+    },
+    {
+      "game": "remapped",
+      "arm": "query-only",
+      "episodes": 8192,
+      "replicates": 8,
+      "exactAccuracy": 0.5,
+      "exactRange": [
+        0.5,
+        0.5
+      ],
+      "novelAccuracy": 0.49998264,
+      "meanUniqueTrainingContexts": 8157.375,
+      "crossMappingAccuracy": null,
+      "validationAccuracy": 0.48242188,
+      "testAccuracy": 0.48925781,
+      "meanCheckpointBytes": 45640.5
+    },
+    {
+      "game": "remapped",
+      "arm": "cue-linear",
+      "episodes": 8192,
+      "replicates": 8,
+      "exactAccuracy": 1,
+      "exactRange": [
+        1,
+        1
+      ],
+      "novelAccuracy": 1,
+      "meanUniqueTrainingContexts": 8157.375,
+      "crossMappingAccuracy": 0.5,
+      "validationAccuracy": 1,
+      "testAccuracy": 1,
+      "meanCheckpointBytes": 622712.125,
+      "pairedExactGainOverTabular": {
+        "mean": 0.49612749,
+        "t95": [
+          0.49609563,
+          0.49615934
+        ]
+      }
+    }
+  ]
+}

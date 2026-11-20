@@ -73,7 +73,9 @@ sampled aggregate proportional memory; this is not a general speed claim.
 * **Courier:** On 12 fresh matched seed blocks at 8,192 steps, Dyna with zero planning backups matched vanilla Q and both timed out; five backups reached the optimum. By 49,152 steps all three were optimal. The 5,076-state variant still compiled, trained, resumed and verified; at 32,768 interactions all three arms scored −1,603 (no deliveries) versus the exact +948. Running a world is not the same as learning it.
 * **Switchboard:** The explicit eight-cue compile was stopped by a 1.5 GiB proportional-memory guard. The [compact implementation](../../worlds/challenges/switchboard/switchboard.bend) ran the eight-cue study in 54 s at 299 MiB, and on the smaller encodings matched 30 seeded compiled replay pairs. At 16 cues, the compact world has 1,048,576 possible query contexts *without materializing them*. After 16,384 episodes, eight independent tabular models had visited 1.5504% on average, versus 1.5504% predicted under independent uniform contexts. All visited contexts were answered correctly. This is a sample-coverage result, not evidence that a rule-based or generalizing agent needs a million examples.
   A [memory-capacity follow-up](memory-capacity/README.md) compares how many
-  cues to retain when training data is limited.
+  cues to retain when training data is limited. The
+  [cue generalization study](switchboard-generalization/README.md) keeps all
+  16 cues and instead changes how the learner shares experience.
 * **Storm Reserve:** The [offline overlap study](offline/README.md) uses the same twelve-period market to distinguish seeing similar behavior in a log from having statistical support for policy evaluation. Giving every action nonzero probability fixes support, but it does not guarantee useful sample size over twelve decisions.
 
 ## Optional larger run
