@@ -357,3 +357,31 @@ item; after three unsuccessful attempts, revert that item without rewriting hist
 | R10.4 | Rerun the primary challenge and Kart transfer studies without overwriting their evidence. | Implemented; [paired before/after results and reproduction](studies/complex-worlds/tie-breaking-fix/README.md); optional Storm factorial and Kart ablation not rerun |
 | R10.5 | Check deterministic tie behavior in exact-evaluation tools against rollouts. | Implemented; [tied-policy checks](docs/testing.md#tied-policy-evaluation) |
 | R10.6 | Verify and remove merged Phase 9 branches; summarize Phase 10. | Complete; [Phase 10 handoff](docs/history/phase-10.md) |
+
+## Phase 11: speed and scale on Linux
+
+Preserve exact archived results by default. Compare each candidate with the
+[fixed performance baseline](docs/performance.md) on the target machine before
+adopting it. A timing claim needs five runs and a median, with parity checked
+first. Track runs that hit memory or tool limits separately; do not count them
+as equivalent measurements. Keep source and backend transitions explicit, and
+do not regenerate historical baselines. Work in order on `main` only after the
+local gates pass; fix any hosted failure before publishing another item.
+
+| ID | Work | Adoption condition | Status |
+| --- | --- | --- | --- |
+| P11.0 | Baseline workloads, profiles and machine fingerprint | Fixed workload versions, repeat timing and explicit profiling limits | Baseline recorded; hardware counters unavailable on host |
+| P11.1 | Analysis acceleration, Linux scope and Studio replay limits | Analysis parity with measured benefit; Linux regressions pass | Pending |
+| P11.2 | Resource-aware shards and parallel evaluation | Sealed-byte parity, bounded memory and measured benefit | Pending |
+| P11.3 | Exact evaluation, sequential extension and reuse | Separate exact metrics and a prespecified stopping rule; verified reusable bytes | Pending |
+| P11.4 | Warm engine prototype | Local Unix socket, parity and direct fallback; measurable benefit | Pending |
+| P11.5 | Fewer JavaScript–Bend calls | Episode and step checkpoints byte-identical, benchmark improvement | Pending |
+| P11.6 | Bend parallel and CUDA population spike | Adopt only if exact and faster than the best comparable path | Pending |
+| P11.7 | Cross-backend F32 operations | Correct rounding evidence and reviewed archive transition | Pending |
+| P11.8 | Native twin for eligible finite environments | Local and generic builds match all eligible sealed checkpoints | Pending |
+| P11.9 | Native compiler tuning | Retain exact parity and demonstrate additional speedup | Pending |
+| P11.10 | CUDA population kernel | Local GPU parity and measured CPU/GPU crossover | Pending |
+| P11.11 | JAX screening contingency | Use only if exact CUDA fails; outputs never sealed | Pending |
+| P11.12 | Machine autotuner | Tune performance only, not results | Pending |
+| P11.13 | Optional idle-time jobs | Explicit opt-in, owner activity stops jobs, resource limits | Pending |
+| P11.14 | Self-hosted runner preparation | Documentation and inactive main-only template; owner registration required | Pending |

@@ -183,3 +183,11 @@ warmups and eight alternating-order measurements. As one local example with
 Node 24.22.3/Bend 2.0.40, median times were 72.3 ms and 67.9 ms respectively
 (1.07×). The result is workload-specific: very small tables may not benefit;
 UCB still scans the table once for total visits at an observation.
+
+## Performance runs and exact archives
+
+Use the [fixed performance workloads](performance.md) to compare changes rather
+than choosing new plans after seeing the timings. Benchmark output is evidence
+about the machine and toolchain tested, not a new sealed study. An experimental
+path that cannot reproduce exact checkpoint bytes must stay separate from the
+archival run commands.

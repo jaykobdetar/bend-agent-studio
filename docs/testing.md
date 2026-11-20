@@ -192,3 +192,11 @@ Run `node --test mcp/environment.test.mjs` after installing the MCP package to
 test public views, capacity/lifetime and confinement. With pinned Bend on PATH
 the same suite plays 24 stochastic literal and packed episodes by submitting
 their replayed action sequences and compares every public frame exactly.
+
+## Performance verification
+
+The [performance guide](performance.md) records the fixed workloads, pinned
+toolchain, and what a benchmark or profiler result actually measures.
+Performance is an additional gate, not a substitute for model, archive, or
+implementation tests. Verify exact checkpoint bytes before timing a claimed
+drop-in acceleration.

@@ -90,3 +90,8 @@ For `analysis/sequential.mjs`, a minimal input shape is `{"design":{"lower":-1,"
 | Check the core proof with BendTT and Lean 4.34.0. | `bend laws/PROOF.bend --verdict` |
 
 The [experiment guide](../EXPERIMENTS.md) covers designs, file schemas and statistical assumptions. See the [MCP](../mcp/README.md), [Gymnasium](../integrations/gymnasium/README.md) and [Minari](../integrations/minari/README.md) guides for optional setup. The [table-timing procedure](../EXPERIMENTS.md#compare-keyed-tabular-training-against-list-backed-archives), [large-world compiler measurements](../tools/finite-layout/README.md) and [historical native experiment](../tools/native-spike/README.md) have specific prerequisites; none is a normal install or training step.
+
+## Performance measurements
+
+See the [performance guide](performance.md) for checked-in workload definitions
+and how to run comparable repeated benchmarks without changing a sealed study.
