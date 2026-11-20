@@ -17,7 +17,7 @@ guard settings, medians, and reproduction commands.
 | P11.6 | CPU diagnostic; not adopted | Five stock JS/CPU paths matched 64 complete models and 2,048 training reports each. The bounded CUDA population attempt returned no model rows or verified device kernel. |
 | P11.7 | Partial diagnostic | Stock sine differed by one ULP on actual CUDA. An outward portable tanh prototype matched 5,692 CPU/JS words and 24 verified CUDA words. A separate midpoint test found two deliberate refusals and no incorrect numeric output. A wider experimental stage resolved both on CPU and CUDA, but exhaustive correct rounding remains unverified. |
 | P11.8 | Partial diagnostic | Five finite learners, both compiler targets, 1/2/4 workers, three cells under the actual flagship seal, one complete shipped Bridge plan, bounded continuation and stock archive handoff, a Uniform-policy AVX2 RNG witness, and a hosted generic-native smoke. No adopted engine, whole eligible plan matrix, learner SIMD, or complete native archive lifecycle. |
-| P11.9 | Deferred | Do not tune a production native engine until one qualifies; no PGO, ThinLTO or BOLT adoption. |
+| P11.9 | Deferred | ThinLTO lost both cold cases after exact parity. PGO and BOLT were not run; no compiler-flag change was adopted. |
 | P11.10 | Not qualified | One original flagship Q-learning cell matched all 90 stock checkpoints on the actual RTX 3060 Ti. The scope does not qualify a production CUDA backend. |
 | P11.11 | Not evaluated | A missing population test does not justify an approximate screening backend. |
 | P11.12 | Deferred | No tuner or persisted settings derived from an unqualified runtime. |
@@ -84,6 +84,26 @@ Reserve cell but took 58% longer on Bridge. No worker mode was enabled or
 selected automatically. Qualifying a selective policy would require
 preregistered thresholds, checks across more models and all fixed
 workloads, and end-to-end lifecycle parity.
+
+## P11.9: ThinLTO not adopted
+
+One prespecified flag change compared Clang/LLD 22.1.4 ThinLTO against
+the otherwise identical x86-64-v3 strict native build on the Ryzen 7
+5800X. Independent frozen literal Q and slippery Double Q fixtures
+passed complete checkpoint comparisons before timing. Each of five
+alternating pairs per fixture checked the complete ordered output.
+Warm timings used prebuilt binaries in fresh processes; cold builds
+used fresh output binaries without dropping the filesystem cache.
+
+| Diagnostic case | Baseline build median | ThinLTO build median | Baseline prebuilt median | ThinLTO prebuilt median |
+| --- | ---: | ---: | ---: | ---: |
+| Literal Q | 128.99 ms | 147.65 ms | 2.080 ms | 2.153 ms |
+| Slippery Double Q | 142.79 ms | 164.99 ms | 4.228 ms | 4.241 ms |
+
+ThinLTO made both cold builds slower without a consistent first-run or
+prebuilt-process gain. The production flags did not change. PGO and BOLT
+were not run: the prepared toolchain lacks their utilities and the base
+native backend has not qualified for production.
 
 ## P11.7: wider portable tanh, verified on CUDA
 
