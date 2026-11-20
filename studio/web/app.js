@@ -1,3 +1,4 @@
+import {kartCaption} from './kart-scene.js';
 import {comparisonUI} from './compare.js';
 import {
   actionName,
@@ -138,12 +139,20 @@ function showTrace(trace, source) {
   const totals = cumulativeReturns(trace.frames);
   state.totals = totals;
   const courier = trace.gridLayout?.renderer === 'courier';
-  $('game-name').textContent = courier ? 'Locksmith Courier' : gameName(trace.game);
+  const kart = trace.gridLayout?.renderer === 'apex-kart';
+  $('scene').parentElement.classList.toggle('kart-hud', kart);
+  $('game-name').textContent = kart
+    ? trace.gridLayout.title
+    : courier
+      ? 'Locksmith Courier'
+      : gameName(trace.game);
   $('source').textContent = source;
-  $('world-description').textContent = courier
-    ? 'Fetch each door’s key or spend a bypass charge.'
-    : (state.worlds.find((w) => w.id === trace.game)?.description ??
-      'Inspect the public observations from this environment.');
+  $('world-description').textContent = kart
+    ? 'Apex Kart time trial. Carry speed on straights and set up early for each corner.'
+    : courier
+      ? 'Fetch each door’s key or spend a bypass charge.'
+      : (state.worlds.find((w) => w.id === trace.game)?.description ??
+        'Inspect the public observations from this environment.');
   $('stage-label').textContent =
     friendlyPhase(trace.phase).toUpperCase() +
     ' EPISODE ' +
@@ -228,8 +237,8 @@ function render() {
     f = t.frames[i - 1];
   const obs = observation(t, i);
   draw($('scene'), t.game, obs, state.boards[i], t.gridLayout);
-  const caption = courierCaption(t.gridLayout, obs);
-  if (t.gridLayout?.renderer === 'courier')
+  const caption = kartCaption(t.gridLayout, obs) ?? courierCaption(t.gridLayout, obs);
+  if (['apex-kart', 'courier'].includes(t.gridLayout?.renderer))
     $('scene').setAttribute('aria-label', caption ?? gameName(t.game) + ' agent replay');
   $('scrub').value = i;
   $('scrub').style.setProperty('--progress', (n ? (i / n) * 100 : 0) + '%');

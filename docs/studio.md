@@ -67,4 +67,6 @@ Submitting a manifest uses the same FIFO queue and cancellation as a preset. The
 
 For a finite world with a public layout, the viewer and recorded GIF use a grid. Authored JSON `grid` definitions supply their rows directly. Generated FrozenLake, CliffWalking, Taxi, Deep Sea and Catch worlds ship optional display-only sidecars. Taxi shows the vehicle, destination and observable passenger from its public state; hidden-state probes without spatial public observations stay in the text view. Removing a sidecar or loading a world without layout metadata does not prevent playback. When you attach a run from another directory, generated worlds can still match by definition; authored grids need the Studio job's original display snapshot because the archived world stores transitions, not the initial grid rows.
 
+The [Apex Kart time trial](../worlds/challenges/apex-kart/README.md) shows the public lane, speed, progress and next corner on its two matched courses.
+
 Select [the Acrobot plan](../experiments/acrobot.json) to train the two-link example. Its replay shows the two joints and a dashed target line, labels all three torques, and plots both public joint angles. The target line marks the required tip height, not a reward estimate.

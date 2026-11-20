@@ -15,4 +15,5 @@ __pycache__/
 
 # Published verification artifacts, not local experiment exports.
 !studies/flagship-toy-text/*.csv
+!worlds/challenges/apex-kart/results.csv
 .venv/bend-studio/

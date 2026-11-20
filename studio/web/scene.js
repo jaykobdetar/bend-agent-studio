@@ -1,3 +1,4 @@
+import {drawKart, kartActions} from './kart-scene.js';
 const TAU = Math.PI * 2;
 const colors = {
   ink: '#141521',
@@ -42,6 +43,7 @@ export function replaySelection(run, checkpoint, phase, episode) {
 const courierActions = ['Toward key', 'Back toward door', 'Use key', 'Spend bypass'];
 export function actionName(game, id, layout) {
   if (id === undefined) return '—';
+  if (layout?.renderer === 'apex-kart') return kartActions[id] ?? String(id);
   if (layout?.renderer === 'courier') return courierActions[id] ?? String(id);
   return labels[game]?.[id] ?? (isBoard(game) ? 'Place mark' : String(id));
 }
@@ -548,7 +550,9 @@ export function draw(canvas, game, obs, boardState, layout) {
   c.save();
   c.setTransform(canvas.width / 512, 0, 0, canvas.height / 220, 0, 0);
   c.imageSmoothingEnabled = false;
-  if (layout?.renderer === 'courier' && layout.locations?.[obs])
+  if (layout?.renderer === 'apex-kart') {
+    if (!drawKart(c, layout, obs)) unknown(c, obs);
+  } else if (layout?.renderer === 'courier' && layout.locations?.[obs])
     drawCourier(c, layout, layout.locations[obs]);
   else if (layout?.rows?.[0]?.length) drawFiniteGrid(c, layout, obs);
   else if (game === 'mountain_car') mountain(c, obs);

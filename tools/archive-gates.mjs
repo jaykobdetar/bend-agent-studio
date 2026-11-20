@@ -365,6 +365,7 @@ try {
         'n9-flagship-plan.json',
         'n9-environment-plans.json',
         'complex-world-plans.json',
+        'apex-kart-plan.json',
       ]) {
         for (const [key, entry] of Object.entries(json(path.join(fixtures, file)))) {
           assert(

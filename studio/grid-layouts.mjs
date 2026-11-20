@@ -2,6 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import {createHash} from 'node:crypto';
 import {symbol} from '../core/finite_world.mjs';
+import {kartWorld, courses} from '../worlds/challenges/apex-kart/kart.mjs';
 import {courier, designs} from '../worlds/challenges/locksmith/courier.mjs';
 
 // Bind display-only data to generated inputs, ignoring only Git checkout EOLs.
@@ -35,6 +36,16 @@ export function knownGridLayouts(root) {
         layouts.set(key, {renderer: 'courier', detours, bypasses, locations});
     } catch {
       /* Optional display metadata must not block replay. */
+    }
+  }
+  for (const [id, course] of Object.entries(courses)) {
+    try {
+      const file = path.join(root, 'worlds', 'challenges', 'apex-kart', id + '.json');
+      const key = symbol(kartWorld(course));
+      if (symbol(JSON.parse(fs.readFileSync(file, 'utf8'))) === key)
+        layouts.set(key, {renderer: 'apex-kart', road: course.road, title: course.title});
+    } catch {
+      /* No matching public course: use regular finite-world playback. */
     }
   }
   return layouts;

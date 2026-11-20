@@ -58,6 +58,8 @@ A separate [Gymnasium adapter](integrations/gymnasium/README.md) lets Python age
 
 For a harder test, try the [three complex challenges](studies/complex-worlds/README.md): route a courier, recall a surprise query, or trade under a reserve deadline. Each comes with a reference solution and a matched-seed study.
 
+For a racing example, [drive Apex Kart](worlds/challenges/apex-kart/README.md): choose a line and braking point, or replay what a policy learned on the same track.
+
 ### Agent access over MCP
 
 The [local MCP server](mcp/README.md) exposes typed authoring, training jobs, replay and analysis. Its [field reference](mcp/FIELDS.md) describes plans and specifications; the adapter has its own dependencies.

@@ -434,9 +434,9 @@ async function replay(id, input, res) {
       /* Optional display metadata must not block verified replay. */
     }
   }
-  // Courier coordinates index the base observation IDs, not a history encoding.
+  // These renderers decode base observations, not a history encoding.
   if (
-    gridLayout?.renderer === 'courier' &&
+    ['courier', 'apex-kart'].includes(gridLayout?.renderer) &&
     plan.arms.find((a) => a.id === arm)?.observation === 'previous'
   )
     gridLayout = undefined;

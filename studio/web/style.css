@@ -338,6 +338,15 @@ main {
   bottom: 12px;
   right: 14px;
 }
+/* Kart embeds its speed and progress strips in recordings too. Keep Studio's
+   live-only labels over sky instead of printing them on the dashboard. */
+.kart-hud .scene-info,
+.kart-hud .stage-step {
+  top: 13%;
+  bottom: auto;
+  padding: 2px 4px;
+  background: #24323ed9;
+}
 .transport {
   padding: 14px 19px 16px;
 }
