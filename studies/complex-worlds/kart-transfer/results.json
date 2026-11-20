@@ -1,0 +1,430 @@
+{
+  "trainRoads": [
+    "..l..R...",
+    "..r..L...",
+    ".L...r..",
+    ".R...l..",
+    "....r..L..",
+    "....l..R..",
+    ".r..L.r...",
+    ".l..R.l..."
+  ],
+  "heldoutTracks": {
+    "quarry": "...L..r..",
+    "quarry-mirror": "...R..l..",
+    "shifted-pair": "..r.L....",
+    "shifted-mirror": "..l.R...."
+  },
+  "transitionChecks": 2660,
+  "trainingUniqueViews": 266,
+  "aliases": 9,
+  "targets": {
+    "quarry": {
+      "road": "...L..r..",
+      "states": 43,
+      "oracle": 4.5,
+      "scripted": {
+        "mean": 4,
+        "starts": [
+          {
+            "lane": 0,
+            "score": 4,
+            "ticks": 5,
+            "gravel": 0,
+            "unseen": 0
+          },
+          {
+            "lane": 2,
+            "score": 4,
+            "ticks": 5,
+            "gravel": 0,
+            "unseen": 0
+          }
+        ]
+      },
+      "distinctPublicViews": 42,
+      "viewsPresentInPractice": 36
+    },
+    "quarry-mirror": {
+      "road": "...R..l..",
+      "states": 43,
+      "oracle": 4.5,
+      "scripted": {
+        "mean": 4,
+        "starts": [
+          {
+            "lane": 0,
+            "score": 4,
+            "ticks": 5,
+            "gravel": 0,
+            "unseen": 0
+          },
+          {
+            "lane": 2,
+            "score": 4,
+            "ticks": 5,
+            "gravel": 0,
+            "unseen": 0
+          }
+        ]
+      },
+      "distinctPublicViews": 42,
+      "viewsPresentInPractice": 36
+    },
+    "shifted-pair": {
+      "road": "..r.L....",
+      "states": 44,
+      "oracle": 5,
+      "scripted": {
+        "mean": 4.5,
+        "starts": [
+          {
+            "lane": 0,
+            "score": 5,
+            "ticks": 4,
+            "gravel": 0,
+            "unseen": 0
+          },
+          {
+            "lane": 2,
+            "score": 4,
+            "ticks": 5,
+            "gravel": 0,
+            "unseen": 0
+          }
+        ]
+      },
+      "distinctPublicViews": 43,
+      "viewsPresentInPractice": 22
+    },
+    "shifted-mirror": {
+      "road": "..l.R....",
+      "states": 44,
+      "oracle": 5,
+      "scripted": {
+        "mean": 4.5,
+        "starts": [
+          {
+            "lane": 0,
+            "score": 4,
+            "ticks": 5,
+            "gravel": 0,
+            "unseen": 0
+          },
+          {
+            "lane": 2,
+            "score": 5,
+            "ticks": 4,
+            "gravel": 0,
+            "unseen": 0
+          }
+        ]
+      },
+      "distinctPublicViews": 43,
+      "viewsPresentInPractice": 22
+    }
+  },
+  "report": {
+    "0": {
+      "quarry": {
+        "tabular": 0,
+        "shared": 0,
+        "gain": 0,
+        "interval": [
+          0,
+          0
+        ],
+        "qBetter": 0,
+        "linearBetter": 0
+      },
+      "quarry-mirror": {
+        "tabular": 0,
+        "shared": 0,
+        "gain": 0,
+        "interval": [
+          0,
+          0
+        ],
+        "qBetter": 0,
+        "linearBetter": 0
+      },
+      "shifted-pair": {
+        "tabular": 0,
+        "shared": 0,
+        "gain": 0,
+        "interval": [
+          0,
+          0
+        ],
+        "qBetter": 0,
+        "linearBetter": 0
+      },
+      "shifted-mirror": {
+        "tabular": 0,
+        "shared": 0,
+        "gain": 0,
+        "interval": [
+          0,
+          0
+        ],
+        "qBetter": 0,
+        "linearBetter": 0
+      },
+      "all": {
+        "tabular": 0,
+        "shared": 0,
+        "gain": 0,
+        "interval": [
+          0,
+          0
+        ],
+        "qBetter": 0,
+        "linearBetter": 0
+      }
+    },
+    "1024": {
+      "quarry": {
+        "tabular": 1.5625,
+        "shared": 3.125,
+        "gain": 1.5625,
+        "interval": [
+          0.7745118711503317,
+          2.350488128849668
+        ],
+        "qBetter": 0,
+        "linearBetter": 7
+      },
+      "quarry-mirror": {
+        "tabular": 1.625,
+        "shared": 3.0625,
+        "gain": 1.4375,
+        "interval": [
+          0.26712402888199405,
+          2.607875971118006
+        ],
+        "qBetter": 1,
+        "linearBetter": 5
+      },
+      "shifted-pair": {
+        "tabular": 1.375,
+        "shared": 2.875,
+        "gain": 1.5,
+        "interval": [
+          0.45199231248452176,
+          2.5480076875154785
+        ],
+        "qBetter": 1,
+        "linearBetter": 7
+      },
+      "shifted-mirror": {
+        "tabular": 1.125,
+        "shared": 2.8125,
+        "gain": 1.6875,
+        "interval": [
+          0.8239408561259953,
+          2.5510591438740047
+        ],
+        "qBetter": 0,
+        "linearBetter": 8
+      },
+      "all": {
+        "tabular": 1.421875,
+        "shared": 2.96875,
+        "gain": 1.546875,
+        "interval": [
+          0.8294890935402802,
+          2.26426090645972
+        ],
+        "qBetter": 0,
+        "linearBetter": 8
+      }
+    },
+    "4096": {
+      "quarry": {
+        "tabular": 1.75,
+        "shared": 3.4375,
+        "gain": 1.6875,
+        "interval": [
+          1.0580010687544599,
+          2.31699893124554
+        ],
+        "qBetter": 0,
+        "linearBetter": 7
+      },
+      "quarry-mirror": {
+        "tabular": 1.875,
+        "shared": 3.1875,
+        "gain": 1.3125,
+        "interval": [
+          -0.4028351337716731,
+          3.0278351337716733
+        ],
+        "qBetter": 3,
+        "linearBetter": 5
+      },
+      "shifted-pair": {
+        "tabular": 2.0625,
+        "shared": 3.4375,
+        "gain": 1.375,
+        "interval": [
+          0.4336474429317907,
+          2.3163525570682095
+        ],
+        "qBetter": 1,
+        "linearBetter": 6
+      },
+      "shifted-mirror": {
+        "tabular": 1.5625,
+        "shared": 3.5625,
+        "gain": 2,
+        "interval": [
+          1.0787498138015192,
+          2.9212501861984808
+        ],
+        "qBetter": 0,
+        "linearBetter": 8
+      },
+      "all": {
+        "tabular": 1.8125,
+        "shared": 3.40625,
+        "gain": 1.59375,
+        "interval": [
+          0.7397282203597785,
+          2.4477717796402216
+        ],
+        "qBetter": 0,
+        "linearBetter": 7
+      }
+    },
+    "16384": {
+      "quarry": {
+        "tabular": 2.0625,
+        "shared": 3.25,
+        "gain": 1.1875,
+        "interval": [
+          0.5580010687544599,
+          1.8169989312455401
+        ],
+        "qBetter": 0,
+        "linearBetter": 7
+      },
+      "quarry-mirror": {
+        "tabular": 2.5625,
+        "shared": 3.3125,
+        "gain": 0.75,
+        "interval": [
+          -0.7488541849316903,
+          2.24885418493169
+        ],
+        "qBetter": 3,
+        "linearBetter": 4
+      },
+      "shifted-pair": {
+        "tabular": 2.125,
+        "shared": 3.8125,
+        "gain": 1.6875,
+        "interval": [
+          0.9485549215592812,
+          2.426445078440719
+        ],
+        "qBetter": 0,
+        "linearBetter": 8
+      },
+      "shifted-mirror": {
+        "tabular": 1.8125,
+        "shared": 3.75,
+        "gain": 1.9375,
+        "interval": [
+          0.8557951660671144,
+          3.0192048339328856
+        ],
+        "qBetter": 0,
+        "linearBetter": 7
+      },
+      "all": {
+        "tabular": 2.140625,
+        "shared": 3.53125,
+        "gain": 1.390625,
+        "interval": [
+          0.6853014664212752,
+          2.0959485335787247
+        ],
+        "qBetter": 0,
+        "linearBetter": 8
+      }
+    },
+    "65536": {
+      "quarry": {
+        "tabular": 2.6875,
+        "shared": 3.5,
+        "gain": 0.8125,
+        "interval": [
+          0.07355492155928123,
+          1.5514450784407188
+        ],
+        "qBetter": 0,
+        "linearBetter": 5
+      },
+      "quarry-mirror": {
+        "tabular": 3,
+        "shared": 3.5,
+        "gain": 0.5,
+        "interval": [
+          -0.9480307120965212,
+          1.9480307120965212
+        ],
+        "qBetter": 3,
+        "linearBetter": 3
+      },
+      "shifted-pair": {
+        "tabular": 2.375,
+        "shared": 3.875,
+        "gain": 1.5,
+        "interval": [
+          0.8680275860187509,
+          2.131972413981249
+        ],
+        "qBetter": 0,
+        "linearBetter": 8
+      },
+      "shifted-mirror": {
+        "tabular": 2.125,
+        "shared": 3.875,
+        "gain": 1.75,
+        "interval": [
+          1.2503819383561032,
+          2.2496180616438965
+        ],
+        "qBetter": 0,
+        "linearBetter": 8
+      },
+      "all": {
+        "tabular": 2.546875,
+        "shared": 3.6875,
+        "gain": 1.140625,
+        "interval": [
+          0.6153202048141342,
+          1.6659297951858658
+        ],
+        "qBetter": 0,
+        "linearBetter": 7
+      }
+    }
+  },
+  "final": {
+    "tabular": {
+      "validation": 4.578125,
+      "starts": 64,
+      "ticks": 349,
+      "gravel": 16,
+      "ticksNotObservedByPairedTabular": 101
+    },
+    "shared": {
+      "validation": 4.1875,
+      "starts": 64,
+      "ticks": 340,
+      "gravel": 0,
+      "ticksNotObservedByPairedTabular": 92
+    }
+  }
+}
