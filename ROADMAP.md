@@ -341,3 +341,19 @@ Core files stay out of the formatter. Format any core file only when a future
 change already needs a reviewed core transition, with the exact old-to-new
 hashes and a passing old-archive replay gate (G4). Do not start a standalone
 core formatting change.
+
+## Phase 10: training tie-breaking and study verification
+
+Work in ID order with one item per commit on `main`. Run the full local gates
+before pushing each item, including old-archive replay and resume. Keep past
+study artifacts and historical baselines intact. Fix red CI before the next
+item; after three unsuccessful attempts, revert that item without rewriting history.
+
+| ID | Work | Status |
+| --- | --- | --- |
+| R10.1 | Stop the Studio test compiler leaving output in the repo root; guard against untracked root files after tests. | Implemented; [test guide](docs/testing.md) |
+| R10.2 | Sample uniformly from exact greedy ties during training only. | Pending |
+| R10.3 | Run a preregistered flagship v2 with fresh seeds, preserving v1. | Pending |
+| R10.4 | Rerun the primary challenge and Kart transfer studies without overwriting their evidence. | Pending |
+| R10.5 | Check deterministic tie behavior in exact-evaluation tools against rollouts. | Pending |
+| R10.6 | Verify and remove merged Phase 9 branches; summarize Phase 10. | Pending |

@@ -36,6 +36,11 @@ Run commands from the repository root unless a different working directory is sp
 | Analysis and generated-world checks | Both Python statistical modules, a small seeded compiler campaign against an independent simulator, and the two-pile Nim plan/checker. | Explicit Linux steps; the campaign samples worlds, not every possible world or horizon. |
 | MCP and Python integrations | MCP runs its own package tests. The optional Gymnasium and Minari adapters run their own Python tests in isolated environments, including compiled-replay and offline-export fixtures respectively. | MCP on both jobs (Linux provisions a second Node version for archived-runtime coverage); optional Python integrations on Linux. These are not implied by running the root Node suite. |
 
+After a passing `npm test` in a Git checkout, a guard reports untracked files
+at the repository root. Move any intentional scratch output into an ignored
+directory such as `runs/`. The Studio compiler fixture also checks that a
+validation-only invocation writes nothing, including in source archives without Git.
+
 A green Windows job means the Node-only workflow passed. It does **not** mean Bend, Lean, the compiled backend hash checks, Gymnasium or Minari ran on Windows. For the quick local smoke test use `npm test`; for a change to archive layout, learner semantics or Python integration, run the matching row above as well.
 
 The [Bend upgrade watch](upgrading-bend.md) is a separate weekly/manual check against the latest official 2.x version. It does not replace any pinned job, and its results are never required for a merge.

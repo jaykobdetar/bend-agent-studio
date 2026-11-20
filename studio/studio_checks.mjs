@@ -441,8 +441,11 @@ async function controlledCompiler(home, cpuBound = false) {
     }
     if (process.argv[1]?.endsWith('.bend')) {
       if (process.env.TEST_CPU_BOUND === 'true') {
+        const outputFlag = process.argv.indexOf('-o', 2);
+        const output = outputFlag < 0 ? undefined : process.argv[outputFlag + 1];
+        if (!output || output.startsWith('-') || process.argv.includes('--check-only')) process.exit(0);
         // A backend stuck in synchronous JS cannot service its own IPC callbacks.
-        fs.writeFileSync(process.argv.at(-1), [
+        fs.writeFileSync(output, [
           "import fs from 'node:fs';",
           "fs.writeFileSync(process.env.TEST_COMPILER_PID, String(process.pid));",
           "const deadline = Date.now() + 20000;",
@@ -464,6 +467,25 @@ async function controlledCompiler(home, cpuBound = false) {
     NODE_OPTIONS: '--import=' + pathToFileURL(shim).href,
   };
 }
+test('CPU compiler fixture writes a backend only for an explicit output', async (t) => {
+  const home = await mkdtemp(path.join(os.tmpdir(), 'studio-compiler-fixture-'));
+  t.after(() => rm(home, {recursive: true, force: true}));
+  const options = await controlledCompiler(home, true);
+  const invoke = (...args) =>
+    spawnSync(process.execPath, ['fixture.bend', ...args], {
+      cwd: home,
+      env: {...process.env, ...options},
+      encoding: 'utf8',
+    });
+  for (const args of [['--check-only'], ['--other'], ['-o'], ['-o', '--check-only']]) {
+    const result = invoke(...args);
+    assert.equal(result.status, 0, result.stderr);
+  }
+  assert.deepEqual(await readdir(home), ['compiler.mjs']);
+  const compiled = invoke('-o', 'backend.mjs', '--other');
+  assert.equal(compiled.status, 0, compiled.stderr);
+  assert.match(await readFile(path.join(home, 'backend.mjs'), 'utf8'), /CPU fixture expired/);
+});
 const tinyRun = {world: 'cliff', algorithm: 'q_learning', episodes: 2, seed: 0};
 for (const cpuBound of [false, true]) {
   test(
