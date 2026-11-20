@@ -58,7 +58,7 @@ A separate [Gymnasium adapter](integrations/gymnasium/README.md) lets Python age
 
 For a harder test, try the [three complex challenges](studies/complex-worlds/README.md): route a courier, recall a surprise query, or trade under a reserve deadline. Each comes with a reference solution and a matched-seed study.
 
-For a racing example, [drive Apex Kart](worlds/challenges/apex-kart/README.md): choose a line and braking point, or replay what a policy learned on the same track.
+For a racing example, [watch a trained driver in Apex Kart](worlds/challenges/apex-kart/README.md) or [drive a course in the terminal and train a policy from your examples](integrations/demonstrations/README.md).
 
 ### Agent access over MCP
 

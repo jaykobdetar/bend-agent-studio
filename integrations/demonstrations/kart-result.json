@@ -1,0 +1,107 @@
+{
+  "schema": "bend-scripted-kart-label-comparison-v1",
+  "inputMode": "scripted-input",
+  "worldSha256": "b63c2f5b9befccdbdc57a61eb090d5e9da4c521479c6091b88b1c59aad092b6f",
+  "training": {
+    "seedL": 2,
+    "seedR": 1,
+    "initialLabels": 13,
+    "extraLabelsPerArm": 13,
+    "learnerDrivenTicks": 28,
+    "differencesFromDriver": 13
+  },
+  "evaluation": {
+    "firstSeed": 1000,
+    "episodes": 64,
+    "distinctResetLanes": 2
+  },
+  "policies": {
+    "initial": {
+      "labels": 13,
+      "observations": 13,
+      "left": 11,
+      "right": 0,
+      "unsupportedStepsNormalLeftRight": [
+        0,
+        28
+      ],
+      "equalLaneMean": 5.5,
+      "paired64Mean": 5.5,
+      "forcedSecondActionReturns": {
+        "left": [
+          11,
+          11,
+          7,
+          11,
+          0
+        ],
+        "right": [
+          0,
+          -1,
+          0,
+          7,
+          0
+        ]
+      },
+      "forcedSecondActionMean": 4.6
+    },
+    "demonstrations": {
+      "labels": 26,
+      "observations": 26,
+      "left": 11,
+      "right": 15,
+      "unsupportedStepsNormalLeftRight": [
+        0,
+        0
+      ],
+      "equalLaneMean": 13,
+      "paired64Mean": 13,
+      "forcedSecondActionReturns": {
+        "left": [
+          15,
+          11,
+          7,
+          15,
+          15
+        ],
+        "right": [
+          0,
+          -1,
+          1,
+          15,
+          0
+        ]
+      },
+      "forcedSecondActionMean": 7.8
+    },
+    "learnerLabels": {
+      "labels": 26,
+      "observations": 26,
+      "left": 11,
+      "right": 7,
+      "unsupportedStepsNormalLeftRight": [
+        0,
+        4
+      ],
+      "equalLaneMean": 9,
+      "paired64Mean": 9,
+      "forcedSecondActionReturns": {
+        "left": [
+          11,
+          11,
+          7,
+          11,
+          7
+        ],
+        "right": [
+          7,
+          3,
+          8,
+          7,
+          7
+        ]
+      },
+      "forcedSecondActionMean": 7.9
+    }
+  }
+}

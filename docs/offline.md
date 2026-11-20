@@ -2,6 +2,10 @@
 
 Run shell commands from the repository root.
 
+## Teach a policy by playing
+
+Use the [local demonstration and coaching guide](../integrations/demonstrations/README.md) to drive a finite world, record the actions you deliberately save, train a Bend behavior clone, or label states while the clone drives. No accounts, background collection, or action propensities. This is a separate data format from the randomized logger below.
+
 ## Fit from logs
 
 ```sh
