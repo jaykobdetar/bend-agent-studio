@@ -57,7 +57,7 @@ After upgrading Node, you can keep Studio on the newer version and point it to a
 
 If the path passed to `--replay-node` is missing or cannot run, correct it before restarting Studio. You can also omit the option to inspect or compare the saved checkpoints without replaying them.
 
-Studio runs up to two replay processes at once. A third request receives HTTP 429 and can be retried when a slot opens. Closing the replay dialog or disconnecting the client cancels its pending replay. Each runner has 30 seconds to return a trace before Studio stops it and responds with HTTP 504. Set `BEND_STUDIO_REPLAY_TIMEOUT_MS` to a positive number of milliseconds at startup for longer studies.
+Studio runs up to six replay processes at once by default. Requests beyond that limit receive HTTP 429 and can be retried when a slot opens. Closing the replay dialog or disconnecting the client cancels its pending replay. Each runner has 120 seconds to return a trace before Studio stops it and responds with HTTP 504. Set `BEND_STUDIO_REPLAY_CONCURRENCY` (number of processes) or `BEND_STUDIO_REPLAY_TIMEOUT_MS` (milliseconds) at startup to choose another positive 32-bit integer.
 
 ## Train a manifest from the checkout
 

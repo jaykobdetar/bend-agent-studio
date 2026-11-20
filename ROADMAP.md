@@ -7,7 +7,7 @@ This roadmap is for the agent continuing development. It turns the November 2026
 ## Ground rules for every item
 
 1. **Toolchain.** Bend 2.0.40 and Node 24.22.3 (the CI versions). Do not upgrade either as part of a feature.
-2. **Dependencies.** Studio, the Node runner, and `analysis/analyze.py` use only standard libraries. Put anything needing third-party packages in its own folder with its own manifest, like `mcp/`. Examples: Gymnasium, MLflow, Minari, rliable, Matplotlib.
+2. **Dependencies.** Studio, the Node runner, and the default analysis use only standard libraries. Put anything needing third-party packages in its own folder with its own manifest, like `mcp/`. Examples: Gymnasium, MLflow, Minari, rliable, Matplotlib.
 3. **Existing runs keep working.** Archived runs replay with the code stored in their `code/` folder, so engine changes affect only new runs. Do not change sealed file formats, the seed scheme, or the random-number generator without a schema bump. A changed generator produces different trajectories. It needs a new, separately identified design (see EXPERIMENTS.md).
 4. **Laws before refactors.** When an item replaces a data structure or adds a learner, write the protecting laws first (phase 1), then make the change.
 5. **Verification.** Each change passes `npm test`, `bend checks/checks.bend`, `bend checks/benchmark_checks.bend`, `bend checks/study_checks.bend`, and `bend laws/PROOF.bend`, plus the full CI workflow, including the BendTT verdict and the Windows job.
@@ -371,7 +371,7 @@ local gates pass; fix any hosted failure before publishing another item.
 | ID | Work | Adoption condition | Status |
 | --- | --- | --- | --- |
 | P11.0 | Baseline workloads, profiles and machine fingerprint | Fixed workload versions, repeat timing and explicit profiling limits | Baseline recorded; hardware counters unavailable on host |
-| P11.1 | Analysis acceleration, Linux scope and Studio replay limits | Analysis parity with measured benefit; Linux regressions pass | Pending |
+| P11.1 | Analysis acceleration, Linux scope and Studio replay limits | Analysis parity with measured benefit; regressions pass | Replay limits and optional same-seed superiority speedup; unchanged platform support and CI; broader bootstrap not adopted |
 | P11.2 | Resource-aware shards and parallel evaluation | Sealed-byte parity, bounded memory and measured benefit | Pending |
 | P11.3 | Exact evaluation, sequential extension and reuse | Separate exact metrics and a prespecified stopping rule; verified reusable bytes | Pending |
 | P11.4 | Warm engine prototype | Local Unix socket, parity and direct fallback; measurable benefit | Pending |

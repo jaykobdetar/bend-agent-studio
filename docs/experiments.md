@@ -191,3 +191,7 @@ than choosing new plans after seeing the timings. Benchmark output is evidence
 about the machine and toolchain tested, not a new sealed study. An experimental
 path that cannot reproduce exact checkpoint bytes must stay separate from the
 archival run commands.
+
+The [optional NumPy superiority path](performance.md#p111-optional-superiority-bootstrap)
+only changes analysis time. It does not change sealed runs, sampled metrics or
+bootstrap draws.

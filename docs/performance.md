@@ -146,3 +146,32 @@ bootstrap code. These are instrumented durations, not baseline medians.
 `perf` was not installed and the host reported
 `perf_event_paranoid=4`. No hardware-counter or kernel-level attribution
 was collected, and nothing was installed or reconfigured for this baseline.
+
+
+## P11.1: optional superiority bootstrap
+
+On the [same target machine](../tools/perf/machine.json), the paired test
+repeated the fixed flagship v2 analysis inputs with Python 3.12 and NumPy 2.5.5
+installed. Each row is the median of five interleaved reference/opt-in runs,
+using the same interpreter, affinity and guards. All 30 CSV outputs matched
+the P11.0 output hashes. Use these same-interpreter controls, not the earlier
+Python 3.14 baseline timing, to estimate the effect of the option.
+
+| Analysis component | Reference wall s | Opt-in wall s |
+| --- | ---: | ---: |
+| Paired validation | 0.456 | 0.454 |
+| Normalized IQM | 1.310 | 1.310 |
+| Probability of improvement | 2.030 | 0.882 |
+| Three passes total | 3.802 | 2.645 |
+
+The probability-of-improvement pass took 57% less time, and the three analysis
+passes took 30% less time. This does not accelerate training or solve calls.
+The paired path is unchanged and IQM never imports NumPy. A broader draft
+made IQM about 4% slower and was not adopted. For the adopted path the median
+largest-child RSS rose from 32.0 to 39.1 MiB in the superiority pass.
+
+With the [optional analysis requirements](../analysis/requirements.txt)
+installed in a Python environment, set `BEND_ANALYSIS_NUMPY=1` for the suite
+statistics command. The shortcut is limited to eligible balanced
+probability-of-improvement inputs. If NumPy is absent or the input is not
+eligible, it uses the original standard-library path.

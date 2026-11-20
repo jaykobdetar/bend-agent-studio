@@ -95,3 +95,7 @@ The [experiment guide](../EXPERIMENTS.md) covers designs, file schemas and stati
 
 See the [performance guide](performance.md) for checked-in workload definitions
 and how to run comparable repeated benchmarks without changing a sealed study.
+
+For suite probability of improvement, `BEND_ANALYSIS_NUMPY=1` opts into the
+[measured NumPy path](performance.md#p111-optional-superiority-bootstrap)
+when its optional dependency and data requirements are met.

@@ -54,9 +54,14 @@ fs.mkdirSync(base, {recursive: true});
 const jobs = new Map(),
   mounted = new Map(),
   unavailableMounts = new Map();
-const replayTimeout = Number(process.env.BEND_STUDIO_REPLAY_TIMEOUT_MS ?? 30000);
-if (!Number.isInteger(replayTimeout) || replayTimeout < 1 || replayTimeout > 2147483647)
-  throw Error('BEND_STUDIO_REPLAY_TIMEOUT_MS must be a positive 32-bit integer.');
+function positiveEnvInteger(name, fallback) {
+  const value = Number(process.env[name] ?? fallback);
+  if (!Number.isInteger(value) || value < 1 || value > 2147483647)
+    throw Error(name + ' must be a positive 32-bit integer.');
+  return value;
+}
+const replayTimeout = positiveEnvInteger('BEND_STUDIO_REPLAY_TIMEOUT_MS', 120000);
+const replayConcurrency = positiveEnvInteger('BEND_STUDIO_REPLAY_CONCURRENCY', 6);
 const activeReplays = new Set();
 let training;
 let nextOrder = 1,
@@ -368,7 +373,8 @@ async function replay(id, input, res) {
   integer(rep, 0, info.replicates - 1, 'replicate');
   integer(episode, 0, info[phase] - 1, 'episode');
   const dir = directory(id);
-  if (activeReplays.size >= 2) fail('Studio is running two replays. Try again shortly.', 429);
+  if (activeReplays.size >= replayConcurrency)
+    fail('Studio replay limit (' + replayConcurrency + ') is reached. Try again shortly.', 429);
   // Only the local owner can attach existing executable runs, at server startup.
   const runtime = replayNodes.get(info.nodeVersion);
   if (!runtime)

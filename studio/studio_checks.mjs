@@ -236,12 +236,8 @@ const post = (url, input) =>
 
 // A small, trusted archive lets the HTTP tests control exactly when a runner
 // starts and finishes without involving compiler speed or model size.
-async function mountedReplay(
-  t,
-  timeout,
-  nodeVersion = process.versions.node,
-  title = 'Study Name',
-) {
+async function mountedReplay(t, timeout, nodeVersion = process.versions.node, title, concurrency) {
+  title ??= 'Study Name';
   const home = await mkdtemp(path.join(os.tmpdir(), 'studio-replay-'));
   const dir = path.join(home, 'fixture');
   t.after(() => rm(home, {recursive: true, force: true}));
@@ -252,7 +248,7 @@ async function mountedReplay(
     import { setTimeout } from 'node:timers/promises';
     const episode = process.argv.at(-1);
     fs.writeFileSync(path.join(process.argv[3], episode + '.pid'), String(process.pid));
-    if (episode === '0' || episode === '1') await setTimeout(120000);
+    if (episode === '0' || episode === '1' || Number(episode) >= 5) await setTimeout(120000);
     if (episode === '3') process.exit(1);
     if (episode === '4') { console.error('missing replay checkpoint'); process.exit(1); }
     console.log(JSON.stringify({episode}));
@@ -267,7 +263,7 @@ async function mountedReplay(
       checkpoints: [0],
       replicates: 1,
       validationEpisodes: 0,
-      testEpisodes: 5,
+      testEpisodes: 9,
     },
     toolchain: {
       node: nodeVersion,
@@ -278,6 +274,7 @@ async function mountedReplay(
   await writeFile(path.join(dir, 'run.json'), manifest);
   const server = await start(home, ['--run', dir], {
     BEND_STUDIO_REPLAY_TIMEOUT_MS: String(timeout),
+    BEND_STUDIO_REPLAY_CONCURRENCY: concurrency === undefined ? undefined : String(concurrency),
   });
   const id = 'import-' + JSON.parse(manifest).hash;
   const url =
@@ -695,7 +692,7 @@ test(
   'replay capacity, client disconnect and shutdown stop the right runners',
   {timeout: 15000},
   async (t) => {
-    const {server, dir, replay} = await mountedReplay(t, 60000);
+    const {server, dir, replay} = await mountedReplay(t, 60000, undefined, undefined, 2);
     const client = new AbortController();
     // Consume rejections immediately. The second connection closes on shutdown.
     const first = assert.rejects(replay(0, {signal: client.signal}), {name: 'AbortError'});
@@ -726,6 +723,24 @@ test(
     assert.ok(hasExited(remaining));
   },
 );
+test('replay capacity defaults to six', {timeout: 15000}, async (t) => {
+  const {server, dir, replay} = await mountedReplay(t, 60000);
+  const slowEpisodes = [0, 1, 5, 6, 7, 8];
+  const clients = slowEpisodes.map(() => new AbortController());
+  const requests = clients.map((client, i) =>
+    assert.rejects(replay(slowEpisodes[i], {signal: client.signal})),
+  );
+  try {
+    await Promise.all(slowEpisodes.map((episode) => waitForRunner(dir, episode)));
+    const full = await replay(2);
+    assert.equal(full.status, 429);
+    assert.match((await full.json()).error, /limit \(6\)/);
+  } finally {
+    for (const client of clients) client.abort();
+    await Promise.all(requests);
+    await server.close();
+  }
+});
 test(
   'Studio trains, persists and replays a real run at multiple checkpoints',
   {...compilerTest, timeout: 120000},

@@ -1,9 +1,10 @@
-"""Fixed-suite, replicate-level aggregates for analyze.py (standard library only)."""
+"""Fixed-suite, replicate-level aggregates for analyze.py (standard-library default)."""
 from bisect import bisect_left, bisect_right
 import csv
 import hashlib
 import json
 import math
+import os
 from pathlib import Path
 import random
 import statistics
@@ -35,22 +36,47 @@ def estimate(xs, ys, mode, threshold=None):
     return scalar(xs) - (scalar(ys) if ys is not None else 0.0)
 
 
+def numpy_safe(xs, ys, draws):
+    """Admit only complete, bounded panels represented exactly as binary64."""
+    if ys is None or len(xs) != len(ys) or draws < 1:
+        return False
+    n = len(xs[0])
+    if len(xs) * n * n > 65536 or n > 64:
+        return False
+    try:
+        return all(len(task) == n and all(math.isfinite(v) and float(v) == v for v in task)
+                   for panel in (xs, ys) for task in panel)
+    except OverflowError:
+        return False
+
+
 def bootstrap(xs, ys, mode, threshold, blocks, draws, label):
     """Keep games fixed; matched arm IDs always move together."""
     n = len(xs[0])
     if n < 2:
         return "", ""
     rng = random.Random(int.from_bytes(hashlib.sha256(label.encode()).digest()[:8], "big"))
-    sims = []
-    for _ in range(draws):
-        common = rng.choices(range(n), k=n) if blocks == "across-games" else None
-        sample_x, sample_y = [], []
-        for task, x in enumerate(xs):
-            ids = common if common is not None else rng.choices(range(n), k=n)
-            sample_x.append([x[i] for i in ids])
-            if ys is not None:
-                sample_y.append([ys[task][i] for i in ids])
-        sims.append(estimate(sample_x, sample_y if ys is not None else None, mode, threshold))
+    sims = None
+    if (mode == "probability-of-improvement" and os.environ.get("BEND_ANALYSIS_NUMPY") == "1"
+            and numpy_safe(xs, ys, draws)):
+        try:
+            from bootstrap_numpy import superiority_draws
+        except ModuleNotFoundError as exc:
+            if exc.name != "numpy":
+                raise
+        else:
+            sims = superiority_draws(xs, ys, blocks, draws, rng)
+    if sims is None:
+        sims = []
+        for _ in range(draws):
+            common = rng.choices(range(n), k=n) if blocks == "across-games" else None
+            sample_x, sample_y = [], []
+            for task, x in enumerate(xs):
+                ids = common if common is not None else rng.choices(range(n), k=n)
+                sample_x.append([x[i] for i in ids])
+                if ys is not None:
+                    sample_y.append([ys[task][i] for i in ids])
+            sims.append(estimate(sample_x, sample_y if ys is not None else None, mode, threshold))
     sims.sort()
     def quantile(p):
         index = (len(sims) - 1) * p

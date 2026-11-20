@@ -66,6 +66,11 @@ jobs:
         run: |
           python3 -m unittest checks.test_multiple_comparisons checks.test_suite_stats
           node checks/world_campaign.mjs --bend bend --seed 30000 --worlds 2 --episodes 12 --batches 1
+      - name: Verify optional NumPy superiority bootstrap against the Python reference
+        run: |
+          python3 -m venv "$RUNNER_TEMP/bend-analysis-env"
+          "$RUNNER_TEMP/bend-analysis-env/bin/python" -m pip install --only-binary=:all: -r analysis/requirements.txt
+          "$RUNNER_TEMP/bend-analysis-env/bin/python" -m unittest checks.test_bootstrap_numpy
       - name: Verify two-pile Nim arena and every starting position
         run: |
           node experiment.mjs run experiments/two-pile-nim.json "$RUNNER_TEMP/nim-study"

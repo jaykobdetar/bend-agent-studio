@@ -200,3 +200,7 @@ toolchain, and what a benchmark or profiler result actually measures.
 Performance is an additional gate, not a substitute for model, archive, or
 implementation tests. Verify exact checkpoint bytes before timing a claimed
 drop-in acceleration.
+
+The Linux job runs `python3 -m unittest checks.test_bootstrap_numpy` with the
+pinned optional NumPy installed. It checks bit-exact bootstrap draws, RNG state,
+and fallback behavior. The standard-library statistical tests run separately.
