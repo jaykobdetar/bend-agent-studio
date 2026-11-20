@@ -360,6 +360,8 @@ item; after three unsuccessful attempts, revert that item without rewriting hist
 
 ## Phase 11: speed and scale on Linux
 
+See the [Phase 11 checkpoint](docs/history/phase-11.md) for measured results and what remains.
+
 Preserve exact archived results by default. Compare each candidate with the
 [fixed performance baseline](docs/performance.md) on the target machine before
 adopting it. A timing claim needs five runs and a median, with parity checked

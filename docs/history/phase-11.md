@@ -1,0 +1,76 @@
+# Phase 11: performance and parity checkpoint
+
+**The phase is not complete.** The normal engine and archive formats remain
+the reference. This record separates shipped changes from bounded diagnostic
+results. No changes to the engine core, laws, proof kernel, archive format,
+or stock random-seed rules were made in this checkpoint. See the [performance guide](../performance.md) for fixed inputs,
+guard settings, medians, and reproduction commands.
+
+| Item | Status | What is verified or still missing |
+| --- | --- | --- |
+| P11.0 | Baseline recorded | Eight fixed workloads, five repeats each; diagnostic profiles preserved output bytes. Hardware perf counters were unavailable. |
+| P11.1 | Partial, on main | Optional exact same-seed superiority calculation and configurable Studio replay limits landed. Windows/macOS scope and existing checks were retained. |
+| P11.2 | Deferred | Read-only host capability reviewed; hard enforcement of a transient worker memory scope was not verified. Existing manual sharding is unchanged. |
+| P11.3 | Partial, on main | Resident preregistered validation stopping passed exact prefix checks and the fixed small pilot. Exact annotations, cold/warm compiler caching and cross-plan raw checkpoint reuse were not adopted. |
+| P11.4 | Deferred | No warm compiler service, Unix socket listener or background activation was installed. The measured compile cache did not meet the adoption gate. |
+| P11.5 | Not adopted | Warm batching preserved the sampled models and reports but was slower for Dyna-Q in all five paired comparisons. Step-budget and sealed parity were not tested in that spike. |
+| P11.6 | CPU diagnostic; not adopted | Five stock JS/CPU paths matched 64 complete models and 2,048 training reports each. The bounded CUDA population attempt returned no model rows or verified device kernel. |
+| P11.7 | Partial diagnostic | Stock sine differed by one ULP on actual CUDA. An outward portable tanh prototype matched 5,692 CPU/JS words and 24 verified CUDA words. A separate midpoint test found two deliberate refusals and no incorrect numeric output. The current precision stages do not cover all inputs. |
+| P11.8 | Partial diagnostic | Five finite learners, both compiler targets, 1/2/4 workers, three cells under the actual flagship seal, one complete shipped Bridge plan, bounded continuation and stock archive handoff, a Uniform-policy AVX2 RNG witness, and a hosted generic-native smoke. No adopted engine, whole eligible plan matrix, learner SIMD, or complete native archive lifecycle. |
+| P11.9 | Deferred | Do not tune a production native engine until one qualifies; no PGO, ThinLTO or BOLT adoption. |
+| P11.10 | Not qualified | No exact production population CUDA backend. Stock GPU probe and portable tanh device sample are separate from workload parity. |
+| P11.11 | Not evaluated | A missing population test does not justify an approximate screening backend. |
+| P11.12 | Deferred | No tuner or persisted settings derived from an unqualified runtime. |
+| P11.13 | Deferred | No automatic idle work or service activation. |
+| P11.14 | Preparation complete | Inert owner-only template and isolation guide. No runner registered or started and no GPU job enabled. |
+
+## Measured results
+
+- The selected NumPy superiority path reduced the measured three-pass
+  analysis median from 3.802 to 2.645 seconds with identical CSV bytes.
+  It does not accelerate training. The broader IQM change was dropped.
+- Preregistered stopping ran 9 rather than 32 matched pairs on its
+  deterministic validation-only fixture. The resident variant was 0.428
+  seconds versus 0.899 seconds for the fixed maximum and preserved all 36
+  prefix checkpoints. The no-crossing path was checked for correctness,
+  not timed.
+- The compile cache's warm median was 0.264 seconds against 1.934 seconds
+  direct on the fixed flagship bandit cell. Its cold median was 2.106
+  seconds and lost all five pairs, so it was not adopted.
+- For prebuilt, checked in-memory Dry Lake/Double Q, the two-worker
+  medians were 344.570 ms stock and 93.541 ms native. All 810 timed
+  complete-file comparisons were exact; neither endpoint writes
+  archives. This does **not** establish a full flagship speedup.
+
+- The exact parent-seal checks cover 270 files across three original flagship
+  v2 cells. The separate [Bridge check](../../twin/scalar-q-spike/bridge/README.md)
+  covers one complete unchanged shipped plan, all 72 files. Both compiler
+  targets and all three worker counts agreed in these bounded cases.
+- The existing archived runner reproduced a learned-model replay and
+  resumed a [verified literal Q prefix](../../twin/scalar-q-spike/lifecycle/README.md).
+  This used a scratch handoff after complete byte equality, not a general
+  native archive writer.
+
+## Adoption priorities
+
+First expand the native witness to the eligible shipped plan matrix and
+prove that native-generated archives verify, replay and resume through
+the supported lifecycle. Measure true end-to-end cold and warm runs
+across P11.0 without reducing the work. Keep the stock engine as the
+default until exact parity and no-regression criteria hold. Portable
+math still needs independent all-input coverage and backend checks;
+retain verified device evidence separately from CPU correctness.
+
+
+## Where to verify the checkpoint
+
+- [Fixed baseline and adoption rules](../performance.md), with the
+  [first baseline CI run](https://github.com/jaykobdetar/bend-agent-studio/actions/runs/44744928589).
+- [Stock GPU rounding counterexample](../../tools/bend-f32-sentinel/README.md)
+  and [portable tanh diagnostic](../../tools/bend-tanh-diagnostic/README.md).
+- [Scalar, parent-seal and threaded native witnesses](../../twin/scalar-q-spike/README.md),
+  including the [hosted generic smoke](https://github.com/jaykobdetar/bend-agent-studio/actions/runs/44762190976).
+- [The replay fixture CI repair](https://github.com/jaykobdetar/bend-agent-studio/actions/runs/44758586298)
+  kept Windows coverage while improving its test-only startup allowance and
+  requiring the single test replay slot to be released. Production replay
+  behavior and its configured defaults did not change in that repair.
