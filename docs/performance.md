@@ -338,7 +338,8 @@ The [flagship FrozenLake CUDA diagnostic](history/phase-11.md#actual-cuda-one-or
 matched 450 stock checkpoints across five selected cells on an RTX 3060 Ti.
 This is separate from P11.6: it uses ahead-of-time generated CUDA, not
 the stock Bend CUDA runtime. It establishes exactness for those cells,
-not a speedup or a qualified backend.
+not a qualified backend. A separately timed fresh-process comparison
+found no crossover at two or eight replicates on the two tested cells.
 
 ## P11.8: scalar native checkpoint witness
 

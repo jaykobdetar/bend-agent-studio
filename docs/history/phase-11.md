@@ -190,6 +190,29 @@ FrozenLake cells, not every original cell or all eligible plans. They do
 not exercise a CUDA archive writer or measure throughput, and they do
 not change the default backend.
 
+### Fresh-process timing for two of the verified cells
+
+From the P11.0 machine profile, compare one Zen 3 CPU worker with the
+RTX 3060 Ti (driver 595.99.02), both prebuilt. Each point is the median of
+five alternating runs following one untimed, verified pair. Both paths
+write the same ordered output and match its pinned hash on every run.
+Times include a fresh process, training, all evaluation, ordered
+output and, on GPU, CUDA initialization and readback. Compilation,
+profiling and archive sealing are excluded.
+
+| Original cell | Replicates | CPU, ms | CUDA, ms |
+| --- | ---: | ---: | ---: |
+| Slippery FrozenLake, Double Q | 2 | 4.59 | 230.11 |
+| Slippery FrozenLake, Double Q | 8 | 11.03 | 412.93 |
+| Dry FrozenLake, Dyna-Q | 2 | 8.58 | 278.80 |
+| Dry FrozenLake, Dyna-Q | 8 | 22.43 | 448.25 |
+
+No crossover was observed at two or eight replicates. These are two
+fixed slices of ten original replicates, not a GPU kernel-only or
+resident-worker benchmark. A larger population may behave differently;
+these results rule out adopting this fresh-process path for the
+measured loads. The default remains stock.
+
 ## Adoption priorities
 
 First expand the native witness to the eligible shipped plan matrix and

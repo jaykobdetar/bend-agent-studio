@@ -382,7 +382,7 @@ local gates pass; fix any hosted failure before publishing another item.
 | P11.7 | Cross-backend F32 operations | Correct rounding evidence and reviewed archive transition | Stock device mismatch reproduced; wider portable tanh resolved the two sampled midpoint refusals on CPU and CUDA. No exhaustive coverage or core change |
 | P11.8 | Native twin for eligible finite environments | Local and generic builds match all eligible sealed checkpoints | Five-arm witness, threaded timing, original flagship cells and complete Bridge plan, archive handoff and Uniform AVX2; no production backend |
 | P11.9 | Native compiler tuning | Retain exact parity and demonstrate additional speedup | ThinLTO not adopted: both cold builds slower; PGO and BOLT not run |
-| P11.10 | CUDA population kernel | Local GPU parity and measured CPU/GPU crossover | Five original flagship FrozenLake cells matched all 450 checkpoints on the RTX 3060 Ti; no full matrix, GPU archive writer or crossover timing |
+| P11.10 | CUDA population kernel | Local GPU parity and measured CPU/GPU crossover | Five original flagship FrozenLake cells matched 450 checkpoints; fresh-process CUDA lost all four tested slices at 2 or 8 replicates. Not adopted; no full matrix or GPU archive writer |
 | P11.11 | JAX screening contingency | Use only if exact CUDA fails; outputs never sealed | Pending |
 | P11.12 | Machine autotuner | Tune performance only, not results | Pending |
 | P11.13 | Optional idle-time jobs | Explicit opt-in, owner activity stops jobs, resource limits | Pending |
