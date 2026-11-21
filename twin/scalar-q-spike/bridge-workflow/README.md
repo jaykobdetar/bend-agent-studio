@@ -48,3 +48,26 @@ three cells, this covers all 2,250 checkpoints in the native diagnostic's
 The new matrix performed 11,880 whole-file comparisons across both
 compiler targets and all three worker counts. It did not write native
 archives or measure flagship workflow speed.
+
+## Follow-up: overlapping the two compiles
+
+The same locked Bridge plan was tested in five more alternating rounds
+on two distinct Ryzen 7 5800X cores. Stock and candidate had the same
+CPU affinity and unchanged resource guard. The candidate used a previously
+verified empty plan snapshot to generate fresh native binaries while the
+stock replay backend compiled afresh. It verified the new stock seal
+before writing any checkpoint. Thus the binaries were cold, but native
+source generation did have preverified metadata. This is not a benchmark
+of first use with no metadata or of the flagship as a whole.
+
+| Path | Stock median | Native median | Result |
+| --- | ---: | ---: | --- |
+| Fresh binaries, overlapping native and stock build | 1.444 s | 1.552 s | Native took 7.4% longer |
+| Prebuilt binaries | 0.264 s | 0.162 s | Native was 1.63× as fast |
+
+All 20 runs matched the full reference archive, including all 72
+checkpoint files byte-for-byte per run, verification, CSV export and an untimed
+archived replay. None hit the memory cap or paged out. The previous
+single-core and this two-core result are separate comparisons; compare
+only within each row. Overlap did not clear the cold no-regression gate.
+Neither experiment changes the default engine.

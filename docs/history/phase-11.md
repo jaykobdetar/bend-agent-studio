@@ -56,6 +56,9 @@ guard settings, medians, and reproduction commands.
   with identical verification, CSV and untimed replay. Native was 1.73×
   as fast with prebuilt code, but took 17% longer cold. This is not
   flagship performance or a qualified production runtime.
+  A two-core follow-up overlapped the fresh native and stock compiles,
+  but the native path still took 7.4% longer cold, despite full archive
+  parity. The native backend remains a diagnostic.
 
 ## P11.2: memory isolation and evaluation
 
