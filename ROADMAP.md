@@ -376,14 +376,14 @@ local gates pass; fix any hosted failure before publishing another item.
 | P11.1 | Analysis acceleration, Linux scope and Studio replay limits | Analysis parity with measured benefit; regressions pass | Replay limits and optional same-seed superiority speedup; unchanged platform support and CI; broader bootstrap not adopted |
 | P11.2 | Resource-aware shards and parallel evaluation | Sealed-byte parity, bounded memory and measured benefit | Disposable Linux memory cap verified; two-worker evaluation and stock training matched seals but regressed Bridge. No automatic runtime change |
 | P11.3 | Exact evaluation, sequential extension and reuse | Separate exact metrics and a prespecified stopping rule; verified reusable bytes | Partial: validation-only stopping implemented; exact annotation and cache drafts not adopted |
-| P11.4 | Warm engine prototype | Local Unix socket, parity and direct fallback; measurable benefit | Pending |
+| P11.4 | Warm engine prototype | Local Unix socket, parity and direct fallback; measurable benefit | Deferred: no qualified resident backend; no service installed |
 | P11.5 | Fewer JavaScript–Bend calls | Episode and step checkpoints byte-identical, benchmark improvement | Not adopted: bounded episode benchmark regressed Dyna-Q; step budgets not tested |
 | P11.6 | Bend parallel and CUDA population spike | Adopt only if exact and faster than the best comparable path | Bounded CPU diagnostic complete; CUDA case capped; not adopted |
 | P11.7 | Cross-backend F32 operations | Correct rounding evidence and reviewed archive transition | Stock device mismatch reproduced; wider portable tanh resolved the two sampled midpoint refusals on CPU and CUDA. No exhaustive coverage or core change |
-| P11.8 | Native twin for eligible finite environments | Local and generic builds match all eligible sealed checkpoints | Five-arm witness, threaded timing, original flagship cells and complete Bridge plan, archive handoff and Uniform AVX2; no production backend |
+| P11.8 | Native twin for eligible finite environments | Local and generic builds match all eligible sealed checkpoints | Exact across 2,250 eligible flagship checkpoints and 192 Storm Reserve checkpoints, plus full Bridge archive parity; cold Bridge regressed, no production backend |
 | P11.9 | Native compiler tuning | Retain exact parity and demonstrate additional speedup | ThinLTO not adopted: both cold builds slower; PGO and BOLT not run |
 | P11.10 | CUDA population kernel | Local GPU parity and measured CPU/GPU crossover | Five original flagship FrozenLake cells matched 450 checkpoints; fresh-process CUDA lost all four tested slices at 2 or 8 replicates. Not adopted; no full matrix or GPU archive writer |
-| P11.11 | JAX screening contingency | Use only if exact CUDA fails; outputs never sealed | Pending |
-| P11.12 | Machine autotuner | Tune performance only, not results | Pending |
-| P11.13 | Optional idle-time jobs | Explicit opt-in, owner activity stops jobs, resource limits | Pending |
+| P11.11 | JAX screening contingency | Use only if exact CUDA fails; outputs never sealed | Skipped: measured CUDA cells are exact but slower; approximate screening was not justified |
+| P11.12 | Machine autotuner | Tune performance only, not results | Deferred: no qualified automatic worker policy or alternative runtime |
+| P11.13 | Optional idle-time jobs | Explicit opt-in, owner activity stops jobs, resource limits | Deferred: no qualified warm engine or idle service installed |
 | P11.14 | Self-hosted runner preparation | Documentation and inactive main-only template; owner registration required | [Example prepared](docs/self-hosted-runner.md); no registration or GPU job |

@@ -1,0 +1,727 @@
+{
+  "scope": "Fixed P11.0 flagship v2 subset, serial 24 trials in five families, fresh compilation/evaluation/writes; verification excluded",
+  "referenceEngine": "62decf6cce87217a86005eb2a048a94d2062c88f",
+  "revisions": {
+    "reference": "a11f0cc559547b31c8c64b6c619e475c42b0a6ec",
+    "current": "448e821590bbc6bbe6538c48f77dcab73a175130"
+  },
+  "cpu": 6,
+  "machineProfile": "machine.json",
+  "toolchain": {
+    "node": "24.22.3",
+    "bend": "2.0.40"
+  },
+  "order": [
+    [
+      "reference",
+      "current"
+    ],
+    [
+      "current",
+      "reference"
+    ],
+    [
+      "reference",
+      "current"
+    ],
+    [
+      "current",
+      "reference"
+    ],
+    [
+      "reference",
+      "current"
+    ]
+  ],
+  "work": {
+    "trials": 24,
+    "checkpoints": 216,
+    "trainEpisodes": 24576,
+    "trainSteps": 240724,
+    "validationEpisodes": 1728,
+    "validationSteps": 42926,
+    "testEpisodes": 384,
+    "testSteps": 5215
+  },
+  "identities": [
+    {
+      "manifest": "e98c70467ae90ead188c1e58d80fc6607605b92598ee05d68de246a562d4abb2",
+      "backend": "032850f351458e3ee457189c92c6f5eb9b27d59ba4e56e5e17c4d3b5f302ae48",
+      "checkpoints": "66225691697e8d64bf363557c90067e5adb50b91f73f5079add1775710f55190"
+    },
+    {
+      "manifest": "19a8d5973e4d4ff017781660c414dc4aa1cf3177e0a046a0a4fb8d8a8e923919",
+      "backend": "765fadae20c1d2c5c4dc99f3016193a23f43019dadd6700b3eb1bcb2bed95c79",
+      "checkpoints": "2698f4f1a4a0eefd247530e4707cb8f91dc462b866d025f04f7fb40275459740"
+    },
+    {
+      "manifest": "737b075ad6ef474a53c9b305ace5619a1b15b00b861553854d36d5067c83b37d",
+      "backend": "220fac2622b7b41fb698f3f016ce75b9df86baf5c0ab5230d793a202ad33afb9",
+      "checkpoints": "105688b931b85a6597ebd49dec07ace28861bea5a29cd12c88c54ba473548803"
+    },
+    {
+      "manifest": "d9be9ba51c09e202c60f21b19978b97fb1fa8ba23a963f6957c2dc5abcf112ef",
+      "backend": "ef8ca60c2d72dcbb1053d634bb893bd4c54a8c1728e33b464468a428895c099a",
+      "checkpoints": "0f13df3887d70db800d28210bb0be07410f045343a3d1fd0c1c711639a48fd96"
+    },
+    {
+      "manifest": "e9051c5a79a9a8a43c113eed8641905b2483c54a6c14cfd781516f435de1a6ba",
+      "backend": "58d49b2d7e7525eb30a48ad1cfcad76530495a0fdb30f48d968cb227e3b2df9e",
+      "checkpoints": "5a37c0b5561b3a3e7d034ab841b7d559b7b9a1bea44f8b6e649a4096720fc066"
+    }
+  ],
+  "summary": {
+    "reference": {
+      "status": "complete",
+      "attempts": 5,
+      "counts": {
+        "trials": 24,
+        "checkpoints": 216,
+        "trainEpisodes": 24576,
+        "trainSteps": 240724,
+        "validationEpisodes": 1728,
+        "validationSteps": 42926,
+        "testEpisodes": 384,
+        "testSteps": 5215
+      },
+      "median": {
+        "wallSeconds": 22.352597141987644,
+        "processCpuSeconds": 22.090141,
+        "maxIndividualRssKiB": 1391760,
+        "peakGroupPssKiB": 1443877,
+        "trainEpisodesPerSecond": 1099.4695535328135,
+        "trainStepsPerSecond": 10769.397330917685
+      },
+      "min": {
+        "wallSeconds": 21.899071092833765,
+        "processCpuSeconds": 21.606436000000002,
+        "maxIndividualRssKiB": 1344992,
+        "peakGroupPssKiB": 1394728,
+        "trainEpisodesPerSecond": 1071.6645767515556,
+        "trainStepsPerSecond": 10497.045230059466
+      },
+      "max": {
+        "wallSeconds": 22.93254861002788,
+        "processCpuSeconds": 22.587977,
+        "maxIndividualRssKiB": 1449720,
+        "peakGroupPssKiB": 1502909,
+        "trainEpisodesPerSecond": 1122.2393815618157,
+        "trainStepsPerSecond": 10992.429723595644
+      }
+    },
+    "current": {
+      "status": "complete",
+      "attempts": 5,
+      "counts": {
+        "trials": 24,
+        "checkpoints": 216,
+        "trainEpisodes": 24576,
+        "trainSteps": 240724,
+        "validationEpisodes": 1728,
+        "validationSteps": 42926,
+        "testEpisodes": 384,
+        "testSteps": 5215
+      },
+      "median": {
+        "wallSeconds": 22.155503534013405,
+        "processCpuSeconds": 21.877505,
+        "maxIndividualRssKiB": 1383140,
+        "peakGroupPssKiB": 1427330,
+        "trainEpisodesPerSecond": 1109.2503477644107,
+        "trainStepsPerSecond": 10865.201038217774
+      },
+      "min": {
+        "wallSeconds": 21.90016055398155,
+        "processCpuSeconds": 21.613609,
+        "maxIndividualRssKiB": 1326708,
+        "peakGroupPssKiB": 1380588,
+        "trainEpisodesPerSecond": 1080.7334967777979,
+        "trainStepsPerSecond": 10585.876069268335
+      },
+      "max": {
+        "wallSeconds": 22.74011129781138,
+        "processCpuSeconds": 22.466979,
+        "maxIndividualRssKiB": 1433624,
+        "peakGroupPssKiB": 1487887,
+        "trainEpisodesPerSecond": 1122.1835538338996,
+        "trainStepsPerSecond": 10991.882886275702
+      }
+    }
+  },
+  "samples": {
+    "reference": [
+      [
+        {
+          "component": "flagship-baseline",
+          "wallSeconds": 2.0050421989290044,
+          "processCpuSeconds": 1.990457,
+          "maxIndividualRssKiB": 280228,
+          "sampledGroupPssKiB": 335226,
+          "minHostAvailableKiB": 11197060,
+          "hostSwapOutKiB": 0,
+          "returncode": 0,
+          "capReason": null
+        },
+        {
+          "component": "flagship-one-step",
+          "wallSeconds": 4.377791323000565,
+          "processCpuSeconds": 4.341783,
+          "maxIndividualRssKiB": 649380,
+          "sampledGroupPssKiB": 694257,
+          "minHostAvailableKiB": 10838068,
+          "hostSwapOutKiB": 0,
+          "returncode": 0,
+          "capReason": null
+        },
+        {
+          "component": "flagship-double",
+          "wallSeconds": 3.6254861879860982,
+          "processCpuSeconds": 3.577167,
+          "maxIndividualRssKiB": 619700,
+          "sampledGroupPssKiB": 672916,
+          "minHostAvailableKiB": 10878848,
+          "hostSwapOutKiB": 0,
+          "returncode": 0,
+          "capReason": null
+        },
+        {
+          "component": "flagship-planning",
+          "wallSeconds": 8.77413425699342,
+          "processCpuSeconds": 8.604468,
+          "maxIndividualRssKiB": 1344992,
+          "sampledGroupPssKiB": 1400514,
+          "minHostAvailableKiB": 10152620,
+          "hostSwapOutKiB": 0,
+          "returncode": 0,
+          "capReason": null
+        },
+        {
+          "component": "flagship-multi-step",
+          "wallSeconds": 3.1166171259246767,
+          "processCpuSeconds": 3.092561,
+          "maxIndividualRssKiB": 377968,
+          "sampledGroupPssKiB": 433226,
+          "minHostAvailableKiB": 11134956,
+          "hostSwapOutKiB": 0,
+          "returncode": 0,
+          "capReason": null
+        }
+      ],
+      [
+        {
+          "component": "flagship-baseline",
+          "wallSeconds": 1.7891206820495427,
+          "processCpuSeconds": 1.781027,
+          "maxIndividualRssKiB": 279336,
+          "sampledGroupPssKiB": 333717,
+          "minHostAvailableKiB": 11228484,
+          "hostSwapOutKiB": 0,
+          "returncode": 0,
+          "capReason": null
+        },
+        {
+          "component": "flagship-one-step",
+          "wallSeconds": 4.395262482925318,
+          "processCpuSeconds": 4.35872,
+          "maxIndividualRssKiB": 629220,
+          "sampledGroupPssKiB": 677722,
+          "minHostAvailableKiB": 10878120,
+          "hostSwapOutKiB": 0,
+          "returncode": 0,
+          "capReason": null
+        },
+        {
+          "component": "flagship-double",
+          "wallSeconds": 3.6484204420121387,
+          "processCpuSeconds": 3.583757,
+          "maxIndividualRssKiB": 643228,
+          "sampledGroupPssKiB": 684434,
+          "minHostAvailableKiB": 10870020,
+          "hostSwapOutKiB": 0,
+          "returncode": 0,
+          "capReason": null
+        },
+        {
+          "component": "flagship-planning",
+          "wallSeconds": 8.894758131005801,
+          "processCpuSeconds": 8.756826,
+          "maxIndividualRssKiB": 1349028,
+          "sampledGroupPssKiB": 1394728,
+          "minHostAvailableKiB": 10151868,
+          "hostSwapOutKiB": 0,
+          "returncode": 0,
+          "capReason": null
+        },
+        {
+          "component": "flagship-multi-step",
+          "wallSeconds": 3.3582875330466777,
+          "processCpuSeconds": 3.336591,
+          "maxIndividualRssKiB": 386384,
+          "sampledGroupPssKiB": 439397,
+          "minHostAvailableKiB": 11102988,
+          "hostSwapOutKiB": 0,
+          "returncode": 0,
+          "capReason": null
+        }
+      ],
+      [
+        {
+          "component": "flagship-baseline",
+          "wallSeconds": 1.8907512569567189,
+          "processCpuSeconds": 1.882773,
+          "maxIndividualRssKiB": 281480,
+          "sampledGroupPssKiB": 335229,
+          "minHostAvailableKiB": 11214948,
+          "hostSwapOutKiB": 0,
+          "returncode": 0,
+          "capReason": null
+        },
+        {
+          "component": "flagship-one-step",
+          "wallSeconds": 4.723677072091959,
+          "processCpuSeconds": 4.629786,
+          "maxIndividualRssKiB": 687112,
+          "sampledGroupPssKiB": 740822,
+          "minHostAvailableKiB": 10809724,
+          "hostSwapOutKiB": 0,
+          "returncode": 0,
+          "capReason": null
+        },
+        {
+          "component": "flagship-double",
+          "wallSeconds": 4.1060121529735625,
+          "processCpuSeconds": 4.008483,
+          "maxIndividualRssKiB": 699180,
+          "sampledGroupPssKiB": 754280,
+          "minHostAvailableKiB": 10791900,
+          "hostSwapOutKiB": 0,
+          "returncode": 0,
+          "capReason": null
+        },
+        {
+          "component": "flagship-planning",
+          "wallSeconds": 9.129905528970994,
+          "processCpuSeconds": 8.94543,
+          "maxIndividualRssKiB": 1449720,
+          "sampledGroupPssKiB": 1502909,
+          "minHostAvailableKiB": 10053588,
+          "hostSwapOutKiB": 0,
+          "returncode": 0,
+          "capReason": null
+        },
+        {
+          "component": "flagship-multi-step",
+          "wallSeconds": 3.0822025990346447,
+          "processCpuSeconds": 3.0661059999999996,
+          "maxIndividualRssKiB": 359868,
+          "sampledGroupPssKiB": 411981,
+          "minHostAvailableKiB": 11144232,
+          "hostSwapOutKiB": 0,
+          "returncode": 0,
+          "capReason": null
+        }
+      ],
+      [
+        {
+          "component": "flagship-baseline",
+          "wallSeconds": 1.9922078879317269,
+          "processCpuSeconds": 1.9813509999999999,
+          "maxIndividualRssKiB": 287260,
+          "sampledGroupPssKiB": 342401,
+          "minHostAvailableKiB": 11215956,
+          "hostSwapOutKiB": 0,
+          "returncode": 0,
+          "capReason": null
+        },
+        {
+          "component": "flagship-one-step",
+          "wallSeconds": 4.395200712024234,
+          "processCpuSeconds": 4.346889,
+          "maxIndividualRssKiB": 653920,
+          "sampledGroupPssKiB": 703055,
+          "minHostAvailableKiB": 10832088,
+          "hostSwapOutKiB": 0,
+          "returncode": 0,
+          "capReason": null
+        },
+        {
+          "component": "flagship-double",
+          "wallSeconds": 3.6309329060604796,
+          "processCpuSeconds": 3.5976559999999997,
+          "maxIndividualRssKiB": 637020,
+          "sampledGroupPssKiB": 690493,
+          "minHostAvailableKiB": 10847080,
+          "hostSwapOutKiB": 0,
+          "returncode": 0,
+          "capReason": null
+        },
+        {
+          "component": "flagship-planning",
+          "wallSeconds": 8.934142622048967,
+          "processCpuSeconds": 8.783218999999999,
+          "maxIndividualRssKiB": 1403364,
+          "sampledGroupPssKiB": 1446629,
+          "minHostAvailableKiB": 10011084,
+          "hostSwapOutKiB": 0,
+          "returncode": 0,
+          "capReason": null
+        },
+        {
+          "component": "flagship-multi-step",
+          "wallSeconds": 3.400113013922237,
+          "processCpuSeconds": 3.381026,
+          "maxIndividualRssKiB": 385876,
+          "sampledGroupPssKiB": 436161,
+          "minHostAvailableKiB": 11048124,
+          "hostSwapOutKiB": 0,
+          "returncode": 0,
+          "capReason": null
+        }
+      ],
+      [
+        {
+          "component": "flagship-baseline",
+          "wallSeconds": 1.9197417799150571,
+          "processCpuSeconds": 1.900412,
+          "maxIndividualRssKiB": 279604,
+          "sampledGroupPssKiB": 332733,
+          "minHostAvailableKiB": 11160824,
+          "hostSwapOutKiB": 0,
+          "returncode": 0,
+          "capReason": null
+        },
+        {
+          "component": "flagship-one-step",
+          "wallSeconds": 4.427787384018302,
+          "processCpuSeconds": 4.379662,
+          "maxIndividualRssKiB": 641740,
+          "sampledGroupPssKiB": 684377,
+          "minHostAvailableKiB": 10796032,
+          "hostSwapOutKiB": 0,
+          "returncode": 0,
+          "capReason": null
+        },
+        {
+          "component": "flagship-double",
+          "wallSeconds": 3.733410560991615,
+          "processCpuSeconds": 3.689024,
+          "maxIndividualRssKiB": 658684,
+          "sampledGroupPssKiB": 711433,
+          "minHostAvailableKiB": 10791524,
+          "hostSwapOutKiB": 0,
+          "returncode": 0,
+          "capReason": null
+        },
+        {
+          "component": "flagship-planning",
+          "wallSeconds": 9.690494409995154,
+          "processCpuSeconds": 9.510755,
+          "maxIndividualRssKiB": 1391760,
+          "sampledGroupPssKiB": 1443877,
+          "minHostAvailableKiB": 10049300,
+          "hostSwapOutKiB": 0,
+          "returncode": 0,
+          "capReason": null
+        },
+        {
+          "component": "flagship-multi-step",
+          "wallSeconds": 3.1408465430140495,
+          "processCpuSeconds": 3.1081239999999997,
+          "maxIndividualRssKiB": 372784,
+          "sampledGroupPssKiB": 425132,
+          "minHostAvailableKiB": 11065536,
+          "hostSwapOutKiB": 0,
+          "returncode": 0,
+          "capReason": null
+        }
+      ]
+    ],
+    "current": [
+      [
+        {
+          "component": "flagship-baseline",
+          "wallSeconds": 2.011067916988395,
+          "processCpuSeconds": 2.001948,
+          "maxIndividualRssKiB": 284892,
+          "sampledGroupPssKiB": 337748,
+          "minHostAvailableKiB": 11233284,
+          "hostSwapOutKiB": 0,
+          "returncode": 0,
+          "capReason": null
+        },
+        {
+          "component": "flagship-one-step",
+          "wallSeconds": 4.319989406969398,
+          "processCpuSeconds": 4.267621,
+          "maxIndividualRssKiB": 642236,
+          "sampledGroupPssKiB": 696799,
+          "minHostAvailableKiB": 10864944,
+          "hostSwapOutKiB": 0,
+          "returncode": 0,
+          "capReason": null
+        },
+        {
+          "component": "flagship-double",
+          "wallSeconds": 4.116522895055823,
+          "processCpuSeconds": 4.037205,
+          "maxIndividualRssKiB": 694020,
+          "sampledGroupPssKiB": 747306,
+          "minHostAvailableKiB": 10820088,
+          "hostSwapOutKiB": 0,
+          "returncode": 0,
+          "capReason": null
+        },
+        {
+          "component": "flagship-planning",
+          "wallSeconds": 8.90356459398754,
+          "processCpuSeconds": 8.806911,
+          "maxIndividualRssKiB": 1433624,
+          "sampledGroupPssKiB": 1487887,
+          "minHostAvailableKiB": 10069852,
+          "hostSwapOutKiB": 0,
+          "returncode": 0,
+          "capReason": null
+        },
+        {
+          "component": "flagship-multi-step",
+          "wallSeconds": 3.3671868020901456,
+          "processCpuSeconds": 3.353294,
+          "maxIndividualRssKiB": 371760,
+          "sampledGroupPssKiB": 425849,
+          "minHostAvailableKiB": 11131892,
+          "hostSwapOutKiB": 0,
+          "returncode": 0,
+          "capReason": null
+        }
+      ],
+      [
+        {
+          "component": "flagship-baseline",
+          "wallSeconds": 1.7741115579847246,
+          "processCpuSeconds": 1.758774,
+          "maxIndividualRssKiB": 278468,
+          "sampledGroupPssKiB": 328234,
+          "minHostAvailableKiB": 11233336,
+          "hostSwapOutKiB": 0,
+          "returncode": 0,
+          "capReason": null
+        },
+        {
+          "component": "flagship-one-step",
+          "wallSeconds": 4.4173199909273535,
+          "processCpuSeconds": 4.312761,
+          "maxIndividualRssKiB": 648320,
+          "sampledGroupPssKiB": 705181,
+          "minHostAvailableKiB": 10871640,
+          "hostSwapOutKiB": 0,
+          "returncode": 0,
+          "capReason": null
+        },
+        {
+          "component": "flagship-double",
+          "wallSeconds": 3.639287563972175,
+          "processCpuSeconds": 3.6019970000000003,
+          "maxIndividualRssKiB": 624532,
+          "sampledGroupPssKiB": 674310,
+          "minHostAvailableKiB": 10891596,
+          "hostSwapOutKiB": 0,
+          "returncode": 0,
+          "capReason": null
+        },
+        {
+          "component": "flagship-planning",
+          "wallSeconds": 8.91485962108709,
+          "processCpuSeconds": 8.749833,
+          "maxIndividualRssKiB": 1339552,
+          "sampledGroupPssKiB": 1394581,
+          "minHostAvailableKiB": 10171008,
+          "hostSwapOutKiB": 0,
+          "returncode": 0,
+          "capReason": null
+        },
+        {
+          "component": "flagship-multi-step",
+          "wallSeconds": 3.409924800042063,
+          "processCpuSeconds": 3.376723,
+          "maxIndividualRssKiB": 377904,
+          "sampledGroupPssKiB": 429502,
+          "minHostAvailableKiB": 11117540,
+          "hostSwapOutKiB": 0,
+          "returncode": 0,
+          "capReason": null
+        }
+      ],
+      [
+        {
+          "component": "flagship-baseline",
+          "wallSeconds": 1.780719785951078,
+          "processCpuSeconds": 1.775099,
+          "maxIndividualRssKiB": 280324,
+          "sampledGroupPssKiB": 333150,
+          "minHostAvailableKiB": 11227516,
+          "hostSwapOutKiB": 0,
+          "returncode": 0,
+          "capReason": null
+        },
+        {
+          "component": "flagship-one-step",
+          "wallSeconds": 4.598700933041982,
+          "processCpuSeconds": 4.541868,
+          "maxIndividualRssKiB": 689996,
+          "sampledGroupPssKiB": 743401,
+          "minHostAvailableKiB": 10797296,
+          "hostSwapOutKiB": 0,
+          "returncode": 0,
+          "capReason": null
+        },
+        {
+          "component": "flagship-double",
+          "wallSeconds": 3.6640328989597037,
+          "processCpuSeconds": 3.616838,
+          "maxIndividualRssKiB": 619728,
+          "sampledGroupPssKiB": 672469,
+          "minHostAvailableKiB": 10880388,
+          "hostSwapOutKiB": 0,
+          "returncode": 0,
+          "capReason": null
+        },
+        {
+          "component": "flagship-planning",
+          "wallSeconds": 8.721991069964133,
+          "processCpuSeconds": 8.588376,
+          "maxIndividualRssKiB": 1383140,
+          "sampledGroupPssKiB": 1427330,
+          "minHostAvailableKiB": 10118648,
+          "hostSwapOutKiB": 0,
+          "returncode": 0,
+          "capReason": null
+        },
+        {
+          "component": "flagship-multi-step",
+          "wallSeconds": 3.36933604197111,
+          "processCpuSeconds": 3.355324,
+          "maxIndividualRssKiB": 382792,
+          "sampledGroupPssKiB": 437437,
+          "minHostAvailableKiB": 11127908,
+          "hostSwapOutKiB": 0,
+          "returncode": 0,
+          "capReason": null
+        }
+      ],
+      [
+        {
+          "component": "flagship-baseline",
+          "wallSeconds": 2.024338237941265,
+          "processCpuSeconds": 2.00337,
+          "maxIndividualRssKiB": 288500,
+          "sampledGroupPssKiB": 342349,
+          "minHostAvailableKiB": 11210896,
+          "hostSwapOutKiB": 0,
+          "returncode": 0,
+          "capReason": null
+        },
+        {
+          "component": "flagship-one-step",
+          "wallSeconds": 4.395083786919713,
+          "processCpuSeconds": 4.345898,
+          "maxIndividualRssKiB": 640548,
+          "sampledGroupPssKiB": 678437,
+          "minHostAvailableKiB": 10855960,
+          "hostSwapOutKiB": 0,
+          "returncode": 0,
+          "capReason": null
+        },
+        {
+          "component": "flagship-double",
+          "wallSeconds": 4.110140679986216,
+          "processCpuSeconds": 4.037723,
+          "maxIndividualRssKiB": 688444,
+          "sampledGroupPssKiB": 740377,
+          "minHostAvailableKiB": 10817020,
+          "hostSwapOutKiB": 0,
+          "returncode": 0,
+          "capReason": null
+        },
+        {
+          "component": "flagship-planning",
+          "wallSeconds": 8.854850684991106,
+          "processCpuSeconds": 8.693802999999999,
+          "maxIndividualRssKiB": 1408744,
+          "sampledGroupPssKiB": 1460181,
+          "minHostAvailableKiB": 10087028,
+          "hostSwapOutKiB": 0,
+          "returncode": 0,
+          "capReason": null
+        },
+        {
+          "component": "flagship-multi-step",
+          "wallSeconds": 3.355697907973081,
+          "processCpuSeconds": 3.33084,
+          "maxIndividualRssKiB": 379036,
+          "sampledGroupPssKiB": 431845,
+          "minHostAvailableKiB": 11127044,
+          "hostSwapOutKiB": 0,
+          "returncode": 0,
+          "capReason": null
+        }
+      ],
+      [
+        {
+          "component": "flagship-baseline",
+          "wallSeconds": 1.782608943991363,
+          "processCpuSeconds": 1.7752970000000001,
+          "maxIndividualRssKiB": 279512,
+          "sampledGroupPssKiB": 332290,
+          "minHostAvailableKiB": 11144948,
+          "hostSwapOutKiB": 0,
+          "returncode": 0,
+          "capReason": null
+        },
+        {
+          "component": "flagship-one-step",
+          "wallSeconds": 4.458818244980648,
+          "processCpuSeconds": 4.413195,
+          "maxIndividualRssKiB": 645676,
+          "sampledGroupPssKiB": 685681,
+          "minHostAvailableKiB": 10781172,
+          "hostSwapOutKiB": 0,
+          "returncode": 0,
+          "capReason": null
+        },
+        {
+          "component": "flagship-double",
+          "wallSeconds": 3.6565295950276777,
+          "processCpuSeconds": 3.6166329999999998,
+          "maxIndividualRssKiB": 621996,
+          "sampledGroupPssKiB": 672309,
+          "minHostAvailableKiB": 10820792,
+          "hostSwapOutKiB": 0,
+          "returncode": 0,
+          "capReason": null
+        },
+        {
+          "component": "flagship-planning",
+          "wallSeconds": 8.904964325018227,
+          "processCpuSeconds": 8.733865999999999,
+          "maxIndividualRssKiB": 1326708,
+          "sampledGroupPssKiB": 1380588,
+          "minHostAvailableKiB": 10116556,
+          "hostSwapOutKiB": 0,
+          "returncode": 0,
+          "capReason": null
+        },
+        {
+          "component": "flagship-multi-step",
+          "wallSeconds": 3.097239444963634,
+          "processCpuSeconds": 3.074618,
+          "maxIndividualRssKiB": 374932,
+          "sampledGroupPssKiB": 428717,
+          "minHostAvailableKiB": 11050824,
+          "hostSwapOutKiB": 0,
+          "returncode": 0,
+          "capReason": null
+        }
+      ]
+    ]
+  }
+}

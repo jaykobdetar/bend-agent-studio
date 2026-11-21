@@ -1,10 +1,13 @@
-# Phase 11: performance and parity checkpoint
+# Phase 11: performance and parity review
 
-**The phase is not complete.** The normal engine and archive formats remain
-the reference. This record separates shipped changes from bounded diagnostic
-results. No changes to the engine core, laws, proof kernel, archive format,
-or stock random-seed rules were made in this checkpoint. See the [performance guide](../performance.md) for fixed inputs,
-guard settings, medians, and reproduction commands.
+**No training backend was adopted.** The normal engine and archive formats
+remain the reference. The changes shipped to Studio, analysis and
+validation-only sequential studies are separate from the performance
+prototypes below. That experimental scope did not clear the full parity and
+no-regression gates. No engine core, learner, law, proof, archive gate,
+sealed format or stock seed rule changed; no archive transition was needed.
+See the [performance guide](../performance.md) for fixed inputs, machine
+profile, guard settings and reproduction commands.
 
 | Item | Status | What is verified or still missing |
 | --- | --- | --- |
@@ -16,10 +19,10 @@ guard settings, medians, and reproduction commands.
 | P11.5 | Not adopted | Warm batching preserved the sampled models and reports but was slower for Dyna-Q in all five paired comparisons. Step-budget and sealed parity were not tested in that spike. |
 | P11.6 | CPU diagnostic; not adopted | Five stock JS/CPU paths matched 64 complete models and 2,048 training reports each. The bounded CUDA population attempt returned no model rows or verified device kernel. |
 | P11.7 | Partial diagnostic | Stock sine differed by one ULP on actual CUDA. An outward portable tanh prototype matched 5,692 CPU/JS words and 24 verified CUDA words. A separate midpoint test found two deliberate refusals and no incorrect numeric output. A wider experimental stage resolved both on CPU and CUDA, but exhaustive correct rounding remains unverified. |
-| P11.8 | Partial diagnostic | Five finite learners, both compiler targets, 1/2/4 workers, three cells under the actual flagship seal, one complete shipped Bridge plan, bounded continuation and stock archive handoff, a Uniform-policy AVX2 RNG witness, and a hosted generic-native smoke. No adopted engine, whole eligible plan matrix, learner SIMD, or complete native archive lifecycle. |
+| P11.8 | Partial diagnostic | Five finite learners; 2,250 exact flagship v2 checkpoints across 25 eligible cells (15 custom-agent cells excluded), 192 Storm Reserve checkpoints and a complete 72-checkpoint Bridge plan. Both compiler targets and 1/2/4 workers passed the comparison matrices. No adopted engine, all-plan matrix, learner SIMD, or general native archive lifecycle. |
 | P11.9 | Deferred | ThinLTO lost both cold cases after exact parity. PGO and BOLT were not run; no compiler-flag change was adopted. |
-| P11.10 | Not qualified | Five original FrozenLake cells matched 450 stock checkpoints on the RTX 3060 Ti. No full matrix, archive writer, or crossover result. |
-| P11.11 | Not evaluated | A missing population test does not justify an approximate screening backend. |
+| P11.10 | Not qualified | Five original FrozenLake cells matched 450 stock checkpoints on the RTX 3060 Ti, but all four timed CUDA slices were slower than CPU. No full matrix, archive writer, or observed crossover. |
+| P11.11 | Skipped | Exact CUDA parity was demonstrated in five cells; their failure to outperform CPU does not establish that exact CUDA is impossible or justify adding JAX. |
 | P11.12 | Deferred | No tuner or persisted settings derived from an unqualified runtime. |
 | P11.13 | Deferred | No automatic idle work or service activation. |
 | P11.14 | Preparation complete | Inert owner-only template and isolation guide. No runner registered or started and no GPU job enabled. |
@@ -42,8 +45,10 @@ guard settings, medians, and reproduction commands.
   complete-file comparisons were exact; neither endpoint writes
   archives. This does **not** establish a full flagship speedup.
 
-- The exact parent-seal checks cover 270 files across three original flagship
-  v2 cells. The separate [Bridge check](../../twin/scalar-q-spike/bridge/README.md)
+- The [broader native matrices](../../twin/scalar-q-spike/bridge-workflow/README.md#broader-parity-not-timings)
+  matched 2,250 checkpoint files across the 25 eligible flagship v2 cells
+  and 192 in the six-cell Storm Reserve study, under their original seals.
+  The separate [Bridge check](../../twin/scalar-q-spike/bridge/README.md)
   covers one complete unchanged shipped plan, all 72 files. Both compiler
   targets and all three worker counts agreed in these bounded cases.
 - The existing archived runner reproduced a learned-model replay and
@@ -258,3 +263,36 @@ retain verified device evidence separately from CPU correctness.
   kept Windows coverage while improving its test-only startup allowance and
   requiring the single test replay slot to be released. Production replay
   behavior and its configured defaults did not change in that repair.
+
+- Exact hosted CI: [broader CPU parity](https://github.com/jaykobdetar/bend-agent-studio/actions/runs/44815542093),
+  [Bridge overlap experiment](https://github.com/jaykobdetar/bend-agent-studio/actions/runs/44881803929),
+  [GPU parity expansion](https://github.com/jaykobdetar/bend-agent-studio/actions/runs/44882317031),
+  [GPU timings](https://github.com/jaykobdetar/bend-agent-studio/actions/runs/44882786215),
+  and [numeric worker scaling](https://github.com/jaykobdetar/bend-agent-studio/actions/runs/44885370486).
+
+## End-to-end flagship closeout
+
+The fixed Phase 11.0 flagship v2 **subset** runs five fresh archives,
+with 24 trials, 216 checkpoints, and all eight original arms.
+This is not the full study. On the same Ryzen 7 5800X
+logical CPU 6, with Node 24.22.3 and Bend 2.0.40, five alternating
+pairs compared the original training inputs and baseline runner to
+the retained stock runner. Each run compiled and wrote fresh archives;
+verification was outside the timed interval. Sealed plans, compiled
+backend hashes, checkpoint file digests and workload counts agreed with
+the historical baseline on all ten repetitions. No job paged out or hit
+a guard.
+
+| Path | Median wall | Min–max | Median CPU | Median peak group PSS |
+| --- | ---: | ---: | ---: | ---: |
+| Baseline engine | 22.353 s | 21.899–22.933 s | 22.090 s | 1410.0 MiB |
+| Retained stock engine | 22.156 s | 21.900–22.740 s | 21.878 s | 1393.9 MiB |
+
+The [per-run measurements](../../tools/perf/flagship-closeout.json) record
+wall time, CPU time, the work counts and each component's digests.
+
+The measured ratio is **1.01×** (baseline divided by retained stock time).
+This less-than-1% difference is within the run-to-run range, not a
+qualified speedup: both sides still use the same
+training engine. Optional NumPy analysis and validation-only early
+stopping are separate measurements, not improvements to this fixed run.
