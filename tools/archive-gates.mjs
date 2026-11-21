@@ -526,6 +526,27 @@ try {
         assert.deepEqual(Object.keys(snapshot), [key], 'Inventory must pin only ' + key);
         assert(!Object.hasOwn(historical.plans, key) && !Object.hasOwn(added, key));
         current[key] = snapshot[key];
+        if (key === 'experiments/chess.json') {
+          const {plan, study, world} = json(path.join(fixtures, 'chess-draws-transition.json'));
+          const entry = current[key],
+            name = 'games/chess';
+          assert.deepEqual(entry.bundles[name], world.before, 'Chess prior bundle changed');
+          const [oldFile] = Object.keys(world.before.files);
+          const [newFile] = Object.keys(world.after.files);
+          assert.deepEqual(Object.keys(world.before.files), [world.before.entry + '.bend']);
+          assert.deepEqual(Object.keys(world.after.files), [world.after.entry + '.bend']);
+          assert.equal(entry.sources[oldFile], world.before.files[oldFile]);
+          assert(!Object.hasOwn(entry.sources, newFile), 'Chess new source must be unique');
+          entry.plan = transitioned(entry.plan, plan, 'Chess draw rules plan');
+          entry.sources['study.bend'] = transitioned(
+            entry.sources['study.bend'],
+            study,
+            'Chess draw adapter',
+          );
+          delete entry.sources[oldFile];
+          entry.sources[newFile] = world.after.files[newFile];
+          entry.bundles[name] = world.after;
+        }
       }
       const expected = [
         ...Object.keys(historical.plans),

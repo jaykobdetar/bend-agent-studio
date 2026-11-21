@@ -55,3 +55,17 @@ test('Studio labels an underpromotion and paints the replay board', () => {
   assert.ok(drawn.includes('♘'));
   assert.ok(drawn.includes('b7 → a8'));
 });
+
+test('claim records are terminal actions, not chess moves in the replay', () => {
+  const t = trace(['g1f3', 'g8f6', 'f3g1']);
+  const intended = 131072 + move('f6g8').action;
+  t.frames.push({action: intended, accepted: true});
+  const boards = boardStates(t);
+  assert.equal(boards.at(-1), boards.at(-2));
+  assert.equal(at(boards.at(-1), 'f6'), 10);
+  assert.equal(
+    actionName('chess', intended),
+    'Draw claimed by threefold repetition (f6g8 intended)',
+  );
+  assert.equal(actionName('chess', 98305), 'Draw claimed under the 50-move rule');
+});

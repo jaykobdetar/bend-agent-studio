@@ -1,0 +1,24 @@
+{
+  "plan": {
+    "before": "29331befed082fee100b0b1ceaa31245281f8df40cb393cc4e1239159cfdcc59",
+    "after": "ebdd3c483a61fe8ab748d8fdeba21b41b6ada43e3d2e801b98590544942d1f7b"
+  },
+  "study": {
+    "before": "199116c8da01add9f86b252447377cb9783e690af72e907d317844c287cde63f",
+    "after": "0d830053eea25651666cfb96534bd31aadf0573a30d15beb819196c35ff47cc4"
+  },
+  "world": {
+    "before": {
+      "entry": "agent_dc4c329e5ebfeb7985e70f9ba2f1ac83",
+      "files": {
+        "agent_dc4c329e5ebfeb7985e70f9ba2f1ac83.bend": "dc4c329e5ebfeb7985e70f9ba2f1ac8381da610306c35e5c27bdad1303b86403"
+      }
+    },
+    "after": {
+      "entry": "agent_926d1fe8fc5e4f8517b961e6fdb9a106",
+      "files": {
+        "agent_926d1fe8fc5e4f8517b961e6fdb9a106.bend": "926d1fe8fc5e4f8517b961e6fdb9a10686505d12120f1721468693919862b03c"
+      }
+    }
+  }
+}

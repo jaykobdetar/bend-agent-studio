@@ -21,11 +21,31 @@ function decode(action) {
   return {from, to, promotion};
 }
 
+function moveName(move) {
+  return squareName(move.from) + squareName(move.to) + (promotions[move.promotion] ?? '');
+}
+
+export function chessClaim(action) {
+  if (action === 98304) return 'Draw claimed by threefold repetition';
+  if (action === 98305) return 'Draw claimed under the 50-move rule';
+  const byRepetition = action >= 131072 && action < 131072 + 98304;
+  const byClock = action >= 262144 && action < 262144 + 98304;
+  if (!byRepetition && !byClock) return null;
+  const intended = decode(action - (byRepetition ? 131072 : 262144));
+  if (!intended) return null;
+  return (
+    (byRepetition
+      ? 'Draw claimed by threefold repetition'
+      : 'Draw claimed under the 50-move rule') +
+    ' (' +
+    moveName(intended) +
+    ' intended)'
+  );
+}
+
 export function chessAction(action) {
   const move = decode(action);
-  return move
-    ? squareName(move.from) + squareName(move.to) + (promotions[move.promotion] ?? '')
-    : String(action);
+  return move ? moveName(move) : (chessClaim(action) ?? String(action));
 }
 
 function initialBoard() {

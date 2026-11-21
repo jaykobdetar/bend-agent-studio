@@ -8,7 +8,7 @@ import ../core/parameters.bend as P
 type Board is Data:
   Ranks{a: U32,b: U32,c: U32,d: U32,e: U32,f: U32,g: U32,h: U32}
 
-type State is Data:
+type BoardState is Data:
   Chess{board: Board, side: U32, rights: U32, ep: U32, white: U32, black: U32, clock: U32}
 
 def Observation() -> Data: A.Signal
@@ -130,7 +130,7 @@ def apply(board: Board,+side: U32,+from: U32,+to: U32,+prom: U32,+p: U32,taken: 
 def destination(a: U32) -> U32: U32.and(U32.shrn(a,7n),127)
 def source(a: U32) -> U32: U32.and(a,127)
 
-def move(state: State,+action: U32,word: U32) -> State:
+def move(state: BoardState,+action: U32,word: U32) -> BoardState:
   Chess{+board,+side,rights,ep,+white,+black,clock}=state
   +from=source(action)
   +to=destination(action)
@@ -262,7 +262,7 @@ def keep(+board: Board,+side: U32,+k: U32,moves: List<&2,U32>) -> List<&2,U32>:
       +next=keep(board,side,k,rest)
       Bool.pick(List<&2,U32>,safe(board,side,k,a),a <> next,next)
 
-def legal(state: State) -> List<&2,U32>:
+def legal(state: BoardState) -> List<&2,U32>:
   Chess{+board,+side,rights,ep,white,black,clock}=state
   keep(board,side,Bool.pick(U32,U32.is_eq(side,0),white,black),pseudo(board,side,rights,ep,64n,[]))
 
@@ -303,7 +303,7 @@ def active(draw: Bool,second: Bool,key: U32,moves: List<&2,U32>) -> A.Position:
     case True{}: A.Outcome{0.0}
     case False{}: A.Turn{second,key,moves}
 
-def result(moves: List<&2,U32>,state: State) -> A.Position:
+def result(moves: List<&2,U32>,state: BoardState) -> A.Position:
   match moves state:
     case [] Chess{board,+side,rights,ep,white,black,clock}:
       +second=U32.is_eq(side,8)
@@ -313,11 +313,146 @@ def result(moves: List<&2,U32>,state: State) -> A.Position:
       key=hash(board,8n,U32.add(clock,U32.shln(U32.add(side,U32.shln(U32.add(rights,U32.shln(ep,4n)),4n)),8n)))
       active(U32.is_ge(clock,150) || dead(board),U32.is_eq(side,8),key,moves)
 
-def position(+state: State) -> A.Position:
+def position(+state: BoardState) -> A.Position:
   result(legal(state),state)
 
-def start() -> State:
+def start() -> BoardState:
   Chess{Ranks{1110856484,286331153,0,0,0,0,2576980377,3401505708},0,15,127,4,116,0}
 
+# A repetition key is exact and separate from the learner's compact hash.
+# The halfmove clock is not part of it. A nominal en passant target matters
+# only when an actual legal capture is available, including king safety.
+type Repetition is Data:
+  Repetition{board: Board, side: U32, rights: U32, ep: U32}
+
+type State is Data:
+  Live{state: BoardState, history: List<&2,Repetition>}
+  Claimed{}
+
+def can_ep(+board: Board,+side: U32,k: U32,+ep: U32,+f: U32) -> Bool:
+  sees(board,f,U32.add(side,1)) && safe(board,side,k,encode(f,ep,0))
+
+def effective_ep(+ep: U32,+board: Board,+side: U32,+k: U32) -> U32:
+  match ep:
+    case 127: 127
+    case _:
+      +above=add(ep,U32.sub(128,forward(side)))
+      Bool.pick(U32,can_ep(board,side,k,ep,U32.sub(above,1)) ||
+        can_ep(board,side,k,ep,U32.add(above,1)),ep,127)
+
+def repetition(state: BoardState) -> Repetition:
+  Chess{+b,+s,r,ep,w,k,c}=state
+  Repetition{b,s,r,effective_ep(ep,b,s,Bool.pick(U32,U32.is_eq(s,0),w,k))}
+
+def equal_board(x: Board,y: Board) -> Bool:
+  match x y:
+    case Ranks{a,b,c,d,e,f,g,h} Ranks{i,j,k,l,m,n,o,p}:
+      U32.is_eq(a,i) && U32.is_eq(b,j) && U32.is_eq(c,k) && U32.is_eq(d,l) &&
+      U32.is_eq(e,m) && U32.is_eq(f,n) && U32.is_eq(g,o) && U32.is_eq(h,p)
+
+def same(x: Repetition,y: Repetition) -> Bool:
+  match x y:
+    case Repetition{a,s,r,e} Repetition{b,t,q,f}:
+      U32.is_eq(s,t) && U32.is_eq(r,q) && U32.is_eq(e,f) && equal_board(a,b)
+
+def matches(history: List<&2,Repetition>,+key: Repetition) -> U32:
+  match history:
+    case []: 0
+    case old<>rest:
+      U32.add(Bool.pick(U32,same(key,old),1,0),matches(rest,key))
+
+def clock(state: BoardState) -> U32:
+  Chess{b,s,r,e,w,k,c}=state
+  c
+
+def rights(state: BoardState) -> U32:
+  Chess{b,s,r,e,w,k,c}=state
+  r
+
+# Captures, pawn moves, and losing a castling right make earlier keys
+# unreachable. Keep only reversible history without changing adjudication.
+def advance_history(reset: Bool,current: Repetition,history: List<&2,Repetition>) -> List<&2,Repetition>:
+  match reset:
+    case True{}: []
+    case False{}: current <> history
+
+def continued(+current: BoardState,+next: BoardState,history: List<&2,Repetition>) -> State:
+  reset=U32.is_eq(clock(next),0) || Bool.not(U32.is_eq(rights(current),rights(next)))
+  Live{next,advance_history(reset,repetition(current),history)}
+
+# UCI-style chess moves retain their old numeric IDs. The two single IDs are
+# claims on the standing position; the two high bands encode an intended move.
+def claim_three() -> U32: 98304
+def claim_fifty() -> U32: 98305
+def intended_three(a: U32) -> U32: U32.add(131072,a)
+def intended_fifty(a: U32) -> U32: U32.add(262144,a)
+
+def game_choice(claim: Bool,+state: BoardState,+a: U32,history: List<&2,Repetition>) -> State:
+  match claim:
+    case True{}: Claimed{}
+    case False{}: continued(state,move(state,a,0),history)
+
+def game_move(game: State,+a: U32,word: U32) -> State:
+  match game:
+    case Claimed{}: Claimed{}
+    case Live{state,history}: game_choice(U32.is_ge(a,claim_three()),state,a,history)
+
+def add_if(on: Bool,id: U32,+tail: List<&2,U32>) -> List<&2,U32>:
+  Bool.pick(List<&2,U32>,on,id<>tail,tail)
+
+def possible_claims(+a: U32,+next: BoardState,history: List<&2,Repetition>,+seek_three: Bool,seek_fifty: Bool,
+    tail: List<&2,U32>) -> List<&2,U32>:
+  three=seek_three && U32.is_ge(matches(history,repetition(next)),2)
+  fifty=seek_fifty && U32.is_ge(clock(next),100)
+  add_if(three,intended_three(a),add_if(fifty,intended_fifty(a),tail))
+
+def claim_scan(moves: List<&2,U32>,+state: BoardState,+history: List<&2,Repetition>,+three: Bool,+fifty: Bool) -> List<&2,U32>:
+  match moves:
+    case []: []
+    case +a<>rest:
+      possible_claims(a,move(state,a,0),history,three,fifty,claim_scan(rest,state,history,three,fifty))
+
+def append_moves(moves: List<&2,U32>,suffix: List<&2,U32>) -> List<&2,U32>:
+  match moves:
+    case []: suffix
+    case a<>rest: a <> append_moves(rest,suffix)
+
+def candidate_claims(check: Bool,moves: List<&2,U32>,state: BoardState,history: List<&2,Repetition>,three: Bool,fifty: Bool) -> List<&2,U32>:
+  match check:
+    case False{}: []
+    case True{}: claim_scan(moves,state,history,three,fifty)
+
+def options(+moves: List<&2,U32>,+state: BoardState,+history: List<&2,Repetition>,+visits: U32) -> List<&2,U32>:
+  +on_clock=clock(state)
+  +three_now=U32.is_ge(visits,3)
+  +fifty_now=U32.is_ge(on_clock,100)
+  # A result that can repeat must be a quiet move, and the earliest
+  # prospective third occurrence is at ply 7. No scans in the opening.
+  +seek_three=U32.is_ge(on_clock,7)
+  +seek_fifty=U32.is_ge(on_clock,99)
+  intended=candidate_claims(seek_three || seek_fifty,moves,state,history,seek_three,seek_fifty)
+  append_moves(moves,add_if(three_now,claim_three(),add_if(fifty_now,claim_fifty(),intended)))
+
+def game_turn(auto_draw: Bool,second: Bool,key: U32,moves: List<&2,U32>,state: BoardState,history: List<&2,Repetition>,
+    visits: U32) -> A.Position:
+  match auto_draw:
+    case True{}: A.Outcome{0.0}
+    case False{}: A.Turn{second,key,options(moves,state,history,visits)}
+
+def game_result(base: A.Position,+state: BoardState,+history: List<&2,Repetition>) -> A.Position:
+  match base:
+    case A.Outcome{r}: A.Outcome{r}
+    case A.Turn{side,key,moves}:
+      +visits=U32.add(1,matches(history,repetition(state)))
+      game_turn(U32.is_ge(visits,5),side,key,moves,state,history,visits)
+
+def game_position(game: State) -> A.Position:
+  match game:
+    case Claimed{}: A.Outcome{0.0}
+    case Live{+state,history}: game_result(position(state),state,history)
+
+def reset(seed: U32) -> State:
+  Live{start(),[]}
+
 def world(p: P.Parameters) -> E.World<State,Observation>:
-  A.world(~State,~(s => position(s)),~(s => a => w => move(s,a,w)),seed => start())
+  A.world(~State,~game_position,~(s => a => w => game_move(s,a,w)),reset)

@@ -57,7 +57,9 @@ independently pin the two new study plans, with no changes to any earlier
 plan or backend fingerprint. The [complex-world entries](complex-world-plans.json) likewise pin only the added Courier, Switchboard and Storm Reserve plans; no historical fingerprint is replaced. The [Apex Kart entry](apex-kart-plan.json) adds only its training plan, with unchanged historical source and backend baselines.
 
 The [Chess entry](chess-plan.json) pins its new plan and bundles at their
-current source hashes, without changing any historical baseline.
+original source hashes. The [draw-rules transition](chess-draws-transition.json)
+adds the new plan identity, staged chess world and generated adapter; all other
+source, bundle and backend baselines are unchanged.
 
 ## Archive dependency boundary
 

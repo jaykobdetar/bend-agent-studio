@@ -12,11 +12,20 @@ Run shell commands from the repository root.
 [Chess](../worlds/chess.bend) is an alternating two-seat arena. Play starts
 from the standard opening position; Bend generates legal moves, including
 castling, en passant and all four promotions, and rejects moves leaving the
-king in check. A checkmate scores +1 for White or −1 for Black. Stalemate, the
-75-move rule (unless the last move is mate), and common insufficient-material
-positions score zero. Repetition, draw claims and rare blocked dead positions
-are not adjudicated. The sample's 80-ply cap is a **truncation**, not a draw
-verdict.
+king in check. Checkmate scores +1 for White or −1 for Black. Stalemate,
+insufficient material (two kings, a single minor piece, or only bishops on
+the same square color), fivefold repetition, and the 75-move rule are automatic
+draws. A mating move takes precedence over the 75-move draw. Threefold repetition
+and the 50-move rule instead offer a draw-claim action, either on the current
+position or by specifying a legal intended move. A successful claim ends the game
+without playing the intended move.
+
+Repetition compares exact piece placement, the side to move, castling rights,
+and whether a legal en passant capture is available. It does not compare the
+halfmove clock or the learner's hash. The sample's 80-ply cap is a **truncation**,
+not a draw verdict. This self-play environment has no clocks, agreements or
+tournament procedures, and does not exhaustively adjudicate unusual dead
+positions with more material. See [FIDE Laws of Chess, articles 5 and 9](https://handbook.fide.com/chapter/E012023).
 
 Choose [the chess plan](../experiments/chess.json) in Studio, or run:
 

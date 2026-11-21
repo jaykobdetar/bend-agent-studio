@@ -1,3 +1,4 @@
+import {chessClaim} from './chess-scene.js';
 import {kartTelemetry} from './kart-scene.js';
 import {comparisonUI} from './compare.js';
 import {
@@ -112,12 +113,11 @@ function reason(t) {
   if (why === 'Terminal' && t.gridLayout?.renderer === 'apex-kart') return 'Finish line crossed';
   if (why === 'Terminal' && ['cliff', 'mountain_car', 'acrobot'].includes(t.game))
     return 'Goal reached';
-  if (why === 'Terminal' && t.game === 'chess')
-    return t.score === 0
-      ? 'Draw'
-      : t.score > 0
-        ? 'White wins by checkmate'
-        : 'Black wins by checkmate';
+  if (why === 'Terminal' && t.game === 'chess') {
+    const last = t.frames.at(-1);
+    if (t.score === 0) return (last?.accepted && chessClaim(last.action)) || 'Draw';
+    return t.score > 0 ? 'White wins by checkmate' : 'Black wins by checkmate';
+  }
   if (why === 'Terminal' && ['tic-tac-toe', 'raw-board'].includes(t.game))
     return t.score === 0 ? 'Draw' : t.score > 0 ? 'X won' : 'O won';
   return why || '—';
