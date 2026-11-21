@@ -332,6 +332,14 @@ its trace provided no verified kernel evidence. Dyna was not attempted on
 the GPU. No native or CUDA backend was adopted.
 
 
+## P11.10: compiled CUDA checkpoint parity
+
+The [flagship FrozenLake CUDA diagnostic](history/phase-11.md#actual-cuda-one-original-flagship-cell)
+matched 450 stock checkpoints across five selected cells on an RTX 3060 Ti.
+This is separate from P11.6: it uses ahead-of-time generated CUDA, not
+the stock Bend CUDA runtime. It establishes exactness for those cells,
+not a speedup or a qualified backend.
+
 ## P11.8: scalar native checkpoint witness
 
 The [bounded native witness](../twin/scalar-q-spike/README.md) generated C for

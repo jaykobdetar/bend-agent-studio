@@ -18,7 +18,7 @@ guard settings, medians, and reproduction commands.
 | P11.7 | Partial diagnostic | Stock sine differed by one ULP on actual CUDA. An outward portable tanh prototype matched 5,692 CPU/JS words and 24 verified CUDA words. A separate midpoint test found two deliberate refusals and no incorrect numeric output. A wider experimental stage resolved both on CPU and CUDA, but exhaustive correct rounding remains unverified. |
 | P11.8 | Partial diagnostic | Five finite learners, both compiler targets, 1/2/4 workers, three cells under the actual flagship seal, one complete shipped Bridge plan, bounded continuation and stock archive handoff, a Uniform-policy AVX2 RNG witness, and a hosted generic-native smoke. No adopted engine, whole eligible plan matrix, learner SIMD, or complete native archive lifecycle. |
 | P11.9 | Deferred | ThinLTO lost both cold cases after exact parity. PGO and BOLT were not run; no compiler-flag change was adopted. |
-| P11.10 | Not qualified | One original flagship Q-learning cell matched all 90 stock checkpoints on the actual RTX 3060 Ti. The scope does not qualify a production CUDA backend. |
+| P11.10 | Not qualified | Five original FrozenLake cells matched 450 stock checkpoints on the RTX 3060 Ti. No full matrix, archive writer, or crossover result. |
 | P11.11 | Not evaluated | A missing population test does not justify an approximate screening backend. |
 | P11.12 | Deferred | No tuner or persisted settings derived from an unqualified runtime. |
 | P11.13 | Deferred | No automatic idle work or service activation. |
@@ -156,6 +156,39 @@ There was no GPU archive writer, no independent full-plan lifecycle
 test on CUDA, and no CPU/GPU crossover measurement. The original archive
 was not modified. The portable tanh and stock Bend CUDA experiments
 are distinct diagnostics and do not extend this cell's scope.
+
+### Four additional original FrozenLake cells
+
+A follow-up used the same flagship v2 parent seal and the same ten
+original replicate IDs per cell, in the original 8 + 2 ranges. The CUDA
+source was regenerated from pinned cell-specific CPU source. AOT
+compilation targeted sm_86 with CUDA 12.0.140 and GCC 12, contraction
+disabled and round-to-nearest operations. The device executed the
+learner; hosts only transferred and encoded the outputs.
+
+Every range recorded a positive-duration CUDA kernel event on the RTX
+3060 Ti. The ordered episode and model bytes matched the pinned CPU
+wire, and a separate check applied the unmodified CPU archive comparator
+to those captured bytes. All 360 additional checkpoints matched the
+original archive, including model and parent-chain bytes. Together with
+the Q-learning cell, this is **450 checkpoints across five cells**. The
+guards measured no paging on the host during these runs.
+
+| Original cell | Replicates | Matched checkpoints | Captured wire SHA-256 |
+| --- | --- | ---: | --- |
+| Slippery FrozenLake, Random | 0–7 | 72 | `2d0ba8aeacde2db5892abc886937d1a78b235183a01dbe5dbd3264ee3a5200a4` |
+| Slippery FrozenLake, Random | 8–9 | 18 | `e1dc0ffb4e22a4d964d3b2d792d29682d9017f015c8dd48e111c238e16d8bd03` |
+| Slippery FrozenLake, Expected SARSA | 0–7 | 72 | `6ba7142c6da2de56cbf8ecb353f5fcf178ae7a9d149dbde2dd5c043231906694` |
+| Slippery FrozenLake, Expected SARSA | 8–9 | 18 | `626fd31ec4106f00e9d9d38a177c17e12324390939519f2727bbc70dafceb62b` |
+| Slippery FrozenLake, Double Q | 0–7 | 72 | `cd676532ee434ff4037a873fb6cbf7d24596a744db0ec769e80700bac3b7a25d` |
+| Slippery FrozenLake, Double Q | 8–9 | 18 | `ba85de25553c5414f0271acca31a90db1061db648263dd143dda13d91a0b6959` |
+| Dry FrozenLake, Dyna-Q | 0–7 | 72 | `24f86401c3ce2177e8fa71710c0a75abc1a96a9c130eb1c84c5894b46dc6f9e3` |
+| Dry FrozenLake, Dyna-Q | 8–9 | 18 | `6b935bf268f92442acda1caf4070f69293a729bfbebfb560304cac792dc56a1b` |
+
+These checks cover all five built-in learner families on these selected
+FrozenLake cells, not every original cell or all eligible plans. They do
+not exercise a CUDA archive writer or measure throughput, and they do
+not change the default backend.
 
 ## Adoption priorities
 
