@@ -10,7 +10,7 @@ guard settings, medians, and reproduction commands.
 | --- | --- | --- |
 | P11.0 | Baseline recorded | Eight fixed workloads, five repeats each; diagnostic profiles preserved output bytes. Hardware perf counters were unavailable. |
 | P11.1 | Partial, on main | Optional exact same-seed superiority calculation and configurable Studio replay limits landed. Windows/macOS scope and existing checks were retained. |
-| P11.2 | Deferred | A disposable Linux memory cap was enforced. Two-worker evaluation preserved checkpoint bytes but slowed Bridge. No automatic sharding or evaluation change. |
+| P11.2 | Deferred | A disposable Linux memory cap was enforced. Both the evaluation prototype and existing two-worker training preserved archive bytes but slowed Bridge. No automatic sharding or evaluation change. |
 | P11.3 | Partial, on main | Resident preregistered validation stopping passed exact prefix checks and the fixed small pilot. Exact annotations, cold/warm compiler caching and cross-plan raw checkpoint reuse were not adopted. |
 | P11.4 | Deferred | No warm compiler service, Unix socket listener or background activation was installed. The measured compile cache did not meet the adoption gate. |
 | P11.5 | Not adopted | Warm batching preserved the sampled models and reports but was slower for Dyna-Q in all five paired comparisons. Step-budget and sealed parity were not tested in that spike. |
@@ -87,6 +87,28 @@ Reserve cell but took 58% longer on Bridge. No worker mode was enabled or
 selected automatically. Qualifying a selective policy would require
 preregistered thresholds, checks across more models and all fixed
 workloads, and end-to-end lifecycle parity.
+
+### Stock training with one or two workers
+
+The existing `resume --jobs` path was also compared on two complete,
+sealed archives. Each rebuild started with only a copy of the sealed
+manifest and prebuilt code. Both worker counts had access to the same
+two distinct Ryzen 7 5800X cores. After one preflight per worker count,
+five alternating runs measured training, evaluation and checkpoint
+writes, excluding compilation, setup copies and post-run verification.
+Every rebuilt file matched its original by SHA-256 and passed the stock
+verifier. Neither original archive changed.
+
+| Original plan | Checkpoints | One worker median | Two workers median | Maximum sampled group PSS, one / two |
+| --- | ---: | ---: | ---: | ---: |
+| Bridge | 72 | 135.4 ms | 240.5 ms | 85.6 / 142.8 MiB |
+| Storm Reserve | 192 | 29.98 s | 23.27 s | 239.4 / 358.4 MiB |
+
+Two workers were 1.29× as fast on Storm Reserve but took 78% longer on
+Bridge and used more memory on both. These runs used the existing numeric
+worker option, not automatic sharding. They support leaving the default
+unchanged; they do not establish a reliable threshold for selecting a
+worker count.
 
 ## P11.9: ThinLTO not adopted
 
