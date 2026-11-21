@@ -1,0 +1,33 @@
+{
+  "schema": 1,
+  "name": "chess",
+  "games": [
+    {
+      "id": "chess",
+      "domain": "arena",
+      "worldFile": "../worlds/chess.bend",
+      "limit": 80
+    }
+  ],
+  "arms": [
+    {
+      "id": "uniform",
+      "method": "custom",
+      "domain": "arena",
+      "agentFile": "../agents/self_play/agent.bend",
+      "parameters": {"rule": 0}
+    },
+    {
+      "id": "negamax-q",
+      "method": "custom",
+      "domain": "arena",
+      "agentFile": "../agents/self_play/agent.bend",
+      "parameters": {"rule": 1, "alpha": 0.25, "gamma": 1, "epsilon": 0.25}
+    }
+  ],
+  "replicates": 1,
+  "checkpoints": [0, 8, 32],
+  "validationEpisodes": 2,
+  "testEpisodes": 4,
+  "seeds": {"train": 1170000000, "validation": 2370000000, "test": 3470000000, "stride": 10000}
+}

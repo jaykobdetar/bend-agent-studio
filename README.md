@@ -52,7 +52,7 @@ On this CliffWalking run, Dyna-Q reached a mean validation return of −13 by 64
 | --- | --- |
 | [Studio](docs/studio.md) | Visual training, comparisons, recordings, recovery and replay configuration |
 | [Experiments](docs/experiments.md) | First run, manifests, resume, parallel trials, selection and archive compatibility |
-| [Worlds](docs/worlds.md) | JSON and Bend environments, benchmarks, Gymnasium and solver export |
+| [Worlds](docs/worlds.md) | JSON and Bend environments, [chess self-play](docs/worlds.md#chess-self-play), Gymnasium and solver export |
 | [Agents](docs/agents.md) | Custom learner interfaces, episode completion and learner guides |
 | [Analysis](docs/analysis.md) | Paired statistics, oracles, curves, sequential evidence and HTML reports |
 | [Offline learning](docs/offline.md) | Collect, fit, score, behavior support and Minari export |

@@ -83,6 +83,7 @@ is not a full retraining step in hosted CI.
 | `node --test worlds/benchmarks/probes/checks.mjs tools/finite-layout/packed-checks.mjs` | Regenerate authored probes; compare packed/expanded storage, partial episodes and replay. Root Node tests. |
 | `python3 -m unittest checks.test_replicates` | Paired precision planning, exact sign-power checks and export/seed validation. Also run through the root Node suite. |
 | `python3 -m unittest checks.test_multiple_comparisons checks.test_suite_stats` | Multiplicity adjustments, paired bootstrap and statistical CLI behavior. Linux statistical comparisons step. |
+| `node --test checks/chess_checks.mjs studio/chess.test.mjs` | Chess perft counts against published reference positions, draw/mate outcomes, and Studio replay rendering of special moves. Runs in the Node suite. |
 | `node experiment.mjs run experiments/two-pile-nim.json runs/nim`, then `node checks/nim_checks.mjs runs/nim` | Exact independent checks for all nine starting pile pairs. Linux Nim step. |
 | `node experiment.mjs run experiments/self-play.json runs/self-play --until 128`, then `node checks/arena_checks.mjs runs/self-play` | Exact physical-coordinate checks for both tic-tac-toe encodings, plus minimax and self-play update checks. Linux self-play step. |
 | [Each learner’s checks and proof](laws.md#formal-properties) | Run the commands in its README, e.g. `bend agents/sarsa/checks.bend` and `bend agents/sarsa/proof.bend --verdict`. Linux Bend and BendTT steps. |

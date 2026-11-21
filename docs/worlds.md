@@ -7,6 +7,31 @@ Run shell commands from the repository root.
 * **A finite state machine** can be written as JSON. Each state has a unique numeric ID, an optional public observation ID, and a list of legal actions. Each action lists possible destination IDs, positive integer weights, and finite rewards. An empty action list marks a terminal state. Start from `worlds/bridge.json`.
 * **A grid game** uses `S` for start, `G` for goal, `P` for pit, `#` for wall, and `.` for traversable space. A slip replaces the intended direction with a uniform legal direction. Multiple starts are sampled uniformly. See `worlds/detour.json`.
 * **A Bend world** exports `State`, `Observation`, and `world(parameters)`. Its world provides reset, a public view, and a transition. The inventory example keeps opening stock, days left, and costs in the world. Its agent sees just the observation and legal order sizes. See `worlds/inventory.bend` and `experiments/inventory.json`.
+## Chess self-play
+
+[Chess](../worlds/chess.bend) is an alternating two-seat arena. Play starts
+from the standard opening position; Bend generates legal moves, including
+castling, en passant and all four promotions, and rejects moves leaving the
+king in check. A checkmate scores +1 for White or −1 for Black. Stalemate, the
+75-move rule (unless the last move is mate), and common insufficient-material
+positions score zero. Repetition, draw claims and rare blocked dead positions
+are not adjudicated. The sample's 80-ply cap is a **truncation**, not a draw
+verdict.
+
+Choose [the chess plan](../experiments/chess.json) in Studio, or run:
+
+```sh
+node experiment.mjs run experiments/chess.json runs/chess
+node experiment.mjs verify runs/chess
+node studio/server.mjs --run runs/chess
+```
+
+Watch the run's replay from the Chess board. White starts at the bottom;
+the last move is highlighted and labeled in coordinate notation (for example,
+e2e4). The learner sees the side to move, a compact position key and legal
+action IDs, not piece features. The plan exercises uniform and tabular
+negamax self-play, not a strong chess engine or a benchmark of playing strength.
+
 ## Play a finite world in Gymnasium
 
 The optional [Gymnasium adapter](../integrations/gymnasium/README.md) uses the same JSON validator, grid expansion and exact integer sampling buckets as the runner. Supply a positive horizon and an explicit U32 seed to reproduce a Bend episode with the same actions. Gym action indices map to potentially sparse Bend IDs; consult the legal-action IDs in the public info. Natural terminal states win over time-limit truncation. For the exact undiscounted report score, use `info["bend_episode_score"]`, which rounds after each accepted move just as Bend does. Run the adapter's Python unittest suite for the Gym checker, sampling comparison, and optional compiled Bend replay comparison.

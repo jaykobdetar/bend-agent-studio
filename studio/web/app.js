@@ -56,6 +56,7 @@ function choices(select, entries) {
 }
 // Keep visible names friendly while retaining the exact plan path as the value.
 const featuredPlans = new Map([
+  ['chess.json', 'Chess · self-play smoke test'],
   ['apex-kart.json', 'Apex Kart · two time trials'],
   ['locksmith-courier.json', 'Locksmith Courier · route planning'],
   ['switchboard.json', 'Switchboard · memory'],
@@ -111,6 +112,12 @@ function reason(t) {
   if (why === 'Terminal' && t.gridLayout?.renderer === 'apex-kart') return 'Finish line crossed';
   if (why === 'Terminal' && ['cliff', 'mountain_car', 'acrobot'].includes(t.game))
     return 'Goal reached';
+  if (why === 'Terminal' && t.game === 'chess')
+    return t.score === 0
+      ? 'Draw'
+      : t.score > 0
+        ? 'White wins by checkmate'
+        : 'Black wins by checkmate';
   if (why === 'Terminal' && ['tic-tac-toe', 'raw-board'].includes(t.game))
     return t.score === 0 ? 'Draw' : t.score > 0 ? 'X won' : 'O won';
   return why || '—';
@@ -175,7 +182,7 @@ function showTrace(trace, source) {
   pause();
   state.trace = trace;
   state.frame = 0;
-  state.boards = ['tic-tac-toe', 'raw-board'].includes(trace.game) ? boardStates(trace) : [];
+  state.boards = boardStates(trace);
   const totals = cumulativeReturns(trace.frames);
   state.totals = totals;
   const courier = trace.gridLayout?.renderer === 'courier';

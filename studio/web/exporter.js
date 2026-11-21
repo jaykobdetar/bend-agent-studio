@@ -29,7 +29,7 @@ export function timeline(steps, fps) {
   return frames;
 }
 export async function renderGif(trace, speed, onProgress, cancel, canvas) {
-  const boards = ['tic-tac-toe', 'raw-board'].includes(trace.game) ? boardStates(trace) : [];
+  const boards = boardStates(trace);
   const ctx = canvas.getContext('2d', {willReadFrequently: true});
   const frames = timeline(trace.frames.length, tickRate(trace.game) * speed);
   let encoder;

@@ -1,3 +1,4 @@
+import {chessAction, chessBoards, drawChess} from './chess-scene.js';
 import {drawKart, kartActions} from './kart-scene.js';
 const TAU = Math.PI * 2;
 const colors = {
@@ -22,6 +23,7 @@ export const gameName = (id) =>
     'tic-tac-toe': 'Tic-Tac-Toe',
     'raw-board': 'Tic-Tac-Toe',
     takeaway: 'Takeaway',
+    chess: 'Chess',
   })[id] ?? id;
 export const replayChoice = (available, previous) =>
   available.includes(previous) ? previous : (available[0] ?? '');
@@ -43,6 +45,7 @@ export function replaySelection(run, checkpoint, phase, episode) {
 const courierActions = ['Toward key', 'Back toward door', 'Use key', 'Spend bypass'];
 export function actionName(game, id, layout) {
   if (id === undefined) return '—';
+  if (game === 'chess') return chessAction(id);
   if (layout?.renderer === 'apex-kart') return kartActions[id] ?? String(id);
   if (layout?.renderer === 'courier') return courierActions[id] ?? String(id);
   return labels[game]?.[id] ?? (isBoard(game) ? 'Place mark' : String(id));
@@ -63,6 +66,8 @@ function bits(mask, pose) {
   return x;
 }
 export function boardStates(trace) {
+  if (trace.game === 'chess') return chessBoards(trace);
+  if (!isBoard(trace.game)) return [];
   const out = [[0, 0]];
   let x = 0,
     o = 0;
@@ -559,6 +564,7 @@ export function draw(canvas, game, obs, boardState, layout, {kartDashboard = tru
   else if (game === 'cartpole') pole(c, obs);
   else if (game === 'acrobot') acrobot(c, obs);
   else if (game === 'cliff') cliff(c, obs);
+  else if (game === 'chess') drawChess(c, boardState);
   else if (isBoard(game)) board(c, boardState ?? [17, 66]);
   else unknown(c, obs);
   c.restore();

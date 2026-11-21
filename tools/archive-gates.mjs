@@ -517,18 +517,35 @@ try {
         }
       }
       // Plans first published after R10.2 have no historical bytes to restore.
-      const flagshipV2 = 'experiments/flagship-toy-text-v2.json';
-      const current = json(path.join(fixtures, 'r103-flagship-v2-plan.json'));
-      assert.deepEqual(Object.keys(current), [flagshipV2], 'R10.3 inventory must pin only v2');
-      assert(!Object.hasOwn(historical.plans, flagshipV2) && !Object.hasOwn(added, flagshipV2));
-      const expected = [...Object.keys(historical.plans), ...Object.keys(added), flagshipV2].sort();
+      const current = {};
+      for (const [key, file] of [
+        ['experiments/flagship-toy-text-v2.json', 'r103-flagship-v2-plan.json'],
+        ['experiments/chess.json', 'chess-plan.json'],
+      ]) {
+        const snapshot = json(path.join(fixtures, file));
+        assert.deepEqual(Object.keys(snapshot), [key], 'Inventory must pin only ' + key);
+        assert(!Object.hasOwn(historical.plans, key) && !Object.hasOwn(added, key));
+        current[key] = snapshot[key];
+      }
+      const expected = [
+        ...Object.keys(historical.plans),
+        ...Object.keys(added),
+        ...Object.keys(current),
+      ].sort();
       assert.deepEqual(Object.keys(report.plans), expected, 'training plan inventory changed');
-      const {[flagshipV2]: v2, ...priorPlans} = report.plans;
-      assert.deepEqual(
-        {...v2, sources: sortMap(Object.entries({...report.commonSources, ...v2.sources}))},
-        current[flagshipV2],
-        flagshipV2 + ' post-R10.2 G2/G3 archive identity changed',
-      );
+      const priorPlans = {...report.plans};
+      for (const [key, entry] of Object.entries(current)) {
+        const actual = priorPlans[key];
+        assert.deepEqual(
+          {
+            ...actual,
+            sources: sortMap(Object.entries({...report.commonSources, ...actual.sources})),
+          },
+          entry,
+          key + ' post-R10.2 G2/G3 archive identity changed',
+        );
+        delete priorPlans[key];
+      }
       const original = undoR102Sources({...report, plans: priorPlans}, loadR102());
       for (const [key, entry] of Object.entries(added)) {
         const actual = original.plans[key];
